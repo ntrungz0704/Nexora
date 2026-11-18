@@ -1,0 +1,14 @@
+TechPilot/
+audit-output/
+.git/
+node_modules/
+**/node_modules/
+**/dist/
+**/build/
+.env
+.env.*
+!.env.example
+coverage/
+playwright-report/
+test-results/
+*.log

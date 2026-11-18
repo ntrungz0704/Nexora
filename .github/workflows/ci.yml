@@ -1,0 +1,102 @@
+name: Nexora CI
+
+on:
+  push:
+    branches: [main, trung, hieu, kim, dinh, phuc]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality-and-build:
+    name: Typecheck, Lint, Format, Unit Tests & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Typecheck all workspaces
+        run: npm run typecheck
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npm run format:check
+
+      - name: Run Vitest unit & contract suite
+        run: npm run test
+
+      - name: Build production bundles
+        run: npm run build
+
+  mysql-integration:
+    name: MySQL 8.4 Migration, Seed & Supertest Integration
+    runs-on: ubuntu-latest
+    needs: quality-and-build
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci_ephemeral_root_pw
+          MYSQL_DATABASE: nexora
+          MYSQL_USER: nexora
+          MYSQL_PASSWORD: ci_ephemeral_user_pw
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci_ephemeral_root_pw --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      NODE_ENV: test
+      API_PORT: '3000'
+      DATABASE_URL: mysql://nexora:ci_ephemeral_user_pw@127.0.0.1:3306/nexora
+      AUTH_SECRET: ci-ephemeral-secret-key-minimum-32-characters-long
+      CLIENT_URL: http://localhost:5173
+      SERVER_URL: http://localhost:3000
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared workspace packages & generate Prisma Client
+        run: npm run build:packages && npm run db:generate
+
+      - name: Wait for MySQL 8.4 readiness
+        run: |
+          for i in {1..30}; do
+            node -e "const net=require('net');const s=net.connect(3306,'127.0.0.1',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));" && break
+            sleep 2
+          done
+
+      - name: Deploy Prisma migrations & run synthetic seed
+        run: |
+          npm run db:deploy
+          npm run db:seed
+
+      - name: Run API + MySQL + Prisma Supertest integration tests
+        run: npm run test:integration -w @nexora/api

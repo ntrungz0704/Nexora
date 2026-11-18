@@ -1,0 +1,31 @@
+{
+  "name": "@nexora/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test:integration": "vitest run tests/db.integration.test.ts"
+  },
+  "dependencies": {
+    "@nexora/config": "*",
+    "@nexora/shared": "*",
+    "@prisma/client": "6.19.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.5.0",
+    "express": "^5.3.0",
+    "helmet": "^8.1.0",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/supertest": "^7.2.1",
+    "@types/swagger-ui-express": "^4.1.8",
+    "supertest": "^7.3.2"
+  }
+}

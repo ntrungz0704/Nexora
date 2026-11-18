@@ -1,0 +1,20 @@
+# Nexora CODEOWNERS
+# Only verified GitHub usernames may be listed here.
+# Verified repository creator account (via gh CLI): @ntrungz0704
+#
+# TODO: Replace placeholder notes with verified @github-handles for team branch owners:
+#   - trung (@ntrungz0704 - verified; confirm whether co-owners apply)
+#   - hieu  (TODO: verified GitHub handle needed)
+#   - kim   (TODO: verified GitHub handle needed)
+#   - dinh  (TODO: verified GitHub handle needed)
+#   - phuc  (TODO: verified GitHub handle needed)
+
+# Default governance & repository root oversight
+* @ntrungz0704
+
+# Governance, CI, and Prisma schema changes require lead review
+/AGENTS.md @ntrungz0704
+/docs/governance/ @ntrungz0704
+/docs/standards/ @ntrungz0704
+/.github/ @ntrungz0704
+/prisma/ @ntrungz0704

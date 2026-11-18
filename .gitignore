@@ -1,0 +1,40 @@
+# Explicitly isolate preserved legacy reference directories (NEVER commit)
+/TechPilot/
+/audit-output/
+
+# Dependencies
+node_modules/
+
+# Environment variables (only .env.example is committed)
+.env
+.env.*
+!.env.example
+
+# Build & compilation outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Logs & runtime artifacts
+logs/
+*.log
+npm-debug.log*
+.cache/
+
+# Test & coverage outputs
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Local uploads & runtime media
+uploads/
+storage/
+tmp/
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+*.swp
+*.swo
