@@ -10,8 +10,8 @@
 
 - **Project Name:** **Nexora** (rebuilt from legacy PHP reference `TechPilot`, keeping clean architecture & independent Git history).
 - **Business Model:** **Single-Vendor E-Commerce & Store Management System** for **ONE store only** specializing in technology hardware (desktops, laptops, PC components, accessories, peripherals).
-- **User Roles:** `Guest` (unauthenticated visitor), `Customer` (buyer), `Seller` (internal store operations staff), `Admin` (system administrator).
-- **Explicit Boundary (`MUST NOT`):** Nexora is **NOT a Marketplace**. Agents **MUST NOT** design or build multi-vendor stores, external seller registration, seller commissions, seller payouts, marketplace settlement, or multi-store order splitting.
+- **User Roles:** `Guest` (unauthenticated visitor), `Customer` (buyer), `Staff` (internal store operations staff), `Admin` (system administrator).
+- **Explicit Boundary (`MUST NOT`):** Nexora is **NOT a Marketplace**. Agents **MUST NOT** design or build multi-vendor stores, external seller registration, seller commissions, seller payouts, marketplace settlement, or multi-store order splitting. `SellerMargin` is the name of the store financial and profitability analytics module, NOT a user role.
 
 ---
 
@@ -50,6 +50,7 @@ Do not improvise rules. Always consult the specialized standard before editing t
 3. **MUST NOT** expand product scope into a multi-vendor Marketplace or implement unrequested modules outside the active task/phase.
 4. **MUST NOT** fabricate ERD tables, test results, commit hashes, GitHub states, or bypass security/database constraints.
 5. **MUST NOT** commit `.env`, API keys, VNPay secrets, plaintext passwords, or real PII.
+6. **MUST NOT** commit Git messages in languages other than **tiếng Việt không dấu** (quy chuẩn bắt buộc: toàn bộ Git commit messages phải viết bằng tiếng Việt không dấu theo chuẩn Conventional Commits).
 
 ---
 

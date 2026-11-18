@@ -22,7 +22,8 @@
 3. **Plan Affected Files & Risks Explicitly:** State schema, migration, API, security, and cross-module coupling risks before modifying code.
 4. **Implement Cleanly Within Module Boundaries:** Put business rules in `apps/api/src/modules/*/service`, persistence in repositories/Prisma, validation in Zod schemas, and UI state in React features (`apps/web/src/features/*`).
 5. **Verify Empirically:** Run targeted `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`, and Prisma/Docker checks where relevant. Never claim `PASS` from code inspection alone.
-6. **Sync Documentation:** Update `docs/architecture/`, `docs/database/`, `docs/api/`, or `CHANGELOG.md` whenever routes, schema, or architecture contracts change.
+6. **Git Commit Language Rule:** All commit messages MUST be in **tiếng Việt không dấu** (e.g. `feat(auth): khoi tao dang nhap`, `fix(db): sua migration role staff`).
+7. **Sync Documentation:** Update `docs/architecture/`, `docs/database/`, `docs/api/`, or `CHANGELOG.md` whenever routes, schema, or architecture contracts change.
 
 ---
 

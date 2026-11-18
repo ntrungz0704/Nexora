@@ -24,7 +24,7 @@ Nexora supersedes experimental legacy project `TechPilot` (`https://github.com/n
 - **Official Roles:**
   1. **Guest:** Unauthenticated storefront browser (catalog search, filters, comparison, PC builder, guest cart).
   2. **Customer:** Authenticated buyer (checkout, COD/VNPay payments, order tracking, reorder, returns/warranty, reviews, wishlist).
-  3. **Seller:** Internal store operations staff (catalog/SKU, inventory, purchasing/PO, goods receipts, order processing, RMA, SellerMargin financial reporting).
+  3. **Staff:** Internal store operations staff (catalog/SKU, inventory, purchasing/PO, goods receipts, order processing, RMA, SellerMargin financial reporting).
   4. **Admin:** System & security administrator (user/RBAC management, system configuration, AI config, audit logs, oversight).
 - **Prohibited Model (`MUST NOT`):** Nexora is **NOT a multi-vendor marketplace**. External seller registration, independent storefronts, commissions, seller payouts, and split-store orders are permanently excluded unless chartered under a future separate product.
 

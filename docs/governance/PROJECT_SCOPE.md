@@ -21,7 +21,7 @@
 ## 2. Planned Product Scope (24 Business Modules Across Future Build Phases)
 
 1. **Commerce Core (Customer-Facing):** Storefront Home, Catalog, Categories & Brands, Variants/SKUs, Spec Tables, Search/Facet Filtering, Product Compare, PC Builder, Cart, Checkout, COD & VNPay, Order Tracking, Reorder (checking current SKU/stock/price without cloning stale orders), Reviews, Wishlist, Profile/Addresses, Returns/Warranty, Notifications, AI Advisor.
-2. **Store Operations (Internal Seller & Admin):** Product & SKU Management, Inventory & Stock Ledger, Suppliers & Purchase Orders, Goods Receipts, Cost History & COGS, Order Processing, Shipping Dispatch, Promotions & Coupons, Customer Management, Returns/RMA Settlement, Seller Dashboard, Banner/Content/Review Moderation, Admin User & RBAC Management, Audit Logs, System Settings.
+2. **Store Operations (Internal Staff & Admin):** Product & SKU Management, Inventory & Stock Ledger, Suppliers & Purchase Orders, Goods Receipts, Cost History & COGS, Order Processing, Shipping Dispatch, Promotions & Coupons, Customer Management, Returns/RMA Settlement, Staff Dashboard, Banner/Content/Review Moderation, Admin User & RBAC Management, Audit Logs, System Settings.
 3. **Financial Intelligence (SellerMargin):** Gross Sales, Discounts, Net Sales, COGS, Shipping Cost Variance, Payment Gateway Fees, Packaging Costs, Order Contribution Profit, Operating Expenses, Period Net Profit (backed by immutable snapshots & cost layers).
 
 ---
@@ -31,7 +31,7 @@
 1. **Marketplace & Multi-Vendor Features (`PERMANENTLY EXCLUDED`):**
    - **MUST NOT** implement external seller onboarding/registration, seller KYC, or multi-storefront tenancy (`vendor_id` / independent seller stores).
    - **MUST NOT** implement marketplace commission rates, seller wallets/payouts, settlement batches, or multi-vendor order splitting.
-   - `Seller` in Nexora is strictly an **internal store employee role**.
+   - **MUST NOT** implement any `Seller` role (internal store employee role is strictly `Staff`). `SellerMargin` is solely the financial profitability analytics module, not a role.
 2. **Prohibited Legacy / Unapproved Artifacts (`MUST NOT` Port):**
    - **MUST NOT** port TechPilot fake fallback data (`getSampleProducts()`, fake `100000` cart items) or UI-only dead forms (`newsletter onsubmit="return false;"`).
    - **MUST NOT** add microservices, message brokers, MongoDB, PHP, Laravel, NestJS, Next.js, or Angular.

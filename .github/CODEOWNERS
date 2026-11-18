@@ -1,20 +1,23 @@
 # Nexora CODEOWNERS
-# Only verified GitHub usernames may be listed here.
-# Verified repository creator account (via gh CLI): @ntrungz0704
+# Danh sach quan tri va so huu ma nguon theo quy che du an Nexora
 #
-# TODO: Replace placeholder notes with verified @github-handles for team branch owners:
-#   - trung (@ntrungz0704 - verified; confirm whether co-owners apply)
-#   - hieu  (TODO: verified GitHub handle needed)
-#   - kim   (TODO: verified GitHub handle needed)
-#   - dinh  (TODO: verified GitHub handle needed)
-#   - phuc  (TODO: verified GitHub handle needed)
+# Ban phu trach du an & Truong nhom:
+# - Nguyen Pham Thanh Trung (PS47261) - ntrungz0704@gmail.com - @ntrungz0704
+#
+# Thanh vien phu trach theo nhanh (Branch Owners):
+# - Nhanh trung: @ntrungz0704 (Nguyen Pham Thanh Trung - PS47261)
+# - Nhanh hieu:  @hieungrx (Nguyen Minh Hieu - PS47378 - Minhhieu3901@gmail.com)
+# - Nhanh dinh:  tranngocxuandinh2004@gmail.com (Tran Ngoc Xuan Dinh - PS47346 - dang cho xac nhan username GitHub)
+# - Nhanh kim:   bantienkim204@gmail.com (Ban Tien Kim - PS47376 - dang cho xac nhan username GitHub)
+# - Nhanh phuc:  @lephuc34tanlap-dev (Le Bui Hong Phuc - PS47318 - lephuc34tanlap@gmail.com)
 
-# Default governance & repository root oversight
+# Mac dinh toan bo repository
 * @ntrungz0704
 
-# Governance, CI, and Prisma schema changes require lead review
+# Cac thu muc quan tri, quy tac va cau hinh he thong
 /AGENTS.md @ntrungz0704
-/docs/governance/ @ntrungz0704
-/docs/standards/ @ntrungz0704
+/GEMINI.md @ntrungz0704
+/README.md @ntrungz0704
+/docs/ @ntrungz0704
 /.github/ @ntrungz0704
 /prisma/ @ntrungz0704

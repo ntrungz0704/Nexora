@@ -21,16 +21,16 @@ async function main(): Promise<void> {
   });
 
   await prisma.user.upsert({
-    where: { email: 'seller.demo@nexora.test' },
+    where: { email: 'staff.demo@nexora.test' },
     update: {
-      fullName: 'Nexora Demo Seller',
-      role: UserRole.SELLER,
+      fullName: 'Nexora Demo Staff',
+      role: UserRole.STAFF,
       status: UserStatus.ACTIVE,
     },
     create: {
-      email: 'seller.demo@nexora.test',
-      fullName: 'Nexora Demo Seller',
-      role: UserRole.SELLER,
+      email: 'staff.demo@nexora.test',
+      fullName: 'Nexora Demo Staff',
+      role: UserRole.STAFF,
       status: UserStatus.ACTIVE,
     },
   });

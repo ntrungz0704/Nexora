@@ -22,7 +22,7 @@ export const EnvSchema = z.object({
     }),
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
   SERVER_URL: z.string().url().default('http://localhost:3000'),
-  CORS_ALLOWED_ORIGINS: z.string().default('http://localhost:5173'),
+  CORS_ALLOWED_ORIGINS: z.string().default('http://localhost:5173,http://127.0.0.1:5173'),
 });
 
 export type AppEnv = z.infer<typeof EnvSchema> & {

@@ -7,13 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Foundation Phase 1 baseline models only.
+// Foundation Phase 3 baseline models only.
 // Business domain entities (Catalog, Orders, Purchasing, Costing, SellerMargin)
 // remain DRAFT / NOT YET DESIGNED until Phase-specific ADRs & ERDs are approved.
 
 enum UserRole {
   CUSTOMER
-  SELLER
+  STAFF
   ADMIN
 }
 

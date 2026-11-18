@@ -2,11 +2,14 @@ import {
   NEXORA_APP_NAME,
   NEXORA_BUSINESS_MODEL,
   NEXORA_ROLES,
+  NEXORA_SLOGAN,
   type NexoraRole,
 } from '@nexora/config';
 import { z } from 'zod';
 
-export { NEXORA_APP_NAME, NEXORA_BUSINESS_MODEL, NEXORA_ROLES, type NexoraRole };
+export { NEXORA_APP_NAME, NEXORA_BUSINESS_MODEL, NEXORA_ROLES, NEXORA_SLOGAN, type NexoraRole };
+
+export const UserRoleSchema = z.enum(NEXORA_ROLES);
 
 export const HealthStatusSchema = z.object({
   status: z.enum(['ok', 'degraded']),

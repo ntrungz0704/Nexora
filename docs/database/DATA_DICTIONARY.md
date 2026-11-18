@@ -8,15 +8,15 @@
 
 ## 1. `users` (Foundation Baseline Table)
 
-| Column       | MySQL Type                          | Nullable | Default                | Constraints / Indexes  | Purpose                                              |
-| ------------ | ----------------------------------- | -------- | ---------------------- | ---------------------- | ---------------------------------------------------- |
-| `id`         | `INT UNSIGNED`                      | No       | `AUTO_INCREMENT`       | `PRIMARY KEY`          | Internal numeric user identifier                     |
-| `email`      | `VARCHAR(150)`                      | No       | —                      | `UNIQUE KEY`           | Login / identity email address                       |
-| `full_name`  | `VARCHAR(150)`                      | No       | —                      | —                      | Display name                                         |
-| `role`       | `ENUM('CUSTOMER','SELLER','ADMIN')` | No       | `'CUSTOMER'`           | `INDEX (role, status)` | Single-vendor RBAC role (`Guest` is unauthenticated) |
-| `status`     | `ENUM('ACTIVE','INACTIVE')`         | No       | `'ACTIVE'`             | `INDEX (role, status)` | Account lock / lifecycle state                       |
-| `created_at` | `DATETIME(3)`                       | No       | `CURRENT_TIMESTAMP(3)` | —                      | Creation timestamp                                   |
-| `updated_at` | `DATETIME(3)`                       | No       | `ON UPDATE`            | —                      | Last update timestamp                                |
+| Column       | MySQL Type                         | Nullable | Default                | Constraints / Indexes  | Purpose                                                |
+| ------------ | ---------------------------------- | -------- | ---------------------- | ---------------------- | ------------------------------------------------------ |
+| `id`         | `INT UNSIGNED`                     | No       | `AUTO_INCREMENT`       | `PRIMARY KEY`          | Internal numeric user identifier                       |
+| `email`      | `VARCHAR(150)`                     | No       | —                      | `UNIQUE KEY`           | Login / identity email address                         |
+| `full_name`  | `VARCHAR(150)`                     | No       | —                      | —                      | Display name                                           |
+| `role`       | `ENUM('CUSTOMER','STAFF','ADMIN')` | No       | `'CUSTOMER'`           | `INDEX (role, status)` | Single-vendor RBAC role (`CUSTOMER`, `STAFF`, `ADMIN`) |
+| `status`     | `ENUM('ACTIVE','INACTIVE')`        | No       | `'ACTIVE'`             | `INDEX (role, status)` | Account lock / lifecycle state                         |
+| `created_at` | `DATETIME(3)`                      | No       | `CURRENT_TIMESTAMP(3)` | —                      | Creation timestamp                                     |
+| `updated_at` | `DATETIME(3)`                      | No       | `ON UPDATE`            | —                      | Last update timestamp                                  |
 
 _(Authentication credentials, reset tokens, and customer addresses will be added via migration when Identity & Auth module enters active design.)_
 

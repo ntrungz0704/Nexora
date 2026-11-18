@@ -19,7 +19,7 @@ describe('FoundationDashboard', () => {
     vi.spyOn(systemService, 'fetchSystemMeta').mockResolvedValue({
       name: 'Nexora',
       businessModel: 'single-vendor',
-      roles: ['GUEST', 'CUSTOMER', 'SELLER', 'ADMIN'],
+      roles: ['CUSTOMER', 'STAFF', 'ADMIN'],
       storeSettingsCount: 3,
       usersCount: 3,
     });

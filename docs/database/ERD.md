@@ -18,7 +18,7 @@ erDiagram
         int_unsigned id PK
         varchar_150 email UK
         varchar_150 full_name
-        enum role "CUSTOMER | SELLER | ADMIN"
+        enum role "CUSTOMER | STAFF | ADMIN"
         enum status "ACTIVE | INACTIVE"
         datetime created_at
         datetime updated_at

@@ -1,21 +1,25 @@
-# Project Roadmap — Nexora
+# Lộ trình Phát triển Dự án Nexora (Project Roadmap)
 
-- **Status:** `Approved`
-- **Last Updated:** `2026-11-18`
-- **Scope:** Phased implementation plan from Foundation through Graduation Thesis Delivery.
+- **Trạng thái:** `Phê duyệt chính thức (Approved)`
+- **Cập nhật lần cuối:** `2026-11-19`
+- **Mô hình nghiệp vụ:** `Single-Vendor E-Commerce` (Cửa hàng đơn lẻ; vai trò: `CUSTOMER`, `STAFF`, `ADMIN`)
 
 ---
 
-## Phase Overview
+## 1. Lộ trình 13 Giai đoạn (Standardized 13-Phase Roadmap)
 
-| Phase       | Milestone Name                            | Scope Summary                                                                                                                                                                       | Status               |
-| ----------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
-| **Phase 0** | Safe Migration Preparation                | Environment verification, TechPilot read-only audit reconciliation, reuse inventory                                                                                                 | `Completed / Active` |
-| **Phase 1** | Nexora Foundation & Governance            | Monorepo (`web`, `api`, `shared`, `config`, `prisma/`), Docker MySQL 8.4, minimal Prisma foundation, ESLint/Prettier/Vitest/Supertest/Playwright, full Governance & Standards docs  | `In Progress`        |
-| **Phase 2** | GitHub Foundation                         | Fresh orphan Git init, `.gitignore`, Private GitHub repo `Nexora`, exact 6 branches (`main`, `trung`, `hieu`, `kim`, `dinh`, `phuc`) from initial commit                            | `In Progress`        |
-| **Phase 3** | Identity, RBAC & Core Auth _(Next Phase)_ | ERD/ADR approval, Argon2id/bcrypt auth, Customer/Seller/Admin RBAC middleware, hashed session/reset tokens, SMTP Mailpit mailer, profile & 4-tier address CRUD                      | `Planned`            |
-| **Phase 4** | Hardware Catalog, SKUs & Specs            | Categories (fixed tree), Brands + ported SVGs, Products + Variants/SKUs, TS port of TechPilot 20-cat spec schemas & facet filters                                                   | `Planned`            |
-| **Phase 5** | Purchasing, Suppliers & Inventory Ledger  | Suppliers, Purchase Orders, Goods Receipts (GRN), FIFO/MWAC Cost Layers (`DEC-007`), traceable non-negative stock ledger                                                            | `Planned`            |
-| **Phase 6** | Cart, Promotions, Checkout & Payments     | DB/Guest Cart, fixed Coupon Engine (`fixed`, `percent`, `free_shipping`), Flash Sale atomic reservations, Reorder validation, COD + VNPay Gateway + Signed IPN + Transaction Ledger | `Planned`            |
-| **Phase 7** | Fulfillment, RMA & SellerMargin Analytics | Order workflow, Shipments + actual carrier cost, Customer/Seller RMA + refunds/restock, Expenses, SellerMargin P&L reports (Order/SKU/Period)                                       | `Planned`            |
-| **Phase 8** | Differentiators & Thesis Hardening        | TS port of PC Builder compatibility + Persona Compare + SSRF-safe AI Advisor, Playwright E2E regression suite, thesis defense packaging                                             | `Planned`            |
+| Giai đoạn    | Tên Phase chính thức                  | Phạm vi thực hiện                                                                                                                                                      | Trạng thái    |
+| :----------- | :------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------ |
+| **Phase 0**  | **Discovery & Safe Migration**        | Khảo sát 13 báo cáo audit TechPilot, bảo vệ source cũ, kiểm kê tài nguyên tái sử dụng, thiết lập ma trận chuyển đổi.                                                   | `COMPLETED`   |
+| **Phase 1**  | **Product Requirements & Governance** | Xây dựng Project Charter, Project Scope, 10 bộ quy chuẩn kỹ thuật, quy tắc AI Agent, tiêu chí Definition of Done.                                                      | `COMPLETED`   |
+| **Phase 2**  | **Architecture & Database Design**    | Thiết kế Modular Monolith, phân chia ranh giới module, thiết kế ERD, Data Dictionary, ADR-0001, ADR-0002.                                                              | `COMPLETED`   |
+| **Phase 3**  | **Foundation & DevOps**               | Monorepo (React 19, Express, MySQL 8.4, Prisma), Docker, CI/CD, repository GitHub Public, 6 nhánh chính thức, chuẩn hóa role `STAFF`, kiểm thử tự động Playwright E2E. | `COMPLETED`   |
+| **Phase 4**  | **Identity & RBAC**                   | Đăng ký, đăng nhập, phân quyền 3 vai trò `ADMIN`, `STAFF`, `CUSTOMER`, hồ sơ cá nhân, sổ địa chỉ, token bảo mật Argon2id/bcrypt.                                       | `IN PROGRESS` |
+| **Phase 5**  | **Catalog & Product**                 | Danh mục, thương hiệu, sản phẩm, biến thể SKU, thông số kỹ thuật phần cứng, quản lý hình ảnh, tìm kiếm và bộ lọc đa tiêu chí.                                          | `PLANNED`     |
+| **Phase 6**  | **Commerce**                          | Danh sách yêu thích (Wishlist), giỏ hàng, mã giảm giá (Coupons), quy trình đặt hàng (Checkout), luồng mua lại (Reorder) an toàn.                                       | `PLANNED`     |
+| **Phase 7**  | **Payment**                           | Tích hợp cổng thanh toán trực tuyến VNPay Sandbox, kiểm tra chữ ký HMAC-SHA512, xác thực IPN với Idempotency, đối soát giao dịch.                                      | `PLANNED`     |
+| **Phase 8**  | **Inventory & Procurement**           | Quản lý kho, sổ cái xuất nhập tồn, nhà cung cấp, đơn đặt hàng mua (PO), phiếu nhập kho (Goods Receipt), lịch sử giá vốn.                                               | `PLANNED`     |
+| **Phase 9**  | **Customer Service**                  | Đánh giá sản phẩm đã mua, quy trình yêu cầu đổi trả bảo hành (RMA), gửi email thông báo giao dịch tự động.                                                             | `PLANNED`     |
+| **Phase 10** | **Staff & Admin Operations**          | Bảng điều khiển Staff, Admin Dashboard, phân quyền chi tiết cho nhân viên, quản lý tài khoản người dùng, nhật ký kiểm toán.                                            | `PLANNED`     |
+| **Phase 11** | **SellerMargin & Analytics**          | Tính toán và báo cáo doanh thu thuần (Net Sales), giá vốn (COGS), chi phí vận hành (Opex), lợi nhuận gộp/ròng theo sản phẩm, SKU và kỳ.                                | `PLANNED`     |
+| **Phase 12** | **Full QA & Production Readiness**    | Bộ kiểm thử tự động toàn diện (Unit, Integration, E2E), rà soát an ninh mạng, đóng gói Docker hoàn chỉnh, nghiệm thu bảo vệ đồ án tốt nghiệp.                          | `PLANNED`     |
