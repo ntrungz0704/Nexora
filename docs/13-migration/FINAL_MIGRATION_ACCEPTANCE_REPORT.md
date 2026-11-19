@@ -22,10 +22,11 @@
    - Danh mục sản phẩm nổi bật chia tab kèm hình ảnh phần cứng độ phân giải cao sắc nét.
 
 2. **Khắc phục triệt để các lỗi người dùng phản hồi:**
+   - **Lỗi đè nội dung (Overlap Hero & Features Bar):** Khắc phục triệt để lỗi Sidebar/Carousel đè lên thanh Service Policy Bar bằng cách tăng chiều cao container, bỏ quy tắc cưỡng ép `height: 480px` tại màn hình nhỏ, và thêm lớp định vị `clear: both; position: relative; margin-top: 20px;`.
+   - **Lỗi thiếu trang riêng:** Triển khai đầy đủ 20 trang chức năng độc lập (`/wishlist`, `/cart`, `/checkout`, `/checkout/success`, `/build-pc`, `/compare`, `/ai-assistant`, `/trade-in`, `/post`, `/posts`, `/post/:slug`, `/order-tracking`, `/stores`, `/profile`, `/search`, `/product/detail/:slug`, `/login`, `/register`, `/forgot-password`, `/admin`), không còn tình trạng fallback về trang chủ hoặc hiện popup modal nhầm lẫn.
    - **Lỗi ảnh mờ:** Đã thay thế toàn bộ icon/placeholder độ phân giải thấp bằng ảnh chụp thực tế sắc nét (chuột gaming, bàn phím cơ, màn hình OLED, card màn hình RTX, vi xử lý Intel i9...).
    - **Lỗi lệch khung Hero & Header:** Đã đưa thanh topbar ra ngoài khối sticky header stack, đảm bảo khi cuộn trang header dính cố định mượt mà, không đè lấp nội dung carousel.
    - **Lỗi Auth Modal nền tối:** Đã thiết kế lại hoàn chỉnh thành modal thẻ trắng `.auth-card` chuẩn TechPilot với đầy đủ tính năng chuyển đổi Đăng nhập / Đăng ký, đăng nhập nhanh với Google và tài khoản mẫu (Customer, Staff, Admin).
-   - **Trang Auth độc lập:** Bổ sung 2 route độc lập `/auth/login` và `/auth/register`.
 
 ---
 
