@@ -3,11 +3,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
-import { CartDrawer } from '../storefront/CartDrawer';
-import { AuthModal } from '../storefront/AuthModal';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
+import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser, OrderDto } from '@nexora/shared';
 
 export const ProfilePage: React.FC = () => {
@@ -23,8 +22,6 @@ export const ProfilePage: React.FC = () => {
 
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'addresses' | 'password'>(getTabFromPath);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleTabChange = (tabId: 'profile' | 'orders' | 'addresses' | 'password') => {
@@ -68,6 +65,12 @@ export const ProfilePage: React.FC = () => {
   const { data: cart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => cartService.getCart(),
+  });
+
+  const { data: wishlistCount = 0 } = useQuery({
+    queryKey: ['wishlist-count'],
+    queryFn: () => wishlistService.getWishlistCount(),
+    enabled: !!currentUser,
   });
 
   const handleUpdateProfile = (e: React.FormEvent) => {
@@ -114,10 +117,8 @@ export const ProfilePage: React.FC = () => {
       <StorefrontHeader
         categories={categories}
         cartCount={cart?.totalItems || 0}
-        wishlistCount={1}
+        wishlistCount={currentUser ? wishlistCount : 0}
         currentUser={currentUser}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
         onLogout={handleLogout}
       />
 
@@ -356,21 +357,22 @@ export const ProfilePage: React.FC = () => {
                   ) : (
                     <div style={{ padding: '30px', textAlign: 'center', color: '#64748B' }}>
                       <p>Bạn chưa có đơn hàng nào hoặc chưa đăng nhập.</p>
-                      <button
-                        onClick={() => setIsAuthOpen(true)}
+                      <Link
+                        to="/auth/login"
                         style={{
+                          display: 'inline-block',
                           marginTop: '10px',
                           padding: '8px 16px',
                           backgroundColor: '#0A5BFF',
                           color: '#fff',
-                          border: 'none',
+                          textDecoration: 'none',
                           borderRadius: '8px',
                           fontWeight: 700,
                           cursor: 'pointer',
                         }}
                       >
                         Đăng nhập tài khoản
-                      </button>
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -460,20 +462,6 @@ export const ProfilePage: React.FC = () => {
       </main>
 
       <StorefrontFooter />
-
-      <CartDrawer
-        isOpen={isCartOpen}
-        cart={cart || null}
-        onClose={() => setIsCartOpen(false)}
-        onUpdateQuantity={(id, qty) => cartService.updateItem(id, qty)}
-        onRemoveItem={(id) => cartService.removeItem(id)}
-      />
-
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={(user) => setCurrentUser(user)}
-      />
     </div>
   );
 };

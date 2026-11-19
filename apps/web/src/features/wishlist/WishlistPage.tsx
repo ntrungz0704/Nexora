@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
 import { ProductCard } from '../storefront/ProductCard';
-import { CartDrawer } from '../storefront/CartDrawer';
-import { AuthModal } from '../storefront/AuthModal';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
+import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser, ProductDto } from '@nexora/shared';
 
 export const WishlistPage: React.FC = () => {
@@ -16,64 +15,68 @@ export const WishlistPage: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
     authService.getCurrentUser(),
   );
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // Local storage favorites IDs
-  const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem('techpilot-wishlist');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  // Fetch Categories for Header
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: () => storefrontService.getCategories(),
   });
 
-  const { data: productsData } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => storefrontService.getProducts({ limit: 50 }),
-  });
-  const allProducts = productsData?.products || [];
-
-  // Default to showing first 3 products if empty for demo fidelity, or actual wishlist
-  const wishlistProducts = allProducts.filter((p) => wishlistIds.includes(String(p.id)));
-  // If wishlist is empty initially, seed with first 2 products for rich UI
-  const displayProducts =
-    wishlistProducts.length > 0 ? wishlistProducts : allProducts.slice(0, 3);
-
+  // Fetch Cart for Header count
   const { data: cart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => cartService.getCart(),
   });
 
+  // Fetch Real User Wishlist from API / MySQL Database
+  const { data: wishlistEntries = [], isLoading } = useQuery({
+    queryKey: ['wishlist'],
+    queryFn: () => wishlistService.getWishlist(),
+    enabled: !!currentUser,
+  });
+
+  const wishlistProducts = wishlistEntries.map((entry) => entry.product);
+
+  // Add to Cart Mutation
   const addToCartMutation = useMutation({
     mutationFn: (product: ProductDto) => cartService.addItem(product.id, 1),
     onSuccess: (_, product) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       showToast(`Đã thêm "${product.name}" vào giỏ hàng thành công!`);
     },
+    onError: () => {
+      showToast('Không thể thêm sản phẩm vào giỏ hàng.');
+    },
   });
 
-  const handleToggleWishlist = (productId: string | number) => {
-    const idStr = String(productId);
-    const updated = wishlistIds.includes(idStr)
-      ? wishlistIds.filter((id) => id !== idStr)
-      : [...wishlistIds, idStr];
-    setWishlistIds(updated);
-    localStorage.setItem('techpilot-wishlist', JSON.stringify(updated));
-    showToast('Đã cập nhật danh sách yêu thích.');
+  // Remove from Wishlist Mutation
+  const removeWishlistMutation = useMutation({
+    mutationFn: (productId: number | string) => wishlistService.removeFromWishlist(productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+      queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
+      showToast('Đã xóa sản phẩm khỏi danh sách yêu thích.');
+    },
+    onError: () => {
+      showToast('Lỗi khi cập nhật danh sách yêu thích.');
+    },
+  });
+
+  const handleLogout = () => {
+    authService.logout();
+    setCurrentUser(null);
   };
+
+  // 1. Requirement Parity with TechPilot: Guest user MUST NOT access Wishlist
+  if (!currentUser) {
+    return <Navigate to="/auth/login?redirect=/wishlist" replace />;
+  }
 
   return (
     <div className="home-page-wrapper">
@@ -102,17 +105,13 @@ export const WishlistPage: React.FC = () => {
         </div>
       )}
 
+      {/* Main Storefront Header */}
       <StorefrontHeader
         categories={categories}
         cartCount={cart?.totalItems || 0}
-        wishlistCount={displayProducts.length}
+        wishlistCount={wishlistProducts.length}
         currentUser={currentUser}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
-        onLogout={() => {
-          authService.logout();
-          setCurrentUser(null);
-        }}
+        onLogout={handleLogout}
       />
 
       <main style={{ minHeight: '600px', paddingBottom: '60px' }}>
@@ -137,7 +136,7 @@ export const WishlistPage: React.FC = () => {
           </nav>
         </div>
 
-        {/* Wishlist Content */}
+        {/* Wishlist Content Section */}
         <section className="container">
           <div
             style={{
@@ -175,7 +174,7 @@ export const WishlistPage: React.FC = () => {
                   Sản phẩm yêu thích
                 </h1>
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>
-                  Quản lý và lưu lại các sản phẩm bạn đang quan tâm ({displayProducts.length} sản phẩm)
+                  Quản lý và lưu lại các sản phẩm bạn đang quan tâm ({wishlistProducts.length} sản phẩm)
                 </p>
               </div>
             </div>
@@ -200,7 +199,14 @@ export const WishlistPage: React.FC = () => {
             </Link>
           </div>
 
-          {displayProducts.length > 0 ? (
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+              <i className="fa-solid fa-circle-notch fa-spin" style={{ fontSize: '32px', color: '#0A5BFF' }}></i>
+              <p style={{ marginTop: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+                Đang tải danh sách yêu thích...
+              </p>
+            </div>
+          ) : wishlistProducts.length > 0 ? (
             <div
               className="products-grid"
               style={{
@@ -209,12 +215,13 @@ export const WishlistPage: React.FC = () => {
                 gap: '16px',
               }}
             >
-              {displayProducts.map((p) => (
+              {wishlistProducts.map((p) => (
                 <ProductCard
                   key={p.id}
                   product={p}
+                  isInWishlist={true}
                   onAddToCart={(prod) => addToCartMutation.mutate(prod)}
-                  onToggleWishlist={handleToggleWishlist}
+                  onToggleWishlist={(id) => removeWishlistMutation.mutate(id)}
                 />
               ))}
             </div>
@@ -248,45 +255,43 @@ export const WishlistPage: React.FC = () => {
               <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>
                 Danh sách yêu thích trống
               </h3>
-              <p style={{ fontSize: '14px', color: '#6B7280', maxWidth: '400px', margin: '0 auto 24px auto' }}>
-                Bạn chưa lưu sản phẩm nào. Hãy bấm vào biểu tượng trái tim trên các sản phẩm công nghệ để lưu lại!
-              </p>
-              <Link
-                to="/"
-                className="auth-btn-primary"
+              <p
                 style={{
-                  display: 'inline-block',
-                  maxWidth: '220px',
-                  textAlign: 'center',
-                  lineHeight: '48px',
-                  textDecoration: 'none',
+                  fontSize: '14px',
+                  color: 'var(--text-secondary, #6B7280)',
+                  maxWidth: '420px',
+                  margin: '0 auto 24px auto',
+                  lineHeight: '1.5',
                 }}
               >
-                Khám phá sản phẩm ngay
+                Hãy khám phá các sản phẩm công nghệ tuyệt vời tại TechPilot và nhấn vào biểu tượng
+                trái tim để lưu lại những món đồ bạn yêu thích!
+              </p>
+              <Link
+                to="/search"
+                className="btn btn--primary"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  backgroundColor: '#0A5BFF',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                }}
+              >
+                Khám phá sản phẩm ngay <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
           )}
         </section>
       </main>
 
+      {/* Main Storefront Footer */}
       <StorefrontFooter />
-
-      <CartDrawer
-        isOpen={isCartOpen}
-        cart={cart || null}
-        onClose={() => setIsCartOpen(false)}
-        onUpdateQuantity={() => {}}
-        onRemoveItem={() => {}}
-      />
-
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          showToast(`Chào mừng trở lại, ${user.fullName}!`);
-        }}
-      />
     </div>
   );
 };

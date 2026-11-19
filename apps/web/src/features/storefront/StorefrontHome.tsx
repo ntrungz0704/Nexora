@@ -8,13 +8,12 @@ import { ServicePolicyBar } from './ServicePolicyBar';
 import { FlashSaleSection } from './FlashSaleSection';
 import { ProductCatalogSection } from './ProductCatalogSection';
 import { BottomFeatures } from './BottomFeatures';
-import { CartDrawer } from './CartDrawer';
-import { AuthModal } from './AuthModal';
 import { PromoPopup } from './PromoPopup';
 import { StorefrontFooter } from './StorefrontFooter';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
+import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser, ProductDto } from '@nexora/shared';
 
 export const StorefrontHome: React.FC = () => {
@@ -22,8 +21,6 @@ export const StorefrontHome: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
     authService.getCurrentUser(),
   );
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -56,6 +53,13 @@ export const StorefrontHome: React.FC = () => {
     queryFn: () => cartService.getCart(),
   });
 
+  // 5. Fetch Wishlist Count for Authenticated User (Strict 0 when guest)
+  const { data: wishlistCount = 0 } = useQuery({
+    queryKey: ['wishlist-count'],
+    queryFn: () => wishlistService.getWishlistCount(),
+    enabled: !!currentUser,
+  });
+
   // Add to Cart Mutation
   const addToCartMutation = useMutation({
     mutationFn: (product: ProductDto) => cartService.addItem(product.id, 1),
@@ -69,28 +73,11 @@ export const StorefrontHome: React.FC = () => {
     },
   });
 
-  // Update Cart Item Quantity Mutation
-  const updateQuantityMutation = useMutation({
-    mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
-      cartService.updateItem(id, quantity),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-    },
-  });
-
-  // Remove Cart Item Mutation
-  const removeItemMutation = useMutation({
-    mutationFn: (id: string) => cartService.removeItem(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      showToast('Đã xóa sản phẩm khỏi giỏ hàng.');
-    },
-  });
-
   const handleLogout = () => {
     authService.logout();
     setCurrentUser(null);
     queryClient.invalidateQueries({ queryKey: ['cart'] });
+    queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
     showToast('Đã đăng xuất tài khoản.');
   };
 
@@ -124,14 +111,12 @@ export const StorefrontHome: React.FC = () => {
         </div>
       )}
 
-      {/* Main Storefront Header */}
+      {/* Main Storefront Header: Pure Navigation to Dedicated Pages */}
       <StorefrontHeader
         categories={categories}
         cartCount={cart?.totalItems || 0}
-        wishlistCount={1}
+        wishlistCount={currentUser ? wishlistCount : 0}
         currentUser={currentUser}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
         onLogout={handleLogout}
       />
 
@@ -172,26 +157,6 @@ export const StorefrontHome: React.FC = () => {
 
       {/* 15. FOOTER */}
       <StorefrontFooter />
-
-      {/* Shopping Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        cart={cart || null}
-        onClose={() => setIsCartOpen(false)}
-        onUpdateQuantity={(id, qty) => updateQuantityMutation.mutate({ id, quantity: qty })}
-        onRemoveItem={(id) => removeItemMutation.mutate(id)}
-      />
-
-      {/* Auth Modal (Login / Register) */}
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          queryClient.invalidateQueries({ queryKey: ['cart'] });
-          showToast(`Chào mừng trở lại, ${user.fullName}!`);
-        }}
-      />
 
       {/* Shopee-style Promotional Opening Popup */}
       <PromoPopup />

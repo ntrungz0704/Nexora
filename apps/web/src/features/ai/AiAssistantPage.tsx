@@ -3,19 +3,16 @@ import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
-import { CartDrawer } from '../storefront/CartDrawer';
-import { AuthModal } from '../storefront/AuthModal';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
+import { wishlistService } from '../../services/wishlistService';
 import { getProductImage } from '../../lib/productImage';
 import type { AuthUser, AiRecommendationRole, ProductDto } from '@nexora/shared';
 
 export const AiAssistantPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // 5-Step Questionnaire States
@@ -42,6 +39,12 @@ export const AiAssistantPage: React.FC = () => {
   const { data: cart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => cartService.getCart(),
+  });
+
+  const { data: wishlistCount = 0 } = useQuery({
+    queryKey: ['wishlist-count'],
+    queryFn: () => wishlistService.getWishlistCount(),
+    enabled: !!currentUser,
   });
 
   const handleRunSurvey = async (e?: React.FormEvent) => {
@@ -81,7 +84,7 @@ export const AiAssistantPage: React.FC = () => {
     try {
       await cartService.addToCart(product.id, 1);
       await queryClient.invalidateQueries({ queryKey: ['cart'] });
-      setIsCartOpen(true);
+      showToast(`Đã thêm "${product.name}" vào giỏ hàng thành công!`);
     } catch {
       showToast('Không thể thêm sản phẩm vào giỏ hàng.');
     }
@@ -93,12 +96,11 @@ export const AiAssistantPage: React.FC = () => {
         currentUser={currentUser}
         categories={categories}
         cartCount={cart?.totalItems || 0}
-        wishlistCount={0}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        wishlistCount={currentUser ? wishlistCount : 0}
         onLogout={() => {
           authService.logout();
           setCurrentUser(null);
+          showToast('Đã đăng xuất.');
         }}
       />
 
@@ -422,22 +424,6 @@ export const AiAssistantPage: React.FC = () => {
         )}
       </main>
 
-      <CartDrawer
-        isOpen={isCartOpen}
-        cart={cart || null}
-        onClose={() => setIsCartOpen(false)}
-        onUpdateQuantity={(id, qty) => cartService.updateItem(id, qty)}
-        onRemoveItem={(id) => cartService.removeItem(id)}
-      />
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          setIsAuthOpen(false);
-          showToast(`Đăng nhập thành công! Chào ${user.fullName}`);
-        }}
-      />
       <StorefrontFooter />
 
       {toastMessage && (

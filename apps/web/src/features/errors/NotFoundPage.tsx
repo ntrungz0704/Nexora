@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
-import { CartDrawer } from '../storefront/CartDrawer';
-import { AuthModal } from '../storefront/AuthModal';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
+import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser } from '@nexora/shared';
 
 export const NotFoundPage: React.FC = () => {
-  const queryClient = useQueryClient();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
@@ -26,15 +22,19 @@ export const NotFoundPage: React.FC = () => {
     queryFn: () => cartService.getCart(),
   });
 
+  const { data: wishlistCount = 0 } = useQuery({
+    queryKey: ['wishlist-count'],
+    queryFn: () => wishlistService.getWishlistCount(),
+    enabled: !!currentUser,
+  });
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <StorefrontHeader
         categories={categories}
         cartCount={cart?.totalItems || 0}
-        wishlistCount={0}
+        wishlistCount={currentUser ? wishlistCount : 0}
         currentUser={currentUser}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
         onLogout={() => {
           authService.logout();
           setCurrentUser(null);
@@ -69,28 +69,6 @@ export const NotFoundPage: React.FC = () => {
       </main>
 
       <StorefrontFooter />
-
-      <CartDrawer
-        isOpen={isCartOpen}
-        cart={cart || null}
-        onClose={() => setIsCartOpen(false)}
-        onUpdateQuantity={async (id, qty) => {
-          await cartService.updateItem(id, qty);
-          queryClient.invalidateQueries({ queryKey: ['cart'] });
-        }}
-        onRemoveItem={async (id) => {
-          await cartService.removeItem(id);
-          queryClient.invalidateQueries({ queryKey: ['cart'] });
-        }}
-      />
-
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-        }}
-      />
     </div>
   );
 };

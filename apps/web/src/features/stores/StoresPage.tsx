@@ -3,11 +3,10 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
-import { CartDrawer } from '../storefront/CartDrawer';
-import { AuthModal } from '../storefront/AuthModal';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
+import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser } from '@nexora/shared';
 
 interface StoreItem {
@@ -75,8 +74,6 @@ const STORES_SEED: StoreItem[] = [
 
 export const StoresPage: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState('all');
 
   const { data: categories = [] } = useQuery({
@@ -89,6 +86,12 @@ export const StoresPage: React.FC = () => {
     queryFn: () => cartService.getCart(),
   });
 
+  const { data: wishlistCount = 0 } = useQuery({
+    queryKey: ['wishlist-count'],
+    queryFn: () => wishlistService.getWishlistCount(),
+    enabled: !!currentUser,
+  });
+
   const filteredStores = selectedCity === 'all'
     ? STORES_SEED
     : STORES_SEED.filter((s) => s.city === selectedCity);
@@ -98,10 +101,8 @@ export const StoresPage: React.FC = () => {
       <StorefrontHeader
         categories={categories}
         cartCount={cart?.totalItems || 0}
-        wishlistCount={1}
+        wishlistCount={currentUser ? wishlistCount : 0}
         currentUser={currentUser}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
         onLogout={() => {
           authService.logout();
           setCurrentUser(null);
@@ -253,20 +254,6 @@ export const StoresPage: React.FC = () => {
       </main>
 
       <StorefrontFooter />
-
-      <CartDrawer
-        isOpen={isCartOpen}
-        cart={cart || null}
-        onClose={() => setIsCartOpen(false)}
-        onUpdateQuantity={(id, qty) => cartService.updateItem(id, qty)}
-        onRemoveItem={(id) => cartService.removeItem(id)}
-      />
-
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={(user) => setCurrentUser(user)}
-      />
     </div>
   );
 };

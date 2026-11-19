@@ -7,8 +7,8 @@ interface StorefrontHeaderProps {
   cartCount: number;
   wishlistCount: number;
   currentUser: AuthUser | null;
-  onOpenCart: () => void;
-  onOpenAuth: () => void;
+  onOpenCart?: () => void;
+  onOpenAuth?: () => void;
   onLogout: () => void;
   onToggleCategoryMenu?: () => void;
   isCategoryMenuOpen?: boolean;
@@ -19,7 +19,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   cartCount,
   wishlistCount,
   currentUser,
-  onOpenCart,
+  onOpenCart: _onOpenCart,
   onOpenAuth: _onOpenAuth,
   onLogout,
   onToggleCategoryMenu,
@@ -210,7 +210,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                     minWidth: '16px',
                     height: '16px',
                     borderRadius: '50%',
-                    display: wishlistCount > 0 ? 'flex' : 'none',
+                    display: currentUser && wishlistCount > 0 ? 'flex' : 'none',
                     alignItems: 'center',
                     justifyContent: 'center',
                     border: '1.5px solid var(--surface-card, #FFFFFF)',
@@ -224,12 +224,10 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               <span className="header-actions__label header-action__label">Yêu thích</span>
             </Link>
 
-            {/* Cart */}
-            <button
-              type="button"
-              onClick={onOpenCart}
+            {/* Cart: Dedicated Page /cart as in TechPilot */}
+            <Link
+              to="/cart"
               className="header-actions__item header-action header-action--cart"
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
               title="Giỏ hàng của bạn"
             >
               <div className="header-action__icon-wrapper" style={{ position: 'relative' }}>
@@ -259,7 +257,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                 </span>
               </div>
               <span className="header-actions__label header-action__label">Giỏ hàng</span>
-            </button>
+            </Link>
 
             {/* Account */}
             {currentUser ? (
@@ -394,70 +392,70 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             </button>
           </div>
         </div>
-
-        {/* 3. Main Navigation Bar */}
-        <nav className="main-nav" id="mainNavMenu">
-          <div className="container main-nav__inner">
-            <ul className="main-nav__links">
-              <li>
-                <Link to="/" className="is-active">
-                  Trang chủ
-                </Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/search?cat=pc-nexora">PC Gaming</Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/search?cat=laptop">Laptop</Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/search?cat=main-cpu-vga">Linh kiện PC</Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/search?cat=man-hinh">Màn hình</Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/build-pc" style={{ color: '#FACC15', fontWeight: 700 }}>
-                  <i
-                    className="fa-solid fa-screwdriver-wrench"
-                    style={{ marginRight: '4px' }}
-                  ></i>{' '}
-                  Xây dựng cấu hình
-                </Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/search?cat=ban-phim">Gaming Gear</Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/search?cat=thiet-bi-van-phong">Thiết bị văn phòng</Link>
-              </li>
-              <li>
-                <Link to="/search?promo=1" className="text-hot">
-                  Khuyến mãi <span className="dot-hot"></span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/posts">Tin công nghệ</Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/ai-assistant" style={{ color: '#8B5CF6', fontWeight: 700 }}>
-                  <i
-                    className="fa-solid fa-wand-magic-sparkles"
-                    style={{ marginRight: '4px' }}
-                  ></i>{' '}
-                  AI Tư vấn
-                </Link>
-              </li>
-              <li className="desktop-only-link">
-                <Link to="/compare" style={{ color: '#10B981', fontWeight: 700 }}>
-                  <i className="fa-solid fa-scale-balanced" style={{ marginRight: '4px' }}></i> So
-                  sánh
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </nav>
       </header>
+
+      {/* 3. Main Navigation Bar */}
+      <nav className="main-nav" id="mainNavMenu">
+        <div className="container main-nav__inner">
+          <ul className="main-nav__links">
+            <li>
+              <Link to="/" className="is-active">
+                Trang chủ
+              </Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/search?cat=pc-nexora">PC Gaming</Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/search?cat=laptop">Laptop</Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/search?cat=main-cpu-vga">Linh kiện PC</Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/search?cat=man-hinh">Màn hình</Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/build-pc" style={{ color: '#FACC15', fontWeight: 700 }}>
+                <i
+                  className="fa-solid fa-screwdriver-wrench"
+                  style={{ marginRight: '4px' }}
+                ></i>{' '}
+                Xây dựng cấu hình
+              </Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/search?cat=ban-phim">Gaming Gear</Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/search?cat=thiet-bi-van-phong">Thiết bị văn phòng</Link>
+            </li>
+            <li>
+              <Link to="/search?promo=1" className="text-hot">
+                Khuyến mãi <span className="dot-hot"></span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/posts">Tin công nghệ</Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/ai-assistant" style={{ color: '#8B5CF6', fontWeight: 700 }}>
+                <i
+                  className="fa-solid fa-wand-magic-sparkles"
+                  style={{ marginRight: '4px' }}
+                ></i>{' '}
+                AI Tư vấn
+              </Link>
+            </li>
+            <li className="desktop-only-link">
+              <Link to="/compare" style={{ color: '#10B981', fontWeight: 700 }}>
+                <i className="fa-solid fa-scale-balanced" style={{ marginRight: '4px' }}></i> So
+                sánh
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </nav>
     </div>
     </>
   );

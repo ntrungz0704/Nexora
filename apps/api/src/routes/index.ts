@@ -9,6 +9,7 @@ import { createPaymentRouter } from '../modules/payment/payment.routes.js';
 import { createMarketingRouter } from '../modules/marketing/marketing.routes.js';
 import { createAiRouter } from '../modules/ai/ai.routes.js';
 import { createAdminRouter } from '../modules/admin/admin.routes.js';
+import { createWishlistRouter } from '../modules/wishlist/wishlist.routes.js';
 
 export function createV1Router(systemRepository?: SystemRepository): Router {
   const router = Router();
@@ -20,6 +21,7 @@ export function createV1Router(systemRepository?: SystemRepository): Router {
   router.use('/catalog', createCatalogRouter());
   router.use('/auth', createAuthRouter());
   router.use('/cart', createCartRouter());
+  router.use('/wishlist', createWishlistRouter());
 
   // Commerce & Order routes
   router.use('/orders', createOrderRouter());

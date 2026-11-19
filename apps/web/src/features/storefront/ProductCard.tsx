@@ -1,11 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { ProductDto } from '@nexora/shared';
 import { getProductImage } from '../../lib/productImage';
+import { authService } from '../../services/authService';
 
 interface ProductCardProps {
   product: ProductDto;
   isFlashSale?: boolean;
+  isInWishlist?: boolean;
   onAddToCart: (product: ProductDto) => void;
   onToggleWishlist?: (productId: number | string) => void;
 }
@@ -13,9 +15,11 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   isFlashSale = false,
+  isInWishlist = false,
   onAddToCart,
   onToggleWishlist,
 }) => {
+  const navigate = useNavigate();
   const imageUrl = getProductImage(product);
   const p = Number(product.price);
   const sp = product.salePrice ? Number(product.salePrice) : null;
@@ -51,12 +55,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </span>
       )}
 
-      {/* Wishlist Button */}
+      {/* Wishlist Button: Auth Required Parity with TechPilot */}
       <button
         type="button"
         className="product-card__wishlist-btn"
-        onClick={() => onToggleWishlist?.(product.id)}
-        title="Thêm vào yêu thích"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const user = authService.getCurrentUser();
+          if (!user) {
+            navigate(
+              '/auth/login?redirect=' +
+                encodeURIComponent(window.location.pathname + window.location.search),
+            );
+            return;
+          }
+          onToggleWishlist?.(product.id);
+        }}
+        title={isInWishlist ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
         style={{
           position: 'absolute',
           top: '12px',
@@ -71,12 +87,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          color: 'var(--text-secondary, #64748B)',
+          color: isInWishlist ? '#EF4444' : 'var(--text-secondary, #64748B)',
           boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
           transition: 'all 0.2s ease',
         }}
       >
-        <i className="fa-regular fa-heart" style={{ fontSize: '14px' }}></i>
+        <i
+          className={isInWishlist ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}
+          style={{ fontSize: '14px', color: isInWishlist ? '#EF4444' : undefined }}
+        ></i>
       </button>
 
       {/* Compare Button */}

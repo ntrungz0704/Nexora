@@ -3,11 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
-import { CartDrawer } from '../storefront/CartDrawer';
-import { AuthModal } from '../storefront/AuthModal';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
+import { wishlistService } from '../../services/wishlistService';
 import { getProductImage } from '../../lib/productImage';
 import type { AuthUser, ProductDto } from '@nexora/shared';
 
@@ -34,8 +33,6 @@ export const PcBuilderPage: React.FC = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Selected components map
@@ -63,6 +60,12 @@ export const PcBuilderPage: React.FC = () => {
   const { data: cart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => cartService.getCart(),
+  });
+
+  const { data: wishlistCount = 0 } = useQuery({
+    queryKey: ['wishlist-count'],
+    queryFn: () => wishlistService.getWishlistCount(),
+    enabled: !!currentUser,
   });
 
   // Calculate totals
@@ -110,7 +113,7 @@ export const PcBuilderPage: React.FC = () => {
       }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       showToast(`Đã thêm toàn bộ ${parts.length} linh kiện cấu hình vào giỏ hàng!`);
-      setIsCartOpen(true);
+      navigate('/cart');
     } catch {
       showToast('Có lỗi xảy ra khi thêm vào giỏ hàng.');
     }
@@ -150,10 +153,8 @@ export const PcBuilderPage: React.FC = () => {
       <StorefrontHeader
         categories={categories}
         cartCount={cart?.totalItems || 0}
-        wishlistCount={1}
+        wishlistCount={currentUser ? wishlistCount : 0}
         currentUser={currentUser}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
         onLogout={() => {
           authService.logout();
           setCurrentUser(null);
@@ -608,23 +609,6 @@ export const PcBuilderPage: React.FC = () => {
       )}
 
       <StorefrontFooter />
-
-      <CartDrawer
-        isOpen={isCartOpen}
-        cart={cart || null}
-        onClose={() => setIsCartOpen(false)}
-        onUpdateQuantity={(id, qty) => cartService.updateItem(id, qty)}
-        onRemoveItem={(id) => cartService.removeItem(id)}
-      />
-
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          showToast(`Chào mừng trở lại, ${user.fullName}!`);
-        }}
-      />
     </div>
   );
 };

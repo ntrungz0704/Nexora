@@ -121,4 +121,67 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
       expect(res.body.data.comparisonAnalysis).toHaveProperty('breakdown');
     }
   });
+
+  it('GET /api/v1/wishlist rejects unauthenticated guest with 401', async () => {
+    const res = await request(app).get('/api/v1/wishlist');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/v1/wishlist/toggle rejects unauthenticated guest with 401', async () => {
+    const res = await request(app).post('/api/v1/wishlist/toggle').send({ productId: 1 });
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/v1/wishlist/toggle and GET /api/v1/wishlist works for authenticated customer', async () => {
+    // 1. Log in customer
+    const loginRes = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: 'customer@nexora.local', password: 'password123' });
+    expect(loginRes.status).toBe(200);
+    const token = loginRes.body.data.token;
+
+    // 2. Get a valid product ID
+    const catRes = await request(app).get('/api/v1/catalog/products?limit=1');
+    const productId = catRes.body.data.products[0].id;
+
+    // 3. Toggle product into wishlist
+    const toggleRes = await request(app)
+      .post('/api/v1/wishlist/toggle')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId });
+
+    expect(toggleRes.status).toBe(200);
+    expect(toggleRes.body.success).toBe(true);
+    expect(toggleRes.body.data).toHaveProperty('inWishlist');
+
+    // 4. Get wishlist
+    const getRes = await request(app)
+      .get('/api/v1/wishlist')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(getRes.status).toBe(200);
+    expect(getRes.body.success).toBe(true);
+    expect(Array.isArray(getRes.body.data)).toBe(true);
+
+    // 5. Get wishlist count
+    const countRes = await request(app)
+      .get('/api/v1/wishlist/count')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(countRes.status).toBe(200);
+    expect(countRes.body.success).toBe(true);
+    expect(typeof countRes.body.data.count).toBe('number');
+
+    // 6. Toggle product again to restore original state if it was added
+    if (toggleRes.body.data.inWishlist) {
+      const toggleOffRes = await request(app)
+        .post('/api/v1/wishlist/toggle')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ productId });
+      expect(toggleOffRes.status).toBe(200);
+      expect(toggleOffRes.body.data.inWishlist).toBe(false);
+    }
+  });
 });
