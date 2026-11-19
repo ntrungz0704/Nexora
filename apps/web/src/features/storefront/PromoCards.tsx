@@ -3,98 +3,81 @@ import { Link } from 'react-router-dom';
 
 export const PromoCards: React.FC = () => {
   return (
-    <div className="flex flex-col gap-3.5 h-[420px]">
-      {/* Card 1: Build PC */}
+    <div className="hero-section__right">
       <div
-        className="flex-1 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden bg-slate-900 border border-slate-800 shadow-lg group hover:border-blue-500/50 transition"
+        className="promo-card promo-card--dark"
         style={{
-          backgroundImage: `linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.65) 60%, rgba(15, 23, 42, 0.2) 100%), url('/assets/images/banner-build-pc.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          background:
+            "linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.35) 80%), url('/assets/images/banner-build-pc.jpg') center/cover no-repeat",
+          border: '1px solid rgba(255, 255, 255, 0.12)',
         }}
       >
-        <div className="relative z-10">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
-            Dịch vụ đặc biệt
-          </span>
-          <h3 className="text-sm font-extrabold text-white mt-0.5 leading-snug">
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <h4 style={{ color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>
             BUILD PC THEO YÊU CẦU
-          </h3>
-          <p className="text-[11px] text-slate-300 mt-1 line-clamp-1">
+          </h4>
+          <p style={{ color: '#cbd5e1', marginBottom: '12px' }}>
             Tối ưu cấu hình - Cân mọi ngân sách
           </p>
         </div>
-        <div className="relative z-10">
-          <Link
-            to="/build-pc"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow transition"
-          >
-            <span>Xem ngay</span>
-            <i className="fa-solid fa-arrow-right text-[10px]"></i>
-          </Link>
-        </div>
+        <Link
+          to="/build-pc"
+          className="btn btn--primary btn--sm"
+          style={{ position: 'relative', zIndex: 2 }}
+        >
+          Xem ngay
+        </Link>
       </div>
 
-      {/* Card 2: Pay Later (COD) */}
       <div
-        className="flex-1 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden bg-slate-900 border border-slate-800 shadow-lg group hover:border-blue-500/50 transition"
+        className="promo-card promo-card--dark"
         style={{
-          backgroundImage: `linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.65) 60%, rgba(15, 23, 42, 0.2) 100%), url('/assets/images/banner-pay-later.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          background:
+            "linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.35) 80%), url('/assets/images/banner-pay-later.jpg') center/cover no-repeat",
+          border: '1px solid rgba(255, 255, 255, 0.12)',
         }}
       >
-        <div className="relative z-10">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400">
-            An tâm mua sắm
-          </span>
-          <h3 className="text-sm font-extrabold text-white mt-0.5 leading-snug">
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <h4 style={{ color: '#60a5fa', textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>
             MUA NGAY - TRẢ SAU
-          </h3>
-          <p className="text-[11px] text-slate-300 mt-1 line-clamp-1">
+          </h4>
+          <p style={{ color: '#cbd5e1', marginBottom: '12px' }}>
             Nhận hàng, kiểm tra rồi thanh toán (COD)
           </p>
         </div>
-        <div className="relative z-10">
-          <Link
-            to="/category/laptop-gaming"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow transition"
-          >
-            <span>Mua ngay</span>
-            <i className="fa-solid fa-arrow-right text-[10px]"></i>
-          </Link>
-        </div>
+        <span className="promo-card__number" style={{ opacity: 0.15, color: '#ffffff' }}>
+          <i className="fa-solid fa-truck-fast"></i>
+        </span>
+        <Link
+          to="/search"
+          className="btn btn--primary btn--sm"
+          style={{ position: 'relative', zIndex: 2 }}
+        >
+          Mua ngay
+        </Link>
       </div>
 
-      {/* Card 3: Trade-in */}
       <div
-        className="flex-1 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden bg-slate-900 border border-slate-800 shadow-lg group hover:border-blue-500/50 transition"
+        className="promo-card promo-card--dark"
         style={{
-          backgroundImage: `linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.65) 60%, rgba(15, 23, 42, 0.2) 100%), url('/assets/images/banner-trade-in.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          background:
+            "linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.35) 80%), url('/assets/images/banner-trade-in.jpg') center/cover no-repeat",
+          border: '1px solid rgba(255, 255, 255, 0.12)',
         }}
       >
-        <div className="relative z-10">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-            Trợ giá tối đa
-          </span>
-          <h3 className="text-sm font-extrabold text-white mt-0.5 leading-snug">
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <h4 style={{ color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>
             THU CŨ ĐỔI MỚI MÁY CŨ
-          </h3>
-          <p className="text-[11px] text-slate-300 mt-1 line-clamp-1">
-            Trợ giá lên tới 6 triệu đồng
-          </p>
+          </h4>
+          <p style={{ color: '#cbd5e1', marginBottom: '12px' }}>Trợ giá lên tới 6 triệu đồng</p>
         </div>
-        <div className="relative z-10">
-          <Link
-            to="/thu-cu-doi-moi"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow transition"
-          >
-            <span>Xem chi tiết</span>
-            <i className="fa-solid fa-arrow-right text-[10px]"></i>
-          </Link>
-        </div>
+        <Link
+          to="/thu-cu-doi-moi"
+          className="btn btn--primary btn--sm"
+          style={{ position: 'relative', zIndex: 2 }}
+        >
+          Xem chi tiết
+        </Link>
       </div>
     </div>
   );

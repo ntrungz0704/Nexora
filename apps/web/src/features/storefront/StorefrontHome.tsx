@@ -7,6 +7,7 @@ import { PromoCards } from './PromoCards';
 import { ServicePolicyBar } from './ServicePolicyBar';
 import { FlashSaleSection } from './FlashSaleSection';
 import { ProductCatalogSection } from './ProductCatalogSection';
+import { BottomFeatures } from './BottomFeatures';
 import { CartDrawer } from './CartDrawer';
 import { AuthModal } from './AuthModal';
 import { StorefrontFooter } from './StorefrontFooter';
@@ -93,11 +94,31 @@ export const StorefrontHome: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="home-page-wrapper">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 bg-blue-600 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-blue-400 text-xs font-bold animate-bounce">
-          <i className="fa-solid fa-circle-check text-sm text-cyan-300"></i>
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 9999,
+            backgroundColor: '#0A5BFF',
+            color: '#FFFFFF',
+            padding: '12px 20px',
+            borderRadius: '12px',
+            boxShadow: '0 8px 30px rgba(10, 91, 255, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontWeight: 700,
+            fontSize: '13px',
+          }}
+        >
+          <i
+            className="fa-solid fa-circle-check"
+            style={{ color: '#00C8FF', fontSize: '16px' }}
+          ></i>
           <span>{toastMessage}</span>
         </div>
       )}
@@ -114,40 +135,42 @@ export const StorefrontHome: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-5 space-y-7">
-        {/* Top Hero Section matching Image 3: Left Category Sidebar, Center Carousel, Right Promo Cards */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-          {/* Left Column: Vertical Category Menu (3 cols on lg) */}
-          <div className="hidden lg:block lg:col-span-3">
+      <main>
+        {/* 4. HERO SECTION */}
+        <section className="container hero-section">
+          {/* Left: Vertical Category Menu */}
+          <div className="hero-section__left" id="heroCategorySlot">
             <CategorySidebar categories={categories} />
           </div>
 
-          {/* Center Column: Hero Carousel Banner (6 cols on lg) */}
-          <div className="lg:col-span-6">
-            <HeroCarousel />
-          </div>
+          {/* Center: Large Hero Banner Carousel */}
+          <HeroCarousel />
 
-          {/* Right Column: 3 Promotional Feature Cards (3 cols on lg) */}
-          <div className="lg:col-span-3">
-            <PromoCards />
-          </div>
+          {/* Right: 3 Promotion Cards */}
+          <PromoCards />
         </section>
 
-        {/* 5 Service Features Policy Badges */}
+        {/* 5. SERVICE FEATURES */}
         <ServicePolicyBar />
 
-        {/* Flash Sale Section */}
+        {/* 6. FLASH SALE */}
         <FlashSaleSection
-          products={flashSaleProducts.length > 0 ? flashSaleProducts : products.slice(0, 4)}
+          products={flashSaleProducts.length > 0 ? flashSaleProducts : products.slice(0, 5)}
           onAddToCart={(p) => addToCartMutation.mutate(p)}
         />
 
-        {/* Main Product Showcase with Category Tabs */}
+        {/* 7. MAIN PRODUCTS CATALOG */}
         <ProductCatalogSection
           products={products}
           onAddToCart={(p) => addToCartMutation.mutate(p)}
         />
+
+        {/* 14. BOTTOM FEATURES */}
+        <BottomFeatures />
       </main>
+
+      {/* 15. FOOTER */}
+      <StorefrontFooter />
 
       {/* Shopping Cart Drawer */}
       <CartDrawer
@@ -168,9 +191,6 @@ export const StorefrontHome: React.FC = () => {
           showToast(`Chào mừng trở lại, ${user.fullName}!`);
         }}
       />
-
-      {/* Storefront Footer */}
-      <StorefrontFooter />
     </div>
   );
 };

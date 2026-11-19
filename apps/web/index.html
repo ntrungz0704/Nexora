@@ -3,14 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nexora — Hệ Thống Bán Lẻ Công Nghệ & Linh Kiện Chính Hãng</title>
+    <title>Nexora — Hệ Thống Bán Lẻ Máy Tính & Linh Kiện Chính Hãng</title>
     <link rel="icon" type="image/png" href="/assets/images/logo.png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!-- TechPilot Exact Design System Stylesheets -->
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <link rel="stylesheet" href="/assets/css/category-mega-menu.css" />
+    <script>
+      (() => {
+        const stored = localStorage.getItem('techpilot-theme') || localStorage.getItem('nexora-theme');
+        const useDark = stored === 'dark';
+        document.documentElement.classList.toggle('dark-mode', useDark);
+      })();
+    </script>
   </head>
-  <body class="bg-slate-950 text-slate-100 antialiased font-sans">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

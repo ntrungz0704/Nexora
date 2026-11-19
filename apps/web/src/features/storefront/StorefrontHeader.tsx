@@ -10,6 +10,8 @@ interface StorefrontHeaderProps {
   onOpenCart: () => void;
   onOpenAuth: () => void;
   onLogout: () => void;
+  onToggleCategoryMenu?: () => void;
+  isCategoryMenuOpen?: boolean;
 }
 
 export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
@@ -20,12 +22,24 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   onOpenCart,
   onOpenAuth,
   onLogout,
+  onToggleCategoryMenu,
+  isCategoryMenuOpen,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    typeof document !== 'undefined' ? document.documentElement.classList.contains('dark-mode') : false,
+  );
   const navigate = useNavigate();
+
+  const toggleTheme = () => {
+    const nextDark = !isDarkMode;
+    setIsDarkMode(nextDark);
+    document.documentElement.classList.toggle('dark-mode', nextDark);
+    localStorage.setItem('techpilot-theme', nextDark ? 'dark' : 'light');
+    localStorage.setItem('nexora-theme', nextDark ? 'dark' : 'light');
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,95 +51,125 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-slate-900 border-b border-slate-800 shadow-md">
-      {/* 1. Top Utility Bar */}
-      <div className="bg-slate-950 text-xs text-slate-300 py-1.5 border-b border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center space-x-6 text-xs">
-            <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
-              <i className="fa-solid fa-shield-halved"></i>
-              Sản phẩm chính hãng - Xuất VAT đầy đủ
-            </span>
-            <span className="hidden md:flex items-center gap-1.5 text-sky-400">
-              <i className="fa-solid fa-truck-fast"></i>
-              Giao nhanh - Miễn phí đơn từ 300K
-            </span>
-            <span className="hidden lg:flex items-center gap-1.5 text-amber-400">
-              <i className="fa-solid fa-arrows-rotate"></i>
-              Thu cũ đổi mới - Lên đời tiết kiệm
-            </span>
+    <div className="commerce-header-stack" id="commerceHeaderStack">
+      {/* 1. TechPilot Top Bar */}
+      <div className="techpilot-topbar">
+        <div className="container techpilot-topbar__container">
+          <div className="techpilot-topbar__viewport">
+            <div className="techpilot-topbar__track">
+              {/* Group 1 */}
+              <div className="techpilot-topbar__group">
+                <Link to="/search" className="techpilot-topbar__message">
+                  <i className="fa-solid fa-shield" aria-hidden="true"></i>
+                  <span className="techpilot-topbar__text">
+                    Sản phẩm chính hãng – Xuất VAT đầy đủ
+                  </span>
+                </Link>
+                <Link to="/search?promo=1" className="techpilot-topbar__message">
+                  <i className="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                  <span className="techpilot-topbar__text">
+                    Giao nhanh – Miễn phí cho đơn từ 300K
+                  </span>
+                </Link>
+                <Link to="/thu-cu-doi-moi" className="techpilot-topbar__message">
+                  <i className="fa-solid fa-rotate" aria-hidden="true"></i>
+                  <span className="techpilot-topbar__text">
+                    Thu cũ giá tốt – Lên đời tiết kiệm
+                  </span>
+                </Link>
+              </div>
+              {/* Group 2 (Clone for infinite marquee) */}
+              <div className="techpilot-topbar__group" aria-hidden="true">
+                <Link to="/search" className="techpilot-topbar__message" tabIndex={-1}>
+                  <i className="fa-solid fa-shield" aria-hidden="true"></i>
+                  <span className="techpilot-topbar__text">
+                    Sản phẩm chính hãng – Xuất VAT đầy đủ
+                  </span>
+                </Link>
+                <Link to="/search?promo=1" className="techpilot-topbar__message" tabIndex={-1}>
+                  <i className="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                  <span className="techpilot-topbar__text">
+                    Giao nhanh – Miễn phí cho đơn từ 300K
+                  </span>
+                </Link>
+                <Link to="/thu-cu-doi-moi" className="techpilot-topbar__message" tabIndex={-1}>
+                  <i className="fa-solid fa-rotate" aria-hidden="true"></i>
+                  <span className="techpilot-topbar__text">
+                    Thu cũ giá tốt – Lên đời tiết kiệm
+                  </span>
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-5 text-slate-400 font-medium">
-            <Link to="/stores" className="hover:text-blue-400 transition flex items-center gap-1">
-              <i className="fa-solid fa-location-dot"></i>
-              Cửa hàng gần bạn
+
+          <div className="techpilot-topbar__actions">
+            <Link to="/stores" className="techpilot-topbar__action">
+              <i className="fa-solid fa-store" aria-hidden="true"></i>
+              <span className="techpilot-topbar__action-text">Cửa hàng gần bạn</span>
             </Link>
-            <Link
-              to="/order-tracking"
-              className="hover:text-blue-400 transition flex items-center gap-1"
-            >
-              <i className="fa-solid fa-clipboard-list"></i>
-              Tra cứu đơn hàng
+            <Link to="/order-tracking" className="techpilot-topbar__action">
+              <i className="fa-solid fa-file-invoice" aria-hidden="true"></i>
+              <span className="techpilot-topbar__action-text">Tra cứu đơn hàng</span>
             </Link>
-            <a
-              href="tel:18002097"
-              className="text-rose-400 hover:text-rose-300 transition flex items-center gap-1 font-bold"
-            >
-              <i className="fa-solid fa-phone"></i>
-              1800 2097
+            <a href="tel:18002097" className="techpilot-topbar__action techpilot-topbar__action--hotline">
+              <i className="fa-solid fa-phone" aria-hidden="true"></i>
+              <span>1800 2097</span>
             </a>
           </div>
         </div>
       </div>
 
       {/* 2. Main Header */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        {/* Left: Brand Logo & Category Button */}
-        <div className="flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
-              <i className="fa-solid fa-bolt text-white text-xl"></i>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-1">
-                Nex<span className="text-blue-500">ora</span>
-              </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 -mt-1">
-                Tech Hardware
-              </span>
-            </div>
-          </Link>
+      <header className="site-header">
+        <div className="container site-header__inner">
+          {/* Logo & Category Toggle */}
+          <div className="header-left-group">
+            <Link
+              to="/"
+              className="logo"
+              style={{ display: 'flex', alignItems: 'center', gap: '1px', textDecoration: 'none' }}
+            >
+              <img
+                src="/assets/images/logo.png"
+                alt="TechPilot Logo"
+                style={{ height: '40px', objectFit: 'contain', display: 'block' }}
+              />
+              <div className="logo-brand-info">
+                <span className="logo-brand-title">
+                  Tech<span>Pilot</span>
+                </span>
+              </div>
+            </Link>
 
-          {/* Desktop Category Toggle Button */}
-          <div className="relative">
             <button
               type="button"
-              onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-              className="hidden lg:flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-white font-medium text-sm border border-slate-700/60 transition shadow-sm"
+              className="category-toggle desktop-only-link"
+              id="categoryMenuToggle"
+              onClick={onToggleCategoryMenu}
+              aria-expanded={isCategoryMenuOpen}
             >
-              <i className="fa-solid fa-layer-group text-blue-400"></i>
+              <i className="fa-solid fa-layer-group"></i>
               <span>Danh mục</span>
-              <i
-                className={`fa-solid fa-chevron-down text-xs transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`}
-              ></i>
+              <i className="category-toggle__chevron fa-solid fa-chevron-down"></i>
             </button>
           </div>
-        </div>
 
-        {/* Center: Search Bar with Category Dropdown */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:flex items-center">
-          <div className="w-full flex items-center bg-slate-950 border border-slate-700 rounded-xl overflow-hidden shadow-inner focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition">
+          {/* Search Bar */}
+          <form className="search-bar" onSubmit={handleSearch} id="headerSearchForm">
             <input
               type="text"
+              name="q"
               placeholder="Bạn muốn mua gì hôm nay? Đang giảm giá 50%..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2.5 text-sm bg-transparent text-white placeholder-slate-400 focus:outline-none"
+              autoComplete="off"
             />
             <select
+              name="cat"
+              className="search-bar__select"
+              aria-label="Chọn danh mục tìm kiếm"
               value={selectedCat}
               onChange={(e) => setSelectedCat(e.target.value)}
-              className="hidden xl:block bg-slate-900 text-xs text-slate-300 border-l border-slate-800 px-3 py-2.5 focus:outline-none cursor-pointer hover:bg-slate-850"
             >
               <option value="">Tất cả danh mục</option>
               {categories.map((c) => (
@@ -134,205 +178,284 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                 </option>
               ))}
             </select>
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 transition flex items-center justify-center font-medium"
-              aria-label="Tìm kiếm"
-            >
-              <i className="fa-solid fa-magnifying-glass text-sm"></i>
+            <button type="submit" aria-label="Tìm kiếm">
+              <i className="fa-solid fa-magnifying-glass"></i>
             </button>
-          </div>
-        </form>
+          </form>
 
-        {/* Right: Actions (Wishlist, Cart, User, Theme) */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Wishlist */}
-          <Link
-            to="/wishlist"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-200 hover:bg-slate-800 transition relative"
-            title="Sản phẩm yêu thích"
-          >
-            <div className="relative">
-              <i className="fa-regular fa-heart text-xl text-slate-300"></i>
-              {wishlistCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-slate-900">
+          {/* Actions: Wishlist, Cart, User, Theme */}
+          <div className="header-actions">
+            {/* Wishlist */}
+            <Link
+              to="/wishlist"
+              className="header-actions__item header-action header-action--wishlist"
+              title="Danh sách sản phẩm yêu thích"
+            >
+              <div className="header-action__icon-wrapper" style={{ position: 'relative' }}>
+                <i className="fa-regular fa-heart header-action__icon" aria-hidden="true"></i>
+                <span
+                  className="wishlist-badge"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    backgroundColor: '#EF4444',
+                    color: '#FFFFFF',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    minWidth: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    display: wishlistCount > 0 ? 'flex' : 'none',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1.5px solid var(--surface-card, #FFFFFF)',
+                    padding: '0 3px',
+                    transform: 'translate(30%, -30%)',
+                  }}
+                >
                   {wishlistCount}
                 </span>
-              )}
-            </div>
-            <span className="hidden xl:inline text-xs font-medium">Yêu thích</span>
-          </Link>
+              </div>
+              <span className="header-actions__label header-action__label">Yêu thích</span>
+            </Link>
 
-          {/* Cart Button */}
-          <button
-            type="button"
-            onClick={onOpenCart}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-200 hover:bg-slate-800 transition relative"
-            title="Giỏ hàng của bạn"
-          >
-            <div className="relative">
-              <i className="fa-solid fa-cart-shopping text-xl text-blue-400"></i>
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center border-2 border-slate-900">
-                  {cartCount > 99 ? '99+' : cartCount}
-                </span>
-              )}
-            </div>
-            <div className="hidden xl:flex flex-col text-left">
-              <span className="text-xs font-medium">Giỏ hàng</span>
-              <span className="text-[10px] text-slate-400 font-semibold">{cartCount} sản phẩm</span>
-            </div>
-          </button>
-
-          {/* User Account / Login */}
-          {currentUser ? (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-white transition"
-              >
-                <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold uppercase">
-                  {currentUser.fullName.charAt(0)}
-                </div>
-                <span className="text-xs font-medium max-w-[100px] truncate hidden sm:inline">
-                  {currentUser.fullName}
-                </span>
-                <i className="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
-              </button>
-
-              {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-2 z-50">
-                  <div className="px-4 py-2 border-b border-slate-800">
-                    <p className="text-xs text-slate-400">Đăng nhập với vai trò</p>
-                    <span className="inline-block px-2 py-0.5 mt-1 text-[10px] font-bold rounded bg-blue-500/20 text-blue-400">
-                      {currentUser.role}
-                    </span>
-                  </div>
-                  <Link
-                    to="/profile"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="block px-4 py-2 text-xs text-slate-200 hover:bg-slate-800"
-                  >
-                    <i className="fa-solid fa-user mr-2 text-slate-400"></i> Trang cá nhân
-                  </Link>
-                  <Link
-                    to="/orders"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="block px-4 py-2 text-xs text-slate-200 hover:bg-slate-800"
-                  >
-                    <i className="fa-solid fa-box mr-2 text-slate-400"></i> Đơn hàng của tôi
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsUserMenuOpen(false);
-                      onLogout();
-                    }}
-                    className="w-full text-left px-4 py-2 text-xs text-rose-400 hover:bg-slate-800 flex items-center"
-                  >
-                    <i className="fa-solid fa-right-from-bracket mr-2"></i> Đăng xuất
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
+            {/* Cart */}
             <button
               type="button"
-              onClick={onOpenAuth}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition"
+              onClick={onOpenCart}
+              className="header-actions__item header-action header-action--cart"
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              title="Giỏ hàng của bạn"
             >
-              <i className="fa-solid fa-user"></i>
-              <span>Đăng nhập</span>
+              <div className="header-action__icon-wrapper" style={{ position: 'relative' }}>
+                <i className="fa-solid fa-cart-shopping header-action__icon" aria-hidden="true"></i>
+                <span
+                  className="cart-badge"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    backgroundColor: 'var(--primary, #0A5BFF)',
+                    color: '#FFFFFF',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    minWidth: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    display: cartCount > 0 ? 'flex' : 'none',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1.5px solid var(--surface-card, #FFFFFF)',
+                    padding: '0 3px',
+                    transform: 'translate(30%, -30%)',
+                  }}
+                >
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              </div>
+              <span className="header-actions__label header-action__label">Giỏ hàng</span>
             </button>
-          )}
-        </div>
-      </div>
 
-      {/* 3. Secondary Navigation Bar */}
-      <nav className="bg-slate-900/90 border-t border-slate-800/60 overflow-x-auto scrollbar-none">
-        <div className="max-w-7xl mx-auto px-4 flex items-center space-x-1 py-1.5 text-xs font-semibold whitespace-nowrap">
-          <Link
-            to="/"
-            className="px-3 py-1.5 rounded-lg text-blue-400 bg-blue-950/60 border border-blue-800/40 font-bold"
-          >
-            Trang chủ
-          </Link>
-          <Link
-            to="/category/laptop-gaming"
-            className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
-          >
-            Laptop Gaming
-          </Link>
-          <Link
-            to="/category/pc-nexora"
-            className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
-          >
-            PC Nexora
-          </Link>
-          <Link
-            to="/category/main-cpu-vga"
-            className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
-          >
-            Linh kiện PC
-          </Link>
-          <Link
-            to="/category/man-hinh"
-            className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
-          >
-            Màn hình
-          </Link>
-          <Link
-            to="/build-pc"
-            className="px-3 py-1.5 rounded-lg text-amber-400 hover:text-amber-300 hover:bg-amber-950/40 border border-amber-500/30 transition flex items-center gap-1.5 font-bold"
-          >
-            <i className="fa-solid fa-screwdriver-wrench"></i>
-            Xây dựng cấu hình
-          </Link>
-          <Link
-            to="/category/ban-phim"
-            className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
-          >
-            Gaming Gear
-          </Link>
-          <Link
-            to="/category/thiet-bi-van-phong"
-            className="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition"
-          >
-            Thiết bị văn phòng
-          </Link>
-          <Link
-            to="/promotions"
-            className="px-3 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition flex items-center gap-1.5 font-bold"
-          >
-            <i className="fa-solid fa-fire"></i>
-            Khuyến mãi
-            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-          </Link>
-          <Link
-            to="/ai-assistant"
-            className="px-3 py-1.5 rounded-lg text-purple-400 hover:text-purple-300 hover:bg-purple-950/40 transition flex items-center gap-1.5 font-bold"
-          >
-            <i className="fa-solid fa-wand-magic-sparkles"></i>
-            AI Tư vấn
-          </Link>
-          <Link
-            to="/compare"
-            className="px-3 py-1.5 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 transition flex items-center gap-1.5 font-bold"
-          >
-            <i className="fa-solid fa-scale-balanced"></i>
-            So sánh
-          </Link>
-          <Link
-            to="/foundation"
-            className="px-3 py-1.5 rounded-lg text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/40 border border-cyan-800/40 transition flex items-center gap-1.5 font-medium ml-auto"
-            title="Xem báo cáo nền tảng, database và API"
-          >
-            <i className="fa-solid fa-server"></i>
-            Kiến trúc nền tảng
-          </Link>
+            {/* Account */}
+            {currentUser ? (
+              <div
+                className="header-actions__item header-action header-action--account dropdown"
+                style={{ position: 'relative' }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'inherit',
+                  }}
+                >
+                  <i className="fa-solid fa-circle-user header-action__icon" aria-hidden="true"></i>
+                  <span className="header-actions__label header-action__label">
+                    {currentUser.fullName}
+                  </span>
+                  <i
+                    className="fa-solid fa-chevron-down dropdown__chevron"
+                    aria-hidden="true"
+                    style={{ fontSize: '10px' }}
+                  ></i>
+                </button>
+
+                {isAccountDropdownOpen && (
+                  <div
+                    className="dropdown__menu"
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      right: 0,
+                      backgroundColor: 'var(--surface-card, #FFFFFF)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '12px',
+                      boxShadow: 'var(--shadow-hover)',
+                      minWidth: '180px',
+                      padding: '8px 0',
+                      zIndex: 1000,
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: '6px 16px',
+                        borderBottom: '1px solid var(--border)',
+                        fontSize: '11px',
+                        color: 'var(--text-secondary)',
+                      }}
+                    >
+                      Vai trò: <strong style={{ color: 'var(--primary)' }}>{currentUser.role}</strong>
+                    </div>
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsAccountDropdownOpen(false)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px 16px',
+                        fontSize: '12px',
+                      }}
+                    >
+                      <i className="fa-solid fa-user"></i> Trang cá nhân
+                    </Link>
+                    <Link
+                      to="/orders"
+                      onClick={() => setIsAccountDropdownOpen(false)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px 16px',
+                        fontSize: '12px',
+                      }}
+                    >
+                      <i className="fa-solid fa-box-open"></i> Đơn hàng của tôi
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAccountDropdownOpen(false);
+                        onLogout();
+                      }}
+                      style={{
+                        width: '100%',
+                        textAlign: 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px 16px',
+                        fontSize: '12px',
+                        color: '#EF4444',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderTop: '1px solid var(--border)',
+                      }}
+                    >
+                      <i className="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={onOpenAuth}
+                className="header-actions__item header-action header-action--account"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                title="Đăng nhập tài khoản"
+              >
+                <i className="fa-regular fa-circle-user header-action__icon" aria-hidden="true"></i>
+                <span className="header-actions__label header-action__label">Đăng nhập</span>
+              </button>
+            )}
+
+            {/* Dark Mode Toggle */}
+            <button
+              type="button"
+              className="header-actions__item theme-toggle"
+              id="themeToggle"
+              onClick={toggleTheme}
+              aria-label={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+              title={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              <i className={`fa-solid ${isDarkMode ? 'fa-sun' : 'fa-moon'}`} aria-hidden="true"></i>
+            </button>
+          </div>
         </div>
-      </nav>
-    </header>
+
+        {/* 3. Main Navigation Bar */}
+        <nav className="main-nav" id="mainNavMenu">
+          <div className="container main-nav__inner">
+            <ul className="main-nav__links">
+              <li>
+                <Link to="/" className="is-active">
+                  Trang chủ
+                </Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/search?cat=pc-nexora">PC Gaming</Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/search?cat=laptop">Laptop</Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/search?cat=main-cpu-vga">Linh kiện PC</Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/search?cat=man-hinh">Màn hình</Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/build-pc" style={{ color: '#FACC15', fontWeight: 700 }}>
+                  <i
+                    className="fa-solid fa-screwdriver-wrench"
+                    style={{ marginRight: '4px' }}
+                  ></i>{' '}
+                  Xây dựng cấu hình
+                </Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/search?cat=ban-phim">Gaming Gear</Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/search?cat=thiet-bi-van-phong">Thiết bị văn phòng</Link>
+              </li>
+              <li>
+                <Link to="/search?promo=1" className="text-hot">
+                  Khuyến mãi <span className="dot-hot"></span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/posts">Tin công nghệ</Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/ai-assistant" style={{ color: '#8B5CF6', fontWeight: 700 }}>
+                  <i
+                    className="fa-solid fa-wand-magic-sparkles"
+                    style={{ marginRight: '4px' }}
+                  ></i>{' '}
+                  AI Tư vấn
+                </Link>
+              </li>
+              <li className="desktop-only-link">
+                <Link to="/compare" style={{ color: '#10B981', fontWeight: 700 }}>
+                  <i className="fa-solid fa-scale-balanced" style={{ marginRight: '4px' }}></i> So
+                  sánh
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+    </div>
   );
 };

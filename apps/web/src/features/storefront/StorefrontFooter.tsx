@@ -3,168 +3,96 @@ import { Link } from 'react-router-dom';
 
 export const StorefrontFooter: React.FC = () => {
   return (
-    <footer className="bg-slate-950 border-t border-slate-800 text-slate-400 text-xs mt-12">
-      {/* Upper Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {/* Col 1: About */}
-        <div className="space-y-3">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
-              <i className="fa-solid fa-bolt"></i>
+    <footer className="site-footer">
+      <div className="container footer-grid">
+        <div className="footer-col footer-brand">
+          <Link
+            to="/"
+            className="logo"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              textDecoration: 'none',
+              marginBottom: '20px',
+            }}
+          >
+            <img
+              src="/assets/images/logo.png"
+              alt="TechPilot Logo"
+              style={{ height: '40px', objectFit: 'contain', display: 'block' }}
+            />
+            <div className="logo-brand-info">
+              <span className="logo-brand-title">
+                Tech<span>Pilot</span>
+              </span>
+              <span className="logo-brand-tagline" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                Technology • Trust • Future
+              </span>
             </div>
-            <span className="text-xl font-extrabold text-white">
-              Nex<span className="text-blue-500">ora</span>
-            </span>
           </Link>
-          <p className="text-slate-400 leading-relaxed text-xs">
-            Hệ thống bán lẻ máy tính để bàn, laptop gaming, linh kiện PC cao cấp và thiết bị công
-            nghệ chính hãng hàng đầu Việt Nam.
+          <p>
+            TechPilot - Chuỗi siêu thị máy tính, laptop và gaming gear hàng đầu Việt Nam. Cam kết
+            chất lượng, bảo hành vượt trội, giá tốt nhất.
           </p>
-          <div className="pt-2 text-xs text-slate-300 space-y-1">
-            <p>
-              <i className="fa-solid fa-location-dot text-blue-400 mr-2"></i> 123 Đường Nguyễn Huệ,
-              Phường Bến Nghé, Quận 1, TP. HCM
-            </p>
-            <p>
-              <i className="fa-solid fa-phone text-blue-400 mr-2"></i> Hotline: 1800 2097 (8:00 -
-              21:30)
-            </p>
-            <p>
-              <i className="fa-solid fa-envelope text-blue-400 mr-2"></i> Email: hotro@nexora.vn
-            </p>
-          </div>
-        </div>
-
-        {/* Col 2: Customer Support */}
-        <div className="space-y-3">
-          <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-            Hỗ Trợ Khách Hàng
-          </h4>
-          <ul className="space-y-2">
-            <li>
-              <Link to="/huong-dan-mua-hang" className="hover:text-blue-400 transition">
-                Hướng dẫn mua hàng trực tuyến
-              </Link>
-            </li>
-            <li>
-              <Link to="/chinh-sach-tra-gop" className="hover:text-blue-400 transition">
-                Chính sách trả góp 0% lãi suất
-              </Link>
-            </li>
-            <li>
-              <Link to="/order-tracking" className="hover:text-blue-400 transition">
-                Tra cứu trạng thái đơn hàng
-              </Link>
-            </li>
-            <li>
-              <Link to="/quy-dinh-bao-hanh" className="hover:text-blue-400 transition">
-                Quy định và chính sách bảo hành
-              </Link>
-            </li>
-            <li>
-              <Link to="/thu-cu-doi-moi" className="hover:text-blue-400 transition">
-                Chính sách thu cũ đổi mới
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Col 3: Policies */}
-        <div className="space-y-3">
-          <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-            Chính Sách Bán Hàng
-          </h4>
-          <ul className="space-y-2">
-            <li>
-              <Link to="/chinh-sach-giao-hang" className="hover:text-blue-400 transition">
-                Chính sách giao hàng toàn quốc
-              </Link>
-            </li>
-            <li>
-              <Link to="/chinh-sach-doi-tra" className="hover:text-blue-400 transition">
-                Chính sách đổi trả trong 7 ngày
-              </Link>
-            </li>
-            <li>
-              <Link to="/chinh-sach-bao-mat" className="hover:text-blue-400 transition">
-                Chính sách bảo mật thông tin
-              </Link>
-            </li>
-            <li>
-              <Link to="/xuat-hoa-don-vat" className="hover:text-blue-400 transition">
-                Hỗ trợ xuất hóa đơn điện tử VAT
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/foundation"
-                className="text-cyan-400 hover:text-cyan-300 font-semibold transition"
-              >
-                Trạng thái hệ thống kỹ thuật
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Col 4: Payments & Trust */}
-        <div className="space-y-3">
-          <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-            Phương Thức Thanh Toán
-          </h4>
-          <div className="flex flex-wrap gap-2 pt-1">
-            <span className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white font-bold text-[10px]">
-              💵 COD Tiền mặt
-            </span>
-            <span className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-blue-400 font-bold text-[10px]">
-              🏦 Chuyển khoản Napas
-            </span>
-            <span className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-rose-400 font-bold text-[10px]">
-              💳 VNPay QR
-            </span>
-            <span className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 font-bold text-[10px]">
-              ✨ Trả góp qua thẻ
-            </span>
-          </div>
-
-          <h4 className="text-sm font-bold text-white uppercase tracking-wider pt-3">
-            Kết Nối Với Chúng Tôi
-          </h4>
-          <div className="flex space-x-3 pt-1">
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noreferrer"
-              className="w-8 h-8 rounded-lg bg-slate-900 hover:bg-blue-600 text-slate-300 hover:text-white flex items-center justify-center transition"
-            >
+          <div className="footer-social">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
               <i className="fa-brands fa-facebook-f"></i>
             </a>
-            <a
-              href="https://youtube.com"
-              target="_blank"
-              rel="noreferrer"
-              className="w-8 h-8 rounded-lg bg-slate-900 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center transition"
-            >
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
               <i className="fa-brands fa-youtube"></i>
             </a>
-            <a
-              href="https://tiktok.com"
-              target="_blank"
-              rel="noreferrer"
-              className="w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition"
-            >
+            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">
               <i className="fa-brands fa-tiktok"></i>
             </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+              <i className="fa-brands fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+
+        <div className="footer-col">
+          <h4>Về chúng tôi</h4>
+          <Link to="/about">Giới thiệu TechPilot</Link>
+          <Link to="/careers">Tuyển dụng nhân viên</Link>
+          <Link to="/contact">Liên hệ hợp tác</Link>
+          <Link to="/stores">Hệ thống cửa hàng</Link>
+          <Link to="/privacy">Chính sách bảo mật</Link>
+          <Link to="/foundation" style={{ color: '#38BDF8', fontWeight: 600 }}>
+            Kiểm chứng kiến trúc hệ thống
+          </Link>
+        </div>
+
+        <div className="footer-col">
+          <h4>Hỗ trợ khách hàng</h4>
+          <Link to="/guide">Hướng dẫn mua hàng online</Link>
+          <Link to="/returns">Chính sách đổi trả sản phẩm</Link>
+          <Link to="/warranty">Chính sách bảo hành sửa chữa</Link>
+          <Link to="/order-tracking">Tra cứu hóa đơn điện tử</Link>
+          <Link to="/support">Gửi yêu cầu hỗ trợ kỹ thuật</Link>
+        </div>
+
+        <div className="footer-col">
+          <h4>Đăng ký nhận ưu đãi</h4>
+          <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '12px' }}>
+            Đăng ký để nhận những thông báo khuyến mãi công nghệ sớm nhất.
+          </p>
+          <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+            <input type="email" placeholder="Email của bạn..." required />
+            <button type="submit">Đăng ký</button>
+          </form>
+          <div className="payment-icons" style={{ marginTop: '24px' }}>
+            <i className="fa-solid fa-money-bill-wave" title="Tiền mặt COD"></i>
+            <i className="fa-solid fa-truck-fast" title="Giao hàng tận nơi"></i>
+            <i className="fa-solid fa-shield-halved" title="Bảo đảm chất lượng"></i>
           </div>
         </div>
       </div>
 
-      {/* Lower Footer */}
-      <div className="border-t border-slate-900 py-4 bg-black/60">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-slate-400 text-[11px]">
-          <p>
-            © 2026 Nexora Tech Store. Single-Vendor Hardware E-Commerce & Store Management System.
-          </p>
-          <p>Đồ án tốt nghiệp chuyên ngành Kỹ thuật Phần mềm — Modern Architecture Monolith.</p>
+      <div className="footer-bottom">
+        <div className="container footer-bottom__inner">
+          <span>© 2026 TechPilot. Bản quyền thuộc về đội ngũ phát triển TechPilot.</span>
+          <span>Kết nối công nghệ – Kiến tạo tương lai</span>
         </div>
       </div>
     </footer>
