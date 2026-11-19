@@ -168,7 +168,7 @@ export const ComparePage: React.FC = () => {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+      <main className="container" style={{ paddingTop: '24px', paddingBottom: '60px' }}>
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-gray-500 mb-6">
           <Link to="/" className="hover:text-blue-600">Trang chủ</Link>
@@ -239,115 +239,130 @@ export const ComparePage: React.FC = () => {
         </div>
 
         {/* Comparison Table */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-          <div className="overflow-x-auto" style={{ scrollPaddingLeft: '24px' }}>
-            <table className="w-full border-collapse text-left min-w-[700px]">
-              <thead>
-                <tr className="bg-slate-50 border-b border-gray-200">
-                  <th className="py-5 pl-8 pr-4 w-64 min-w-[220px] text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    Thuộc tính
-                  </th>
-                  {displayProducts.map((p) => {
-                    const price = Number(p.price);
-                    const salePrice = p.salePrice ? Number(p.salePrice) : null;
-                    return (
-                      <th key={p.id} className="p-5 w-64 align-top">
-                        <div className="relative">
-                          {displayProducts.length > 2 && (
-                            <button
-                              onClick={() => removeComparedProduct(p.id)}
-                              className="absolute top-0 right-0 w-7 h-7 rounded-full bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-400 flex items-center justify-center transition-colors"
-                              title="Bỏ so sánh"
-                            >
-                              <i className="fas fa-times text-xs"></i>
-                            </button>
-                          )}
-                          <div className="w-full h-36 bg-slate-50 rounded-2xl p-2 flex items-center justify-center mb-3">
-                            <img
-                              src={getProductImage(p)}
-                              alt={p.name}
-                              className="max-h-full max-w-full object-contain"
-                            />
-                          </div>
-                          <Link
-                            to={`/product/${p.slug}`}
-                            className="font-bold text-sm text-gray-900 hover:text-blue-600 line-clamp-2 leading-snug mb-2 block"
-                          >
-                            {p.name}
-                          </Link>
-                          <div className="flex items-baseline gap-2 mb-3">
-                            <span className="text-base font-extrabold text-red-600">
-                              {(salePrice || price).toLocaleString('vi-VN')}đ
-                            </span>
-                            {salePrice && (
-                              <span className="text-xs text-gray-400 line-through">
-                                {price.toLocaleString('vi-VN')}đ
-                              </span>
-                            )}
-                          </div>
+        <div
+          style={{
+            overflowX: 'auto',
+            backgroundColor: '#FFFFFF',
+            border: '1px solid var(--border, #E2E8F0)',
+            borderRadius: '14px',
+            boxShadow: 'var(--shadow-card, 0 4px 20px rgba(0,0,0,0.06))',
+            marginBottom: '32px',
+          }}
+        >
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px', textAlign: 'left', fontSize: '14px' }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid var(--border, #E2E8F0)', backgroundColor: 'var(--surface-muted, #F8FAFC)' }}>
+                <th style={{ padding: '20px 28px', width: '220px', minWidth: '220px', fontWeight: 800, color: 'var(--text-primary, #0F172A)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Thuộc tính
+                </th>
+                {displayProducts.map((p) => {
+                  const price = Number(p.price);
+                  const salePrice = p.salePrice ? Number(p.salePrice) : null;
+                  return (
+                    <th key={p.id} className="p-5 w-64 align-top" style={{ borderLeft: '1px solid var(--border, #E2E8F0)' }}>
+                      <div className="relative">
+                        {displayProducts.length > 2 && (
                           <button
-                            onClick={() => addToCartMutation.mutate(p)}
-                            className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
+                            onClick={() => removeComparedProduct(p.id)}
+                            className="absolute top-0 right-0 w-7 h-7 rounded-full bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-400 flex items-center justify-center transition-colors"
+                            title="Bỏ so sánh"
                           >
-                            <i className="fas fa-cart-plus"></i>
-                            Thêm vào giỏ
+                            <i className="fas fa-times text-xs"></i>
                           </button>
+                        )}
+                        <div className="w-full h-36 bg-slate-50 rounded-2xl p-2 flex items-center justify-center mb-3">
+                          <img
+                            src={getProductImage(p)}
+                            alt={p.name}
+                            className="max-h-full max-w-full object-contain"
+                          />
                         </div>
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-sm">
-                <tr>
-                  <td className="py-4 pl-8 pr-4 w-64 min-w-[220px] whitespace-nowrap font-bold text-gray-700 text-xs uppercase bg-slate-50/50">Thương hiệu</td>
-                  {displayProducts.map((p) => (
-                    <td key={p.id} className="p-4 font-semibold text-gray-900">
-                      {p.brand?.name || 'Chính Hãng'}
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <td className="py-4 pl-8 pr-4 w-64 min-w-[220px] whitespace-nowrap font-bold text-gray-700 text-xs uppercase bg-slate-50/50">Tình trạng kho</td>
-                  {displayProducts.map((p) => (
-                    <td key={p.id} className="p-4">
-                      {p.stockQuantity > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600 font-bold text-xs">
-                          <i className="fas fa-check-circle"></i> Sẵn hàng ({p.stockQuantity})
-                        </span>
-                      ) : (
-                        <span className="text-red-500 font-bold text-xs">Tạm hết hàng</span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <td className="py-4 pl-8 pr-4 w-64 min-w-[220px] whitespace-nowrap font-bold text-gray-700 text-xs uppercase bg-slate-50/50">Thông số kỹ thuật</td>
-                  {displayProducts.map((p) => (
-                    <td key={p.id} className="p-4 text-xs text-gray-700 space-y-1">
-                      {p.specs ? (
-                        Object.entries(p.specs).map(([k, v]) => (
-                          <div key={k}>
-                            <span className="font-semibold text-gray-900">{k}:</span> {String(v)}
-                          </div>
-                        ))
-                      ) : (
-                        <span>Tiêu chuẩn nhà sản xuất</span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <td className="py-4 pl-8 pr-4 w-64 min-w-[220px] whitespace-nowrap font-bold text-gray-700 text-xs uppercase bg-slate-50/50">Bảo hành chính hãng</td>
-                  {displayProducts.map((p) => (
-                    <td key={p.id} className="p-4 text-xs font-medium text-gray-700">
-                      24 tháng • 1 đổi 1 trong 7 ngày đầu
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                        <Link
+                          to={`/product/${p.slug}`}
+                          className="font-bold text-sm text-gray-900 hover:text-blue-600 line-clamp-2 leading-snug mb-2 block"
+                        >
+                          {p.name}
+                        </Link>
+                        <div className="flex items-baseline gap-2 mb-3">
+                          <span className="text-base font-extrabold text-red-600">
+                            {(salePrice || price).toLocaleString('vi-VN')}đ
+                          </span>
+                          {salePrice && (
+                            <span className="text-xs text-gray-400 line-through">
+                              {price.toLocaleString('vi-VN')}đ
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => addToCartMutation.mutate(p)}
+                          className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs flex items-center justify-center gap-1.5"
+                        >
+                          <i className="fas fa-cart-plus"></i>
+                          Thêm vào giỏ
+                        </button>
+                      </div>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-sm">
+              <tr style={{ borderBottom: '1px solid var(--border, #E2E8F0)' }}>
+                <td style={{ padding: '16px 28px', width: '220px', minWidth: '220px', fontWeight: 700, color: 'var(--text-secondary, #64748B)', backgroundColor: 'var(--surface-muted, #F8FAFC)', whiteSpace: 'nowrap', fontSize: '13px' }}>
+                  Thương hiệu
+                </td>
+                {displayProducts.map((p) => (
+                  <td key={p.id} className="p-4 font-semibold text-gray-900" style={{ borderLeft: '1px solid var(--border, #E2E8F0)' }}>
+                    {p.brand?.name || 'Chính Hãng'}
+                  </td>
+                ))}
+              </tr>
+              <tr style={{ borderBottom: '1px solid var(--border, #E2E8F0)' }}>
+                <td style={{ padding: '16px 28px', width: '220px', minWidth: '220px', fontWeight: 700, color: 'var(--text-secondary, #64748B)', backgroundColor: 'var(--surface-muted, #F8FAFC)', whiteSpace: 'nowrap', fontSize: '13px' }}>
+                  Tình trạng kho
+                </td>
+                {displayProducts.map((p) => (
+                  <td key={p.id} className="p-4" style={{ borderLeft: '1px solid var(--border, #E2E8F0)' }}>
+                    {p.stockQuantity > 0 ? (
+                      <span className="inline-flex items-center gap-1 text-emerald-600 font-bold text-xs">
+                        <i className="fas fa-check-circle"></i> Sẵn hàng ({p.stockQuantity})
+                      </span>
+                    ) : (
+                      <span className="text-red-500 font-bold text-xs">Tạm hết hàng</span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr style={{ borderBottom: '1px solid var(--border, #E2E8F0)' }}>
+                <td style={{ padding: '16px 28px', width: '220px', minWidth: '220px', fontWeight: 700, color: 'var(--text-secondary, #64748B)', backgroundColor: 'var(--surface-muted, #F8FAFC)', whiteSpace: 'nowrap', fontSize: '13px' }}>
+                  Thông số kỹ thuật
+                </td>
+                {displayProducts.map((p) => (
+                  <td key={p.id} className="p-4 text-xs text-gray-700 space-y-1" style={{ borderLeft: '1px solid var(--border, #E2E8F0)' }}>
+                    {p.specs ? (
+                      Object.entries(p.specs).map(([k, v]) => (
+                        <div key={k}>
+                          <span className="font-semibold text-gray-900">{k}:</span> {String(v)}
+                        </div>
+                      ))
+                    ) : (
+                      <span>Tiêu chuẩn nhà sản xuất</span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td style={{ padding: '16px 28px', width: '220px', minWidth: '220px', fontWeight: 700, color: 'var(--text-secondary, #64748B)', backgroundColor: 'var(--surface-muted, #F8FAFC)', whiteSpace: 'nowrap', fontSize: '13px' }}>
+                  Bảo hành chính hãng
+                </td>
+                {displayProducts.map((p) => (
+                  <td key={p.id} className="p-4 text-xs font-medium text-gray-700" style={{ borderLeft: '1px solid var(--border, #E2E8F0)' }}>
+                    24 tháng • 1 đổi 1 trong 7 ngày đầu
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         {/* AI Analysis Trigger Button */}
