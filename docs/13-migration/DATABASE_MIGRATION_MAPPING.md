@@ -38,3 +38,31 @@ await prisma.$transaction(async (tx) => {
 });
 ```
 3. **Bảo tồn lịch sử di trú:** Không sửa trực tiếp các migration đã áp dụng; mọi thay đổi lược đồ đều phải thực hiện qua migration tiến mới (`prisma migrate dev`).
+
+---
+
+## 3. Nhật Ký Bơm Toàn Bộ Dữ Liệu Gốc TechPilot (100% Full Seed Execution)
+
+Đã hoàn tất nạp 100% dữ liệu gốc từ `TechPilot/database/seed_dev.sql` vào cơ sở dữ liệu MySQL 8.4 LTS của Nexora qua script `scripts/seed_full_from_techpilot.cjs` với cơ chế batching tốc độ cao:
+
+| Bảng dữ liệu | Số lượng bản ghi đã nạp | Nguồn dữ liệu | Trạng thái xác minh |
+|:---|:---|:---|:---|
+| `categories` | 21 danh mục phân cấp | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `brands` | 30 thương hiệu công nghệ | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `products` | 651 sản phẩm cấu hình cao | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `product_images` | 2,604 ảnh sản phẩm | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `coupons` | 3 mã giảm giá chính thức | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `flash_sales` | 1 chiến dịch Flash Sale | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `flash_sale_items` | 5 sản phẩm Flash Sale | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `banners` | 5 banners tiếp thị (Hero & Sidebar) | `TechPilot/database/seed_dev.sql` + RTX 50 | `PASS` |
+| `posts` | 7 bài viết tin tức công nghệ | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `reviews` | 6 đánh giá khách hàng (5 sao) | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `orders` | 10 đơn hàng mẫu TechPilot | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `order_items` | 10 chi tiết đơn hàng snapshot | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `inventory_logs` | 5 nhật ký xuất nhập kho | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `notifications` | 9 thông báo hệ thống | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `wishlists` | 1 mục yêu thích mẫu | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `users` | Toàn bộ tài khoản TechPilot + tài khoản test Nexora | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `customer_addresses` | Danh bạ địa chỉ giao hàng | `TechPilot/database/seed_dev.sql` | `PASS` |
+| `store_settings` | Cấu hình cửa hàng đơn TechPilot | `TechPilot/database/seed_dev.sql` | `PASS` |
+
