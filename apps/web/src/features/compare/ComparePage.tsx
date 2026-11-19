@@ -240,11 +240,11 @@ export const ComparePage: React.FC = () => {
 
         {/* Comparison Table */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" style={{ scrollPaddingLeft: '24px' }}>
             <table className="w-full border-collapse text-left min-w-[700px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-gray-200">
-                  <th className="py-5 pl-6 pr-4 w-56 min-w-[200px] text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  <th className="py-5 pl-8 pr-4 w-64 min-w-[220px] text-xs font-bold text-gray-500 uppercase tracking-wider">
                     Thuộc tính
                   </th>
                   {displayProducts.map((p) => {
@@ -300,7 +300,7 @@ export const ComparePage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm">
                 <tr>
-                  <td className="py-4 pl-6 pr-4 w-56 min-w-[200px] whitespace-nowrap font-bold text-gray-500 text-xs uppercase bg-slate-50/50">Thương hiệu</td>
+                  <td className="py-4 pl-8 pr-4 w-64 min-w-[220px] whitespace-nowrap font-bold text-gray-700 text-xs uppercase bg-slate-50/50">Thương hiệu</td>
                   {displayProducts.map((p) => (
                     <td key={p.id} className="p-4 font-semibold text-gray-900">
                       {p.brand?.name || 'Chính Hãng'}
@@ -308,7 +308,7 @@ export const ComparePage: React.FC = () => {
                   ))}
                 </tr>
                 <tr>
-                  <td className="py-4 pl-6 pr-4 w-56 min-w-[200px] whitespace-nowrap font-bold text-gray-500 text-xs uppercase bg-slate-50/50">Tình trạng kho</td>
+                  <td className="py-4 pl-8 pr-4 w-64 min-w-[220px] whitespace-nowrap font-bold text-gray-700 text-xs uppercase bg-slate-50/50">Tình trạng kho</td>
                   {displayProducts.map((p) => (
                     <td key={p.id} className="p-4">
                       {p.stockQuantity > 0 ? (
@@ -322,7 +322,7 @@ export const ComparePage: React.FC = () => {
                   ))}
                 </tr>
                 <tr>
-                  <td className="py-4 pl-6 pr-4 w-56 min-w-[200px] whitespace-nowrap font-bold text-gray-500 text-xs uppercase bg-slate-50/50">Thông số kỹ thuật</td>
+                  <td className="py-4 pl-8 pr-4 w-64 min-w-[220px] whitespace-nowrap font-bold text-gray-700 text-xs uppercase bg-slate-50/50">Thông số kỹ thuật</td>
                   {displayProducts.map((p) => (
                     <td key={p.id} className="p-4 text-xs text-gray-700 space-y-1">
                       {p.specs ? (
@@ -338,7 +338,7 @@ export const ComparePage: React.FC = () => {
                   ))}
                 </tr>
                 <tr>
-                  <td className="py-4 pl-6 pr-4 w-56 min-w-[200px] whitespace-nowrap font-bold text-gray-500 text-xs uppercase bg-slate-50/50">Bảo hành chính hãng</td>
+                  <td className="py-4 pl-8 pr-4 w-64 min-w-[220px] whitespace-nowrap font-bold text-gray-700 text-xs uppercase bg-slate-50/50">Bảo hành chính hãng</td>
                   {displayProducts.map((p) => (
                     <td key={p.id} className="p-4 text-xs font-medium text-gray-700">
                       24 tháng • 1 đổi 1 trong 7 ngày đầu
