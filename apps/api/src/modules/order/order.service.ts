@@ -165,8 +165,9 @@ export class OrderService {
         });
       }
 
-      // Decrement stock & record inventory log
-      for (const item of rawItems) {
+      // Decrement stock & record inventory log in deterministic sorted order to prevent MySQL deadlocks
+      const sortedItems = [...rawItems].sort((a, b) => a.productId - b.productId);
+      for (const item of sortedItems) {
         const prod = productMap.get(item.productId)!;
         const newBalance = prod.stockQuantity - item.quantity;
 

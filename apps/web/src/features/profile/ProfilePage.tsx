@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
@@ -11,12 +11,26 @@ import { authService } from '../../services/authService';
 import type { AuthUser, OrderDto } from '@nexora/shared';
 
 export const ProfilePage: React.FC = () => {
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const getTabFromPath = (): 'profile' | 'orders' | 'addresses' | 'password' => {
+    if (location.pathname.includes('/orders')) return 'orders';
+    if (location.pathname.includes('/addresses')) return 'addresses';
+    if (location.pathname.includes('/password')) return 'password';
+    return 'profile';
+  };
+
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
-  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'addresses' | 'password'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'addresses' | 'password'>(getTabFromPath);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleTabChange = (tabId: 'profile' | 'orders' | 'addresses' | 'password') => {
+    setActiveTab(tabId);
+    navigate(tabId === 'profile' ? '/profile' : `/profile/${tabId}`);
+  };
 
   // Form states
   const [fullName, setFullName] = useState(currentUser?.fullName || 'Nguyễn Văn An');
@@ -169,7 +183,7 @@ export const ProfilePage: React.FC = () => {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setActiveTab(item.id as typeof activeTab)}
+                  onClick={() => handleTabChange(item.id as typeof activeTab)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',

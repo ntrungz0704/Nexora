@@ -8,16 +8,15 @@ export class PaymentController {
 
   createVnpayUrl = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { orderCode, amount, orderInfo } = req.body;
-      if (!orderCode || !amount) {
-        throw new AppError(400, 'INVALID_PAYMENT_DATA', 'Vui lòng cung cấp mã đơn hàng và số tiền.');
+      const { orderCode, orderInfo } = req.body;
+      if (!orderCode) {
+        throw new AppError(400, 'INVALID_PAYMENT_DATA', 'Vui lòng cung cấp mã đơn hàng.');
       }
 
       const ipAddr =
         (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
-      const paymentUrl = this.service.createVnpayPaymentUrl({
+      const paymentUrl = await this.service.createVnpayPaymentUrl({
         orderCode,
-        amount: Number(amount),
         orderInfo,
         ipAddr,
       });

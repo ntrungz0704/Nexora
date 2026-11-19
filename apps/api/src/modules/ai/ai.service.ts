@@ -110,9 +110,14 @@ export class AiService {
       };
     }
 
+    const geminiAnswer = await this.callGeminiIfConfigured(
+      `Bạn là trợ lý ảo bán hàng của showroom công nghệ Nexora. Khách hàng hỏi: "${message}". Hãy trả lời ngắn gọn, chuyên nghiệp, tiếng Việt thân thiện trong 2-3 câu.`
+    );
+
     return {
-      intent: 'GENERAL_ASSISTANCE',
+      intent: geminiAnswer ? 'AI_GENERATIVE_ASSISTANCE' : 'GENERAL_ASSISTANCE',
       answer:
+        geminiAnswer ||
         'Chào bạn! Tôi là trợ lý ảo Nexora AI. Tôi có thể hỗ trợ bạn tìm kiếm phần cứng, giải đáp cấu hình gaming/đồ họa, kiểm tra chính sách bảo hành hoặc tra cứu đơn hàng. Bạn đang cần hỗ trợ vấn đề gì hôm nay?',
       quickReplies: ['Tư vấn laptop gaming', 'Chính sách bảo hành', 'Xây dựng cấu hình PC'],
     };
@@ -386,7 +391,13 @@ export class AiService {
     const lower = question.toLowerCase();
     let answer: string;
 
-    if (lower.includes('fps') || lower.includes('chơi game') || lower.includes('game')) {
+    // Check if Gemini API can provide personalized answer
+    const geminiAnswer = await this.callGeminiIfConfigured(
+      `Khách hàng đang xem sản phẩm "${product.name}" (giá: ${Number(product.salePrice || product.price).toLocaleString('vi-VN')}đ, thông số: ${JSON.stringify(product.specs)}). Khách hàng hỏi: "${question}". Hãy đóng vai chuyên viên tư vấn công nghệ Nexora trả lời ngắn gọn, chính xác kỹ thuật trong 2-3 câu bằng tiếng Việt.`
+    );
+    if (geminiAnswer) {
+      answer = geminiAnswer;
+    } else if (lower.includes('fps') || lower.includes('chơi game') || lower.includes('game')) {
       answer = `Với cấu hình của ${product.name}, sản phẩm hoàn toàn chiến mượt các tựa game Esport (Valorant, CS2, LMHT) ở mức > 144 FPS và cân tốt các game AAA ở thiết lập đồ họa từ High đến Ultra.`;
     } else if (lower.includes('nâng cấp') || lower.includes('ram') || lower.includes('ssd')) {
       answer = `${product.name} hỗ trợ nâng cấp phần cứng linh hoạt với khe cắm chuẩn quốc tế. Bạn có thể mang máy tới Nexora để được nhân viên kỹ thuật hỗ trợ nâng cấp RAM/SSD miễn phí công lắp ráp.`;
@@ -407,6 +418,35 @@ export class AiService {
     });
 
     return { answer, productId };
+  }
+
+  /**
+   * Gọi mô hình Google Gemini nếu có cấu hình GEMINI_API_KEY
+   * Nếu không cấu hình, tự động trả về null để hệ thống dùng Deterministic Scoring/Rule Engine
+   */
+  private async callGeminiIfConfigured(prompt: string): Promise<string | null> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey.trim() === '') return null;
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 300, temperature: 0.7 },
+        }),
+        signal: AbortSignal.timeout(4000),
+      });
+      if (!response.ok) return null;
+      const data = (await response.json()) as {
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      };
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      return typeof text === 'string' && text.trim() !== '' ? text.trim() : null;
+    } catch {
+      return null;
+    }
   }
 
   private mapProductToDto(product: ProductWithCatAndBrand): ProductDto {

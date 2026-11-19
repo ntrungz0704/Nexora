@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../../services/authService';
 import type { AuthUser, AdminDashboardSummaryDto, OrderDto, ProductDto } from '@nexora/shared';
@@ -24,10 +24,26 @@ interface AdminCategoryItem {
 }
 
 export const AdminDashboardPage: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const getTabFromPath = (): 'dashboard' | 'orders' | 'products' | 'categories' | 'inventory' => {
+    if (location.pathname.includes('/orders')) return 'orders';
+    if (location.pathname.includes('/products')) return 'products';
+    if (location.pathname.includes('/categories')) return 'categories';
+    if (location.pathname.includes('/inventory')) return 'inventory';
+    return 'dashboard';
+  };
+
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'products' | 'categories' | 'inventory'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'products' | 'categories' | 'inventory'>(getTabFromPath);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleTabChange = (tabId: 'dashboard' | 'orders' | 'products' | 'categories' | 'inventory') => {
+    setActiveTab(tabId);
+    navigate(tabId === 'dashboard' ? '/admin' : `/admin/${tabId}`);
+  };
 
   // Modals
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
@@ -212,7 +228,7 @@ export const AdminDashboardPage: React.FC = () => {
             ].map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id as 'dashboard' | 'orders' | 'products' | 'categories' | 'inventory')}
+                onClick={() => handleTabChange(item.id as 'dashboard' | 'orders' | 'products' | 'categories' | 'inventory')}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
                   activeTab === item.id
                     ? 'bg-blue-600 text-white shadow-md'

@@ -6,17 +6,50 @@ const prisma = new PrismaClient();
 
 export class PaymentService {
   private readonly vnpTmnCode = process.env.VNPAY_TMN_CODE || 'NEXORATM';
-  private readonly vnpHashSecret = process.env.VNPAY_HASH_SECRET || 'NEXORAVNPAYHASHSECRET2026DEVKEY';
   private readonly vnpUrl = process.env.VNPAY_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
   private readonly vnpReturnUrl =
     process.env.VNPAY_RETURN_URL || 'http://localhost:5173/checkout/success';
 
-  createVnpayPaymentUrl(params: {
+  private getHashSecret(): string {
+    const isProd = process.env.NODE_ENV === 'production';
+    const secret = process.env.VNPAY_HASH_SECRET;
+    if (isProd && (!secret || secret.trim() === '')) {
+      throw new AppError(
+        500,
+        'PAYMENT_CONFIG_ERROR',
+        'VNPAY_HASH_SECRET bắt buộc phải được cấu hình trong môi trường Production.'
+      );
+    }
+    return secret || 'NEXORAVNPAYHASHSECRET2026DEVKEY';
+  }
+
+  /**
+   * Tạo URL thanh toán VNPay
+   * Số tiền được lấy trực tiếp từ Order trong database, tuyệt đối không tin tưởng client input.
+   */
+  async createVnpayPaymentUrl(params: {
     orderCode: string;
-    amount: number;
-    orderInfo: string;
+    orderInfo?: string;
     ipAddr?: string;
-  }): string {
+  }): Promise<string> {
+    const order = await prisma.order.findUnique({
+      where: { orderCode: params.orderCode },
+    });
+
+    if (!order) {
+      throw new AppError(404, 'ORDER_NOT_FOUND', `Không tìm thấy đơn hàng ${params.orderCode}.`);
+    }
+
+    if (order.paymentStatus === 'PAID') {
+      throw new AppError(400, 'ORDER_ALREADY_PAID', `Đơn hàng ${params.orderCode} đã được thanh toán trước đó.`);
+    }
+
+    const serverAmount = Number(order.totalAmount);
+    if (serverAmount <= 0) {
+      throw new AppError(400, 'INVALID_AMOUNT', 'Số tiền của đơn hàng không hợp lệ để thanh toán.');
+    }
+
+    const secret = this.getHashSecret();
     const date = new Date();
     const createDate = this.formatDate(date);
 
@@ -26,10 +59,10 @@ export class PaymentService {
       vnp_TmnCode: this.vnpTmnCode,
       vnp_Locale: 'vn',
       vnp_CurrCode: 'VND',
-      vnp_TxnRef: params.orderCode,
-      vnp_OrderInfo: params.orderInfo || `Thanh toan don hang ${params.orderCode}`,
+      vnp_TxnRef: order.orderCode,
+      vnp_OrderInfo: params.orderInfo || `Thanh toan don hang ${order.orderCode}`,
       vnp_OrderType: 'other',
-      vnp_Amount: (params.amount * 100).toString(),
+      vnp_Amount: Math.round(serverAmount * 100).toString(),
       vnp_ReturnUrl: this.vnpReturnUrl,
       vnp_IpAddr: params.ipAddr || '127.0.0.1',
       vnp_CreateDate: createDate,
@@ -37,7 +70,7 @@ export class PaymentService {
 
     const sortedParams = this.sortObject(vnpParams);
     const signData = new URLSearchParams(sortedParams).toString();
-    const hmac = crypto.createHmac('sha512', this.vnpHashSecret);
+    const hmac = crypto.createHmac('sha512', secret);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
     sortedParams.vnp_SecureHash = signed;
@@ -45,23 +78,30 @@ export class PaymentService {
     return `${this.vnpUrl}?${new URLSearchParams(sortedParams).toString()}`;
   }
 
+  /**
+   * Xác thực callback/IPN từ VNPay
+   * Kiểm tra chữ ký HMAC-SHA512, sự tồn tại của đơn hàng, đối chiếu số tiền và xử lý idempotent.
+   */
   async verifyVnpayCallback(query: Record<string, string>): Promise<{
     isSuccess: boolean;
     orderCode: string;
     message: string;
   }> {
+    const secret = this.getHashSecret();
     const secureHash = query.vnp_SecureHash;
-    delete query.vnp_SecureHash;
-    delete query.vnp_SecureHashType;
+    const cleanQuery = { ...query };
+    delete cleanQuery.vnp_SecureHash;
+    delete cleanQuery.vnp_SecureHashType;
 
-    const sortedParams = this.sortObject(query);
+    const sortedParams = this.sortObject(cleanQuery);
     const signData = new URLSearchParams(sortedParams).toString();
-    const hmac = crypto.createHmac('sha512', this.vnpHashSecret);
+    const hmac = crypto.createHmac('sha512', secret);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
     const isValidSignature = secureHash?.toLowerCase() === signed.toLowerCase();
     const orderCode = query.vnp_TxnRef || '';
     const responseCode = query.vnp_ResponseCode;
+    const transactionStatus = query.vnp_TransactionStatus;
 
     if (!isValidSignature) {
       return {
@@ -71,7 +111,41 @@ export class PaymentService {
       };
     }
 
-    if (responseCode === '00') {
+    const order = await prisma.order.findUnique({
+      where: { orderCode },
+    });
+
+    if (!order) {
+      return {
+        isSuccess: false,
+        orderCode,
+        message: `Không tìm thấy đơn hàng ${orderCode}.`,
+      };
+    }
+
+    // Đối chiếu số tiền thanh toán từ cổng so với cơ sở dữ liệu
+    const expectedAmount = Math.round(Number(order.totalAmount) * 100);
+    const receivedAmount = Number(query.vnp_Amount || 0);
+    if (receivedAmount !== expectedAmount) {
+      return {
+        isSuccess: false,
+        orderCode,
+        message: `Số tiền thanh toán không khớp (nhận: ${receivedAmount}, cần: ${expectedAmount}).`,
+      };
+    }
+
+    // Xử lý Idempotent: Nếu đã thanh toán rồi thì trả về thành công ngay, không cập nhật trùng lặp
+    if (order.paymentStatus === 'PAID') {
+      return {
+        isSuccess: true,
+        orderCode,
+        message: 'Đơn hàng đã được ghi nhận thanh toán thành công trước đó (Idempotent).',
+      };
+    }
+
+    const isPaid = responseCode === '00' && (transactionStatus === '00' || !transactionStatus);
+
+    if (isPaid) {
       await prisma.order.update({
         where: { orderCode },
         data: {
@@ -88,17 +162,43 @@ export class PaymentService {
       };
     }
 
+    // Cập nhật trạng thái thất bại
+    await prisma.order.update({
+      where: { orderCode },
+      data: {
+        paymentStatus: 'FAILED',
+      },
+    });
+
     return {
       isSuccess: false,
       orderCode,
-      message: `Thanh toán không thành công. Mã lỗi: ${responseCode}`,
+      message: `Thanh toán không thành công. Mã phản hồi: ${responseCode}, trạng thái giao dịch: ${transactionStatus || 'unknown'}`,
     };
   }
 
+  /**
+   * Giả lập thanh toán Sandbox (CHỈ CHO PHÉP TRONG DEVELOPMENT & TEST)
+   */
   async simulatePaymentSuccess(orderCode: string): Promise<{ orderCode: string; status: string }> {
+    if (process.env.NODE_ENV === 'production') {
+      throw new AppError(
+        403,
+        'SIMULATOR_DISABLED',
+        'Tính năng giả lập thanh toán bị vô hiệu hóa trong môi trường Production.'
+      );
+    }
+
     const order = await prisma.order.findUnique({ where: { orderCode } });
     if (!order) {
       throw new AppError(404, 'ORDER_NOT_FOUND', `Không tìm thấy đơn hàng ${orderCode}.`);
+    }
+
+    if (order.paymentStatus === 'PAID') {
+      return {
+        orderCode,
+        status: 'PAID',
+      };
     }
 
     await prisma.order.update({

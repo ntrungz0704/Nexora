@@ -7,7 +7,11 @@ export function createPaymentRouter(): Router {
 
   router.post('/vnpay/create-url', controller.createVnpayUrl);
   router.get('/vnpay/callback', controller.handleVnpayCallback);
-  router.post('/simulate', controller.simulatePayment);
+
+  // Endpoint giả lập thanh toán chỉ cho phép trong môi trường development hoặc test
+  if (process.env.NODE_ENV !== 'production') {
+    router.post('/simulate', controller.simulatePayment);
+  }
 
   return router;
 }
