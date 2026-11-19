@@ -134,28 +134,66 @@ export class AiService {
     // Determine budget bounds
     let minBudget = 0;
     let maxBudget = 100000000;
-    if (input.budgetRange === 'under-15m') {
+    if (input.budgetRange === 'under-15m' || input.budgetRange === 'under_10m') {
+      maxBudget = input.budgetRange === 'under_10m' ? 10000000 : 15000000;
+    } else if (input.budgetRange === '10_15m') {
+      minBudget = 10000000;
       maxBudget = 15000000;
-    } else if (input.budgetRange === '15m-25m') {
+    } else if (input.budgetRange === '15_20m') {
       minBudget = 15000000;
+      maxBudget = 20000000;
+    } else if (input.budgetRange === '15m-25m' || input.budgetRange === '20_25m') {
+      minBudget = input.budgetRange === '20_25m' ? 20000000 : 15000000;
       maxBudget = 25000000;
+    } else if (input.budgetRange === '25_35m') {
+      minBudget = 25000000;
+      maxBudget = 35000000;
     } else if (input.budgetRange === '25m-40m') {
       minBudget = 25000000;
       maxBudget = 40000000;
-    } else if (input.budgetRange === 'above-40m') {
-      minBudget = 40000000;
+    } else if (input.budgetRange === 'above-40m' || input.budgetRange === 'over_35m') {
+      minBudget = input.budgetRange === 'over_35m' ? 35000000 : 40000000;
     }
 
-    // Fetch candidate products
-    const candidates = await prisma.product.findMany({
-      where: {
-        status: 'ACTIVE',
-      },
+    // Fetch candidate products with optional category filtering
+    const whereClause: Prisma.ProductWhereInput = {
+      status: 'ACTIVE',
+    };
+
+    if (input.categoryPreference) {
+      const cat = input.categoryPreference.toLowerCase();
+      if (cat === 'laptop') {
+        whereClause.category = { slug: 'laptop' };
+      } else if (cat === 'pc') {
+        whereClause.category = { slug: 'pc' };
+      } else if (cat === 'monitor') {
+        whereClause.category = { slug: 'monitor' };
+      } else if (cat === 'gear') {
+        whereClause.category = {
+          slug: { in: ['keyboard', 'mouse', 'headset', 'speaker', 'chair', 'console', 'accessories'] },
+        };
+      } else {
+        whereClause.category = { slug: cat };
+      }
+    }
+
+    let candidates = await prisma.product.findMany({
+      where: whereClause,
       include: {
         category: { select: { id: true, name: true, slug: true } },
         brand: { select: { id: true, name: true, slug: true } },
       },
     });
+
+    if (candidates.length === 0) {
+      candidates = await prisma.product.findMany({
+        where: { status: 'ACTIVE' },
+        include: {
+          category: { select: { id: true, name: true, slug: true } },
+          brand: { select: { id: true, name: true, slug: true } },
+        },
+      });
+    }
 
     if (candidates.length === 0) {
       throw new AppError(404, 'NO_CANDIDATES', 'Không tìm thấy sản phẩm nào trong kho.');

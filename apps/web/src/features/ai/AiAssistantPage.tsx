@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
@@ -10,19 +10,162 @@ import { wishlistService } from '../../services/wishlistService';
 import { getProductImage } from '../../lib/productImage';
 import type { AuthUser, AiRecommendationRole, ProductDto } from '@nexora/shared';
 
+// ==========================================
+// 1. DATA DICTIONARIES (MATCHING TECHPILOT)
+// ==========================================
+interface BudgetOption {
+  code: string;
+  label: string;
+  desc: string;
+}
+
+const BUDGET_OPTIONS: BudgetOption[] = [
+  { code: 'under_10m', label: 'Dưới 10 triệu', desc: 'Phân khúc under_10m' },
+  { code: '10_15m', label: '10 - 15 triệu', desc: 'Phân khúc 10_15m' },
+  { code: '15_20m', label: '15 - 20 triệu', desc: 'Phân khúc 15_20m' },
+  { code: '20_25m', label: '20 - 25 triệu', desc: 'Phân khúc 20_25m' },
+  { code: '25_35m', label: '25 - 35 triệu', desc: 'Phân khúc 25_35m' },
+  { code: 'over_35m', label: 'Trên 35 triệu', desc: 'Phân khúc over_35m' },
+];
+
+interface CategoryOption {
+  key: string;
+  label: string;
+  desc: string;
+  icon: string;
+}
+
+const CATEGORY_OPTIONS: CategoryOption[] = [
+  { key: 'laptop', label: 'Laptop', desc: 'Máy tính xách tay di động', icon: 'fa-solid fa-laptop' },
+  { key: 'pc', label: 'PC Lắp Sẵn', desc: 'Máy bộ để bàn cố định', icon: 'fa-solid fa-desktop' },
+  { key: 'monitor', label: 'Màn hình', desc: 'Hiển thị đồ họa / Gaming', icon: 'fa-solid fa-tv' },
+  { key: 'gear', label: 'Gaming Gear', desc: 'Bàn phím, chuột, tai nghe...', icon: 'fa-solid fa-gamepad' },
+];
+
+const GEAR_SUBCATS = [
+  { key: 'keyboard', label: 'Bàn phím' },
+  { key: 'mouse', label: 'Chuột' },
+  { key: 'headset', label: 'Tai nghe' },
+  { key: 'speaker', label: 'Loa' },
+  { key: 'chair', label: 'Ghế Gaming' },
+  { key: 'console', label: 'Tay cầm / Console' },
+  { key: 'accessories', label: 'Phụ kiện khác' },
+];
+
+interface PurposeOption {
+  code: string;
+  label: string;
+  desc: string;
+}
+
+const PURPOSES_MAP: Record<string, PurposeOption[]> = {
+  laptop: [
+    { code: 'office', label: '💻 Học tập / Văn phòng', desc: 'Word, Excel, học online, lướt web mượt mà' },
+    { code: 'coding', label: '👨‍💻 Lập trình / Công nghệ', desc: 'VSCode, Docker, Android Studio, IDEs' },
+    { code: 'design', label: '🎨 Đồ họa / Dựng phim 2D-3D', desc: 'Photoshop, Premiere, AutoCAD, Blender' },
+    { code: 'gaming', label: '🎮 Chơi Game (eSports / AAA)', desc: 'Valorant, LoL, FC Online, Black Myth Wukong' },
+    { code: 'travel', label: '✈️ Di chuyển / Công tác', desc: 'Mỏng nhẹ, pin trâu, độ bền cao' },
+  ],
+  pc: [
+    { code: 'office', label: '🏢 Văn phòng / Kế toán', desc: 'Bền bỉ, hoạt động liên tục, tiết kiệm điện' },
+    { code: 'coding', label: '👨‍💻 Lập trình / Máy chủ local', desc: 'Chạy đa nhiệm, ảo hóa, biên dịch nhanh' },
+    { code: 'design_2d', label: '🖌️ Thiết kế Đồ họa 2D', desc: 'Photoshop, Illustrator, Lightroom, Canva' },
+    { code: 'render_3d', label: '🎬 Dựng phim 4K / Rendering 3D', desc: 'Premiere, After Effects, Maya, Blender' },
+    { code: 'gaming_esports', label: '🎯 Gaming eSports (High FPS)', desc: 'CS2, Valorant, LoL, Naraka 240Hz+' },
+    { code: 'gaming_aaa', label: '🔥 Gaming AAA 4K / Ray Tracing', desc: 'Cyberpunk 2077, Wukong, Elden Ring, GTA V' },
+    { code: 'livestream', label: '🎙️ Livestream / Creator', desc: 'Vừa game vừa stream OBS, vMix mượt mà' },
+    { code: 'ai_ml', label: '🤖 AI / Machine Learning', desc: 'VRAM GPU lớn (RTX 4060/4070+), CUDA Core' },
+  ],
+  monitor: [
+    { code: 'office', label: '💼 Văn phòng / Đọc tài liệu', desc: 'Bảo vệ mắt, chống chói, góc nhìn rộng IPS' },
+    { code: 'gaming', label: '🎮 Chơi Game eSports / Fast IPS', desc: 'Tần số quét cao 144Hz-240Hz, phản hồi 1ms' },
+    { code: 'design', label: '🎨 Đồ họa / Chuẩn màu sRGB/DCI-P3', desc: 'Màu sắc chính xác Delta E < 2, IPS/OLED' },
+    { code: 'video_edit', label: '🎬 Dựng phim / Màn hình siêu rộng (Ultrawide)', desc: 'Không gian làm việc rộng, độ phân giải 2K/4K' },
+    { code: 'entertainment', label: '🍿 Giải trí / Xem phim 4K', desc: 'Độ phân giải 4K, HDR, loa tích hợp' },
+  ],
+  gear_mouse: [
+    { code: 'fps', label: '🎯 Chơi game FPS (Cảm biến siêu chuẩn)', desc: 'Trọng lượng siêu nhẹ, DPI cao, switch bền' },
+    { code: 'moba', label: '⚔️ Chơi game MOBA / MMO', desc: 'Nhiều nút bấm phụ lập trình macro' },
+    { code: 'office', label: '💼 Văn phòng / Công thái học', desc: 'Chống đau cổ tay, click yên tĩnh (Silent)' },
+  ],
+  gear_keyboard: [
+    { code: 'gaming', label: '🎮 Chơi game phản hồi nhanh', desc: 'Switch cơ học (Red/Blue/Brown/Speed), RGB' },
+    { code: 'typing', label: '✍️ Gõ văn bản / Lập trình', desc: 'Cảm giác gõ sướng tay, Hotswap, Custom keycap' },
+    { code: 'silent', label: '🤫 Yên tĩnh văn phòng', desc: 'Silent Switch không gây ồn đồng nghiệp' },
+  ],
+  gear_headset: [
+    { code: 'esports', label: '🎧 Gaming eSports 7.1', desc: 'Định vị tiếng chân, mic lọc ồn đàm thoại clear' },
+    { code: 'music', label: '🎵 Nghe nhạc / Giải trí', desc: 'Âm bass ấm, dải âm cân bằng, đeo thoải mái' },
+  ],
+  gear_default: [
+    { code: 'gaming', label: '🎮 Gaming & Giải trí', desc: 'Trang bị tối ưu trải nghiệm chiến game đỉnh cao' },
+    { code: 'office', label: '💼 Văn phòng & Làm việc', desc: 'Thiết kế tinh gọn, bền bỉ, công thái học' },
+  ],
+};
+
+interface PriorityOption {
+  code: string;
+  label: string;
+}
+
+const PRIORITIES_MAP: Record<string, PriorityOption[]> = {
+  laptop: [
+    { code: 'performance', label: '⚡ Hiệu năng tối đa trong tầm giá' },
+    { code: 'battery', label: '🔋 Thời lượng pin dài (Pin trâu)' },
+    { code: 'lightweight', label: '🪶 Mỏng nhẹ, dễ mang đi (Dưới 1.5kg)' },
+    { code: 'display', label: '🖥️ Màn hình đẹp, tần số quét cao / Chuẩn màu' },
+    { code: 'keyboard', label: '⌨️ Bàn phím nảy tốt, gõ sướng' },
+    { code: 'upgradeability', label: '🛠️ Dễ nâng cấp RAM & SSD sau này' },
+    { code: 'cooling_noise', label: '❄️ Máy mát & Ít ồn khi tải nặng' },
+  ],
+  pc: [
+    { code: 'cpu_performance', label: '🧠 Hiệu năng CPU tối đa (Xử lý dữ liệu / Render / Biên dịch)' },
+    { code: 'gpu_performance', label: '🎨 Hiệu năng Card đồ họa GPU (Chơi Game / 3D / AI)' },
+    { code: 'upgradeability', label: '🛠️ Khả năng mở rộng & Nâng cấp lâu dài' },
+    { code: 'cooling', label: '❄️ Tản nhiệt mát mẻ, ổn định 24/7' },
+    { code: 'low_noise', label: '🤫 Hoạt động êm ái, ít tiếng ồn' },
+    { code: 'compact_case', label: '📦 Case nhỏ gọn (Mini-ITX / mATX)' },
+    { code: 'rgb_design', label: '✨ Thiết kế đẹp, LED RGB phong cách' },
+    { code: 'power_efficiency', label: '🌱 Nguồn linh kiện bền bỉ, tiết kiệm điện' },
+  ],
+  monitor: [
+    { code: 'refresh_rate', label: '⚡ Tần số quét cao (144Hz - 240Hz+)' },
+    { code: 'resolution', label: '📐 Độ phân giải cao (2K QHD / 4K UHD)' },
+    { code: 'color_accuracy', label: '🎨 Màu sắc chuẩn xác (sRGB 100% / DCI-P3)' },
+    { code: 'screen_size', label: '📺 Kích thước màn hình lớn (27 inch+)' },
+    { code: 'response_time', label: '⏱️ Tốc độ phản hồi tức thì (0.5ms - 1ms)' },
+    { code: 'eye_care', label: '👁️ Bảo vệ mắt (Flicker-Free, Low Blue Light)' },
+    { code: 'connectivity', label: '🔌 Đa dạng cổng (Type-C 65W PD, DisplayPort)' },
+  ],
+  gear: [
+    { code: 'wireless', label: '📡 Kết nối không dây tốc độ cao (2.4GHz / BT)' },
+    { code: 'ergonomic', label: '🧘 Thiết kế công thái học chống mỏi' },
+    { code: 'rgb', label: '✨ Đèn nền LED RGB nhiều hiệu ứng' },
+    { code: 'durability', label: '⭐ Độ bền linh kiện cao, switch chính hãng' },
+  ],
+};
+
 export const AiAssistantPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // 5-Step Questionnaire States
-  const [persona, setPersona] = useState('gaming');
-  const [budgetRange, setBudgetRange] = useState('15m-25m');
-  const [categoryPref, setCategoryPref] = useState('laptop');
-  const [priority, setPriority] = useState('performance');
-  const [brandPref, setBrandPref] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  // Stepper State
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const totalSteps = 5;
 
+  // Form State
+  const [budgetCode, setBudgetCode] = useState<string>('20_25m');
+  const [category, setCategory] = useState<string>('laptop');
+  const [subcategory, setSubcategory] = useState<string>('keyboard');
+  const [purpose, setPurpose] = useState<string>('office');
+  const [software, setSoftware] = useState<string>('');
+  const [priority, setPriority] = useState<string>('performance');
+  const [brand, setBrand] = useState<string>('');
+  const [excluded, setExcluded] = useState<string>('');
+
+  // Results State
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [recommendations, setRecommendations] = useState<AiRecommendationRole[] | null>(null);
   const [analysisSummary, setAnalysisSummary] = useState<string | null>(null);
 
@@ -47,8 +190,40 @@ export const AiAssistantPage: React.FC = () => {
     enabled: !!currentUser,
   });
 
-  const handleRunSurvey = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  // Calculate dynamic purposes
+  const currentPurposes: PurposeOption[] = useMemo(() => {
+    if (category === 'gear') {
+      const key = `gear_${subcategory}`;
+      return PURPOSES_MAP[key] || PURPOSES_MAP.gear_default || [];
+    }
+    return PURPOSES_MAP[category] || PURPOSES_MAP.laptop || [];
+  }, [category, subcategory]);
+
+  // Calculate dynamic priorities
+  const currentPriorities: PriorityOption[] = useMemo(() => {
+    if (category === 'gear') return PRIORITIES_MAP.gear || [];
+    return PRIORITIES_MAP[category] || PRIORITIES_MAP.laptop || [];
+  }, [category]);
+
+  const handleNextStep = () => {
+    if (currentStep === 1 && !budgetCode) {
+      alert('Vui lòng chọn khoảng ngân sách đầu tư trước khi tiếp tục!');
+      return;
+    }
+    if (currentStep < totalSteps) {
+      setCurrentStep((prev) => prev + 1);
+    } else {
+      handleSubmitSurvey();
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
+
+  const handleSubmitSurvey = async () => {
     setIsAnalyzing(true);
     setRecommendations(null);
 
@@ -58,11 +233,11 @@ export const AiAssistantPage: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          persona,
-          budgetRange,
-          categoryPreference: categoryPref,
-          priority,
-          brandPreference: brandPref || undefined,
+          persona: purpose,
+          budgetRange: budgetCode,
+          categoryPreference: category === 'gear' ? subcategory : category,
+          priority: priority,
+          brandPreference: brand || undefined,
         }),
       });
 
@@ -80,6 +255,12 @@ export const AiAssistantPage: React.FC = () => {
     }
   };
 
+  const resetWizard = () => {
+    setCurrentStep(1);
+    setRecommendations(null);
+    setAnalysisSummary(null);
+  };
+
   const handleAddToCart = async (product: ProductDto) => {
     try {
       await cartService.addToCart(product.id, 1);
@@ -90,8 +271,12 @@ export const AiAssistantPage: React.FC = () => {
     }
   };
 
+  const formatPrice = (val: number | string) => {
+    return Number(val).toLocaleString('vi-VN') + 'đ';
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-gray-800">
+    <div className="home-page-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <StorefrontHeader
         currentUser={currentUser}
         categories={categories}
@@ -100,337 +285,859 @@ export const AiAssistantPage: React.FC = () => {
         onLogout={() => {
           authService.logout();
           setCurrentUser(null);
-          showToast('Đã đăng xuất.');
+          showToast('Đã đăng xuất tài khoản.');
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
-        {/* Banner Hero */}
-        <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 rounded-3xl p-8 md:p-12 text-white shadow-xl relative overflow-hidden mb-10">
-          <div className="absolute -right-10 -bottom-10 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="relative z-10 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider mb-4 border border-white/20">
-              <i className="fas fa-microchip text-emerald-300"></i>
-              Thuật toán chấm điểm 100 điểm đa tiêu chí
-            </div>
-            <h1 className="text-3xl md:text-5xl font-extrabold leading-tight tracking-tight mb-4">
-              AI Tư Vấn Cấu Hình & Phần Cứng
-            </h1>
-            <p className="text-blue-100 text-base md:text-lg leading-relaxed">
-              Hệ thống khảo sát 5 bước độc quyền của Nexora. Chỉ cần 30 giây chọn nhu cầu, AI sẽ quét toàn bộ kho linh kiện, chấm điểm mức độ tương thích và đề xuất 3 giải pháp tối ưu: Phù hợp nhất, Đáng tiền nhất và Hiệu năng cao nhất.
-            </p>
-          </div>
-        </div>
-
-        {/* 5-Step Questionnaire Form */}
-        <section className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100 mb-10">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-            <span className="w-8 h-8 rounded-full bg-blue-600 text-white text-sm flex items-center justify-center font-bold">1</span>
-            Khảo sát nhu cầu người dùng (5 Bước thông minh)
-          </h2>
-
-          <form onSubmit={handleRunSurvey} className="space-y-8">
-            {/* Step 1: Persona */}
-            <div>
-              <label className="block text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">
-                Bước 1: Mục đích sử dụng chính của bạn là gì?
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                {[
-                  { id: 'gaming', label: 'Gaming & Esports', icon: 'fa-gamepad', desc: 'Max FPS, Ray Tracing' },
-                  { id: 'office', label: 'Văn phòng & Học tập', icon: 'fa-briefcase', desc: 'Êm ái, mỏng nhẹ, pin trâu' },
-                  { id: 'creator', label: 'Đồ họa & Render 3D', icon: 'fa-palette', desc: 'Màn hình chuẩn màu, GPU mạnh' },
-                  { id: 'developer', label: 'Lập trình & Kỹ thuật', icon: 'fa-code', desc: 'RAM khủng, đa nhân mạnh' },
-                  { id: 'business', label: 'Doanh nhân sang trọng', icon: 'fa-laptop', desc: 'Thiết kế cao cấp, bảo mật' },
-                ].map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => setPersona(item.id)}
-                    className={`p-4 rounded-2xl border text-left transition-all ${
-                      persona === item.id
-                        ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20'
-                        : 'border-gray-200 hover:border-blue-300 bg-white'
-                    }`}
-                  >
-                    <i className={`fas ${item.icon} text-xl mb-2 ${persona === item.id ? 'text-blue-600' : 'text-gray-400'}`}></i>
-                    <div className="font-bold text-sm text-gray-900">{item.label}</div>
-                    <div className="text-xs text-gray-500 mt-1">{item.desc}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 2: Budget */}
-            <div>
-              <label className="block text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">
-                Bước 2: Khoảng ngân sách đầu tư mong muốn
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { id: 'under-15m', label: 'Dưới 15 Triệu', desc: 'Phổ thông tiết kiệm' },
-                  { id: '15m-25m', label: '15 - 25 Triệu', desc: 'Tầm trung quốc dân' },
-                  { id: '25m-40m', label: '25 - 40 Triệu', desc: 'Cận cao cấp hiệu năng cao' },
-                  { id: 'above-40m', label: 'Trên 40 Triệu', desc: 'Flagship đỉnh cao' },
-                ].map((b) => (
-                  <button
-                    type="button"
-                    key={b.id}
-                    onClick={() => setBudgetRange(b.id)}
-                    className={`p-4 rounded-2xl border text-left transition-all ${
-                      budgetRange === b.id
-                        ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20'
-                        : 'border-gray-200 hover:border-blue-300 bg-white'
-                    }`}
-                  >
-                    <div className="font-bold text-sm text-gray-900">{b.label}</div>
-                    <div className="text-xs text-gray-500 mt-1">{b.desc}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 3: Category preference */}
-            <div>
-              <label className="block text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">
-                Bước 3: Loại thiết bị mong muốn
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { id: 'laptop', label: 'Laptop Mỏng Nhẹ' },
-                  { id: 'laptop-gaming', label: 'Laptop Gaming Chuyên Nghiệp' },
-                  { id: 'pc', label: 'PC Để Bàn / Case Lắp Ráp' },
-                  { id: 'parts', label: 'Linh kiện phần cứng rời' },
-                ].map((c) => (
-                  <button
-                    type="button"
-                    key={c.id}
-                    onClick={() => setCategoryPref(c.id)}
-                    className={`p-3.5 rounded-2xl border text-center font-medium text-sm transition-all ${
-                      categoryPref === c.id
-                        ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold'
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700 bg-white'
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 4: Key Priority */}
-            <div>
-              <label className="block text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">
-                Bước 4: Tiêu chí bạn ưu tiên số 1
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { id: 'performance', label: '⚡ Hiệu năng tối đa', desc: 'Ưu tiên CPU, GPU, RAM' },
-                  { id: 'durability', label: '🛡️ Độ bền & Tản nhiệt', desc: 'Vỏ kim loại, máy mát mẻ' },
-                  { id: 'screen', label: '🌈 Màn hình xuất sắc', desc: 'Chuẩn màu OLED, IPS 2K' },
-                  { id: 'battery', label: '🔋 Thời lượng pin & Nhẹ', desc: 'Pin trên 8h, dưới 1.5kg' },
-                ].map((p) => (
-                  <button
-                    type="button"
-                    key={p.id}
-                    onClick={() => setPriority(p.id)}
-                    className={`p-4 rounded-2xl border text-left transition-all ${
-                      priority === p.id
-                        ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20'
-                        : 'border-gray-200 hover:border-blue-300 bg-white'
-                    }`}
-                  >
-                    <div className="font-bold text-sm text-gray-900">{p.label}</div>
-                    <div className="text-xs text-gray-500 mt-1">{p.desc}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 5: Brand preference */}
-            <div>
-              <label className="block text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">
-                Bước 5: Thương hiệu bạn ưa thích (Tùy chọn)
-              </label>
-              <div className="flex flex-wrap gap-2.5">
-                {[
-                  { id: '', label: 'Tất cả (AI tự chọn)' },
-                  { id: 'asus', label: 'ASUS / ROG' },
-                  { id: 'msi', label: 'MSI' },
-                  { id: 'acer', label: 'Acer' },
-                  { id: 'apple', label: 'Apple' },
-                  { id: 'lenovo', label: 'Lenovo' },
-                  { id: 'logitech', label: 'Logitech' },
-                ].map((b) => (
-                  <button
-                    type="button"
-                    key={b.id}
-                    onClick={() => setBrandPref(b.id)}
-                    className={`px-4 py-2 rounded-xl text-sm border transition-all ${
-                      brandPref === b.id
-                        ? 'border-blue-600 bg-blue-600 text-white font-bold'
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700 bg-white'
-                    }`}
-                  >
-                    {b.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Submit Action */}
-            <div className="pt-4 flex items-center justify-center">
-              <button
-                type="submit"
-                disabled={isAnalyzing}
-                className="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-base rounded-2xl shadow-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 disabled:opacity-50"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin text-xl"></i>
-                    AI đang tính toán ma trận 100 điểm...
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-wand-magic-sparkles text-xl"></i>
-                    Bắt đầu AI Phân Tích & Đề Xuất
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </section>
-
-        {/* Results Section: 3 Distinct Recommendation Roles */}
-        {recommendations && (
-          <section className="space-y-8 animate-in fade-in duration-300 mb-16">
-            {analysisSummary && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-6 py-4 rounded-2xl flex items-center gap-3">
-                <i className="fas fa-check-circle text-emerald-600 text-xl"></i>
-                <div className="text-sm font-medium">{analysisSummary}</div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {recommendations.map((rec) => {
-                const isBestMatch = rec.role === 'BEST_MATCH';
-                const isBestValue = rec.role === 'BEST_VALUE';
-
-                return (
-                  <div
-                    key={rec.role}
-                    className={`bg-white rounded-3xl p-6 shadow-md border flex flex-col justify-between transition-all relative overflow-hidden ${
-                      isBestMatch
-                        ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-amber-500/10'
-                        : isBestValue
-                        ? 'border-emerald-400 ring-2 ring-emerald-400/20'
-                        : 'border-purple-400 ring-2 ring-purple-400/20'
-                    }`}
-                  >
-                    {/* Role Header Badge */}
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider inline-flex items-center gap-1.5 ${
-                            isBestMatch
-                              ? 'bg-amber-100 text-amber-800'
-                              : isBestValue
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-purple-100 text-purple-800'
-                          }`}
-                        >
-                          <i
-                            className={`fas ${
-                              isBestMatch ? 'fa-crown' : isBestValue ? 'fa-sack-dollar' : 'fa-bolt'
-                            }`}
-                          ></i>
-                          {rec.roleTitle}
-                        </span>
-
-                        <div className="flex items-center gap-1 text-sm font-bold text-gray-700">
-                          <span className="text-blue-600 text-lg font-extrabold">{rec.score}</span>
-                          <span className="text-xs text-gray-400">/100đ</span>
-                        </div>
-                      </div>
-
-                      {/* Product Image & Title */}
-                      <div className="w-full h-48 bg-slate-50 rounded-2xl p-4 flex items-center justify-center mb-4 border border-gray-100">
-                        <img
-                          src={getProductImage(rec.product)}
-                          alt={rec.product.name}
-                          className="max-h-full max-w-full object-contain hover:scale-105 transition-transform"
-                        />
-                      </div>
-
-                      <h3 className="font-bold text-gray-900 text-base leading-snug line-clamp-2 mb-2">
-                        {rec.product.name}
-                      </h3>
-
-                      <div className="flex items-baseline gap-2 mb-4">
-                        <span className="text-xl font-extrabold text-red-600">
-                          {Number(rec.product.salePrice || rec.product.price).toLocaleString('vi-VN')}đ
-                        </span>
-                        {rec.product.salePrice && (
-                          <span className="text-xs text-gray-400 line-through">
-                            {Number(rec.product.price).toLocaleString('vi-VN')}đ
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Match Reasons */}
-                      <div className="bg-gray-50 rounded-2xl p-3.5 mb-4 border border-gray-100">
-                        <div className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                          Lý do AI lựa chọn:
-                        </div>
-                        <ul className="space-y-1.5 text-xs text-gray-600">
-                          {rec.reasons.map((r, i) => (
-                            <li key={i} className="flex items-start gap-1.5">
-                              <i className="fas fa-check text-emerald-500 mt-0.5 shrink-0"></i>
-                              <span>{r}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {rec.tradeOffs && (
-                        <div className="text-xs text-gray-500 italic mb-4">
-                          <span className="font-semibold text-gray-600">Điểm cần lưu ý:</span> {rec.tradeOffs}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-gray-100">
-                      <Link
-                        to={`/product/${rec.product.slug}`}
-                        className="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold text-xs text-center transition-colors flex items-center justify-center gap-1.5"
-                      >
-                        <i className="fas fa-eye text-gray-500"></i>
-                        Chi tiết
-                      </Link>
-                      <button
-                        onClick={() => handleAddToCart(rec.product)}
-                        className="py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
-                      >
-                        <i className="fas fa-cart-plus"></i>
-                        Thêm vào giỏ
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
-      </main>
-
-      <StorefrontFooter />
-
       {toastMessage && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm shadow-xl z-50">
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 9999,
+            backgroundColor: '#0F172A',
+            color: '#FFFFFF',
+            padding: '12px 20px',
+            borderRadius: '10px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '14px',
+            fontWeight: 500,
+          }}
+        >
+          <i className="fa-solid fa-circle-check" style={{ color: '#10B981' }}></i>
           {toastMessage}
         </div>
       )}
+
+      <main style={{ flex: 1, padding: '30px 20px 60px' }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
+          {/* =========================================
+              WIZARD CONTAINER
+             ========================================= */}
+          {!recommendations && !isAnalyzing && (
+            <div
+              style={{
+                backgroundColor: 'var(--surface-card, #FFFFFF)',
+                border: '1px solid var(--border, #E2E8F0)',
+                borderRadius: '20px',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.05)',
+                padding: '40px',
+              }}
+            >
+              <div style={{ marginBottom: '15px' }}>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    borderRadius: '30px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    background: 'linear-gradient(135deg, rgba(10, 91, 255, 0.1) 0%, rgba(10, 91, 255, 0.2) 100%)',
+                    color: '#0A5BFF',
+                  }}
+                >
+                  <i className="fa-solid fa-wand-magic-sparkles"></i> TECHPILOT AI 4.0
+                </span>
+              </div>
+
+              <h2
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 800,
+                  margin: '0 0 10px 0',
+                  color: 'var(--text-primary, #0F172A)',
+                }}
+              >
+                Khảo Sát AI Gợi Ý Sản Phẩm Tối Ưu
+              </h2>
+              <p style={{ color: 'var(--text-secondary, #64748B)', fontSize: '15px', marginBottom: '35px' }}>
+                Trả lời 5 câu hỏi nhanh để Trợ lý AI phân tích và lọc ra 3 sản phẩm phù hợp nhất trong kho hàng.
+              </p>
+
+              {/* Progress Steps Tracker */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '35px',
+                  position: 'relative',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '16px',
+                    left: '10%',
+                    right: '10%',
+                    height: '2px',
+                    backgroundColor: 'var(--border, #E2E8F0)',
+                    zIndex: 1,
+                  }}
+                />
+
+                {[
+                  { step: 1, label: 'Ngân sách' },
+                  { step: 2, label: 'Loại máy' },
+                  { step: 3, label: 'Mục đích' },
+                  { step: 4, label: 'Ưu tiên' },
+                  { step: 5, label: 'Bộ lọc' },
+                ].map((item) => {
+                  const isCompleted = item.step < currentStep;
+                  const isActive = item.step === currentStep;
+
+                  return (
+                    <div
+                      key={item.step}
+                      style={{
+                        position: 'relative',
+                        zIndex: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        width: '20%',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          backgroundColor: isActive ? '#0A5BFF' : isCompleted ? '#10B981' : '#FFFFFF',
+                          border: `2px solid ${isActive ? '#0A5BFF' : isCompleted ? '#10B981' : 'var(--border, #E2E8F0)'}`,
+                          color: isActive || isCompleted ? '#FFFFFF' : 'var(--text-secondary, #64748B)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 700,
+                          fontSize: '13px',
+                          boxShadow: isActive ? '0 0 12px rgba(10, 91, 255, 0.4)' : 'none',
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        {isCompleted ? <i className="fa-solid fa-check" style={{ fontSize: '12px' }}></i> : item.step}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: '12px',
+                          fontWeight: isActive ? 700 : 600,
+                          color: isActive ? '#0A5BFF' : isCompleted ? '#10B981' : 'var(--text-secondary, #64748B)',
+                          marginTop: '8px',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {item.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* PANEL 1: NGÂN SÁCH */}
+              {currentStep === 1 && (
+                <div>
+                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                    Bước 1: Chọn khoảng ngân sách đầu tư của bạn:
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                      gap: '16px',
+                      marginBottom: '25px',
+                    }}
+                  >
+                    {BUDGET_OPTIONS.map((b) => {
+                      const isSelected = budgetCode === b.code;
+                      return (
+                        <div
+                          key={b.code}
+                          onClick={() => setBudgetCode(b.code)}
+                          style={{
+                            border: `2px solid ${isSelected ? '#0A5BFF' : 'var(--border, #E2E8F0)'}`,
+                            backgroundColor: isSelected ? 'rgba(10, 91, 255, 0.04)' : '#FFFFFF',
+                            borderRadius: '14px',
+                            padding: '24px 20px',
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                            transition: 'all 0.2s ease',
+                            boxShadow: isSelected ? '0 0 0 1px #0A5BFF' : 'none',
+                          }}
+                        >
+                          <i className="fa-solid fa-coins" style={{ fontSize: '26px', color: '#0A5BFF', marginBottom: '10px', display: 'block' }}></i>
+                          <span style={{ fontWeight: 700, fontSize: '15px', display: 'block', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                            {b.label}
+                          </span>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary, #64748B)', margin: 0 }}>
+                            {b.desc}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* PANEL 2: LOẠI MÁY */}
+              {currentStep === 2 && (
+                <div>
+                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                    Bước 2: Chọn dòng sản phẩm bạn cần tư vấn:
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                      gap: '16px',
+                      marginBottom: '25px',
+                    }}
+                  >
+                    {CATEGORY_OPTIONS.map((cat) => {
+                      const isSelected = category === cat.key;
+                      return (
+                        <div
+                          key={cat.key}
+                          onClick={() => setCategory(cat.key)}
+                          style={{
+                            border: `2px solid ${isSelected ? '#0A5BFF' : 'var(--border, #E2E8F0)'}`,
+                            backgroundColor: isSelected ? 'rgba(10, 91, 255, 0.04)' : '#FFFFFF',
+                            borderRadius: '14px',
+                            padding: '24px 20px',
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                            transition: 'all 0.2s ease',
+                            boxShadow: isSelected ? '0 0 0 1px #0A5BFF' : 'none',
+                          }}
+                        >
+                          <i className={cat.icon} style={{ fontSize: '26px', color: '#0A5BFF', marginBottom: '10px', display: 'block' }}></i>
+                          <span style={{ fontWeight: 700, fontSize: '15px', display: 'block', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                            {cat.label}
+                          </span>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary, #64748B)', margin: 0 }}>
+                            {cat.desc}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {category === 'gear' && (
+                    <div style={{ marginTop: '20px' }}>
+                      <label style={{ fontSize: '13.5px', fontWeight: 700, marginBottom: '10px', display: 'block' }}>
+                        Chọn loại Gear cụ thể:
+                      </label>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                        {GEAR_SUBCATS.map((sub) => {
+                          const isSubSelected = subcategory === sub.key;
+                          return (
+                            <button
+                              key={sub.key}
+                              type="button"
+                              onClick={() => setSubcategory(sub.key)}
+                              style={{
+                                padding: '8px 18px',
+                                borderRadius: '20px',
+                                border: `1px solid ${isSubSelected ? '#0A5BFF' : 'var(--border, #CBD5E1)'}`,
+                                backgroundColor: isSubSelected ? '#0A5BFF' : '#F8FAFC',
+                                color: isSubSelected ? '#FFFFFF' : 'var(--text-primary)',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              {sub.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* PANEL 3: MỤC ĐÍCH */}
+              {currentStep === 3 && (
+                <div>
+                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                    Bước 3: Chọn mục đích sử dụng chính:
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                      gap: '16px',
+                      marginBottom: '25px',
+                    }}
+                  >
+                    {currentPurposes.map((p) => {
+                      const isSelected = purpose === p.code;
+                      return (
+                        <div
+                          key={p.code}
+                          onClick={() => setPurpose(p.code)}
+                          style={{
+                            border: `2px solid ${isSelected ? '#0A5BFF' : 'var(--border, #E2E8F0)'}`,
+                            backgroundColor: isSelected ? 'rgba(10, 91, 255, 0.04)' : '#FFFFFF',
+                            borderRadius: '14px',
+                            padding: '20px',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            transition: 'all 0.2s ease',
+                            boxShadow: isSelected ? '0 0 0 1px #0A5BFF' : 'none',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontWeight: 700, fontSize: '14.5px', color: 'var(--text-primary)' }}>
+                              {p.label}
+                            </span>
+                            <i className="fa-regular fa-circle-dot" style={{ color: isSelected ? '#0A5BFF' : '#CBD5E1' }}></i>
+                          </div>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary, #64748B)', margin: 0, lineHeight: 1.4 }}>
+                            {p.desc}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ marginTop: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                      Phần mềm hoặc tựa game bạn thường dùng nhất (nếu có):
+                    </label>
+                    <input
+                      type="text"
+                      value={software}
+                      onChange={(e) => setSoftware(e.target.value)}
+                      placeholder="Ví dụ: Premiere, AutoCAD, Docker, Wukong, Valorant..."
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        border: '1px solid var(--border, #CBD5E1)',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* PANEL 4: TIÊU CHÍ ƯU TIÊN */}
+              {currentStep === 4 && (
+                <div>
+                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                    Bước 4: Tiêu chí ưu tiên hàng đầu:
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                      gap: '16px',
+                      marginBottom: '25px',
+                    }}
+                  >
+                    {currentPriorities.map((item) => {
+                      const isSelected = priority === item.code;
+                      return (
+                        <div
+                          key={item.code}
+                          onClick={() => setPriority(item.code)}
+                          style={{
+                            border: `2px solid ${isSelected ? '#0A5BFF' : 'var(--border, #E2E8F0)'}`,
+                            backgroundColor: isSelected ? 'rgba(10, 91, 255, 0.04)' : '#FFFFFF',
+                            borderRadius: '14px',
+                            padding: '20px',
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                            transition: 'all 0.2s ease',
+                            boxShadow: isSelected ? '0 0 0 1px #0A5BFF' : 'none',
+                          }}
+                        >
+                          <i className="fa-solid fa-star" style={{ color: '#0A5BFF', fontSize: '20px', marginBottom: '10px', display: 'block' }}></i>
+                          <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)', display: 'block' }}>
+                            {item.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* PANEL 5: BỘ LỌC THƯƠNG HIỆU & LOẠI TRỪ */}
+              {currentStep === 5 && (
+                <div>
+                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                    Bước 5: Thương hiệu và yêu cầu loại trừ:
+                  </h4>
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                      Thương hiệu ưu tiên (nếu có):
+                    </label>
+                    <input
+                      type="text"
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                      placeholder="Ví dụ: ASUS, MSI, Dell, Gigabyte, Razer..."
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        border: '1px solid var(--border, #CBD5E1)',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                      Thương hiệu hoặc yếu tố MUỐN LOẠI TRỪ:
+                    </label>
+                    <input
+                      type="text"
+                      value={excluded}
+                      onChange={(e) => setExcluded(e.target.value)}
+                      placeholder="Ví dụ: Apple, Celeron, 8GB RAM..."
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        border: '1px solid var(--border, #CBD5E1)',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* WIZARD NAVIGATION CONTROLS */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginTop: '35px',
+                  paddingTop: '20px',
+                  borderTop: '1px solid var(--border, #E2E8F0)',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={handlePrevStep}
+                  style={{
+                    visibility: currentStep > 1 ? 'visible' : 'hidden',
+                    padding: '10px 24px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border, #CBD5E1)',
+                    backgroundColor: '#FFFFFF',
+                    color: 'var(--text-primary, #0F172A)',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <i className="fa-solid fa-arrow-left"></i> Quay lại
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNextStep}
+                  style={{
+                    padding: '11px 28px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    backgroundColor: '#0A5BFF',
+                    color: '#FFFFFF',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 14px rgba(10, 91, 255, 0.3)',
+                  }}
+                >
+                  {currentStep === totalSteps ? (
+                    <>
+                      <i className="fa-solid fa-wand-magic-sparkles"></i> Phân Tích & Lấy Đề Xuất AI
+                    </>
+                  ) : (
+                    <>
+                      Tiếp tục <i className="fa-solid fa-arrow-right"></i>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* =========================================
+              LOADING SPINNER
+             ========================================= */}
+          {isAnalyzing && (
+            <div
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '20px',
+                padding: '60px 20px',
+                textAlign: 'center',
+                border: '1px solid var(--border, #E2E8F0)',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.05)',
+              }}
+            >
+              <i className="fa-solid fa-circle-notch fa-spin" style={{ fontSize: '54px', color: '#0A5BFF', marginBottom: '20px' }}></i>
+              <h3 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '10px', color: 'var(--text-primary)' }}>
+                Trợ lý AI đang chấm điểm cấu hình...
+              </h3>
+              <p style={{ color: 'var(--text-secondary, #64748B)', maxWidth: '500px', margin: '0 auto', fontSize: '14px' }}>
+                Hệ thống đang chạy thuật toán phân tích 100 điểm, lọc kho sản phẩm thật và tạo báo cáo tư vấn tối ưu...
+              </p>
+            </div>
+          )}
+
+          {/* =========================================
+              RECOMMENDATIONS RESULTS (3 CARDS)
+             ========================================= */}
+          {recommendations && recommendations.length > 0 && (
+            <div>
+              <div style={{ marginTop: '20px', marginBottom: '25px', textAlign: 'center' }}>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    borderRadius: '30px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    color: '#10B981',
+                    marginBottom: '10px',
+                  }}
+                >
+                  <i className="fa-solid fa-check-double"></i> Kết quả đã phân tích
+                </span>
+                <h3 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  🤖 3 Đề Xuất Tối Ưu Từ TechPilot AI
+                </h3>
+                {analysisSummary && (
+                  <p style={{ color: 'var(--text-secondary, #64748B)', fontSize: '14.5px', marginTop: '6px' }}>
+                    {analysisSummary}
+                  </p>
+                )}
+              </div>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gap: '24px',
+                }}
+              >
+                {recommendations.map((item, idx) => {
+                  const p = item.product;
+                  const imageUrl = getProductImage(p);
+                  const isBestFit = item.role === 'BEST_MATCH';
+                  const isBestValue = item.role === 'BEST_VALUE';
+                  const roleBadgeColor = isBestFit ? '#10B981' : isBestValue ? '#3B82F6' : '#8B5CF6';
+                  const roleBadgeBg = isBestFit
+                    ? 'linear-gradient(135deg, #10B981, #059669)'
+                    : isBestValue
+                    ? 'linear-gradient(135deg, #3B82F6, #1D4ED8)'
+                    : 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+
+                  const circumference = 2 * Math.PI * 20;
+                  const offset = circumference - (item.score / 100) * circumference;
+
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        border: '1px solid var(--border, #E2E8F0)',
+                        borderRadius: '20px',
+                        backgroundColor: '#FFFFFF',
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.06)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        position: 'relative',
+                      }}
+                    >
+                      {/* Header with image & score */}
+                      <div
+                        style={{
+                          position: 'relative',
+                          padding: '48px 20px 20px',
+                          textAlign: 'center',
+                          background: 'linear-gradient(180deg, #F1F5F9 0%, #FFFFFF 100%)',
+                          borderBottom: '1px solid var(--border, #E2E8F0)',
+                        }}
+                      >
+                        <span
+                          style={{
+                            position: 'absolute',
+                            top: '12px',
+                            left: '12px',
+                            padding: '5px 14px',
+                            borderRadius: '20px',
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            textTransform: 'uppercase',
+                            color: '#FFFFFF',
+                            background: roleBadgeBg,
+                            letterSpacing: '0.3px',
+                          }}
+                        >
+                          {item.roleTitle}
+                        </span>
+
+                        {/* Circular Score Ring */}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '10px',
+                            right: '12px',
+                            width: '52px',
+                            height: '52px',
+                          }}
+                        >
+                          <svg viewBox="0 0 48 48" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="#E2E8F0" strokeWidth="4" />
+                            <circle
+                              cx="24"
+                              cy="24"
+                              r="20"
+                              fill="none"
+                              stroke={roleBadgeColor}
+                              strokeWidth="4"
+                              strokeDasharray={circumference}
+                              strokeDashoffset={offset}
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <div
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 800,
+                              fontSize: '14px',
+                              lineHeight: 1,
+                              color: 'var(--text-primary)',
+                            }}
+                          >
+                            {item.score}
+                            <small style={{ fontSize: '8px', fontWeight: 600, color: 'var(--text-secondary)' }}>điểm</small>
+                          </div>
+                        </div>
+
+                        <img
+                          src={imageUrl}
+                          alt={p.name}
+                          style={{
+                            height: '130px',
+                            objectFit: 'contain',
+                            margin: '0 auto',
+                            display: 'block',
+                          }}
+                        />
+                      </div>
+
+                      {/* Card Body */}
+                      <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <h4
+                          style={{
+                            fontSize: '15px',
+                            fontWeight: 700,
+                            margin: '0 0 8px 0',
+                            lineHeight: 1.45,
+                            color: 'var(--text-primary)',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}
+                          title={p.name}
+                        >
+                          {p.name}
+                        </h4>
+
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '16px' }}>
+                          <span style={{ color: '#0A5BFF', fontWeight: 800, fontSize: '20px' }}>
+                            {formatPrice(p.salePrice || p.price)}
+                          </span>
+                          <span style={{ fontSize: '12px', color: '#10B981', fontWeight: 600 }}>
+                            Còn {p.stockQuantity} máy
+                          </span>
+                        </div>
+
+                        {/* Specs Summary Grid */}
+                        {p.specs && typeof p.specs === 'object' && Object.keys(p.specs).length > 0 && (
+                          <div
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '8px',
+                              marginBottom: '16px',
+                              padding: '14px',
+                              backgroundColor: '#F8FAFC',
+                              borderRadius: '12px',
+                              border: '1px solid rgba(0,0,0,0.04)',
+                            }}
+                          >
+                            {Object.entries(p.specs)
+                              .filter(([_, v]) => typeof v === 'string' || typeof v === 'number')
+                              .slice(0, 4)
+                              .map(([k, v], sIdx) => (
+                                <div key={sIdx} style={{ fontSize: '12px', lineHeight: 1.35 }}>
+                                  <span style={{ color: 'var(--text-secondary, #64748B)', fontWeight: 500 }}>{k}: </span>
+                                  <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{String(v)}</span>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+
+                        {/* Reasons */}
+                        {item.reasons && item.reasons.length > 0 && (
+                          <div style={{ marginBottom: '12px' }}>
+                            <div
+                              style={{
+                                fontSize: '12.5px',
+                                fontWeight: 700,
+                                color: '#047857',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              <i className="fa-solid fa-circle-check"></i> Điểm nổi bật
+                            </div>
+                            <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '12px', color: 'var(--text-secondary, #64748B)', lineHeight: 1.5 }}>
+                              {item.reasons.map((r, rIdx) => (
+                                <li key={rIdx}>{r}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Trade-offs */}
+                        {item.tradeOffs && (
+                          <div style={{ marginBottom: '16px' }}>
+                            <div
+                              style={{
+                                fontSize: '12.5px',
+                                fontWeight: 700,
+                                color: '#B45309',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              <i className="fa-solid fa-triangle-exclamation"></i> Cần lưu ý
+                            </div>
+                            <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary, #64748B)', lineHeight: 1.5 }}>
+                              {item.tradeOffs}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Card Actions */}
+                        <div
+                          style={{
+                            marginTop: 'auto',
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '10px',
+                            paddingTop: '16px',
+                            borderTop: '1px solid var(--border, #E2E8F0)',
+                          }}
+                        >
+                          <Link
+                            to={`/product/detail/${p.slug}`}
+                            style={{
+                              padding: '10px 12px',
+                              borderRadius: '10px',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              textAlign: 'center',
+                              textDecoration: 'none',
+                              backgroundColor: '#F1F5F9',
+                              color: 'var(--text-primary)',
+                              border: '1px solid var(--border, #E2E8F0)',
+                            }}
+                          >
+                            <i className="fa-solid fa-eye"></i> Chi tiết
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(p)}
+                            style={{
+                              padding: '10px 12px',
+                              borderRadius: '10px',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              textAlign: 'center',
+                              border: 'none',
+                              backgroundColor: '#0A5BFF',
+                              color: '#FFFFFF',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <i className="fa-solid fa-cart-plus"></i> Chọn mua
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ textAlign: 'center', marginTop: '35px', marginBottom: '20px' }}>
+                <button
+                  type="button"
+                  onClick={resetWizard}
+                  style={{
+                    padding: '12px 30px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border, #CBD5E1)',
+                    backgroundColor: '#FFFFFF',
+                    color: 'var(--text-primary)',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <i className="fa-solid fa-rotate-left"></i> Làm khảo sát mới
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      <StorefrontFooter />
     </div>
   );
 };
