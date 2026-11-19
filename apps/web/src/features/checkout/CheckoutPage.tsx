@@ -56,34 +56,64 @@ export const CheckoutPage: React.FC = () => {
     setErrorMsg('');
 
     try {
-      // Generate randomized realistic Order Code
-      const randNum = Math.floor(1000 + Math.random() * 9000);
-      const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const orderCode = `NEX-${todayStr}-${randNum}`;
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+      const token = authService.getToken();
 
-      // Clear cart
-      localStorage.removeItem('techpilot-cart');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // 1. Submit Order to real API
+      const res = await fetch(`${apiUrl}/orders`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          customerName: fullName,
+          customerPhone: phone,
+          customerEmail: email || 'khachhang@nexora.local',
+          shippingAddress: `${address}, ${district}, ${city}`,
+          province: city,
+          district: district,
+          customerNotes: notes || undefined,
+          paymentMethod,
+          items: items.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
+        }),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(errJson.error?.message || 'Không thể tạo đơn hàng.');
+      }
+
+      const json = await res.json();
+      const order = json.data;
+
+      // 2. Clear cart
       queryClient.invalidateQueries({ queryKey: ['cart'] });
 
       // Save order info for success page
       sessionStorage.setItem(
         'lastOrder',
         JSON.stringify({
-          orderCode,
-          fullName,
-          phone,
-          email,
-          address: `${address}, ${district}, ${city}`,
-          paymentMethod,
-          totalAmount: finalTotal,
-          itemsCount: cart?.totalItems || 1,
-          createdAt: new Date().toISOString(),
+          orderCode: order.orderCode,
+          fullName: order.customerName,
+          phone: order.customerPhone,
+          email: order.customerEmail,
+          address: order.shippingAddress,
+          paymentMethod: order.paymentMethod,
+          totalAmount: Number(order.totalAmount),
+          itemsCount: order.items?.length || 1,
+          createdAt: order.createdAt,
         }),
       );
 
-      navigate(`/checkout/success?code=${orderCode}`);
-    } catch {
-      setErrorMsg('Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.');
+      navigate(`/checkout/success?code=${order.orderCode}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.';
+      setErrorMsg(message);
     } finally {
       setIsSubmitting(false);
     }

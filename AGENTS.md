@@ -47,7 +47,7 @@ Do not improvise rules. Always consult the specialized standard before editing t
 
 1. **MUST NOT** modify, move, or delete [`TechPilot/`](TechPilot/) or [`audit-output/`](audit-output/).
 2. **MUST NOT** change the locked stack (e.g., switch to Next.js, NestJS, Laravel, MongoDB, or Microservices).
-3. **MUST NOT** expand product scope into a multi-vendor Marketplace or implement unrequested modules outside the active task/phase.
+3. **MUST NOT** expand product scope into a multi-vendor Marketplace (Nexora is strictly Single-Vendor; active migration mandate covers 100% of TechPilot features per DEC-014; SellerMargin remains a future post-migration module).
 4. **MUST NOT** fabricate ERD tables, test results, commit hashes, GitHub states, or bypass security/database constraints.
 5. **MUST NOT** commit `.env`, API keys, VNPay secrets, plaintext passwords, or real PII.
 6. **MUST NOT** commit Git messages in languages other than **tiếng Việt không dấu** (quy chuẩn bắt buộc: toàn bộ Git commit messages phải viết bằng tiếng Việt không dấu theo chuẩn Conventional Commits).

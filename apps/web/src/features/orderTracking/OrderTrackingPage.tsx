@@ -43,7 +43,7 @@ export const OrderTrackingPage: React.FC = () => {
     queryFn: () => cartService.getCart(),
   });
 
-  const handleTrackOrder = (e: React.FormEvent) => {
+  const handleTrackOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
@@ -52,28 +52,46 @@ export const OrderTrackingPage: React.FC = () => {
       return;
     }
 
-    // Mock search simulation
     const codeClean = orderCode.trim().toUpperCase();
-    setSearchedOrder({
-      code: codeClean.startsWith('NEX-') ? codeClean : `NEX-${codeClean}`,
-      createdAt: '18/11/2026 14:30',
-      status: 'SHIPPING',
-      customerName: currentUser?.fullName || 'Nguyễn Văn An',
-      phone: phone.trim() || '0901234567',
-      address: 'Số 123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
-      paymentMethod: 'Chuyển khoản VietQR (Đã thanh toán)',
-      total: 3290000,
-      carrier: 'Giao Hàng Nhanh (GHN Express)',
-      trackingNumber: 'GHN88291039VN',
-      items: [
-        {
-          name: 'Chuột Gaming không dây Logitech G Pro X Superlight 2',
-          quantity: 1,
-          price: 3290000,
-          image: '/assets/images/review/unlinked/chuot-gaming-khong-day-logitech-g-pro-x-superlight-2.jpg',
-        },
-      ],
-    });
+    const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+
+    try {
+      let endpoint = `${apiUrl}/orders/detail/${codeClean}`;
+      if (phone.trim()) {
+        endpoint = `${apiUrl}/orders/track?code=${encodeURIComponent(codeClean)}&phone=${encodeURIComponent(phone.trim())}`;
+      }
+
+      const res = await fetch(endpoint);
+      if (res.ok) {
+        const json = await res.json();
+        const o = json.data;
+        setSearchedOrder({
+          code: o.orderCode,
+          createdAt: new Date(o.createdAt).toLocaleString('vi-VN'),
+          status: o.orderStatus,
+          customerName: o.customerName,
+          phone: o.customerPhone,
+          address: o.shippingAddress,
+          paymentMethod: `${o.paymentMethod} (${o.paymentStatus === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán'})`,
+          total: Number(o.totalAmount),
+          carrier: o.carrierName || 'VNPost Express',
+          trackingNumber: o.trackingNumber || 'VNPOST-88291039',
+          items: o.items?.map((item: { productName: string; quantity: number; unitPrice: string | number; thumbnailUrl?: string | null }) => ({
+            name: item.productName,
+            quantity: item.quantity,
+            price: Number(item.unitPrice),
+            image: item.thumbnailUrl || '/assets/images/default-product.png',
+          })) || [],
+        });
+      } else {
+        const errJson = await res.json();
+        setErrorMessage(errJson.error?.message || 'Không tìm thấy thông tin đơn hàng khớp với yêu cầu.');
+        setSearchedOrder(null);
+      }
+    } catch {
+      setErrorMessage('Lỗi kết nối khi tra cứu đơn hàng.');
+      setSearchedOrder(null);
+    }
   };
 
   return (

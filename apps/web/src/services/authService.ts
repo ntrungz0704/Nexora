@@ -33,6 +33,10 @@ export const authService = {
     localStorage.removeItem('nexora_user');
   },
 
+  getToken(): string | null {
+    return localStorage.getItem('nexora_token');
+  },
+
   getCurrentUser(): AuthUser | null {
     const stored = localStorage.getItem('nexora_user');
     if (!stored) return null;

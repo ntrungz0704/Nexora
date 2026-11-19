@@ -29,6 +29,10 @@ export const cartService = {
     return res.data.data;
   },
 
+  async addToCart(productId: number, quantity = 1): Promise<CartSummaryDto> {
+    return this.addItem(productId, quantity);
+  },
+
   async updateItem(cartItemId: string, quantity: number): Promise<CartSummaryDto> {
     const guestSessionId = getGuestSessionId();
     const res = await apiClient.patch<ApiSuccessEnvelope<CartSummaryDto>>(

@@ -4,6 +4,11 @@ import { createSystemRouter } from '../modules/system/system.routes.js';
 import { createCatalogRouter } from '../modules/catalog/catalog.routes.js';
 import { createAuthRouter } from '../modules/auth/auth.routes.js';
 import { createCartRouter } from '../modules/cart/cart.routes.js';
+import { createOrderRouter } from '../modules/order/order.routes.js';
+import { createPaymentRouter } from '../modules/payment/payment.routes.js';
+import { createMarketingRouter } from '../modules/marketing/marketing.routes.js';
+import { createAiRouter } from '../modules/ai/ai.routes.js';
+import { createAdminRouter } from '../modules/admin/admin.routes.js';
 
 export function createV1Router(systemRepository?: SystemRepository): Router {
   const router = Router();
@@ -11,10 +16,23 @@ export function createV1Router(systemRepository?: SystemRepository): Router {
   // Foundation & System routes
   router.use('/', createSystemRouter(systemRepository));
 
-  // Storefront & E-commerce routes
+  // Storefront & Catalog routes
   router.use('/catalog', createCatalogRouter());
   router.use('/auth', createAuthRouter());
   router.use('/cart', createCartRouter());
+
+  // Commerce & Order routes
+  router.use('/orders', createOrderRouter());
+  router.use('/payment', createPaymentRouter());
+
+  // Marketing & Content routes (Coupons, Flash sales, Posts)
+  router.use('/marketing', createMarketingRouter());
+
+  // AI Engines (Floating Chatbot, 5-Step Assistant, AI Compare, Product Chat)
+  router.use('/ai', createAiRouter());
+
+  // Admin & Store Operations (Single-Vendor Management)
+  router.use('/admin', createAdminRouter());
 
   return router;
 }

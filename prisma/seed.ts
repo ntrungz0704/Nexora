@@ -722,18 +722,261 @@ async function main(): Promise<void> {
     });
   }
 
-  // 9. Audit Log
+  // 9. Coupons
+  await prisma.coupon.upsert({
+    where: { code: 'NEXORA10' },
+    update: {},
+    create: {
+      code: 'NEXORA10',
+      description: 'Giảm 10% tối đa 500.000đ cho đơn hàng từ 2 triệu',
+      discountType: 'PERCENTAGE',
+      discountValue: 10,
+      minOrderValue: 2000000,
+      maxDiscount: 500000,
+      usageLimit: 500,
+      isActive: true,
+      expiresAt: new Date(Date.now() + 30 * 24 * 3600 * 1000),
+    },
+  });
+
+  await prisma.coupon.upsert({
+    where: { code: 'TECHPILOT100' },
+    update: {},
+    create: {
+      code: 'TECHPILOT100',
+      description: 'Mã tri ân TechPilot giảm trực tiếp 100.000đ cho mọi đơn từ 500.000đ',
+      discountType: 'FIXED',
+      discountValue: 100000,
+      minOrderValue: 500000,
+      maxDiscount: 100000,
+      usageLimit: 1000,
+      isActive: true,
+      expiresAt: new Date(Date.now() + 60 * 24 * 3600 * 1000),
+    },
+  });
+
+  await prisma.coupon.upsert({
+    where: { code: 'FREESHIP' },
+    update: {},
+    create: {
+      code: 'FREESHIP',
+      description: 'Miễn phí vận chuyển toàn quốc cho đơn từ 300.000đ',
+      discountType: 'FIXED',
+      discountValue: 50000,
+      minOrderValue: 300000,
+      maxDiscount: 50000,
+      usageLimit: 2000,
+      isActive: true,
+      expiresAt: new Date(Date.now() + 90 * 24 * 3600 * 1000),
+    },
+  });
+
+  // 10. Flash Sale & Flash Sale Items
+  const now = new Date();
+  const existingFlashSale = await prisma.flashSale.findFirst({
+    where: { name: 'Flash Sale Cuối Tuần' },
+  });
+
+  const flashSale = existingFlashSale || (await prisma.flashSale.create({
+    data: {
+      name: 'Flash Sale Cuối Tuần',
+      startTime: new Date(now.getTime() - 2 * 3600 * 1000),
+      endTime: new Date(now.getTime() + 24 * 3600 * 1000),
+      isActive: true,
+    },
+  }));
+
+  if (firstProd) {
+    await prisma.flashSaleItem.upsert({
+      where: {
+        flashSaleId_productId: {
+          flashSaleId: flashSale.id,
+          productId: firstProd.id,
+        },
+      },
+      update: {},
+      create: {
+        flashSaleId: flashSale.id,
+        productId: firstProd.id,
+        flashSalePrice: Number(firstProd.price) * 0.85,
+        quantityLimit: 20,
+        quantitySold: 7,
+        sortOrder: 1,
+      },
+    });
+  }
+
+  // 11. Tech News Posts
+  const newsPosts = [
+    {
+      title: 'Đánh giá NVIDIA GeForce RTX 5090: Quái vật hiệu năng kỷ nguyên AI',
+      slug: 'danh-gia-nvidia-geforce-rtx-5090-hieu-nang-ai',
+      excerpt: 'Kiến trúc Blackwell tiến trình 4nm đem lại bước nhảy vọt hiệu năng Ray Tracing và DLSS 4 đột phá.',
+      content: '<p>NVIDIA đã chính thức công bố dòng card đồ họa GeForce RTX 50 Series với đầu tàu RTX 5090. Với bộ nhớ GDDR7 siêu tốc và hơn 24.000 nhân CUDA, đây là cỗ máy hoàn hảo cho đồ họa 8K và tính toán AI cục bộ.</p>',
+      thumbnailUrl: '/assets/images/posts/rtx-5090-review.jpg',
+      category: 'Phần cứng',
+      views: 1250,
+      isPublished: true,
+      publishedAt: new Date(),
+    },
+    {
+      title: 'Top 5 bàn phím cơ không dây văn phòng và gaming đáng mua nhất 2026',
+      slug: 'top-5-ban-phim-co-khong-day-dang-mua-nhat-2026',
+      excerpt: 'Tổng hợp các mẫu bàn phím cơ gõ êm, pin trâu từ Logitech, Corsair và Keychron cho trải nghiệm làm việc đỉnh cao.',
+      content: '<p>Lựa chọn bàn phím cơ không dây đáp ứng tiêu chí gọn gàng, độ trễ thấp và cảm giác gõ mượt mà. Cùng Nexora điểm qua top 5 lựa chọn xuất sắc nhất hiện nay.</p>',
+      thumbnailUrl: '/assets/images/posts/mechanical-keyboards-2026.jpg',
+      category: 'Gaming Gear',
+      views: 890,
+      isPublished: true,
+      publishedAt: new Date(),
+    },
+    {
+      title: 'Hướng dẫn tự build PC gaming cân mọi tựa game AAA tầm giá 25 triệu',
+      slug: 'huong-dan-tu-build-pc-gaming-25-trieu',
+      excerpt: 'Chi tiết từng linh kiện từ CPU Core i5 / Ryzen 5 đến RTX 4060 Ti tối ưu hiệu năng trên từng đồng bỏ ra.',
+      content: '<p>Build cấu hình PC chơi game mượt mà ở độ phân giải 2K là mong muốn của nhiều game thủ. Bài viết này hướng dẫn chi tiết cách phối hợp linh kiện không bị nghẽn cổ chai.</p>',
+      thumbnailUrl: '/assets/images/posts/build-pc-guide.jpg',
+      category: 'Tư vấn',
+      views: 2400,
+      isPublished: true,
+      publishedAt: new Date(),
+    },
+  ];
+
+  for (const post of newsPosts) {
+    await prisma.post.upsert({
+      where: { slug: post.slug },
+      update: {},
+      create: {
+        ...post,
+        authorId: adminUser.id,
+      },
+    });
+  }
+
+  // 12. Demo Orders for Customer User
+  const existingOrder = await prisma.order.findUnique({
+    where: { orderCode: 'NX-2026-0001' },
+  });
+
+  if (!existingOrder && firstProd) {
+    const unitPrice = Number(firstProd.salePrice || firstProd.price);
+    await prisma.order.create({
+      data: {
+        orderCode: 'NX-2026-0001',
+        userId: customerUser.id,
+        customerName: 'Nguyễn Văn An',
+        customerEmail: 'customer@nexora.local',
+        customerPhone: '0903456789',
+        shippingAddress: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+        province: 'TP. Hồ Chí Minh',
+        district: 'Quận 1',
+        ward: 'Phường Bến Nghé',
+        customerNotes: 'Giao hàng giờ hành chính',
+        subtotal: unitPrice,
+        shippingFee: 0,
+        discountAmount: 100000,
+        totalAmount: unitPrice - 100000 > 0 ? unitPrice - 100000 : unitPrice,
+        paymentMethod: 'COD',
+        paymentStatus: 'PAID',
+        orderStatus: 'DELIVERED',
+        couponCode: 'TECHPILOT100',
+        trackingNumber: 'VNPOST-88291039',
+        carrierName: 'VNPost Nhanh',
+        paidAt: new Date(Date.now() - 3 * 24 * 3600 * 1000),
+        items: {
+          create: [
+            {
+              productId: firstProd.id,
+              productName: firstProd.name,
+              productSku: firstProd.sku,
+              thumbnailUrl: firstProd.thumbnailUrl,
+              unitPrice: unitPrice,
+              quantity: 1,
+              discountAmount: 100000,
+              subtotal: unitPrice - 100000 > 0 ? unitPrice - 100000 : unitPrice,
+            },
+          ],
+        },
+      },
+    });
+
+    await prisma.order.create({
+      data: {
+        orderCode: 'NX-2026-0002',
+        userId: customerUser.id,
+        customerName: 'Nguyễn Văn An',
+        customerEmail: 'customer@nexora.local',
+        customerPhone: '0903456789',
+        shippingAddress: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+        province: 'TP. Hồ Chí Minh',
+        district: 'Quận 1',
+        ward: 'Phường Bến Nghé',
+        customerNotes: 'Gọi trước khi giao',
+        subtotal: 3890000,
+        shippingFee: 30000,
+        discountAmount: 0,
+        totalAmount: 3920000,
+        paymentMethod: 'VNPAY',
+        paymentStatus: 'PAID',
+        orderStatus: 'SHIPPING',
+        trackingNumber: 'GHTK-99120381',
+        carrierName: 'Giao Hàng Tiết Kiệm',
+        paidAt: new Date(Date.now() - 1 * 24 * 3600 * 1000),
+        items: {
+          create: [
+            {
+              productName: 'Bàn phím cơ không dây Logitech G913 TKL Lightspeed RGB',
+              productSku: 'LOGI-G913-TKL',
+              thumbnailUrl: '/assets/images/products/logitech-g913.png',
+              unitPrice: 3890000,
+              quantity: 1,
+              discountAmount: 0,
+              subtotal: 3890000,
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  // 13. Notifications
+  await prisma.notification.deleteMany({ where: { userId: customerUser.id } });
+  await prisma.notification.createMany({
+    data: [
+      {
+        userId: customerUser.id,
+        title: 'Đơn hàng NX-2026-0002 đang được giao',
+        message: 'Bưu tá GHTK đang trên đường giao kiện hàng tới địa chỉ của bạn.',
+        type: 'ORDER',
+        linkUrl: '/order-tracking?code=NX-2026-0002',
+        isRead: false,
+      },
+      {
+        userId: customerUser.id,
+        title: 'Chào mừng bạn đến với Nexora!',
+        message: 'Nhận ngay mã giảm giá NEXORA10 giảm 10% cho đơn hàng đầu tiên.',
+        type: 'PROMO',
+        linkUrl: '/coupons',
+        isRead: true,
+      },
+    ],
+  });
+
+  // 14. Audit Log
   await prisma.auditLog.create({
     data: {
       actorId: adminUser.id,
-      action: 'STOREFRONT_CATALOG_SEEDED',
-      entityType: 'Catalog',
-      entityId: 'storefront_baseline',
+      action: 'FULL_MIGRATION_STOREFRONT_SEEDED',
+      entityType: 'System',
+      entityId: 'all_tables_complete',
       metadata: {
         seededCategories: categoryDefs.length,
         seededBrands: brandList.length,
         seededProducts: productsData.length,
         seededBanners: banners.length,
+        seededCoupons: 3,
+        seededNewsPosts: newsPosts.length,
       },
     },
   });

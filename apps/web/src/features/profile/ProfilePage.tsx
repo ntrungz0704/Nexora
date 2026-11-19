@@ -8,7 +8,7 @@ import { AuthModal } from '../storefront/AuthModal';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
-import type { AuthUser } from '@nexora/shared';
+import type { AuthUser, OrderDto } from '@nexora/shared';
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +21,25 @@ export const ProfilePage: React.FC = () => {
   // Form states
   const [fullName, setFullName] = useState(currentUser?.fullName || 'Nguyễn Văn An');
   const [phone, setPhone] = useState('0901234567');
+
+  // Real Orders query
+  const { data: userOrders = [] } = useQuery<OrderDto[]>({
+    queryKey: ['my-orders', currentUser?.id],
+    queryFn: async () => {
+      const token = authService.getToken();
+      if (!token) return [];
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+      const res = await fetch(`${apiUrl}/orders/my-orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return json.data;
+      }
+      return [];
+    },
+    enabled: !!currentUser,
+  });
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -272,69 +291,74 @@ export const ProfilePage: React.FC = () => {
                   Lịch Sử Đơn Hàng Của Bạn
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {[
-                    {
-                      id: 'NEX-892401',
-                      date: '18/11/2026',
-                      status: 'Đang vận chuyển',
-                      statusColor: '#0A5BFF',
-                      total: 3290000,
-                      itemsCount: 1,
-                      productName: 'Chuột Gaming không dây Logitech G Pro X Superlight 2',
-                    },
-                    {
-                      id: 'NEX-782104',
-                      date: '02/10/2026',
-                      status: 'Đã hoàn tất',
-                      statusColor: '#10B981',
-                      total: 18990000,
-                      itemsCount: 1,
-                      productName: 'Màn hình LG UltraGear 27GR95QE-B 27 inch OLED 240Hz',
-                    },
-                  ].map((order) => (
-                    <div
-                      key={order.id}
-                      style={{
-                        border: '1px solid #E2E8F0',
-                        borderRadius: '12px',
-                        padding: '18px 20px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: '12px',
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                          <strong style={{ color: '#0A5BFF', fontSize: '14.5px' }}>{order.id}</strong>
-                          <span style={{ fontSize: '12px', color: '#94A3B8' }}>• {order.date}</span>
+                  {userOrders.length > 0 ? (
+                    userOrders.map((order) => (
+                      <div
+                        key={order.id}
+                        style={{
+                          border: '1px solid #E2E8F0',
+                          borderRadius: '12px',
+                          padding: '18px 20px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                          gap: '12px',
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                            <strong style={{ color: '#0A5BFF', fontSize: '14.5px' }}>{order.orderCode}</strong>
+                            <span style={{ fontSize: '12px', color: '#94A3B8' }}>
+                              • {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: '13.5px', color: '#0F172A', fontWeight: 600 }}>
+                            {order.items && order.items.length > 0 ? (order.items[0]?.productName ?? 'Đơn hàng phần cứng') : 'Đơn hàng phần cứng'}
+                            {order.items && order.items.length > 1 && ` (+${order.items.length - 1} sản phẩm khác)`}
+                          </div>
                         </div>
-                        <div style={{ fontSize: '13.5px', color: '#0F172A', fontWeight: 600 }}>
-                          {order.productName}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            backgroundColor: '#F1F5F9',
-                            color: order.statusColor,
-                            fontWeight: 700,
-                            fontSize: '11px',
-                            padding: '3px 8px',
-                            borderRadius: '6px',
-                            marginBottom: '4px',
-                          }}
-                        >
-                          {order.status}
-                        </span>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#EF4444' }}>
-                          {order.total.toLocaleString('vi-VN')}đ
+                        <div style={{ textAlign: 'right' }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              backgroundColor: '#F1F5F9',
+                              color: order.orderStatus === 'DELIVERED' ? '#10B981' : '#0A5BFF',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              marginBottom: '4px',
+                            }}
+                          >
+                            {order.orderStatus}
+                          </span>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#EF4444' }}>
+                            {Number(order.totalAmount).toLocaleString('vi-VN')}đ
+                          </div>
                         </div>
                       </div>
+                    ))
+                  ) : (
+                    <div style={{ padding: '30px', textAlign: 'center', color: '#64748B' }}>
+                      <p>Bạn chưa có đơn hàng nào hoặc chưa đăng nhập.</p>
+                      <button
+                        onClick={() => setIsAuthOpen(true)}
+                        style={{
+                          marginTop: '10px',
+                          padding: '8px 16px',
+                          backgroundColor: '#0A5BFF',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Đăng nhập tài khoản
+                      </button>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             )}

@@ -1,20 +1,22 @@
 # Project Scope & Business Boundaries — Nexora
 
 - **Status:** `Approved`
-- **Last Updated:** `2026-11-18`
+- **Last Updated:** `2026-11-19`
 - **Scope:** Defines exact in-scope phases, out-of-scope boundaries, explicit Single-Vendor constraints, and the change control procedure.
+- **Active Mandate (Override Authorized):** **FULL TECHPILOT PRODUCT MIGRATION**. Transitioned from foundation-only to full migration of all customer, admin, inventory, and AI capabilities matching TechPilot while keeping modern locked stack and security hardening.
 
 ---
 
-## 1. Current Active Phase: **Foundation (Phase 0–2 Setup)**
+## 1. Current Active Phase: **Full TechPilot Product Migration & Hardening**
 
-| Component                | Current Phase Scope (`In-Scope Now`)                                                                                                       | Deferred (`Future Feature Phases`)                                                                                                    |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Governance & Docs**    | `AGENTS.md`, `GEMINI.md`, `docs/governance/*`, `docs/standards/*`, `.github/*`, architecture/DB/API foundations                            | Detailed entity ERDs & OpenAPI endpoints as business modules are designed                                                             |
-| **Monorepo & Tooling**   | npm Workspaces (`apps/web`, `apps/api`, `packages/shared`, `packages/config`), TS configs, ESLint, Prettier, Vitest, Supertest, Playwright | Full production deployment pipelines / cloud IaC                                                                                      |
-| **Database Foundation**  | MySQL 8.4 Docker service, initial minimal Prisma schema (`User`, `StoreSetting`, `AuditLog` baseline), initial migration & safe dev seed   | Business schemas (`Product`, `ProductVariant`, `Order`, `PurchaseOrder`, `CostLayer`, `Expense`, etc.) pending Phase-specific ERD/ADR |
-| **Application Skeleton** | React+Vite+Tailwind status/health UI, Express API `/api/v1/health`, `/api/v1/system/meta`, `/api/docs` Swagger, Zod env validation         | Storefront catalog, Cart/Checkout, Auth flows, Purchasing, Inventory, SellerMargin dashboards                                         |
-| **Git & GitHub**         | Private repo `Nexora`, clean initial commit, 6 branches (`main`, `trung`, `hieu`, `kim`, `dinh`, `phuc`)                                   | Branch feature PRs & protected status checks after initial CI verification                                                            |
+| Component | In-Scope (`Active Migration Objective`) | Future Scope |
+|:---|:---|:---|
+| **Commerce Core (Customer)** | Storefront Home, Catalog, Categories & Brands, Specs, Search/Facet Filtering, Product Compare, PC Builder, Cart (Guest & Customer), Checkout, COD & VNPay (Sandbox & Callback), Order Tracking, Reviews, Wishlist, Profile/Addresses, Returns, Notifications | Advanced CRM marketing automation |
+| **Three Independent AI Systems** | 1. Floating Chatbot Q&A<br>2. AI Assistant (5-step survey, 100-pt scoring)<br>3. Product Comparison AI (Persona, Category lock, Trade-offs) | Custom LLM fine-tuning on proprietary corpora |
+| **Store Operations (Admin/Staff)** | Admin Dashboard, Products CRUD + AI Description, Categories CRUD + AI Generate, Brands CRUD, Order Processing & Status Update, Inventory Logs & Stock Adjustments, Flash Sales & Coupons, Reviews Moderation, Banners & Posts Management, Users/Customers Management | Multi-warehouse routing, ERP enterprise integrations |
+| **Database & Persistence** | MySQL 8.4 LTS, 28 legacy tables mapped to Prisma models, append-only migrations, `DECIMAL(14,2)` for financial numbers, atomic inventory transactions | Sharding, multi-region replication |
+| **Architecture & Security** | Modular Monolith (Express 5 + React 19 + TypeScript + Vite + Tailwind CSS), Zod validation, Argon2 password hashing, RBAC (Customer/Staff/Admin), CSRF/HMAC security, no hardcoded credentials | Microservices (`PROHIBITED`) |
+| **Financial Intelligence (SellerMargin)** | Retained as future post-migration module. Implemented after full parity baseline is verified | Full P&L financial suite |
 
 ---
 

@@ -56,20 +56,42 @@ export const CartPage: React.FC = () => {
     return val.toLocaleString('vi-VN') + 'đ';
   };
 
+  const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
+
   const items = cart?.items || [];
   const rawTotal = cart?.subtotal ? Number(cart.subtotal) : 0;
-  const discountAmount = couponApplied ? Math.round(rawTotal * 0.1) : 0;
-  const shippingFee = rawTotal > 300000 || rawTotal === 0 ? 0 : 30000;
+  const discountAmount = couponApplied ? appliedDiscount : 0;
+  const shippingFee = rawTotal >= 500000 || rawTotal === 0 ? 0 : 30000;
   const finalTotal = Math.max(0, rawTotal - discountAmount + shippingFee);
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponCode.trim()) return;
-    if (couponCode.toUpperCase() === 'TECHPILOT' || couponCode.toUpperCase() === 'NEXORA') {
-      setCouponApplied(true);
-      showToast('Áp dụng mã giảm giá 10% thành công!');
-    } else {
-      showToast('Mã giảm giá không hợp lệ hoặc đã hết hạn.');
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+      const res = await fetch(`${apiUrl}/marketing/coupons/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCode.trim(),
+          subtotal: rawTotal,
+        }),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        setCouponApplied(true);
+        setAppliedDiscount(json.data.discountAmount);
+        showToast(`Áp dụng mã ${json.data.coupon.code} thành công! Giảm ${json.data.discountAmount.toLocaleString('vi-VN')}đ`);
+      } else {
+        const errJson = await res.json();
+        setCouponApplied(false);
+        setAppliedDiscount(0);
+        showToast(errJson.error?.message || 'Mã giảm giá không hợp lệ.');
+      }
+    } catch {
+      showToast('Lỗi kết nối khi kiểm tra mã giảm giá.');
     }
   };
 

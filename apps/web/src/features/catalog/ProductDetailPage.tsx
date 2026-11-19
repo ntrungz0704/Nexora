@@ -18,11 +18,48 @@ export const ProductDetailPage: React.FC = () => {
   const queryClient = useQueryClient();
 
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<'specs' | 'desc' | 'reviews'>('specs');
+  const [activeTab, setActiveTab] = useState<'specs' | 'desc' | 'reviews' | 'aiChat'>('specs');
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Product AI Q&A State
+  const [productAiQuestion, setProductAiQuestion] = useState('');
+  const [productAiAnswer, setProductAiAnswer] = useState<string | null>(null);
+  const [isAiAnswering, setIsAiAnswering] = useState(false);
+
+  const handleAskProductAi = async (e?: React.FormEvent, customQ?: string) => {
+    if (e) e.preventDefault();
+    const q = (customQ || productAiQuestion).trim();
+    if (!q || !product) return;
+
+    setIsAiAnswering(true);
+    setProductAiAnswer(null);
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+      const res = await fetch(`${apiUrl}/ai/product-chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: product.id,
+          question: q,
+        }),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        setProductAiAnswer(json.data.answer);
+      } else {
+        setProductAiAnswer('Xin lỗi, hiện tại hệ thống AI đang nâng cấp dữ liệu cho sản phẩm này.');
+      }
+    } catch {
+      setProductAiAnswer('Lỗi kết nối khi gửi câu hỏi tới AI.');
+    } finally {
+      setIsAiAnswering(false);
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -481,6 +518,7 @@ export const ProductDetailPage: React.FC = () => {
                 { id: 'specs', label: 'Thông số kỹ thuật chi tiết' },
                 { id: 'desc', label: 'Mô tả sản phẩm' },
                 { id: 'reviews', label: 'Đánh giá & Nhận xét (24)' },
+                { id: 'aiChat', label: '⚡ Hỏi Đáp AI Về Sản Phẩm Này' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -593,6 +631,112 @@ export const ProductDetailPage: React.FC = () => {
                     </p>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Tab 4: AI Product Q&A */}
+            {activeTab === 'aiChat' && (
+              <div>
+                <div style={{ backgroundColor: '#F8FAFC', borderRadius: '16px', padding: '24px', border: '1px solid #E2E8F0', marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#0A5BFF', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+                      <i className="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
+                        Trợ Lý AI Chuyên Sâu Về {product.name}
+                      </h4>
+                      <div style={{ fontSize: '12px', color: '#64748B' }}>
+                        Hỏi về benchmark FPS game, khả năng nâng cấp RAM/SSD, cổng kết nối và bảo hành
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Suggested questions */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '16px 0' }}>
+                    {[
+                      'Sản phẩm này chiến mượt game AAA nào?',
+                      'Khả năng nâng cấp RAM và ổ cứng thế nào?',
+                      'Chính sách bảo hành và đổi trả ra sao?',
+                    ].map((q, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setProductAiQuestion(q);
+                          handleAskProductAi(undefined, q);
+                        }}
+                        style={{
+                          padding: '6px 14px',
+                          borderRadius: '20px',
+                          border: '1px solid #CBD5E1',
+                          backgroundColor: '#FFFFFF',
+                          fontSize: '12px',
+                          color: '#334155',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+
+                  <form onSubmit={handleAskProductAi} style={{ display: 'flex', gap: '10px' }}>
+                    <input
+                      type="text"
+                      value={productAiQuestion}
+                      onChange={(e) => setProductAiQuestion(e.target.value)}
+                      placeholder="Nhập câu hỏi bạn muốn hỏi AI về sản phẩm này..."
+                      style={{
+                        flex: 1,
+                        padding: '12px 18px',
+                        borderRadius: '12px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '13.5px',
+                        outline: 'none',
+                        backgroundColor: '#FFFFFF',
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isAiAnswering || !productAiQuestion.trim()}
+                      style={{
+                        padding: '0 24px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        backgroundColor: '#0A5BFF',
+                        color: '#FFFFFF',
+                        fontWeight: 700,
+                        fontSize: '13.5px',
+                        cursor: 'pointer',
+                        opacity: isAiAnswering || !productAiQuestion.trim() ? 0.6 : 1,
+                      }}
+                    >
+                      {isAiAnswering ? 'Đang trả lời...' : 'Hỏi AI'}
+                    </button>
+                  </form>
+                </div>
+
+                {productAiAnswer && (
+                  <div
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: '16px',
+                      padding: '20px 24px',
+                      border: '1px solid #BFDBFE',
+                      boxShadow: '0 4px 16px rgba(10, 91, 255, 0.08)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0A5BFF', fontWeight: 800, fontSize: '13px', marginBottom: '8px' }}>
+                      <i className="fa-solid fa-sparkles"></i>
+                      <span>Câu trả lời từ Nexora AI:</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.7, color: '#1E293B', whiteSpace: 'pre-line' }}>
+                      {productAiAnswer}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
