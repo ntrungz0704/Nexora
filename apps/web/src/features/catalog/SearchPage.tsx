@@ -67,8 +67,18 @@ export const SearchPage: React.FC = () => {
       // 1. Category filter
       if (queryCat && queryCat !== 'all') {
         const catSlug = (product.category?.slug || '').toLowerCase();
+        const catName = (product.category?.name || '').toLowerCase();
         const pName = product.name.toLowerCase();
-        if (!catSlug.includes(queryCat.toLowerCase()) && !pName.includes(queryCat.toLowerCase())) {
+        const cleanQueryCat = queryCat.toLowerCase().replace(/\s+/g, '-');
+        const cleanQueryCatSpace = queryCat.toLowerCase().replace(/-/g, ' ');
+
+        const matchesCat =
+          catSlug.includes(cleanQueryCat) ||
+          catSlug.includes(queryCat.toLowerCase()) ||
+          catName.includes(cleanQueryCatSpace) ||
+          pName.includes(cleanQueryCatSpace);
+
+        if (!matchesCat) {
           return false;
         }
       }

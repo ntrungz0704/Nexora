@@ -10,6 +10,7 @@ import { ProductCatalogSection } from './ProductCatalogSection';
 import { BottomFeatures } from './BottomFeatures';
 import { CartDrawer } from './CartDrawer';
 import { AuthModal } from './AuthModal';
+import { PromoPopup } from './PromoPopup';
 import { StorefrontFooter } from './StorefrontFooter';
 import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
@@ -191,6 +192,9 @@ export const StorefrontHome: React.FC = () => {
           showToast(`Chào mừng trở lại, ${user.fullName}!`);
         }}
       />
+
+      {/* Shopee-style Promotional Opening Popup */}
+      <PromoPopup />
     </div>
   );
 };

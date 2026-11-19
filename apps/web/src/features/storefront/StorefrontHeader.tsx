@@ -20,7 +20,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   wishlistCount,
   currentUser,
   onOpenCart,
-  onOpenAuth,
+  onOpenAuth: _onOpenAuth,
   onLogout,
   onToggleCategoryMenu,
   isCategoryMenuOpen,
@@ -370,16 +370,14 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                 )}
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={onOpenAuth}
+              <Link
+                to="/auth/login"
                 className="header-actions__item header-action header-action--account"
-                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                 title="Đăng nhập tài khoản"
               >
                 <i className="fa-regular fa-circle-user header-action__icon" aria-hidden="true"></i>
                 <span className="header-actions__label header-action__label">Đăng nhập</span>
-              </button>
+              </Link>
             )}
 
             {/* Dark Mode Toggle */}

@@ -4,6 +4,17 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
   if (!product) return '/assets/images/placeholder.webp';
 
   const thumb = product.thumbnailUrl?.trim();
+  // Override low-res or missing image files with sharp high-res renders
+  if (thumb?.includes('samsung-odyssey.jpg')) {
+    return '/assets/images/review/unlinked/display.png';
+  }
+  if (thumb?.includes('monitor-lg-27.jpg')) {
+    return '/assets/images/review/unlinked/display1.png';
+  }
+  if (thumb?.includes('logitech-g913.png')) {
+    return '/assets/images/review/unlinked/logitech-g213.jpg';
+  }
+
   // If thumb is an actual review/unlinked or valid high-res photo and NOT a tiny category icon
   if (thumb && thumb.startsWith('/assets/images/review/unlinked/')) {
     return thumb;
@@ -25,12 +36,12 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
     return '/assets/images/review/unlinked/logitech-g213.jpg';
   }
   if (searchStr.includes('odyssey') || searchStr.includes('g9') || (searchStr.includes('samsung') && searchStr.includes('màn'))) {
-    return '/assets/images/review/unlinked/samsung-odyssey.jpg';
+    return '/assets/images/review/unlinked/display.png';
   }
   if (searchStr.includes('ultragear') || searchStr.includes('27gr95qe') || (searchStr.includes('lg') && searchStr.includes('màn'))) {
-    return '/assets/images/review/unlinked/monitor-lg-27.jpg';
+    return '/assets/images/review/unlinked/display1.png';
   }
-  if (searchStr.includes('tuf') || searchStr.includes('rtx 4070') || searchStr.includes('vga-asus')) {
+  if (searchStr.includes('tuf') || searchStr.includes('rtx 4070') || searchStr.includes('vga-asus') || searchStr.includes('geforce rtx')) {
     return '/assets/images/review/unlinked/rtx-4070-super.jpg';
   }
   if (searchStr.includes('14900k') || searchStr.includes('i9') || searchStr.includes('cpu-intel')) {
@@ -59,6 +70,27 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
   }
 
   // 2. Generic High-Res Category Fallback
+  if (searchStr.includes('in') || searchStr.includes('canon') || searchStr.includes('epson') || searchStr.includes('van-phong') || searchStr.includes('văn phòng')) {
+    return '/assets/images/review/unlinked/printer-canon.jpg';
+  }
+  if (searchStr.includes('router') || searchStr.includes('wifi') || searchStr.includes('mạng') || searchStr.includes('phan-mem')) {
+    return '/assets/images/review/unlinked/router-tplink.jpg';
+  }
+  if (searchStr.includes('webcam') || searchStr.includes('camera') || searchStr.includes('loa') || searchStr.includes('micro')) {
+    return '/assets/images/review/unlinked/camera.jpg';
+  }
+  if (searchStr.includes('case') || searchStr.includes('nguon') || searchStr.includes('nguồn') || searchStr.includes('tản') || searchStr.includes('deepcool')) {
+    return '/assets/images/review/unlinked/case1.jpg';
+  }
+  if (searchStr.includes('hub') || searchStr.includes('phụ kiện') || searchStr.includes('phu-kien')) {
+    return '/assets/images/review/unlinked/prod_625.png';
+  }
+  if (searchStr.includes('sạc dự phòng') || searchStr.includes('sac-du-phong') || searchStr.includes('powerbank') || searchStr.includes('anker')) {
+    return '/assets/images/review/unlinked/prod_632.jpg';
+  }
+  if (searchStr.includes('tai-nghe') || searchStr.includes('tai nghe') || searchStr.includes('headphone') || searchStr.includes('hyperx')) {
+    return '/assets/images/review/unlinked/camera1.jpg';
+  }
   if (searchStr.includes('laptop')) {
     return '/assets/images/review/unlinked/rog-zephyrus.jpg';
   }

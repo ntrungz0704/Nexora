@@ -1,1 +1,77 @@
 @import 'tailwindcss';
+
+/* =======================================================
+   TECHPILOT MASCOT FLOATING AI CHATBOT LAUNCHER
+   ======================================================= */
+@keyframes tpPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes tpMascotFloat {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+}
+
+.tp-chatbot-launcher {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0A5BFF 0%, #0040C1 100%);
+  color: #FFFFFF;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  z-index: 100005 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 8px 24px rgba(10, 91, 255, 0.35);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+  overflow: hidden;
+  padding: 0;
+  animation: tpMascotFloat 3s ease-in-out infinite;
+}
+
+.tp-chatbot-launcher:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 30px rgba(10, 91, 255, 0.5);
+}
+
+.tp-chatbot-launcher-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #0A5BFF;
+  animation: tpPulse 2s infinite;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 575px) {
+  .tp-chatbot-launcher {
+    bottom: 80px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+  }
+}

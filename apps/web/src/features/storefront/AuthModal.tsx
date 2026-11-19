@@ -126,12 +126,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
         {/* Head */}
         <div className="auth-card__head" style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <div
-            className="auth-card__head-icon"
-            style={{ margin: '0 auto 12px auto', width: '44px', height: '44px' }}
-          >
-            <i className="fa-solid fa-bolt"></i>
-          </div>
           <h2 className="auth-card__title" style={{ fontSize: '22px', fontWeight: 800 }}>
             {activeTab === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
           </h2>
