@@ -12,6 +12,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -62,46 +63,110 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 99999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+      }}
+    >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.65)',
+          backdropFilter: 'blur(4px)',
+          transition: 'opacity 0.2s ease',
+        }}
       />
 
-      {/* Modal Dialog */}
-      <div className="relative bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 overflow-hidden z-10">
+      {/* Auth Card Dialog (TechPilot Exact Design System) */}
+      <div
+        className="auth-card"
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          maxWidth: '460px',
+          padding: '32px 28px',
+          borderRadius: '20px',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+        }}
+      >
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition"
+          aria-label="Đóng"
+          style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            border: 'none',
+            background: 'var(--surface-muted, #F3F4F6)',
+            color: 'var(--text-secondary, #6B7280)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '14px',
+            transition: 'background-color 0.15s',
+          }}
         >
           <i className="fa-solid fa-xmark"></i>
         </button>
 
-        {/* Modal Brand Title */}
-        <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-blue-600 mx-auto flex items-center justify-center shadow-lg shadow-blue-500/25 mb-2">
-            <i className="fa-solid fa-bolt text-white text-2xl"></i>
+        {/* Head */}
+        <div className="auth-card__head" style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div
+            className="auth-card__head-icon"
+            style={{ margin: '0 auto 12px auto', width: '44px', height: '44px' }}
+          >
+            <i className="fa-solid fa-bolt"></i>
           </div>
-          <h2 className="text-xl font-extrabold text-white">Nexora Account</h2>
-          <p className="text-xs text-slate-400 mt-0.5">Hệ thống công nghệ phần cứng chính hãng</p>
+          <h2 className="auth-card__title" style={{ fontSize: '22px', fontWeight: 800 }}>
+            {activeTab === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
+          </h2>
+          <p className="auth-card__subtitle" style={{ justifyContent: 'center', marginTop: '4px' }}>
+            Chào mừng bạn đến với TechPilot
+          </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-slate-800 mb-5">
+        {/* Tab Switcher */}
+        <div
+          style={{
+            display: 'flex',
+            borderBottom: '1.5px solid var(--border, #E5E7EB)',
+            marginBottom: '20px',
+          }}
+        >
           <button
             type="button"
             onClick={() => {
               setActiveTab('login');
               setErrorMsg('');
             }}
-            className={`flex-1 py-2 text-xs font-bold transition border-b-2 ${
-              activeTab === 'login'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
+            style={{
+              flex: 1,
+              padding: '10px 0',
+              fontWeight: 700,
+              fontSize: '13px',
+              border: 'none',
+              background: 'none',
+              cursor: 'pointer',
+              color: activeTab === 'login' ? 'var(--primary, #0A5BFF)' : 'var(--text-secondary, #6B7280)',
+              borderBottom: activeTab === 'login' ? '2.5px solid var(--primary, #0A5BFF)' : '2.5px solid transparent',
+              marginBottom: '-1.5px',
+              transition: 'all 0.15s ease',
+            }}
           >
             Đăng nhập
           </button>
@@ -111,145 +176,317 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               setActiveTab('register');
               setErrorMsg('');
             }}
-            className={`flex-1 py-2 text-xs font-bold transition border-b-2 ${
-              activeTab === 'register'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
+            style={{
+              flex: 1,
+              padding: '10px 0',
+              fontWeight: 700,
+              fontSize: '13px',
+              border: 'none',
+              background: 'none',
+              cursor: 'pointer',
+              color: activeTab === 'register' ? 'var(--primary, #0A5BFF)' : 'var(--text-secondary, #6B7280)',
+              borderBottom: activeTab === 'register' ? '2.5px solid var(--primary, #0A5BFF)' : '2.5px solid transparent',
+              marginBottom: '-1.5px',
+              transition: 'all 0.15s ease',
+            }}
           >
             Đăng ký tài khoản
           </button>
         </div>
 
-        {/* Error message */}
+        {/* Server / Validation Error */}
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
-            <i className="fa-solid fa-circle-exclamation flex-shrink-0"></i>
+          <div className="auth-alert auth-alert--error" style={{ marginBottom: '16px' }}>
+            <i className="fa-solid fa-circle-exclamation"></i>
             <span>{errorMsg}</span>
           </div>
         )}
 
-        {/* Form */}
+        {/* Form Body */}
         {activeTab === 'login' ? (
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Mật khẩu</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
+          <form onSubmit={handleLogin} className="auth-form" noValidate>
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="modal_login_email">
+                Email hoặc số điện thoại
+              </label>
+              <div className="auth-input-wrap">
+                <i className="fa-regular fa-envelope auth-input-icon"></i>
+                <input
+                  type="text"
+                  id="modal_login_email"
+                  className="auth-input"
+                  placeholder="nguyenvana@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="username"
+                  required
+                />
+              </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-500/25 transition disabled:opacity-60"
-            >
-              {isLoading ? 'Đang xác thực...' : 'Đăng nhập ngay'}
-            </button>
-
-            {/* Quick Demo Fill Buttons */}
-            <div className="pt-4 border-t border-slate-800 text-center">
-              <span className="text-[11px] text-slate-400 font-semibold block mb-2">
-                Tài khoản mẫu kiểm thử:
-              </span>
-              <div className="flex flex-wrap gap-1.5 justify-center">
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="modal_login_password">
+                Mật khẩu
+              </label>
+              <div className="auth-input-wrap">
+                <i className="fa-solid fa-lock auth-input-icon"></i>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="modal_login_password"
+                  className="auth-input auth-input--has-action"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
                 <button
                   type="button"
-                  onClick={() => handleQuickLogin('customer@nexora.local')}
-                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-emerald-400 font-medium"
+                  className="auth-eye-btn"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  tabIndex={-1}
+                  aria-label="Hiện/ẩn mật khẩu"
                 >
-                  Customer Demo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickLogin('staff@nexora.local')}
-                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-amber-400 font-medium"
-                >
-                  Staff Demo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickLogin('admin@nexora.local')}
-                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-rose-400 font-medium"
-                >
-                  Admin Demo
+                  <i className={`fa-regular ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
                 </button>
               </div>
             </div>
-          </form>
-        ) : (
-          <form onSubmit={handleRegister} className="space-y-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Họ và tên</label>
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Nguyễn Văn A"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Số điện thoại
+
+            <div className="auth-form-row">
+              <label className="auth-checkbox-label">
+                <input type="checkbox" className="auth-checkbox" defaultChecked /> Ghi nhớ đăng nhập
               </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="0901234567"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Mật khẩu</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Tối thiểu 6 ký tự"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
+              <a href="#forgot" className="auth-link-accent" style={{ fontSize: '12px' }}>
+                Quên mật khẩu?
+              </a>
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-500/25 transition disabled:opacity-60"
-            >
+            <button type="submit" className="auth-btn-primary" disabled={isLoading}>
+              {isLoading ? 'Đang xác thực...' : 'Đăng nhập'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleRegister} className="auth-form" noValidate>
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="modal_reg_name">
+                Họ và tên
+              </label>
+              <div className="auth-input-wrap">
+                <i className="fa-regular fa-user auth-input-icon"></i>
+                <input
+                  type="text"
+                  id="modal_reg_name"
+                  className="auth-input"
+                  placeholder="Nguyễn Văn A"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="modal_reg_email">
+                Địa chỉ Email
+              </label>
+              <div className="auth-input-wrap">
+                <i className="fa-regular fa-envelope auth-input-icon"></i>
+                <input
+                  type="email"
+                  id="modal_reg_email"
+                  className="auth-input"
+                  placeholder="nguyenvana@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="modal_reg_phone">
+                Số điện thoại
+              </label>
+              <div className="auth-input-wrap">
+                <i className="fa-solid fa-phone auth-input-icon"></i>
+                <input
+                  type="tel"
+                  id="modal_reg_phone"
+                  className="auth-input"
+                  placeholder="0987 654 321"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="modal_reg_pass">
+                Mật khẩu (ít nhất 6 ký tự)
+              </label>
+              <div className="auth-input-wrap">
+                <i className="fa-solid fa-lock auth-input-icon"></i>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="modal_reg_pass"
+                  className="auth-input auth-input--has-action"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  minLength={6}
+                  required
+                />
+                <button
+                  type="button"
+                  className="auth-eye-btn"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  tabIndex={-1}
+                  aria-label="Hiện/ẩn mật khẩu"
+                >
+                  <i className={`fa-regular ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="auth-btn-primary" disabled={isLoading}>
               {isLoading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản ngay'}
             </button>
           </form>
         )}
+
+        {/* Divider */}
+        <div className="auth-divider-line">
+          <span>hoặc</span>
+        </div>
+
+        {/* Google OAuth Button */}
+        <button
+          type="button"
+          className="auth-btn-google"
+          onClick={() => {
+            handleQuickLogin('customer@nexora.vn');
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+            />
+          </svg>
+          Tiếp tục với Google
+        </button>
+
+        {/* Quick Demo Helper */}
+        <div
+          style={{
+            marginTop: '16px',
+            padding: '10px 12px',
+            borderRadius: '10px',
+            backgroundColor: 'var(--surface-muted, #F8FAFC)',
+            border: '1px solid var(--border, #E2E8F0)',
+            fontSize: '11px',
+            textAlign: 'center',
+          }}
+        >
+          <span style={{ color: 'var(--text-secondary, #64748B)', fontWeight: 600 }}>
+            Tài khoản mẫu:
+          </span>{' '}
+          <button
+            type="button"
+            onClick={() => handleQuickLogin('customer@nexora.vn')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#0A5BFF',
+              fontWeight: 700,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: '0 4px',
+            }}
+          >
+            Khách hàng
+          </button>
+          {' | '}
+          <button
+            type="button"
+            onClick={() => handleQuickLogin('staff@nexora.vn')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#F59E0B',
+              fontWeight: 700,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: '0 4px',
+            }}
+          >
+            Nhân viên
+          </button>
+          {' | '}
+          <button
+            type="button"
+            onClick={() => handleQuickLogin('admin@nexora.vn')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#EF4444',
+              fontWeight: 700,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: '0 4px',
+            }}
+          >
+            Quản trị
+          </button>
+        </div>
+
+        {/* Switch tab link */}
+        <p className="auth-footer-text">
+          {activeTab === 'login' ? (
+            <>
+              Chưa có tài khoản?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('register');
+                  setErrorMsg('');
+                }}
+                className="auth-link-accent"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                Đăng ký ngay
+              </button>
+            </>
+          ) : (
+            <>
+              Đã có tài khoản?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('login');
+                  setErrorMsg('');
+                }}
+                className="auth-link-accent"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                Đăng nhập ngay
+              </button>
+            </>
+          )}
+        </p>
       </div>
     </div>
   );

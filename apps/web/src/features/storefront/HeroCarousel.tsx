@@ -15,22 +15,6 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    bg: '/assets/images/banner-rtx-bg.jpg',
-    tag: 'SẮP RA MẮT',
-    title: 'NVIDIA RTX 50 SERIES',
-    desc: 'Sẵn sàng cho kỷ nguyên đồ họa thế hệ mới',
-    specs: [
-      'Kiến trúc Blackwell 4nm',
-      'Bộ nhớ GDDR7 siêu tốc',
-      'Tăng tốc AI gấp 2 lần',
-      'DLSS 4 tối ưu hóa hiệu năng',
-    ],
-    priceHtml: 'Nhận thông tin sớm nhất',
-    link: '/auth/register',
-    btnText: 'Đăng ký ngay',
-    btnIcon: 'fa-solid fa-envelope',
-  },
-  {
     bg: '/assets/images/rog-banner-bg.jpg',
     tag: 'Sức mạnh vượt trội',
     title: 'ROG ZEPHYRUS G16',
@@ -94,6 +78,22 @@ const slides: Slide[] = [
     btnText: 'Khám phá',
     btnIcon: 'fa-solid fa-arrow-right',
   },
+  {
+    bg: '/assets/images/banner-rtx-bg.jpg',
+    tag: 'SẮP RA MẮT',
+    title: 'NVIDIA RTX 50 SERIES',
+    desc: 'Sẵn sàng cho kỷ nguyên đồ họa thế hệ mới',
+    specs: [
+      'Kiến trúc Blackwell 4nm',
+      'Bộ nhớ GDDR7 siêu tốc',
+      'Tăng tốc AI gấp 2 lần',
+      'DLSS 4 tối ưu hóa hiệu năng',
+    ],
+    priceHtml: 'Nhận thông tin sớm nhất',
+    link: '/auth/register',
+    btnText: 'Đăng ký ngay',
+    btnIcon: 'fa-solid fa-envelope',
+  },
 ];
 
 export const HeroCarousel: React.FC = () => {
@@ -135,7 +135,7 @@ export const HeroCarousel: React.FC = () => {
                 className="carousel-slide__price"
                 dangerouslySetInnerHTML={{ __html: slide.priceHtml }}
               />
-              <Link to={slide.link} className="btn btn--light">
+              <Link to={slide.link} className="btn btn--light" style={{ alignSelf: 'flex-start' }}>
                 {slide.btnText} <i className={slide.btnIcon}></i>
               </Link>
             </div>

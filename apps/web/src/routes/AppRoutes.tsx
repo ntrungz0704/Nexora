@@ -1,5 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { StorefrontHome } from '../features/storefront/StorefrontHome';
+import { LoginPage } from '../features/auth/LoginPage';
+import { RegisterPage } from '../features/auth/RegisterPage';
 import { FoundationDashboard } from '../features/system/FoundationDashboard';
 import { MainLayout } from '../layouts/MainLayout';
 
@@ -24,6 +26,12 @@ export function AppRoutes() {
       <Route path="/" element={<StorefrontHome />} />
       <Route path="/search" element={<StorefrontHome />} />
       <Route path="/category/:slug" element={<StorefrontHome />} />
+
+      {/* 2. Authentication Routes (TechPilot Exact Parity) */}
+      <Route path="/auth/login" element={<LoginPage />} />
+      <Route path="/auth/register" element={<RegisterPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* 2. Technical Foundation & Architecture Pages */}
       <Route element={<MainLayout />}>

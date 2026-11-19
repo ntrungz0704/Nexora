@@ -339,7 +339,7 @@ async function main(): Promise<void> {
       price: 64990000,
       salePrice: 59990000,
       stockQuantity: 15,
-      thumbnailUrl: '/assets/images/categories/category-laptop.png',
+      thumbnailUrl: '/assets/images/review/unlinked/rog-zephyrus.jpg',
       shortDescription:
         'Laptop gaming cao cấp siêu mỏng nhẹ với màn hình OLED 2.5K 240Hz, CPU Intel Core Ultra 9 và card đồ họa RTX 4070.',
       specs: {
@@ -387,7 +387,7 @@ async function main(): Promise<void> {
       price: 29990000,
       salePrice: 26490000,
       stockQuantity: 25,
-      thumbnailUrl: '/assets/images/categories/category-laptop.png',
+      thumbnailUrl: '/assets/images/review/unlinked/acer-predator.jpg',
       shortDescription:
         'Laptop gaming tầm trung quốc dân với tản nhiệt kim loại lỏng, AMD Ryzen 7 7840HS và RTX 4060 8GB.',
       specs: {
@@ -411,7 +411,7 @@ async function main(): Promise<void> {
       price: 43990000,
       salePrice: 39990000,
       stockQuantity: 18,
-      thumbnailUrl: '/assets/images/categories/category-laptop.png',
+      thumbnailUrl: '/assets/images/review/unlinked/lenovo-legion.jpg',
       shortDescription:
         'Cỗ máy gaming chuẩn thi đấu eSports với vi xử lý Intel Core i7-14700HX và card màn hình RTX 4070.',
       specs: {
@@ -436,7 +436,7 @@ async function main(): Promise<void> {
       price: 135000000,
       salePrice: 124990000,
       stockQuantity: 5,
-      thumbnailUrl: '/assets/images/categories/category-pc.png',
+      thumbnailUrl: '/assets/images/review/unlinked/pc-advanced.jpg',
       shortDescription:
         'Siêu phẩm PC Gaming hủy diệt mọi tựa game 4K Ray Tracing và Render 3D hạng nặng với tản nhiệt nước AIO 360mm RGB.',
       specs: {
@@ -461,7 +461,7 @@ async function main(): Promise<void> {
       price: 52000000,
       salePrice: 47990000,
       stockQuantity: 8,
-      thumbnailUrl: '/assets/images/categories/category-pc.png',
+      thumbnailUrl: '/assets/images/review/unlinked/pc-workstation.jpg',
       shortDescription:
         'Cấu hình tối ưu tuyệt hảo cho đồ họa Adobe Premiere, After Effects, AutoCAD và dựng hình Blender.',
       specs: {
@@ -487,7 +487,7 @@ async function main(): Promise<void> {
       price: 25990000,
       salePrice: 23990000,
       stockQuantity: 20,
-      thumbnailUrl: '/assets/images/categories/category-vga.png',
+      thumbnailUrl: '/assets/images/review/unlinked/rtx-4070-super.jpg',
       shortDescription:
         'Độ bền quân đội TUF Gaming, kiến trúc Ada Lovelace, DLSS 3 và 16GB VRAM GDDR6X cho độ phân giải 2K/4K siêu mượt.',
       specs: {
@@ -510,7 +510,7 @@ async function main(): Promise<void> {
       price: 15490000,
       salePrice: 14290000,
       stockQuantity: 30,
-      thumbnailUrl: '/assets/images/categories/category-cpu.png',
+      thumbnailUrl: '/assets/images/review/unlinked/cpu_14.png',
       shortDescription:
         'Vi xử lý flagship thế hệ thứ 14 Raptor Lake Refresh với tần số turbo lên tới 6.0GHz, hiệu năng ép xung đỉnh cao.',
       specs: {
@@ -534,7 +534,7 @@ async function main(): Promise<void> {
       price: 39990000,
       salePrice: 34500000,
       stockQuantity: 6,
-      thumbnailUrl: '/assets/images/categories/category-monitor.png',
+      thumbnailUrl: '/assets/images/review/unlinked/samsung-odyssey.jpg',
       shortDescription:
         'Màn hình gaming OLED siêu rộng 32:9 với độ cong 1800R chuẩn rạp chiếu phim, chuẩn màu DisplayHDR True Black 400.',
       specs: {
@@ -557,7 +557,7 @@ async function main(): Promise<void> {
       price: 21990000,
       salePrice: 18990000,
       stockQuantity: 12,
-      thumbnailUrl: '/assets/images/categories/category-monitor.png',
+      thumbnailUrl: '/assets/images/review/unlinked/monitor-lg-27.jpg',
       shortDescription:
         'Tấm nền OLED 2K QHD 240Hz siêu phản hồi 0.03ms, chuẩn màu DCI-P3 98.5% cho game thủ FPS chuyên nghiệp.',
       specs: {
@@ -581,7 +581,7 @@ async function main(): Promise<void> {
       price: 4990000,
       salePrice: 3890000,
       stockQuantity: 40,
-      thumbnailUrl: '/assets/images/categories/category-keyboard.png',
+      thumbnailUrl: '/assets/images/review/unlinked/logitech-g213.jpg',
       shortDescription:
         'Switch cơ học GL Tactile low-profile siêu mỏng, vỏ nhôm phay xước cao cấp, kết nối Lightspeed không độ trễ 1ms.',
       specs: {
@@ -603,7 +603,7 @@ async function main(): Promise<void> {
       price: 3690000,
       salePrice: 3290000,
       stockQuantity: 50,
-      thumbnailUrl: '/assets/images/categories/category-mouse.png',
+      thumbnailUrl: '/assets/images/review/unlinked/logitech-g-pro-x-wireless.jpg',
       shortDescription:
         'Chuột esports số 1 thế giới trọng lượng siêu nhẹ 60g, switch hybrid cơ-quang học Lightforce, cảm biến HERO 2 32.000 DPI.',
       specs: {
@@ -626,7 +626,7 @@ async function main(): Promise<void> {
       price: 5490000,
       salePrice: 4790000,
       stockQuantity: 35,
-      thumbnailUrl: '/assets/images/categories/category-storage.png',
+      thumbnailUrl: '/assets/images/review/unlinked/ssd-samsung.jpg',
       shortDescription:
         'Tốc độ đọc/ghi tuần tự đỉnh bảng lên tới 7.450 / 6.900 MB/s, công nghệ tản nhiệt Nickel thông minh bảo vệ dữ liệu.',
       specs: {

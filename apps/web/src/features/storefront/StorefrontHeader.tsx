@@ -51,8 +51,8 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   };
 
   return (
-    <div className="commerce-header-stack" id="commerceHeaderStack">
-      {/* 1. TechPilot Top Bar */}
+    <>
+      {/* 1. TechPilot Top Bar (Static marquee, outside sticky header stack) */}
       <div className="techpilot-topbar">
         <div className="container techpilot-topbar__container">
           <div className="techpilot-topbar__viewport">
@@ -118,6 +118,10 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
           </div>
         </div>
       </div>
+      <div id="commerceHeaderSentinel" aria-hidden="true"></div>
+
+      {/* 2. Commerce Sticky Header Stack */}
+      <div className="commerce-header-stack" id="commerceHeaderStack">
 
       {/* 2. Main Header */}
       <header className="site-header">
@@ -457,5 +461,6 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
         </nav>
       </header>
     </div>
+    </>
   );
 };
