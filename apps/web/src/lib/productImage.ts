@@ -14,6 +14,9 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
   if (thumb?.includes('logitech-g913.png')) {
     return '/assets/images/review/unlinked/logitech-g213.jpg';
   }
+  if (thumb?.includes('headset-g733')) {
+    return '/assets/images/categories/category-headset.png';
+  }
 
   // If thumb is an actual review/unlinked or valid high-res photo and NOT a tiny category icon
   if (thumb && thumb.startsWith('/assets/images/review/unlinked/')) {

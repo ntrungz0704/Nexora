@@ -53,9 +53,9 @@ export const PcBuilderPage: React.FC = () => {
 
   const { data: productsData } = useQuery({
     queryKey: ['products'],
-    queryFn: () => storefrontService.getProducts({ limit: 40 }),
+    queryFn: () => storefrontService.getProducts({ limit: 120 }),
   });
-  const allProducts = productsData?.products || [];
+  const allProducts = React.useMemo(() => productsData?.products || [], [productsData]);
 
   const { data: cart } = useQuery({
     queryKey: ['cart'],
@@ -119,10 +119,98 @@ export const PcBuilderPage: React.FC = () => {
     }
   };
 
-  const filteredModalProducts = allProducts.filter((p) => {
-    if (!modalSearch) return true;
-    return p.name.toLowerCase().includes(modalSearch.toLowerCase());
-  });
+  const filteredModalProducts = React.useMemo(() => {
+    if (!activePickingCategory) return [];
+    const catKey = activePickingCategory.key;
+    return allProducts.filter((p) => {
+      // 1. Text search within modal
+      if (modalSearch.trim()) {
+        const q = modalSearch.toLowerCase().trim();
+        const matchesName = p.name.toLowerCase().includes(q);
+        const matchesBrand = (p.brand?.name || '').toLowerCase().includes(q);
+        if (!matchesName && !matchesBrand) return false;
+      }
+
+      const nameLower = p.name.toLowerCase();
+      const catSlug = (p.category?.slug || '').toLowerCase();
+
+      switch (catKey) {
+        case 'cpu':
+          return (
+            (nameLower.includes('cpu') ||
+              nameLower.includes('core i') ||
+              nameLower.includes('ryzen') ||
+              nameLower.includes('intel core')) &&
+            !nameLower.includes('pc ') &&
+            !nameLower.includes('tản nhiệt') &&
+            !nameLower.includes('laptop')
+          );
+        case 'mainboard':
+          return (
+            (nameLower.includes('mainboard') ||
+              nameLower.includes('bo mạch') ||
+              nameLower.includes('b760') ||
+              nameLower.includes('z790') ||
+              nameLower.includes('b650') ||
+              nameLower.includes('x670') ||
+              nameLower.includes('tuf gaming b')) &&
+            !nameLower.includes('laptop')
+          );
+        case 'ram':
+          return (
+            (nameLower.includes('ram') ||
+              nameLower.includes('ddr4') ||
+              nameLower.includes('ddr5') ||
+              nameLower.includes('bộ nhớ trong')) &&
+            !nameLower.includes('laptop')
+          );
+        case 'vga':
+          return (
+            (nameLower.includes('vga') ||
+              nameLower.includes('rtx') ||
+              nameLower.includes('geforce') ||
+              nameLower.includes('card màn hình') ||
+              nameLower.includes('radeon')) &&
+            !nameLower.includes('pc ') &&
+            !nameLower.includes('laptop')
+          );
+        case 'storage':
+          return (
+            nameLower.includes('ssd') ||
+            nameLower.includes('hdd') ||
+            nameLower.includes('ổ cứng') ||
+            nameLower.includes('990 pro') ||
+            catSlug.includes('o-cung')
+          );
+        case 'psu':
+          return (
+            nameLower.includes('nguồn') ||
+            nameLower.includes('psu') ||
+            nameLower.includes('rm850') ||
+            nameLower.includes('80 plus') ||
+            nameLower.includes('power supply')
+          );
+        case 'case':
+          return (
+            (nameLower.includes('case') ||
+              nameLower.includes('vỏ case') ||
+              nameLower.includes('thùng máy')) &&
+            !nameLower.includes('nguồn') &&
+            !nameLower.includes('tản')
+          );
+        case 'cooling':
+          return (
+            nameLower.includes('tản nhiệt') ||
+            nameLower.includes('cooler') ||
+            nameLower.includes('aio') ||
+            nameLower.includes('deepcool') ||
+            nameLower.includes('thermalright')
+          );
+        default:
+          return true;
+      }
+    });
+  }, [allProducts, activePickingCategory, modalSearch]);
 
   return (
     <div className="pc-builder-page-wrapper" style={{ backgroundColor: 'var(--bg-main, #F8FAFC)', minHeight: '100vh' }}>
@@ -553,56 +641,71 @@ export const PcBuilderPage: React.FC = () => {
             </div>
 
             {/* Modal Products List */}
-            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-              {filteredModalProducts.map((p) => {
-                const pr = p.salePrice ? Number(p.salePrice) : Number(p.price);
-                return (
-                  <div
-                    key={p.id}
-                    style={{
-                      border: '1px solid #E2E8F0',
-                      borderRadius: '12px',
-                      padding: '14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      transition: 'border-color 0.2s ease',
-                    }}
-                  >
-                    <div>
-                      <img
-                        src={getProductImage(p)}
-                        alt={p.name}
-                        style={{ width: '100%', height: '120px', objectFit: 'contain', marginBottom: '10px' }}
-                      />
-                      <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#0F172A', marginBottom: '6px', height: '36px', overflow: 'hidden' }}>
-                        {p.name}
+            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+              {filteredModalProducts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748B' }}>
+                  <i className="fa-solid fa-box-open" style={{ fontSize: '36px', color: '#CBD5E1', marginBottom: '12px', display: 'block' }}></i>
+                  <p style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Không tìm thấy linh kiện phù hợp cho mục này</p>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94A3B8' }}>Thử xóa từ khóa tìm kiếm để xem tất cả linh kiện</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                  {filteredModalProducts.map((p) => {
+                    const pr = p.salePrice ? Number(p.salePrice) : Number(p.price);
+                    return (
+                      <div
+                        key={p.id}
+                        style={{
+                          border: '1px solid #E2E8F0',
+                          borderRadius: '12px',
+                          padding: '14px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          transition: 'border-color 0.2s ease',
+                        }}
+                      >
+                        <div>
+                          <img
+                            src={getProductImage(p)}
+                            alt={p.name}
+                            onError={(e) => {
+                              const t = e.target as HTMLImageElement;
+                              t.onerror = null;
+                              t.src = '/assets/images/placeholder.webp';
+                            }}
+                            style={{ width: '100%', height: '120px', objectFit: 'contain', marginBottom: '10px' }}
+                          />
+                          <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#0F172A', marginBottom: '6px', height: '36px', overflow: 'hidden' }}>
+                            {p.name}
+                          </div>
+                          <div style={{ fontSize: '14px', fontWeight: 800, color: '#EF4444' }}>
+                            {pr.toLocaleString('vi-VN')}đ
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectPart(activePickingCategory.key, p)}
+                          style={{
+                            marginTop: '12px',
+                            width: '100%',
+                            padding: '8px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            backgroundColor: '#0A5BFF',
+                            color: '#FFFFFF',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Chọn vào dàn PC
+                        </button>
                       </div>
-                      <div style={{ fontSize: '14px', fontWeight: 800, color: '#EF4444' }}>
-                        {pr.toLocaleString('vi-VN')}đ
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectPart(activePickingCategory.key, p)}
-                      style={{
-                        marginTop: '12px',
-                        width: '100%',
-                        padding: '8px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        backgroundColor: '#0A5BFF',
-                        color: '#FFFFFF',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Chọn vào dàn PC
-                    </button>
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>

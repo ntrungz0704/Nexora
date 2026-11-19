@@ -473,13 +473,7 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1.2fr repeat(4, 1fr)',
-              gap: '16px',
-            }}
-          >
+          <div className="product-grid product-grid--6">
             <div
               className="apple-banner"
               style={{
@@ -696,42 +690,25 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
         <div className="section__head section__head--brand-partners">
           <h2>ĐỐI TÁC CHIẾN LƯỢC</h2>
         </div>
-        <div className="brand-slider" style={{ overflow: 'hidden', padding: '16px 0' }}>
-          <div
-            style={{
-              display: 'flex',
-              gap: '24px',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-            }}
-          >
-            {BRAND_LOGOS.map((b, idx) => (
-              <div
-                key={idx}
-                className="brand-logo-card"
-                title={b.name}
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid var(--border)',
-                  borderRadius: '12px',
-                  padding: '12px 24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minWidth: '120px',
-                  height: '60px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-                }}
-              >
+        <div className="brand-slider">
+          <div className="brand-slider__track">
+            {[...BRAND_LOGOS, ...BRAND_LOGOS].map((b, idx) => (
+              <div key={idx} className="brand-logo-card" title={b.name}>
                 <img
                   src={`/assets/images/brands/${b.file}`}
                   alt={b.name}
-                  style={{ maxHeight: '32px', maxWidth: '90px', objectFit: 'contain' }}
+                  loading="lazy"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).outerHTML = `<span style="font-weight: 800; font-size: 14px; color: #475569;">${b.name}</span>`;
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    if (target.nextElementSibling) {
+                      (target.nextElementSibling as HTMLElement).style.display = 'block';
+                    }
                   }}
                 />
+                <span className="brand-logo-text-fallback" style={{ display: 'none' }}>
+                  {b.name}
+                </span>
               </div>
             ))}
           </div>

@@ -5735,7 +5735,13 @@ html.dark-mode .alert--info a {
     .hero-section {
         margin-top: 12px;
         margin-bottom: 16px;
-        height: 480px;
+        min-height: 560px;
+        height: auto;
+    }
+
+    .hero-section__center {
+        min-height: 560px;
+        height: 100%;
     }
 
     .carousel-slide {
