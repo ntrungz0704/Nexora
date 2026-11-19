@@ -35,4 +35,25 @@ export class AuthController {
       next(error);
     }
   };
+
+  forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { email } = req.body;
+      const result = await this.service.forgotPassword(String(email || ''));
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { token, password, newPassword } = req.body;
+      const targetPassword = String(password || newPassword || '');
+      const result = await this.service.resetPassword(String(token || ''), targetPassword);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

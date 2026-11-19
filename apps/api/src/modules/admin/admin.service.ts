@@ -347,6 +347,390 @@ export class AdminService {
     });
   }
 
+  // --- Order Detail ---
+  async getOrderDetail(id: number) {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        user: { select: { id: true, fullName: true, email: true, phone: true } },
+        items: {
+          include: {
+            product: { select: { id: true, name: true, sku: true, thumbnailUrl: true } },
+          },
+        },
+      },
+    });
+    if (!order) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy đơn hàng.');
+    return order;
+  }
+
+  // --- Coupons CRUD ---
+  async getCoupons() {
+    return prisma.coupon.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createCoupon(data: {
+    code: string;
+    description?: string;
+    discountType?: 'PERCENTAGE' | 'FIXED';
+    discountValue: number | string;
+    minOrderValue?: number | string;
+    maxDiscount?: number | string;
+    usageLimit?: number;
+    startsAt?: Date | string;
+    expiresAt?: Date | string;
+    isActive?: boolean;
+  }) {
+    const existing = await prisma.coupon.findUnique({ where: { code: data.code.toUpperCase() } });
+    if (existing) {
+      throw new AppError(409, 'COUPON_EXISTS', 'Mã giảm giá này đã tồn tại.');
+    }
+    return prisma.coupon.create({
+      data: {
+        code: data.code.toUpperCase(),
+        description: data.description,
+        discountType: data.discountType || 'PERCENTAGE',
+        discountValue: Number(data.discountValue),
+        minOrderValue: data.minOrderValue ? Number(data.minOrderValue) : 0,
+        maxDiscount: data.maxDiscount ? Number(data.maxDiscount) : null,
+        usageLimit: data.usageLimit ? Number(data.usageLimit) : null,
+        startsAt: data.startsAt ? new Date(data.startsAt) : null,
+        expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+        isActive: data.isActive !== undefined ? data.isActive : true,
+      },
+    });
+  }
+
+  async updateCoupon(id: number, data: {
+    code?: string;
+    description?: string;
+    discountType?: 'PERCENTAGE' | 'FIXED';
+    discountValue?: number | string;
+    minOrderValue?: number | string;
+    maxDiscount?: number | string;
+    usageLimit?: number;
+    startsAt?: Date | string;
+    expiresAt?: Date | string;
+    isActive?: boolean;
+  }) {
+    return prisma.coupon.update({
+      where: { id },
+      data: {
+        ...(data.code ? { code: data.code.toUpperCase() } : {}),
+        ...(data.description !== undefined ? { description: data.description } : {}),
+        ...(data.discountType ? { discountType: data.discountType } : {}),
+        ...(data.discountValue !== undefined ? { discountValue: Number(data.discountValue) } : {}),
+        ...(data.minOrderValue !== undefined ? { minOrderValue: Number(data.minOrderValue) } : {}),
+        ...(data.maxDiscount !== undefined ? { maxDiscount: Number(data.maxDiscount) } : {}),
+        ...(data.usageLimit !== undefined ? { usageLimit: Number(data.usageLimit) } : {}),
+        ...(data.startsAt ? { startsAt: new Date(data.startsAt) } : {}),
+        ...(data.expiresAt ? { expiresAt: new Date(data.expiresAt) } : {}),
+        ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
+      },
+    });
+  }
+
+  async deleteCoupon(id: number) {
+    return prisma.coupon.delete({ where: { id } });
+  }
+
+  async toggleCouponStatus(id: number) {
+    const coupon = await prisma.coupon.findUnique({ where: { id } });
+    if (!coupon) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy mã giảm giá.');
+    return prisma.coupon.update({
+      where: { id },
+      data: { isActive: !coupon.isActive },
+    });
+  }
+
+  // --- Flash Sales CRUD ---
+  async getFlashSales() {
+    return prisma.flashSale.findMany({
+      include: {
+        items: {
+          include: {
+            product: { select: { id: true, name: true, price: true, thumbnailUrl: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createFlashSale(data: {
+    name: string;
+    startTime: Date | string;
+    endTime: Date | string;
+    isActive?: boolean;
+    productIds?: number[];
+    discountPercents?: number[];
+  }) {
+    const flashSale = await prisma.flashSale.create({
+      data: {
+        name: data.name,
+        startTime: new Date(data.startTime),
+        endTime: new Date(data.endTime),
+        isActive: data.isActive !== undefined ? data.isActive : true,
+      },
+    });
+
+    if (data.productIds && data.productIds.length > 0) {
+      for (let i = 0; i < data.productIds.length; i++) {
+        const pId = data.productIds[i];
+        if (typeof pId === 'number') {
+          const prod = await prisma.product.findUnique({ where: { id: pId } });
+          if (prod) {
+            const discount = data.discountPercents?.[i] || 15;
+            const promotionalPrice = Number(prod.price) * (1 - discount / 100);
+            await prisma.flashSaleItem.create({
+              data: {
+                flashSaleId: flashSale.id,
+                productId: pId,
+                flashSalePrice: promotionalPrice,
+                quantityLimit: 10,
+                quantitySold: 0,
+              },
+            });
+          }
+        }
+      }
+    }
+
+    return flashSale;
+  }
+
+  async toggleFlashSaleStatus(id: number) {
+    const fs = await prisma.flashSale.findUnique({ where: { id } });
+    if (!fs) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy flash sale.');
+    return prisma.flashSale.update({
+      where: { id },
+      data: { isActive: !fs.isActive },
+    });
+  }
+
+  async deleteFlashSale(id: number) {
+    await prisma.flashSaleItem.deleteMany({ where: { flashSaleId: id } });
+    return prisma.flashSale.delete({ where: { id } });
+  }
+
+  // --- Banners CRUD ---
+  async getBanners() {
+    return prisma.banner.findMany({
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  async createBanner(data: {
+    title: string;
+    imageUrl: string;
+    linkUrl?: string | null;
+    placement?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+  }) {
+    return prisma.banner.create({
+      data: {
+        title: data.title,
+        imageUrl: data.imageUrl,
+        linkUrl: data.linkUrl || null,
+        placement: data.placement || 'hero',
+        sortOrder: data.sortOrder || 0,
+        isActive: data.isActive !== undefined ? data.isActive : true,
+      },
+    });
+  }
+
+  async updateBanner(id: number, data: Partial<{
+    title: string;
+    imageUrl: string;
+    linkUrl: string | null;
+    placement: string;
+    sortOrder: number;
+    isActive: boolean;
+  }>) {
+    return prisma.banner.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteBanner(id: number) {
+    return prisma.banner.delete({ where: { id } });
+  }
+
+  async toggleBannerStatus(id: number) {
+    const banner = await prisma.banner.findUnique({ where: { id } });
+    if (!banner) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy banner.');
+    return prisma.banner.update({
+      where: { id },
+      data: { isActive: !banner.isActive },
+    });
+  }
+
+  // --- Posts / News CRUD ---
+  async getPosts() {
+    return prisma.post.findMany({
+      include: {
+        author: { select: { id: true, fullName: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createPost(data: {
+    title: string;
+    slug?: string;
+    excerpt?: string | null;
+    content: string;
+    thumbnailUrl?: string | null;
+    category?: string;
+    isPublished?: boolean;
+    authorId?: number | null;
+  }) {
+    const slug = data.slug || this.slugify(data.title);
+    return prisma.post.create({
+      data: {
+        title: data.title,
+        slug,
+        excerpt: data.excerpt || null,
+        content: data.content,
+        thumbnailUrl: data.thumbnailUrl || null,
+        category: data.category || 'Tech',
+        isPublished: data.isPublished !== undefined ? data.isPublished : true,
+        authorId: data.authorId || null,
+        publishedAt: new Date(),
+      },
+    });
+  }
+
+  async updatePost(id: number, data: Partial<{
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    content: string;
+    thumbnailUrl: string | null;
+    category: string;
+    isPublished: boolean;
+  }>) {
+    return prisma.post.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deletePost(id: number) {
+    return prisma.post.delete({ where: { id } });
+  }
+
+  async togglePostStatus(id: number) {
+    const post = await prisma.post.findUnique({ where: { id } });
+    if (!post) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy bài viết.');
+    return prisma.post.update({
+      where: { id },
+      data: { isPublished: !post.isPublished },
+    });
+  }
+
+  // --- Brands CRUD ---
+  async getBrands() {
+    return prisma.brand.findMany({
+      include: {
+        _count: { select: { products: true } },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async createBrand(data: {
+    name: string;
+    slug?: string;
+    logoUrl?: string | null;
+    description?: string | null;
+    isActive?: boolean;
+  }) {
+    const slug = data.slug || this.slugify(data.name);
+    return prisma.brand.create({
+      data: {
+        name: data.name,
+        slug,
+        logoUrl: data.logoUrl || null,
+        description: data.description || null,
+        isActive: data.isActive !== undefined ? data.isActive : true,
+      },
+    });
+  }
+
+  async updateBrand(id: number, data: Partial<{
+    name: string;
+    slug: string;
+    logoUrl: string | null;
+    description: string | null;
+    isActive: boolean;
+  }>) {
+    return prisma.brand.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteBrand(id: number) {
+    return prisma.brand.delete({ where: { id } });
+  }
+
+  // --- Users / Customers Management ---
+  async getUsers() {
+    return prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        phone: true,
+        avatarUrl: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        _count: { select: { wishlists: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async toggleUserStatus(id: number) {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy người dùng.');
+    const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    return prisma.user.update({
+      where: { id },
+      data: { status: newStatus },
+      select: { id: true, email: true, status: true, role: true },
+    });
+  }
+
+  async changeUserRole(id: number, role: 'CUSTOMER' | 'STAFF' | 'ADMIN') {
+    return prisma.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, email: true, role: true, status: true },
+    });
+  }
+
+  // --- Reviews Moderation ---
+  async getReviews() {
+    return prisma.review.findMany({
+      include: {
+        product: { select: { id: true, name: true, thumbnailUrl: true } },
+        user: { select: { id: true, fullName: true, email: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async deleteReview(id: number) {
+    return prisma.review.delete({ where: { id } });
+  }
+
   private slugify(str: string): string {
     return str
       .toLowerCase()

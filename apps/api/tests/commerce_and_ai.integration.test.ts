@@ -184,4 +184,94 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
       expect(toggleOffRes.body.data.inWishlist).toBe(false);
     }
   });
+
+  it('Verifies strict Customer Isolation in Wishlist (Customer A cannot see Customer B)', async () => {
+    // 1. Log in Customer A
+    const loginA = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: 'customer@nexora.local', password: 'password123' });
+    expect(loginA.status).toBe(200);
+    const tokenA = loginA.body.data.token;
+
+    // 2. Log in Customer B (staff account acting as user B)
+    const loginB = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: 'staff@nexora.local', password: 'password123' });
+    expect(loginB.status).toBe(200);
+    const tokenB = loginB.body.data.token;
+
+    // 3. Product ID
+    const catRes = await request(app).get('/api/v1/catalog/products?limit=2');
+    const prodA = catRes.body.data.products[0].id;
+
+    // 4. Customer A adds product
+    await request(app)
+      .post('/api/v1/wishlist/toggle')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ productId: prodA });
+
+    // 5. Customer B fetches wishlist -> MUST NOT see Customer A's items
+    const getB = await request(app)
+      .get('/api/v1/wishlist')
+      .set('Authorization', `Bearer ${tokenB}`);
+
+    expect(getB.status).toBe(200);
+    const bItems = (getB.body.data as Array<{ productId: number }>).filter(
+      (item) => item.productId === prodA,
+    );
+    expect(bItems.length).toBe(0);
+
+    const aWishlist = await request(app)
+      .get('/api/v1/wishlist')
+      .set('Authorization', `Bearer ${tokenA}`);
+    expect(aWishlist.status).toBe(200);
+    expect(
+      (aWishlist.body.data as Array<{ productId: number }>).some(
+        (item) => item.productId === prodA,
+      ),
+    ).toBe(true);
+
+    // Clean up
+    await request(app)
+      .post('/api/v1/wishlist/toggle')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ productId: prodA });
+  });
+
+  it('Verifies Auth Reset Password flow end-to-end', async () => {
+    // 1. Request forgot password
+    const forgotRes = await request(app)
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: 'customer@nexora.local' });
+
+    expect(forgotRes.status).toBe(200);
+    expect(forgotRes.body.success).toBe(true);
+    expect(forgotRes.body.data).toHaveProperty('resetToken');
+
+    const resetToken = forgotRes.body.data.resetToken;
+
+    // 2. Reset password with new password
+    const resetRes = await request(app)
+      .post('/api/v1/auth/reset-password')
+      .send({ token: resetToken, newPassword: 'newpassword123' });
+
+    expect(resetRes.status).toBe(200);
+    expect(resetRes.body.success).toBe(true);
+
+    // 3. Login with new password
+    const loginNew = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: 'customer@nexora.local', password: 'newpassword123' });
+
+    expect(loginNew.status).toBe(200);
+    expect(loginNew.body.success).toBe(true);
+
+    // 4. Revert back to original password
+    const revertForgot = await request(app)
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: 'customer@nexora.local' });
+    await request(app)
+      .post('/api/v1/auth/reset-password')
+      .send({ token: revertForgot.body.data.resetToken, newPassword: 'password123' });
+  });
 });

@@ -1251,7 +1251,7 @@ html.dark-mode .search-highlight {
     position: relative !important;
     height: 100%;
     min-height: 560px;
-    z-index: 1010 !important;
+    z-index: 10 !important;
 }
 
 

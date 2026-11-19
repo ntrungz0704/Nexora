@@ -18,6 +18,8 @@ import { ProfilePage } from '../features/profile/ProfilePage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
+import { PolicyPage } from '../features/policy/PolicyPage';
 import { AdminDashboardPage } from '../features/admin/AdminDashboardPage';
 import { FoundationDashboard } from '../features/system/FoundationDashboard';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
@@ -83,6 +85,8 @@ export function AppRoutes() {
         <Route path="/profile/orders/:id" element={<ProfilePage />} />
         <Route path="/profile/addresses" element={<ProfilePage />} />
         <Route path="/profile/notifications" element={<ProfilePage />} />
+        <Route path="/profile/return" element={<ProfilePage />} />
+        <Route path="/profile/return/:id" element={<ProfilePage />} />
         <Route path="/profile/password" element={<ProfilePage />} />
         <Route path="/profile/wishlist" element={<Navigate to="/wishlist" replace />} />
         <Route path="/orders" element={<ProfilePage />} />
@@ -91,9 +95,11 @@ export function AppRoutes() {
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
         <Route path="/auth/forgot" element={<ForgotPasswordPage />} />
+        <Route path="/auth/reset" element={<ResetPasswordPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* 8. Store Operations & Administration (Single-Vendor Backoffice) */}
         <Route path="/admin" element={<AdminDashboardPage />} />
@@ -102,6 +108,7 @@ export function AppRoutes() {
         <Route path="/admin/orders/:id" element={<AdminDashboardPage />} />
         <Route path="/admin/products" element={<AdminDashboardPage />} />
         <Route path="/admin/categories" element={<AdminDashboardPage />} />
+        <Route path="/admin/brands" element={<AdminDashboardPage />} />
         <Route path="/admin/inventory" element={<AdminDashboardPage />} />
         <Route path="/admin/coupons" element={<AdminDashboardPage />} />
         <Route path="/admin/flash-sales" element={<AdminDashboardPage />} />
@@ -112,13 +119,15 @@ export function AppRoutes() {
         <Route path="/admin/banners" element={<AdminDashboardPage />} />
         <Route path="/admin/stores" element={<AdminDashboardPage />} />
 
-        {/* 9. Policy Pages */}
-        <Route path="/policy/warranty" element={<StorefrontHome />} />
-        <Route path="/chinh-sach-bao-hanh" element={<StorefrontHome />} />
-        <Route path="/policy/shipping" element={<StorefrontHome />} />
-        <Route path="/chinh-sach-van-chuyen" element={<StorefrontHome />} />
-        <Route path="/policy/return" element={<StorefrontHome />} />
-        <Route path="/chinh-sach-doi-tra" element={<StorefrontHome />} />
+        {/* 9. Policy Pages (Dedicated Policy Views) */}
+        <Route path="/policy/warranty" element={<PolicyPage />} />
+        <Route path="/chinh-sach-bao-hanh" element={<PolicyPage />} />
+        <Route path="/policy/shipping" element={<PolicyPage />} />
+        <Route path="/chinh-sach-van-chuyen" element={<PolicyPage />} />
+        <Route path="/policy/return" element={<PolicyPage />} />
+        <Route path="/chinh-sach-doi-tra" element={<PolicyPage />} />
+        <Route path="/policy/privacy" element={<PolicyPage />} />
+        <Route path="/chinh-sach-bao-mat" element={<PolicyPage />} />
 
         {/* 10. Technical Foundation & Architecture Pages */}
         <Route element={<MainLayout />}>

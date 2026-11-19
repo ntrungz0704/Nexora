@@ -190,4 +190,295 @@ export class AdminController {
       next(error);
     }
   };
+
+  // Order Detail
+  getOrderDetail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const order = await this.service.getOrderDetail(id);
+      sendSuccess(res, order);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Coupons
+  getCoupons = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const coupons = await this.service.getCoupons();
+      sendSuccess(res, coupons);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createCoupon = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const coupon = await this.service.createCoupon(req.body);
+      sendSuccess(res, coupon, 201);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateCoupon = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const coupon = await this.service.updateCoupon(id, req.body);
+      sendSuccess(res, coupon);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteCoupon = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.deleteCoupon(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  toggleCouponStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.toggleCouponStatus(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Flash Sales
+  getFlashSales = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const sales = await this.service.getFlashSales();
+      sendSuccess(res, sales);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createFlashSale = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const sale = await this.service.createFlashSale(req.body);
+      sendSuccess(res, sale, 201);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteFlashSale = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.deleteFlashSale(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  toggleFlashSaleStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.toggleFlashSaleStatus(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Banners
+  getBanners = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const banners = await this.service.getBanners();
+      sendSuccess(res, banners);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createBanner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const banner = await this.service.createBanner(req.body);
+      sendSuccess(res, banner, 201);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateBanner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const banner = await this.service.updateBanner(id, req.body);
+      sendSuccess(res, banner);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteBanner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.deleteBanner(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  toggleBannerStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.toggleBannerStatus(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Posts / News
+  getPosts = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const posts = await this.service.getPosts();
+      sendSuccess(res, posts);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createPost = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const authorId = req.user?.sub ? Number(req.user.sub) : null;
+      const post = await this.service.createPost({ ...req.body, authorId });
+      sendSuccess(res, post, 201);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updatePost = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const post = await this.service.updatePost(id, req.body);
+      sendSuccess(res, post);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deletePost = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.deletePost(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  togglePostStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.togglePostStatus(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Brands
+  getBrands = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const brands = await this.service.getBrands();
+      sendSuccess(res, brands);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createBrand = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const brand = await this.service.createBrand(req.body);
+      sendSuccess(res, brand, 201);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateBrand = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const brand = await this.service.updateBrand(id, req.body);
+      sendSuccess(res, brand);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteBrand = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.deleteBrand(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Users
+  getUsers = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const users = await this.service.getUsers();
+      sendSuccess(res, users);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  toggleUserStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.toggleUserStatus(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  changeUserRole = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const { role } = req.body;
+      if (!role || !['CUSTOMER', 'STAFF', 'ADMIN'].includes(role)) {
+        throw new AppError(400, 'INVALID_ROLE', 'Vai trò không hợp lệ.');
+      }
+      const result = await this.service.changeUserRole(id, role);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Reviews
+  getReviews = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const reviews = await this.service.getReviews();
+      sendSuccess(res, reviews);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteReview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.deleteReview(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

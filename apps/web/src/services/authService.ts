@@ -28,6 +28,19 @@ export const authService = {
     return res.data.data.user;
   },
 
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const res = await apiClient.post<ApiSuccessEnvelope<{ message: string }>>('/auth/forgot-password', { email });
+    return res.data.data;
+  },
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    const res = await apiClient.post<ApiSuccessEnvelope<{ message: string }>>('/auth/reset-password', {
+      token,
+      password,
+    });
+    return res.data.data;
+  },
+
   logout(): void {
     localStorage.removeItem('nexora_token');
     localStorage.removeItem('nexora_user');
