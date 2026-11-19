@@ -32,7 +32,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return val.toLocaleString('vi-VN') + 'đ';
   };
 
-  const specsList = product.specs ? Object.entries(product.specs).slice(0, 3) : [];
+  const specsList = React.useMemo(() => {
+    if (!product.specs || typeof product.specs !== 'object') return [];
+    const entries: [string, string][] = [];
+    for (const [key, val] of Object.entries(product.specs)) {
+      if (val === null || val === undefined) continue;
+      if (typeof val === 'string' || typeof val === 'number') {
+        entries.push([key, String(val)]);
+      } else if (typeof val === 'boolean') {
+        entries.push([key, val ? 'Có' : 'Không']);
+      } else if (typeof val === 'object' && !Array.isArray(val)) {
+        for (const [nestedKey, nestedVal] of Object.entries(val)) {
+          if (typeof nestedVal === 'string' || typeof nestedVal === 'number') {
+            entries.push([nestedKey, String(nestedVal)]);
+          }
+        }
+      }
+      if (entries.length >= 3) break;
+    }
+    return entries.slice(0, 3);
+  }, [product.specs]);
 
   return (
     <div className="product-card" data-full-title={product.name} title={product.name}>
