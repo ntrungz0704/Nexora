@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="240" height="80">
+  <rect width="240" height="80" rx="10" fill="#FFFFFF"/>
+  <g transform="translate(30, 20)">
+    <path fill="#00539B" d="M10,38 L22,2 L34,2 L46,38 L34,38 L30,24 L20,24 L16,38 Z M22,12 L28,12 L25,3 Z" />
+    <text x="50" y="32" font-family="'Arial Black', sans-serif" font-size="34" font-weight="900" fill="#00539B" letter-spacing="-1">SUS</text>
+    <line x1="12" y1="18" x2="165" y2="18" stroke="#FFFFFF" stroke-width="2.5" />
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="240" height="80">
+  <rect width="240" height="80" rx="10" fill="#FFFFFF"/>
+  <g transform="translate(35, 24)">
+    <text x="85" y="25" font-family="'Arial Black', sans-serif" font-size="28" font-weight="900" fill="#00FF00" letter-spacing="3" text-anchor="middle">RAZER</text>
+  </g>
+</svg>

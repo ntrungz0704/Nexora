@@ -7,10 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Foundation Phase 3 baseline models only.
-// Business domain entities (Catalog, Orders, Purchasing, Costing, SellerMargin)
-// remain DRAFT / NOT YET DESIGNED until Phase-specific ADRs & ERDs are approved.
-
+// User role & account status
 enum UserRole {
   CUSTOMER
   STAFF
@@ -22,19 +19,210 @@ enum UserStatus {
   INACTIVE
 }
 
-model User {
-  id        Int        @id @default(autoincrement()) @db.UnsignedInt
-  email     String     @unique @db.VarChar(150)
-  fullName  String     @map("full_name") @db.VarChar(150)
-  role      UserRole   @default(CUSTOMER)
-  status    UserStatus @default(ACTIVE)
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+}
 
-  auditLogs AuditLog[]
+model User {
+  id              Int               @id @default(autoincrement()) @db.UnsignedInt
+  email           String            @unique @db.VarChar(150)
+  passwordHash    String?           @map("password_hash") @db.VarChar(255)
+  fullName        String            @map("full_name") @db.VarChar(150)
+  phone           String?           @db.VarChar(30)
+  avatarUrl       String?           @map("avatar_url") @db.VarChar(255)
+  role            UserRole          @default(CUSTOMER)
+  status          UserStatus        @default(ACTIVE)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  addresses       CustomerAddress[]
+  cart            Cart?
+  wishlists       Wishlist[]
+  reviews         Review[]
+  auditLogs       AuditLog[]
 
   @@index([role, status], map: "idx_users_role_status")
   @@map("users")
+}
+
+model CustomerAddress {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId        Int      @map("user_id") @db.UnsignedInt
+  recipientName String   @map("recipient_name") @db.VarChar(150)
+  phone         String   @db.VarChar(30)
+  streetAddress String   @map("street_address") @db.VarChar(255)
+  ward          String?  @db.VarChar(100)
+  district      String?  @db.VarChar(100)
+  province      String   @db.VarChar(100)
+  isDefault     Boolean  @default(false) @map("is_default")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([userId, isDefault], map: "idx_customer_addresses_user")
+  @@map("customer_addresses")
+}
+
+model Brand {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  name        String    @db.VarChar(100)
+  slug        String    @unique @db.VarChar(100)
+  logoUrl     String?   @map("logo_url") @db.VarChar(255)
+  description String?   @db.Text
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@index([isActive], map: "idx_brands_active")
+  @@map("brands")
+}
+
+model Category {
+  id          Int        @id @default(autoincrement()) @db.UnsignedInt
+  parentId    Int?       @map("parent_id") @db.UnsignedInt
+  name        String     @db.VarChar(150)
+  slug        String     @unique @db.VarChar(150)
+  icon        String?    @db.VarChar(100)
+  description String?    @db.Text
+  sortOrder   Int        @default(0) @map("sort_order")
+  isActive    Boolean    @default(true) @map("is_active")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@index([parentId, sortOrder], map: "idx_categories_parent_order")
+  @@index([isActive], map: "idx_categories_active")
+  @@map("categories")
+}
+
+model Product {
+  id               Int           @id @default(autoincrement()) @db.UnsignedInt
+  categoryId       Int           @map("category_id") @db.UnsignedInt
+  brandId          Int?          @map("brand_id") @db.UnsignedInt
+  name             String        @db.VarChar(255)
+  slug             String        @unique @db.VarChar(255)
+  sku              String        @unique @db.VarChar(100)
+  price            Decimal       @db.Decimal(18, 2)
+  salePrice        Decimal?      @map("sale_price") @db.Decimal(18, 2)
+  stockQuantity    Int           @default(0) @map("stock_quantity")
+  thumbnailUrl     String?       @map("thumbnail_url") @db.VarChar(255)
+  shortDescription String?       @map("short_description") @db.VarChar(500)
+  description      String?       @db.Text
+  specs            Json?
+  isFeatured       Boolean       @default(false) @map("is_featured")
+  isHot            Boolean       @default(false) @map("is_hot")
+  status           ProductStatus @default(ACTIVE)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  category  Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  brand     Brand?         @relation(fields: [brandId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  images    ProductImage[]
+  cartItems CartItem[]
+  wishlists Wishlist[]
+  reviews   Review[]
+
+  @@index([categoryId, status], map: "idx_products_category_status")
+  @@index([brandId, status], map: "idx_products_brand_status")
+  @@index([isFeatured, isHot], map: "idx_products_flags")
+  @@index([status, price], map: "idx_products_status_price")
+  @@map("products")
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  productId Int      @map("product_id") @db.UnsignedInt
+  imageUrl  String   @map("image_url") @db.VarChar(255)
+  altText   String?  @map("alt_text") @db.VarChar(255)
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([productId, sortOrder], map: "idx_product_images_product")
+  @@map("product_images")
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  title     String   @db.VarChar(255)
+  imageUrl  String   @map("image_url") @db.VarChar(255)
+  linkUrl   String?  @map("link_url") @db.VarChar(255)
+  placement String   @default("hero") @db.VarChar(50)
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([placement, isActive, sortOrder], map: "idx_banners_placement")
+  @@map("banners")
+}
+
+model Cart {
+  id             BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  userId         Int?       @unique @map("user_id") @db.UnsignedInt
+  guestSessionId String?    @unique @map("guest_session_id") @db.VarChar(100)
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  user  User?      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  cartId    BigInt   @map("cart_id") @db.UnsignedBigInt
+  productId Int      @map("product_id") @db.UnsignedInt
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([cartId, productId], map: "uq_cart_product")
+  @@index([productId], map: "idx_cart_items_product")
+  @@map("cart_items")
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int      @map("user_id") @db.UnsignedInt
+  productId Int      @map("product_id") @db.UnsignedInt
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, productId], map: "uq_wishlist_user_product")
+  @@index([productId], map: "idx_wishlists_product")
+  @@map("wishlists")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  productId Int      @map("product_id") @db.UnsignedInt
+  userId    Int      @map("user_id") @db.UnsignedInt
+  rating    Int      @db.TinyInt
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([productId, rating], map: "idx_reviews_product_rating")
+  @@index([userId], map: "idx_reviews_user")
+  @@map("reviews")
 }
 
 model StoreSetting {

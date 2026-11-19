@@ -1,0 +1,45 @@
+import { apiClient } from '../lib/apiClient';
+import type { ApiSuccessEnvelope, LoginInput, RegisterInput, AuthUser } from '@nexora/shared';
+
+export interface AuthSession {
+  user: AuthUser;
+  token: string;
+}
+
+export const authService = {
+  async login(input: LoginInput): Promise<AuthSession> {
+    const res = await apiClient.post<ApiSuccessEnvelope<AuthSession>>('/auth/login', input);
+    const session = res.data.data;
+    localStorage.setItem('nexora_token', session.token);
+    localStorage.setItem('nexora_user', JSON.stringify(session.user));
+    return session;
+  },
+
+  async register(input: RegisterInput): Promise<AuthSession> {
+    const res = await apiClient.post<ApiSuccessEnvelope<AuthSession>>('/auth/register', input);
+    const session = res.data.data;
+    localStorage.setItem('nexora_token', session.token);
+    localStorage.setItem('nexora_user', JSON.stringify(session.user));
+    return session;
+  },
+
+  async getMe(): Promise<AuthUser> {
+    const res = await apiClient.get<ApiSuccessEnvelope<{ user: AuthUser }>>('/auth/me');
+    return res.data.data.user;
+  },
+
+  logout(): void {
+    localStorage.removeItem('nexora_token');
+    localStorage.removeItem('nexora_user');
+  },
+
+  getCurrentUser(): AuthUser | null {
+    const stored = localStorage.getItem('nexora_user');
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return null;
+    }
+  },
+};

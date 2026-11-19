@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
+import { StorefrontHome } from '../features/storefront/StorefrontHome';
 import { FoundationDashboard } from '../features/system/FoundationDashboard';
 import { MainLayout } from '../layouts/MainLayout';
 
@@ -10,10 +11,7 @@ function ArchitectureInfoPage() {
         <li>Single-Vendor Store Model: Customer, Staff (internal store employees), Admin.</li>
         <li>Modular Monolith Backend (`apps/api`) backed by MySQL 8.4 + Prisma ORM.</li>
         <li>Shared Zod Wire Contracts (`packages/shared`) enforcing strict FE/BE parity.</li>
-        <li>
-          Business domains (Catalog, Orders, Inventory, Purchasing, SellerMargin) proceed
-          phase-by-phase after schema approval.
-        </li>
+        <li>Business domains (Catalog, Orders, Inventory, Purchasing) proceed phase-by-phase.</li>
       </ul>
     </section>
   );
@@ -22,10 +20,19 @@ function ArchitectureInfoPage() {
 export function AppRoutes() {
   return (
     <Routes>
+      {/* 1. Main Customer Storefront */}
+      <Route path="/" element={<StorefrontHome />} />
+      <Route path="/search" element={<StorefrontHome />} />
+      <Route path="/category/:slug" element={<StorefrontHome />} />
+
+      {/* 2. Technical Foundation & Architecture Pages */}
       <Route element={<MainLayout />}>
-        <Route path="/" element={<FoundationDashboard />} />
+        <Route path="/foundation" element={<FoundationDashboard />} />
         <Route path="/architecture" element={<ArchitectureInfoPage />} />
       </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<StorefrontHome />} />
     </Routes>
   );
 }
