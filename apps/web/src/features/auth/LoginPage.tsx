@@ -62,7 +62,7 @@ export const LoginPage: React.FC = () => {
             {/* Head */}
             <div className="auth-card__head">
               <h1 className="auth-card__title">Đăng nhập</h1>
-              <p className="auth-card__subtitle">Chào mừng bạn quay lại TechPilot</p>
+              <p className="auth-card__subtitle">Chào mừng bạn quay trở lại với TechPilot</p>
             </div>
 
             {/* Error alert */}
@@ -126,9 +126,9 @@ export const LoginPage: React.FC = () => {
                 <label className="auth-checkbox-label">
                   <input type="checkbox" className="auth-checkbox" defaultChecked /> Ghi nhớ đăng nhập
                 </label>
-                <a href="#forgot" className="auth-link-accent">
+                <Link to="/auth/forgot" className="auth-link-accent">
                   Quên mật khẩu?
-                </a>
+                </Link>
               </div>
 
               <button type="submit" className="auth-btn-primary" disabled={isLoading}>
@@ -138,7 +138,7 @@ export const LoginPage: React.FC = () => {
 
             {/* Divider */}
             <div className="auth-divider-line">
-              <span>hoặc</span>
+              <span>hoặc đăng nhập bằng</span>
             </div>
 
             {/* Google Login */}

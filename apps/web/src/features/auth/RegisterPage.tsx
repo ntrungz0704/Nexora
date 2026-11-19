@@ -11,7 +11,10 @@ export const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
@@ -22,9 +25,51 @@ export const RegisterPage: React.FC = () => {
     queryFn: () => storefrontService.getCategories(),
   });
 
+  // Password rules validation
+  const ruleMinLength = password.length >= 8;
+  const ruleUpperLower = /[a-z]/.test(password) && /[A-Z]/.test(password);
+  const ruleNumberOrSpecial = /[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password);
+
+  const passedRulesCount = [ruleMinLength, ruleUpperLower, ruleNumberOrSpecial].filter(Boolean).length;
+  let strengthLabel = 'Chưa nhập';
+  let strengthColor = '#CBD5E1';
+  let strengthPercent = 0;
+
+  if (password.length > 0) {
+    if (passedRulesCount === 1) {
+      strengthLabel = 'Yếu';
+      strengthColor = '#EF4444';
+      strengthPercent = 33;
+    } else if (passedRulesCount === 2) {
+      strengthLabel = 'Trung bình';
+      strengthColor = '#F59E0B';
+      strengthPercent = 66;
+    } else if (passedRulesCount === 3) {
+      strengthLabel = 'Mạnh';
+      strengthColor = '#22C55E';
+      strengthPercent = 100;
+    }
+  }
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+
+    if (password !== confirmPassword) {
+      setErrorMsg('Mật khẩu xác nhận không khớp!');
+      return;
+    }
+
+    if (!agreeTerms) {
+      setErrorMsg('Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách bảo mật.');
+      return;
+    }
+
+    if (password.length < 8) {
+      setErrorMsg('Mật khẩu phải có tối thiểu 8 ký tự.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await authService.register({ fullName, email, phone, password });
@@ -61,10 +106,9 @@ export const RegisterPage: React.FC = () => {
                 <i className="fa-solid fa-user-plus"></i>
               </div>
               <div>
-                <h1 className="auth-card__title">Đăng ký tài khoản</h1>
+                <h1 className="auth-card__title">Tạo tài khoản mới</h1>
                 <p className="auth-card__subtitle">
-                  <i className="fa-solid fa-circle-check" style={{ color: '#22C55E' }}></i>
-                  Tạo tài khoản trong <strong style={{ color: 'var(--primary)' }}>1 phút</strong>
+                  Tham gia cùng TechPilot để nhận nhiều ưu đãi hấp dẫn
                 </p>
               </div>
             </div>
@@ -81,7 +125,7 @@ export const RegisterPage: React.FC = () => {
             <form onSubmit={handleRegister} className="auth-form" noValidate>
               <div className="auth-field">
                 <label className="auth-label" htmlFor="reg_full_name">
-                  Họ và tên
+                  Họ và tên *
                 </label>
                 <div className="auth-input-wrap">
                   <i className="fa-regular fa-user auth-input-icon"></i>
@@ -89,7 +133,7 @@ export const RegisterPage: React.FC = () => {
                     type="text"
                     id="reg_full_name"
                     className="auth-input"
-                    placeholder="Nguyễn Văn An"
+                    placeholder="Nhập họ và tên của bạn"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     autoComplete="name"
@@ -100,7 +144,7 @@ export const RegisterPage: React.FC = () => {
 
               <div className="auth-field">
                 <label className="auth-label" htmlFor="reg_email">
-                  Email
+                  Email *
                 </label>
                 <div className="auth-input-wrap">
                   <i className="fa-regular fa-envelope auth-input-icon"></i>
@@ -108,21 +152,18 @@ export const RegisterPage: React.FC = () => {
                     type="email"
                     id="reg_email"
                     className="auth-input"
-                    placeholder="vd: ban@example.com"
+                    placeholder="Nhập địa chỉ email của bạn"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
                     required
                   />
                 </div>
-                <p className="auth-field-hint" style={{ fontSize: '11px', color: '#94A3B8' }}>
-                  Chúng tôi sẽ gửi xác nhận đến email của bạn.
-                </p>
               </div>
 
               <div className="auth-field">
                 <label className="auth-label" htmlFor="reg_phone">
-                  Số điện thoại
+                  Số điện thoại *
                 </label>
                 <div className="auth-input-wrap">
                   <i className="fa-solid fa-phone auth-input-icon"></i>
@@ -130,7 +171,7 @@ export const RegisterPage: React.FC = () => {
                     type="tel"
                     id="reg_phone"
                     className="auth-input"
-                    placeholder="vd: 0901234567"
+                    placeholder="Nhập số điện thoại của bạn"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     autoComplete="tel"
@@ -141,7 +182,7 @@ export const RegisterPage: React.FC = () => {
 
               <div className="auth-field">
                 <label className="auth-label" htmlFor="reg_password">
-                  Mật khẩu
+                  Mật khẩu *
                 </label>
                 <div className="auth-input-wrap">
                   <i className="fa-solid fa-lock auth-input-icon"></i>
@@ -149,11 +190,10 @@ export const RegisterPage: React.FC = () => {
                     type={showPassword ? 'text' : 'password'}
                     id="reg_password"
                     className="auth-input auth-input--has-action"
-                    placeholder="Ít nhất 6 ký tự"
+                    placeholder="Tạo mật khẩu (tối thiểu 8 ký tự)"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="new-password"
-                    minLength={6}
                     required
                   />
                   <button
@@ -168,21 +208,100 @@ export const RegisterPage: React.FC = () => {
                 </div>
               </div>
 
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="reg_confirm_password">
+                  Xác nhận mật khẩu *
+                </label>
+                <div className="auth-input-wrap">
+                  <i className="fa-solid fa-lock auth-input-icon"></i>
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    id="reg_confirm_password"
+                    className="auth-input auth-input--has-action"
+                    placeholder="Nhập lại mật khẩu vừa tạo"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="auth-eye-btn"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    tabIndex={-1}
+                    aria-label="Hiện/ẩn xác nhận mật khẩu"
+                  >
+                    <i className={`fa-regular ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                  </button>
+                </div>
+              </div>
+
+              {/* Password Strength Box */}
+              {password.length > 0 && (
+                <div className="auth-pw-strength">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="auth-pw-strength__label">Độ mạnh mật khẩu:</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: strengthColor }}>
+                      {strengthLabel}
+                    </span>
+                  </div>
+                  <div className="auth-pw-strength__bar">
+                    <div
+                      className="auth-pw-strength__fill"
+                      style={{
+                        width: `${strengthPercent}%`,
+                        backgroundColor: strengthColor,
+                      }}
+                    />
+                  </div>
+                  <ul className="auth-pw-rules">
+                    <li className={`auth-pw-rule ${ruleMinLength ? 'auth-pw-rule--pass' : ''}`}>
+                      <i className={`fa-solid ${ruleMinLength ? 'fa-circle-check' : 'fa-circle-dot'}`}></i>
+                      <span>Ít nhất 8 ký tự</span>
+                    </li>
+                    <li className={`auth-pw-rule ${ruleUpperLower ? 'auth-pw-rule--pass' : ''}`}>
+                      <i className={`fa-solid ${ruleUpperLower ? 'fa-circle-check' : 'fa-circle-dot'}`}></i>
+                      <span>Bao gồm chữ hoa và chữ thường</span>
+                    </li>
+                    <li className={`auth-pw-rule ${ruleNumberOrSpecial ? 'auth-pw-rule--pass' : ''}`}>
+                      <i className={`fa-solid ${ruleNumberOrSpecial ? 'fa-circle-check' : 'fa-circle-dot'}`}></i>
+                      <span>Bao gồm số hoặc ký tự đặc biệt</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+
               <div className="auth-form-row">
-                <label className="auth-checkbox-label">
-                  <input type="checkbox" className="auth-checkbox" defaultChecked required /> Tôi đồng ý
-                  với Điều khoản & Chính sách của TechPilot
+                <label className="auth-checkbox-label auth-checkbox-label--terms">
+                  <input
+                    type="checkbox"
+                    className="auth-checkbox"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    Tôi đồng ý với{' '}
+                    <Link to="/policy/terms" className="auth-link-accent">
+                      Điều khoản dịch vụ
+                    </Link>{' '}
+                    và{' '}
+                    <Link to="/policy/privacy" className="auth-link-accent">
+                      Chính sách bảo mật
+                    </Link>{' '}
+                    của TechPilot *
+                  </span>
                 </label>
               </div>
 
               <button type="submit" className="auth-btn-primary" disabled={isLoading}>
-                {isLoading ? 'Đang tạo tài khoản...' : 'Đăng ký ngay'}
+                {isLoading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
               </button>
             </form>
 
             {/* Divider */}
             <div className="auth-divider-line">
-              <span>hoặc</span>
+              <span>hoặc đăng ký bằng</span>
             </div>
 
             {/* Google Login */}
