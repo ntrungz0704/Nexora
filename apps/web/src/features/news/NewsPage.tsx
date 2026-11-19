@@ -178,7 +178,9 @@ export const NewsPage: React.FC = () => {
                       src={featured.image}
                       alt={featured.title}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/assets/images/posts/tin-tuc-1.jpg';
+                        const t = e.target as HTMLImageElement;
+                        t.onerror = null;
+                        t.src = '/assets/images/posts/tin-tuc-1.jpg';
                       }}
                     />
                   </Link>
@@ -211,7 +213,9 @@ export const NewsPage: React.FC = () => {
                           src={pop.image}
                           alt={pop.title}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/assets/images/posts/tin-tuc-2.jpg';
+                            const t = e.target as HTMLImageElement;
+                            t.onerror = null;
+                            t.src = '/assets/images/posts/tin-tuc-2.jpg';
                           }}
                         />
                       </Link>
@@ -250,7 +254,9 @@ export const NewsPage: React.FC = () => {
                           src={article.image}
                           alt={article.title}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/assets/images/posts/tin-tuc-1.jpg';
+                            const t = e.target as HTMLImageElement;
+                            t.onerror = null;
+                            t.src = '/assets/images/posts/tin-tuc-1.jpg';
                           }}
                         />
                       </Link>

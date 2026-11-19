@@ -77,6 +77,7 @@ const CATEGORY_SUBGROUPS: Record<string, SubcategoryDef[]> = {
     { key: 'headset', name: 'TAI NGHE', query: 'headset' },
     { key: 'chair', name: 'GHẾ GAMING', query: 'chair' },
     { key: 'speaker', name: 'LOA', query: 'speaker' },
+    { key: 'console', name: 'TAY CẦM', query: 'console' },
   ],
   'office-gear': [
     { key: 'office-equipment', name: 'THIẾT BỊ VĂN PHÒNG', query: 'office-equipment' },

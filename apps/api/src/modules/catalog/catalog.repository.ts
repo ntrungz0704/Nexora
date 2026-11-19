@@ -48,7 +48,27 @@ export class CatalogRepository {
     };
 
     if (options.categorySlug) {
-      where.category = { slug: options.categorySlug };
+      const VIRTUAL_GROUPS: Record<string, string[]> = {
+        'pc-linh-kien': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+        'linh-kien-pc': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+        'main-cpu-vga': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+        'gaming-gear': ['keyboard', 'mouse', 'chair', 'headset', 'speaker', 'console'],
+        'office-gear': ['office-equipment', 'power-bank'],
+        'thiet-bi-van-phong': ['office-equipment', 'power-bank'],
+        'pc': ['pc'],
+        'pc-dong-bo': ['pc'],
+        'pc-nexora': ['pc'],
+        'pc-techpilot': ['pc'],
+        'laptop': ['laptop'],
+        'man-hinh': ['monitor'],
+        'monitor': ['monitor'],
+      };
+      const cleanSlug = options.categorySlug.toLowerCase().replace(/\s+/g, '-');
+      if (VIRTUAL_GROUPS[cleanSlug]) {
+        where.category = { slug: { in: VIRTUAL_GROUPS[cleanSlug] } };
+      } else {
+        where.category = { slug: options.categorySlug };
+      }
     }
 
     if (options.brandSlug) {

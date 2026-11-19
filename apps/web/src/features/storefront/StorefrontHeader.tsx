@@ -103,19 +103,9 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   const handleToggleCategoryMenu = () => {
     if (onToggleCategoryMenu) {
       onToggleCategoryMenu();
-      return;
+    } else {
+      setInternalCategoryMenuOpen((prev) => !prev);
     }
-    const staticMenu = document.getElementById('categoryStaticMenu');
-    if (staticMenu && window.location.pathname === '/') {
-      const rect = staticMenu.getBoundingClientRect();
-      if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
-        staticMenu.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        staticMenu.classList.add('is-highlighted');
-        setTimeout(() => staticMenu.classList.remove('is-highlighted'), 1500);
-        return;
-      }
-    }
-    setInternalCategoryMenuOpen((prev) => !prev);
   };
 
   const toggleTheme = () => {
@@ -283,12 +273,12 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             </button>
 
             {/* Live Search Instant Autocomplete Dropdown */}
-            {isSearchFocused && debouncedQuery.length > 0 && (
+            {isSearchFocused && searchQuery.trim().length > 0 && (
               <div className="search-autocomplete-dropdown" role="listbox">
-                {isSearching ? (
+                {isSearching || debouncedQuery !== searchQuery.trim() ? (
                   <div className="search-autocomplete-loading">
                     <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '6px' }}></i>
-                    Đang tìm kiếm sản phẩm cho "<strong>{debouncedQuery}</strong>"...
+                    Đang tìm kiếm sản phẩm cho "<strong>{searchQuery.trim()}</strong>"...
                   </div>
                 ) : searchResults && searchResults.products.length > 0 ? (
                   <>
@@ -356,7 +346,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                   <div className="search-autocomplete-empty">
                     <i className="fa-solid fa-magnifying-glass"></i>
                     <p>
-                      Không tìm thấy sản phẩm phù hợp với "<strong>{debouncedQuery}</strong>"
+                      Không tìm thấy sản phẩm phù hợp với "<strong>{debouncedQuery || searchQuery.trim()}</strong>"
                     </p>
                     <span className="empty-sub">Thử tìm kiếm từ khóa khác như "Laptop", "RTX 4060", "B760"...</span>
                   </div>

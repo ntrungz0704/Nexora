@@ -31,8 +31,25 @@ const BUILDER_PARTS: BuilderPartCategory[] = [
   { key: 'mouse', name: 'Chuột', icon: 'fa-solid fa-computer-mouse', wattage: 0, isCore: false },
   { key: 'keyboard', name: 'Bàn phím', icon: 'fa-solid fa-keyboard', wattage: 0, isCore: false },
   { key: 'chair', name: 'Ghế Gaming', icon: 'fa-solid fa-chair', wattage: 0, isCore: false },
-  { key: 'headset', name: 'Tai nghe', icon: 'fa-solid fa-headphones', wattage: 0, isCore: false },
 ];
+
+function extractSocket(name: string, specs?: unknown): string | null {
+  const text = (name + ' ' + JSON.stringify(specs || {})).toUpperCase();
+  if (text.includes('LGA1700') || text.includes('LGA 1700')) return 'LGA1700';
+  if (text.includes('AM5')) return 'AM5';
+  if (text.includes('AM4')) return 'AM4';
+  if (text.includes('LGA1200') || text.includes('LGA 1200')) return 'LGA1200';
+  if (text.includes('LGA1151') || text.includes('LGA 1151')) return 'LGA1151';
+  return null;
+}
+
+function extractRamType(name: string, specs?: unknown): string | null {
+  const text = (name + ' ' + JSON.stringify(specs || {})).toUpperCase();
+  if (text.includes('DDR5')) return 'DDR5';
+  if (text.includes('DDR4')) return 'DDR4';
+  if (text.includes('DDR3')) return 'DDR3';
+  return null;
+}
 
 interface SelectedPartInfo {
   product: ProductDto | null;
@@ -212,16 +229,116 @@ export const PcBuilderPage: React.FC = () => {
     return Math.max(calc, gpuMinimumWattage, 450);
   }, [estimatedWattage, gpuMinimumWattage, hasCpu, hasGpu]);
 
-  // Missing core blockers
-  const missingCoreBlockers = useMemo(() => {
-    if (flowMode === 'upgrade') return [];
-    const coreKeys = ['cpu', 'mainboard', 'ram', 'storage', 'psu', 'case'];
-    const missing = coreKeys.filter((k) => !config[k]);
-    if (missing.length === 0) return [];
-    return [
-      `Thiếu linh kiện cốt lõi: ${missing.map((k) => BUILDER_PARTS.find((p) => p.key === k)?.name.toUpperCase().split(' ')[0]).join(', ')}`,
-    ];
+  // Compatibility alerts & warnings
+  const buildAlerts = useMemo(() => {
+    const alerts: { type: 'error' | 'warning'; message: string }[] = [];
+
+    const selectedCpu = config['cpu']?.product;
+    const selectedMb = config['mainboard']?.product;
+    const selectedRam = config['ram']?.product;
+
+    if (selectedCpu && selectedMb) {
+      const cpuSocket = extractSocket(selectedCpu.name, selectedCpu.specs);
+      const mbSocket = extractSocket(selectedMb.name, selectedMb.specs);
+      if (cpuSocket && mbSocket && cpuSocket !== mbSocket) {
+        alerts.push({
+          type: 'error',
+          message: `Lỗi Socket: CPU (${cpuSocket}) không khớp với Mainboard (${mbSocket})`,
+        });
+      }
+    }
+
+    if (selectedMb && selectedRam) {
+      const mbRam = extractRamType(selectedMb.name, selectedMb.specs);
+      const ramType = extractRamType(selectedRam.name, selectedRam.specs);
+      if (mbRam && ramType && mbRam !== ramType) {
+        alerts.push({
+          type: 'error',
+          message: `Lỗi RAM: Mainboard hỗ trợ (${mbRam}) nhưng chọn RAM (${ramType})`,
+        });
+      }
+    }
+
+    if (flowMode !== 'upgrade') {
+      const coreKeys = ['cpu', 'mainboard', 'ram', 'storage', 'psu', 'case'];
+      const missing = coreKeys.filter((k) => !config[k]);
+      if (missing.length > 0) {
+        alerts.push({
+          type: 'warning',
+          message: `Thiếu linh kiện cốt lõi: ${missing.map((k) => BUILDER_PARTS.find((p) => p.key === k)?.name.toUpperCase().split(' ')[0]).join(', ')}`,
+        });
+      }
+    }
+
+    return alerts;
   }, [config, flowMode]);
+
+  const modalNotice = useMemo(() => {
+    if (!activePart) return null;
+    const selectedCpu = config['cpu']?.product;
+    const selectedMb = config['mainboard']?.product;
+
+    if (activePart.key === 'mainboard' && selectedCpu) {
+      const cpuSocket = extractSocket(selectedCpu.name, selectedCpu.specs);
+      if (cpuSocket) {
+        return `Lọc Mainboard tương thích với Socket của CPU ${selectedCpu.name} (${cpuSocket})`;
+      }
+    }
+    if (activePart.key === 'cpu' && selectedMb) {
+      const mbSocket = extractSocket(selectedMb.name, selectedMb.specs);
+      if (mbSocket) {
+        return `Lọc CPU tương thích với Socket của Mainboard ${selectedMb.name} (${mbSocket})`;
+      }
+    }
+    if (activePart.key === 'ram' && selectedMb) {
+      const mbRam = extractRamType(selectedMb.name, selectedMb.specs);
+      if (mbRam) {
+        return `Lọc RAM tương thích với chuẩn bộ nhớ của Mainboard ${selectedMb.name} (${mbRam})`;
+      }
+    }
+    return 'Tự động hiển thị linh kiện tương thích với dàn PC của bạn.';
+  }, [activePart, config]);
+
+  const getProductCompatibility = (p: ProductDto) => {
+    if (!activePart) return { compatible: true, reason: '' };
+    const selectedCpu = config['cpu']?.product;
+    const selectedMb = config['mainboard']?.product;
+
+    if (activePart.key === 'mainboard' && selectedCpu) {
+      const cpuSocket = extractSocket(selectedCpu.name, selectedCpu.specs);
+      const pSocket = extractSocket(p.name, p.specs);
+      if (cpuSocket && pSocket && cpuSocket !== pSocket) {
+        return {
+          compatible: false,
+          reason: `Socket không khớp: CPU (${cpuSocket}) vs Mainboard (${pSocket})`,
+        };
+      }
+    }
+
+    if (activePart.key === 'cpu' && selectedMb) {
+      const mbSocket = extractSocket(selectedMb.name, selectedMb.specs);
+      const pSocket = extractSocket(p.name, p.specs);
+      if (mbSocket && pSocket && mbSocket !== pSocket) {
+        return {
+          compatible: false,
+          reason: `Socket không khớp: Mainboard (${mbSocket}) vs CPU (${pSocket})`,
+        };
+      }
+    }
+
+    if (activePart.key === 'ram' && selectedMb) {
+      const mbRam = extractRamType(selectedMb.name, selectedMb.specs);
+      const pRam = extractRamType(p.name, p.specs);
+      if (mbRam && pRam && mbRam !== pRam) {
+        return {
+          compatible: false,
+          reason: `Chuẩn RAM không khớp: Mainboard (${mbRam}) vs RAM (${pRam})`,
+        };
+      }
+    }
+
+    return { compatible: true, reason: '' };
+  };
 
   // Add all newly bought components to cart
   const handleAddToCart = async () => {
@@ -563,24 +680,32 @@ export const PcBuilderPage: React.FC = () => {
                 </div>
 
                 {/* Compatibility Alerts */}
-                {missingCoreBlockers.length > 0 && (
+                {buildAlerts.length > 0 && (
                   <div style={{ marginTop: '14px', fontSize: '12px' }}>
                     <div style={{ fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary, #0F172A)' }}>
                       Kiểm tra tương thích:
                     </div>
-                    <div
-                      style={{
-                        padding: '10px 12px',
-                        borderRadius: '8px',
-                        backgroundColor: '#FEF2F2',
-                        border: '1px solid #FCA5A5',
-                        color: '#DC2626',
-                        fontWeight: 600,
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '6px' }}></i>
-                      {missingCoreBlockers[0]}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {buildAlerts.map((alert, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            backgroundColor: alert.type === 'error' ? '#FEF2F2' : '#FFFBEB',
+                            border: `1px solid ${alert.type === 'error' ? '#FCA5A5' : '#FCD34D'}`,
+                            color: alert.type === 'error' ? '#DC2626' : '#B45309',
+                            fontWeight: 600,
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          <i
+                            className={`fa-solid ${alert.type === 'error' ? 'fa-circle-exclamation' : 'fa-triangle-exclamation'}`}
+                            style={{ marginRight: '6px' }}
+                          ></i>
+                          {alert.message}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -707,7 +832,7 @@ export const PcBuilderPage: React.FC = () => {
                 }}
               >
                 <i className="fa-solid fa-circle-info" style={{ marginRight: '6px' }}></i>
-                Tự động hiển thị linh kiện tương thích với dàn PC của bạn.
+                {modalNotice}
               </div>
 
               {/* Search Box */}
@@ -733,8 +858,16 @@ export const PcBuilderPage: React.FC = () => {
                 ) : (
                   filteredModalProducts.map((p) => {
                     const price = p.salePrice ? Number(p.salePrice) : Number(p.price);
+                    const compat = getProductCompatibility(p);
                     return (
-                      <div key={p.id} className="pc-modal-item">
+                      <div
+                        key={p.id}
+                        className="pc-modal-item"
+                        style={{
+                          background: !compat.compatible ? '#FFF8F8' : undefined,
+                          opacity: !compat.compatible ? 0.85 : 1,
+                        }}
+                      >
                         <img
                           src={getProductImage(p)}
                           alt={p.name}
@@ -747,20 +880,44 @@ export const PcBuilderPage: React.FC = () => {
                         />
                         <div className="pc-modal-item-name">
                           <span>{p.name}</span>
-                          <span className="pc-builder-compatibility-badge">
-                            <i className="fa-solid fa-circle-check"></i> Sẵn sàng lắp ráp
-                          </span>
+                          {compat.compatible ? (
+                            <span className="pc-builder-compatibility-badge">
+                              <i className="fa-solid fa-circle-check"></i> Tương thích tốt
+                            </span>
+                          ) : (
+                            <span className="pc-builder-blocker-badge">
+                              <i className="fa-solid fa-triangle-exclamation"></i> {compat.reason}
+                            </span>
+                          )}
                         </div>
                         <div className="pc-modal-item-price">
                           {price.toLocaleString('vi-VN')}đ
                         </div>
-                        <button
-                          type="button"
-                          className="btn-choose-item"
-                          onClick={() => handleSelectProduct(p)}
-                        >
-                          Chọn
-                        </button>
+                        <div>
+                          {compat.compatible ? (
+                            <button
+                              type="button"
+                              className="btn-choose-item"
+                              onClick={() => handleSelectProduct(p)}
+                            >
+                              Chọn mua
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn-choose-item"
+                              style={{
+                                background: '#FEE2E2',
+                                color: '#EF4444',
+                                border: '1px solid #FCA5A5',
+                                cursor: 'not-allowed',
+                              }}
+                              disabled
+                            >
+                              Không vừa
+                            </button>
+                          )}
+                        </div>
                       </div>
                     );
                   })
