@@ -26,30 +26,45 @@ interface SubcategoryDef {
 }
 
 const CATEGORY_SUBGROUPS: Record<string, SubcategoryDef[]> = {
+  'pc-linh-kien': [
+    { key: 'mainboard', name: 'MAINBOARD', query: 'mainboard' },
+    { key: 'cpu', name: 'CPU', query: 'cpu' },
+    { key: 'vga', name: 'VGA', query: 'vga' },
+    { key: 'ram', name: 'RAM', query: 'ram' },
+    { key: 'storage', name: 'Ổ CỨNG', query: 'storage' },
+    { key: 'case', name: 'CASE', query: 'case' },
+    { key: 'cooling', name: 'TẢN NHIỆT', query: 'cooling' },
+    { key: 'psu', name: 'NGUỒN', query: 'psu' },
+  ],
   'linh-kien-pc': [
     { key: 'mainboard', name: 'MAINBOARD', query: 'mainboard' },
     { key: 'cpu', name: 'CPU', query: 'cpu' },
     { key: 'vga', name: 'VGA', query: 'vga' },
     { key: 'ram', name: 'RAM', query: 'ram' },
-    { key: 'storage', name: 'Ổ CỨNG', query: 'ssd' },
+    { key: 'storage', name: 'Ổ CỨNG', query: 'storage' },
     { key: 'case', name: 'CASE', query: 'case' },
-    { key: 'cooling', name: 'TẢN NHIỆT', query: 'tan-nhiet' },
-    { key: 'psu', name: 'NGUỒN', query: 'nguon' },
+    { key: 'cooling', name: 'TẢN NHIỆT', query: 'cooling' },
+    { key: 'psu', name: 'NGUỒN', query: 'psu' },
   ],
   'main-cpu-vga': [
     { key: 'mainboard', name: 'MAINBOARD', query: 'mainboard' },
     { key: 'cpu', name: 'CPU', query: 'cpu' },
     { key: 'vga', name: 'VGA', query: 'vga' },
     { key: 'ram', name: 'RAM', query: 'ram' },
-    { key: 'storage', name: 'Ổ CỨNG', query: 'ssd' },
+    { key: 'storage', name: 'Ổ CỨNG', query: 'storage' },
     { key: 'case', name: 'CASE', query: 'case' },
-    { key: 'cooling', name: 'TẢN NHIỆT', query: 'tan-nhiet' },
-    { key: 'psu', name: 'NGUỒN', query: 'nguon' },
+    { key: 'cooling', name: 'TẢN NHIỆT', query: 'cooling' },
+    { key: 'psu', name: 'NGUỒN', query: 'psu' },
   ],
   'laptop': [
     { key: 'gaming', name: 'LAPTOP GAMING', query: 'gaming' },
     { key: 'office', name: 'LAPTOP VĂN PHÒNG', query: 'van-phong' },
-    { key: 'macbook', name: 'MACBOOK', query: 'macbook' },
+    { key: 'macbook', name: 'MACBOOK', query: 'apple' },
+  ],
+  'pc': [
+    { key: 'gaming', name: 'PC GAMING', query: 'gaming' },
+    { key: 'creator', name: 'PC ĐỒ HỌA', query: 'creator' },
+    { key: 'office', name: 'PC VĂN PHÒNG', query: 'van-phong' },
   ],
   'pc-nexora': [
     { key: 'gaming', name: 'PC GAMING', query: 'gaming' },
@@ -57,14 +72,19 @@ const CATEGORY_SUBGROUPS: Record<string, SubcategoryDef[]> = {
     { key: 'office', name: 'PC VĂN PHÒNG', query: 'van-phong' },
   ],
   'gaming-gear': [
-    { key: 'keyboard', name: 'BÀN PHÍM', query: 'ban-phim' },
-    { key: 'mouse', name: 'CHUỘT', query: 'chuot' },
-    { key: 'headset', name: 'TAI NGHE', query: 'tai-nghe' },
+    { key: 'keyboard', name: 'BÀN PHÍM', query: 'keyboard' },
+    { key: 'mouse', name: 'CHUỘT', query: 'mouse' },
+    { key: 'headset', name: 'TAI NGHE', query: 'headset' },
+    { key: 'chair', name: 'GHẾ GAMING', query: 'chair' },
+    { key: 'speaker', name: 'LOA', query: 'speaker' },
+  ],
+  'office-gear': [
+    { key: 'office-equipment', name: 'THIẾT BỊ VĂN PHÒNG', query: 'office-equipment' },
+    { key: 'power-bank', name: 'SẠC DỰ PHÒNG', query: 'power-bank' },
   ],
   'thiet-bi-van-phong': [
-    { key: 'printer', name: 'MÁY IN', query: 'may-in' },
-    { key: 'ink', name: 'MỰC IN', query: 'muc-in' },
-    { key: 'scanner', name: 'MÁY QUÉT', query: 'scanner' },
+    { key: 'office-equipment', name: 'THIẾT BỊ VĂN PHÒNG', query: 'office-equipment' },
+    { key: 'power-bank', name: 'SẠC DỰ PHÒNG', query: 'power-bank' },
   ],
 };
 
@@ -133,7 +153,7 @@ export const SearchPage: React.FC = () => {
 
   const { data: productsData } = useQuery({
     queryKey: ['products'],
-    queryFn: () => storefrontService.getProducts({ limit: 120 }),
+    queryFn: () => storefrontService.getProducts({ limit: 1000 }),
   });
   const allProducts = useMemo(() => productsData?.products || [], [productsData]);
 
@@ -169,18 +189,32 @@ export const SearchPage: React.FC = () => {
 
   // Subgroups list for this category
   const subcategoryList: SubcategoryDef[] = useMemo(() => {
-    const catSlug = queryCat.toLowerCase();
+    const catSlug = queryCat.toLowerCase().replace(/\s+/g, '-');
     if (CATEGORY_SUBGROUPS[catSlug]) return CATEGORY_SUBGROUPS[catSlug]!;
-    if (catSlug.includes('linh-kien') || catSlug.includes('main')) return CATEGORY_SUBGROUPS['linh-kien-pc']!;
+    if (catSlug.includes('linh-kien') || catSlug.includes('main')) return CATEGORY_SUBGROUPS['pc-linh-kien']!;
     if (catSlug.includes('laptop')) return CATEGORY_SUBGROUPS['laptop']!;
-    if (catSlug.includes('pc')) return CATEGORY_SUBGROUPS['pc-nexora']!;
-    if (catSlug.includes('van-phong') || catSlug.includes('thiet-bi')) return CATEGORY_SUBGROUPS['thiet-bi-van-phong']!;
+    if (catSlug.includes('pc')) return CATEGORY_SUBGROUPS['pc']!;
+    if (catSlug.includes('van-phong') || catSlug.includes('office') || catSlug.includes('thiet-bi')) return CATEGORY_SUBGROUPS['office-gear']!;
     if (catSlug.includes('gear') || catSlug.includes('phim') || catSlug.includes('chuot')) return CATEGORY_SUBGROUPS['gaming-gear']!;
-    return CATEGORY_SUBGROUPS['linh-kien-pc']!;
+    return CATEGORY_SUBGROUPS['pc-linh-kien']!;
   }, [queryCat]);
 
   // Filter products logic
   const filteredProducts = useMemo(() => {
+    const VIRTUAL_GROUPS: Record<string, string[]> = {
+      'pc-linh-kien': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+      'linh-kien-pc': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+      'main-cpu-vga': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+      'gaming-gear': ['keyboard', 'mouse', 'chair', 'headset', 'speaker', 'console'],
+      'office-gear': ['office-equipment', 'power-bank'],
+      'thiet-bi-van-phong': ['office-equipment', 'power-bank'],
+      'thiet bi van phong': ['office-equipment', 'power-bank'],
+      'pc': ['pc'],
+      'laptop': ['laptop'],
+      'man-hinh': ['monitor'],
+      'monitor': ['monitor'],
+    };
+
     return allProducts.filter((product) => {
       // 1. Category filter
       if (queryCat && queryCat !== 'all') {
@@ -192,46 +226,20 @@ export const SearchPage: React.FC = () => {
         const catNorm = removeVietnameseTones(catName);
         const pNameNorm = removeVietnameseTones(pName);
 
-        const isOfficeEquip =
-          (queryNorm.includes('van phong') || queryNorm.includes('office') || queryNorm.includes('thiet bi vp') || cleanQueryCat === 'thiet-bi-van-phong') &&
-          (catNorm.includes('van phong') || catSlug.includes('van-phong') || pNameNorm.includes('canon') || pNameNorm.includes('epson') || pNameNorm.includes('may in') || pNameNorm.includes('in '));
-
-        const isPowerBank =
-          (queryNorm.includes('sac du phong') || queryNorm.includes('sac dp') || queryNorm.includes('power bank') || cleanQueryCat === 'sac-du-phong') &&
-          (catNorm.includes('sac du phong') || catSlug.includes('sac') || pNameNorm.includes('sac') || pNameNorm.includes('anker'));
-
-        const isGear =
-          (queryNorm.includes('gaming gear') || queryNorm.includes('gear')) &&
-          (catSlug.includes('ban-phim') || catSlug.includes('chuot') || catSlug.includes('tai-nghe') || pNameNorm.includes('chuot') || pNameNorm.includes('ban phim') || pNameNorm.includes('tai nghe'));
-
-        const isLinhKien =
-          (queryNorm.includes('linh kien') || queryNorm.includes('pc linh kien') || queryNorm.includes('component') || cleanQueryCat === 'pc-linh-kien' || cleanQueryCat === 'linh-kien-pc') &&
-          (catSlug.includes('main') || catSlug.includes('case') || catSlug.includes('cung') || catSlug.includes('linh-kien') || pNameNorm.includes('rtx') || pNameNorm.includes('core') || pNameNorm.includes('ryzen') || pNameNorm.includes('ssd') || pNameNorm.includes('ram') || pNameNorm.includes('nguon') || pNameNorm.includes('tan'));
-
-        const isPcBuild =
-          (queryNorm.includes('pc build') || queryNorm.includes('may tinh bo') || queryNorm === 'pc' || queryNorm === 'pc-techpilot' || queryNorm === 'pc-nexora') &&
-          (catSlug.includes('pc') || pNameNorm.includes('pc gaming') || pNameNorm.includes('workstation') || pNameNorm.includes('pc '));
-
-        const isLaptop =
-          (queryNorm.includes('laptop') || cleanQueryCat === 'laptop' || cleanQueryCat === 'laptop-gaming') &&
-          (catSlug.includes('laptop') || pNameNorm.includes('laptop') || pNameNorm.includes('macbook') || pNameNorm.includes('legion') || pNameNorm.includes('nitro'));
-
-        const matchesCat =
-          isOfficeEquip ||
-          isPowerBank ||
-          isGear ||
-          isLinhKien ||
-          isPcBuild ||
-          isLaptop ||
-          catSlug === cleanQueryCat ||
-          catSlug.includes(cleanQueryCat) ||
-          cleanQueryCat.includes(catSlug) ||
-          catNorm.includes(queryNorm) ||
-          queryNorm.includes(catNorm) ||
-          pNameNorm.includes(queryNorm);
-
-        if (!matchesCat) {
-          return false;
+        if (VIRTUAL_GROUPS[cleanQueryCat]) {
+          const allowedSlugs = VIRTUAL_GROUPS[cleanQueryCat];
+          if (!allowedSlugs.includes(catSlug)) {
+            return false;
+          }
+        } else {
+          const matchesDirect =
+            catSlug === cleanQueryCat ||
+            catSlug.includes(cleanQueryCat) ||
+            cleanQueryCat.includes(catSlug) ||
+            catNorm.includes(queryNorm) ||
+            queryNorm.includes(catNorm) ||
+            pNameNorm.includes(queryNorm);
+          if (!matchesDirect) return false;
         }
       }
 
@@ -242,7 +250,7 @@ export const SearchPage: React.FC = () => {
           const qSub = subDef.query.toLowerCase();
           const pNameLower = product.name.toLowerCase();
           const pCatSlug = (product.category?.slug || '').toLowerCase();
-          const matchesSub = pNameLower.includes(qSub) || pCatSlug.includes(qSub);
+          const matchesSub = pCatSlug === qSub || pCatSlug.includes(qSub) || pNameLower.includes(qSub);
           if (!matchesSub) return false;
         }
       }
@@ -299,9 +307,9 @@ export const SearchPage: React.FC = () => {
     for (const sub of subcategoryList) {
       const qSub = sub.query.toLowerCase();
       const count = allProducts.filter((p) => {
-        const pNameLower = p.name.toLowerCase();
         const pCatSlug = (p.category?.slug || '').toLowerCase();
-        return pNameLower.includes(qSub) || pCatSlug.includes(qSub);
+        const pNameLower = p.name.toLowerCase();
+        return pCatSlug === qSub || pCatSlug.includes(qSub) || pNameLower.includes(qSub);
       }).length;
       counts[sub.key] = count;
     }
@@ -333,8 +341,20 @@ export const SearchPage: React.FC = () => {
     setSearchParams(params);
   };
 
-  const activeCategoryName =
-    activeCategory?.name || (queryPromo ? 'Sản phẩm Khuyến mãi' : (queryQ ? `Tìm kiếm: "${queryQ}"` : 'Tất cả sản phẩm'));
+  const activeCategoryName = useMemo(() => {
+    if (queryPromo) return 'Sản phẩm đang Khuyến mãi';
+    if (!queryCat || queryCat === 'all') {
+      return queryQ ? `Tìm kiếm: "${queryQ}"` : 'Tất cả sản phẩm';
+    }
+    const clean = queryCat.toLowerCase().replace(/\s+/g, '-');
+    if (clean === 'pc-linh-kien' || clean === 'linh-kien-pc') return 'Linh kiện PC';
+    if (clean === 'gaming-gear') return 'Gaming Gear';
+    if (clean === 'office-gear' || clean === 'thiet-bi-van-phong') return 'Thiết bị văn phòng';
+    if (clean === 'pc' || clean === 'pc-techpilot' || clean === 'pc-nexora') return 'PC & Build PC';
+    if (clean === 'laptop') return 'Laptop';
+    if (clean === 'man-hinh' || clean === 'monitor') return 'Màn hình';
+    return activeCategory?.name || queryCat;
+  }, [activeCategory, queryCat, queryPromo, queryQ]);
 
   const activePriceLabel = useMemo(() => {
     const found = PRICE_RANGES.find((r) => r.id === priceRange);
@@ -533,7 +553,7 @@ export const SearchPage: React.FC = () => {
                   {activeCategoryName}
                 </h1>
                 <p className="results-count" style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary, #64748B)' }}>
-                  Tìm thấy <strong>{filteredProducts.length}</strong> mẫu sản phẩm phù hợp
+                  Tìm thấy <strong>{filteredProducts.length}</strong> mẫu sản phẩm {queryPromo ? 'đang giảm giá' : 'phù hợp'}
                 </p>
               </div>
 
@@ -565,8 +585,25 @@ export const SearchPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Subcategory Chips Bar */}
-            {subcategoryList && subcategoryList.length > 0 && (
+            {/* Subcategory Chips Bar / Active Promo Tag */}
+            {queryPromo && (
+              <div className="active-filters" style={{ marginBottom: '8px' }}>
+                <span className="active-filter-tag">
+                  Đang giảm giá{' '}
+                  <i
+                    className="fa-solid fa-xmark active-filter-tag__remove"
+                    onClick={() => {
+                      const p = new URLSearchParams(searchParams);
+                      p.delete('promo');
+                      setSearchParams(p);
+                    }}
+                    title="Bỏ lọc giảm giá"
+                  ></i>
+                </span>
+              </div>
+            )}
+
+            {!queryPromo && subcategoryList && subcategoryList.length > 0 && (
               <div className="subcategory-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 0', marginBottom: '8px' }}>
                 <button
                   type="button"

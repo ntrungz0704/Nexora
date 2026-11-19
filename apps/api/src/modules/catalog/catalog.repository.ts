@@ -8,6 +8,7 @@ export interface ProductFilterOptions {
   isFeatured?: boolean;
   isHot?: boolean;
   hasDiscount?: boolean;
+  inStock?: boolean;
   minPrice?: number;
   maxPrice?: number;
   limit?: number;
@@ -71,6 +72,10 @@ export class CatalogRepository {
 
     if (options.hasDiscount) {
       where.salePrice = { not: null };
+    }
+
+    if (options.inStock) {
+      where.stockQuantity = { gt: 0 };
     }
 
     if (options.minPrice !== undefined || options.maxPrice !== undefined) {

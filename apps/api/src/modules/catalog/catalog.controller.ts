@@ -40,6 +40,7 @@ export class CatalogController {
       const search = req.query.q as string | undefined;
       const isFeatured = req.query.featured === 'true' ? true : undefined;
       const isHot = req.query.hot === 'true' ? true : undefined;
+      const inStock = req.query.inStock === 'true' ? true : undefined;
       const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 24;
       const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
       const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined;
@@ -51,6 +52,7 @@ export class CatalogController {
         search,
         isFeatured,
         isHot,
+        inStock,
         limit,
         offset,
         minPrice,

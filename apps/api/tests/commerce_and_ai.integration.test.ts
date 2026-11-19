@@ -32,8 +32,8 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
   });
 
   it('POST /api/v1/orders creates order with snapshot items and inventory reduction', async () => {
-    // 1. Get a product ID from catalog
-    const catalogRes = await request(app).get('/api/v1/catalog/products?limit=1');
+    // 1. Get a product ID from catalog that has available stock
+    const catalogRes = await request(app).get('/api/v1/catalog/products?inStock=true&limit=1');
     expect(catalogRes.status).toBe(200);
     const product = catalogRes.body.data.products[0];
     expect(product).toBeDefined();

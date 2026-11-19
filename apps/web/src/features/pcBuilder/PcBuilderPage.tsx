@@ -76,7 +76,7 @@ export const PcBuilderPage: React.FC = () => {
 
   const { data: productsData } = useQuery({
     queryKey: ['products'],
-    queryFn: () => storefrontService.getProducts({ limit: 120 }),
+    queryFn: () => storefrontService.getProducts({ limit: 1000 }),
   });
   const allProducts = useMemo(() => productsData?.products || [], [productsData]);
 
@@ -263,102 +263,31 @@ export const PcBuilderPage: React.FC = () => {
 
       switch (catKey) {
         case 'cpu':
-          return (
-            (nameLower.includes('cpu') ||
-              nameLower.includes('core i') ||
-              nameLower.includes('ryzen') ||
-              nameLower.includes('intel core')) &&
-            !nameLower.includes('pc ') &&
-            !nameLower.includes('tản nhiệt') &&
-            !nameLower.includes('laptop')
-          );
+          return catSlug === 'cpu' || nameLower.includes('cpu') || nameLower.includes('intel core') || nameLower.includes('ryzen');
         case 'mainboard':
-          return (
-            (nameLower.includes('mainboard') ||
-              nameLower.includes('bo mạch') ||
-              nameLower.includes('b760') ||
-              nameLower.includes('z790') ||
-              nameLower.includes('b650') ||
-              nameLower.includes('x670') ||
-              nameLower.includes('tuf gaming b')) &&
-            !nameLower.includes('laptop')
-          );
+          return catSlug === 'mainboard' || nameLower.includes('mainboard') || nameLower.includes('bo mạch');
         case 'ram':
-          return (
-            (nameLower.includes('ram') ||
-              nameLower.includes('ddr4') ||
-              nameLower.includes('ddr5') ||
-              nameLower.includes('bộ nhớ trong')) &&
-            !nameLower.includes('laptop')
-          );
+          return catSlug === 'ram' || nameLower.includes('ram');
         case 'vga':
-          return (
-            (nameLower.includes('vga') ||
-              nameLower.includes('rtx') ||
-              nameLower.includes('geforce') ||
-              nameLower.includes('card màn hình') ||
-              nameLower.includes('radeon')) &&
-            !nameLower.includes('pc ') &&
-            !nameLower.includes('laptop')
-          );
+          return catSlug === 'vga' || nameLower.includes('vga') || nameLower.includes('rtx') || nameLower.includes('card màn hình');
         case 'storage':
-          return (
-            nameLower.includes('ssd') ||
-            nameLower.includes('hdd') ||
-            nameLower.includes('ổ cứng') ||
-            nameLower.includes('990 pro') ||
-            catSlug.includes('o-cung')
-          );
+          return catSlug === 'storage' || catSlug.includes('o-cung') || nameLower.includes('ssd') || nameLower.includes('ổ cứng');
         case 'psu':
-          return (
-            nameLower.includes('nguồn') ||
-            nameLower.includes('psu') ||
-            nameLower.includes('rm850') ||
-            nameLower.includes('80 plus') ||
-            nameLower.includes('power supply')
-          );
+          return catSlug === 'psu' || nameLower.includes('psu') || nameLower.includes('nguồn');
         case 'case':
-          return (
-            (nameLower.includes('case') ||
-              nameLower.includes('vỏ case') ||
-              nameLower.includes('thùng máy')) &&
-            !nameLower.includes('nguồn') &&
-            !nameLower.includes('tản')
-          );
+          return catSlug === 'case' || nameLower.includes('case') || nameLower.includes('vỏ');
         case 'cooler':
-          return (
-            nameLower.includes('tản nhiệt') ||
-            nameLower.includes('cooler') ||
-            nameLower.includes('aio') ||
-            nameLower.includes('deepcool') ||
-            nameLower.includes('thermalright')
-          );
+          return catSlug === 'cooling' || nameLower.includes('tản nhiệt') || nameLower.includes('cooler');
         case 'monitor':
-          return (
-            nameLower.includes('màn hình') ||
-            nameLower.includes('monitor') ||
-            catSlug.includes('man-hinh')
-          );
+          return catSlug === 'monitor' || nameLower.includes('màn hình');
         case 'mouse':
-          return (
-            nameLower.includes('chuột') ||
-            nameLower.includes('mouse') ||
-            nameLower.includes('superlight')
-          );
+          return catSlug === 'mouse' || nameLower.includes('chuột');
         case 'keyboard':
-          return (
-            nameLower.includes('bàn phím') ||
-            nameLower.includes('keyboard') ||
-            nameLower.includes('mechanical')
-          );
+          return catSlug === 'keyboard' || nameLower.includes('bàn phím');
+        case 'chair':
+          return catSlug === 'chair' || nameLower.includes('ghế');
         case 'headset':
-          return (
-            nameLower.includes('tai nghe') ||
-            nameLower.includes('headphone') ||
-            nameLower.includes('headset') ||
-            nameLower.includes('cloud') ||
-            nameLower.includes('g733')
-          );
+          return catSlug === 'headset' || nameLower.includes('tai nghe');
         default:
           return true;
       }
@@ -369,7 +298,9 @@ export const PcBuilderPage: React.FC = () => {
   const prebuiltPcs = useMemo(() => {
     return allProducts.filter(
       (p) =>
+        p.category?.slug === 'pc' ||
         p.category?.slug === 'pc-nexora' ||
+        p.category?.slug === 'pc-techpilot' ||
         p.name.toLowerCase().includes('pc ') ||
         p.name.toLowerCase().includes('creator') ||
         p.name.toLowerCase().includes('workstation'),

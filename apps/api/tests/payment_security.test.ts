@@ -15,8 +15,8 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
     app = createApp();
     paymentService = new PaymentService();
 
-    // 1. Create a real test order
-    const catalogRes = await request(app).get('/api/v1/catalog/products?limit=1');
+    // 1. Create a real test order with available stock
+    const catalogRes = await request(app).get('/api/v1/catalog/products?inStock=true&limit=1');
     const product = catalogRes.body.data.products[0];
 
     const orderRes = await request(app)

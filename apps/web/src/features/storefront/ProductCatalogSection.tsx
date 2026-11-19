@@ -11,25 +11,25 @@ interface ProductCatalogSectionProps {
 
 const POPULAR_CATEGORIES = [
   { name: 'Laptop', slug: 'laptop', cat: 'laptop' },
-  { name: 'PC', slug: 'pc-nexora', cat: 'pc' },
-  { name: 'Màn hình', slug: 'man-hinh', cat: 'monitor' },
-  { name: 'Mainboard', slug: 'main-cpu-vga', cat: 'mainboard' },
-  { name: 'CPU', slug: 'main-cpu-vga', cat: 'cpu' },
-  { name: 'VGA', slug: 'main-cpu-vga', cat: 'vga' },
-  { name: 'RAM', slug: 'o-cung', cat: 'ram' },
-  { name: 'Ổ cứng', slug: 'o-cung', cat: 'storage' },
-  { name: 'Case', slug: 'case-nguon-tan', cat: 'case' },
-  { name: 'Tản nhiệt', slug: 'case-nguon-tan', cat: 'cooling' },
-  { name: 'Nguồn', slug: 'case-nguon-tan', cat: 'psu' },
-  { name: 'Bàn phím', slug: 'ban-phim', cat: 'keyboard' },
-  { name: 'Chuột', slug: 'chuot-lot-chuot', cat: 'mouse' },
-  { name: 'Ghế', slug: 'ghe-ban', cat: 'chair' },
-  { name: 'Tai nghe', slug: 'tai-nghe', cat: 'headset' },
-  { name: 'Loa', slug: 'loa-micro', cat: 'speaker' },
-  { name: 'Console', slug: 'phu-kien', cat: 'console' },
-  { name: 'Phụ kiện', slug: 'phu-kien', cat: 'accessories' },
-  { name: 'Thiết bị VP', slug: 'thiet-bi-van-phong', cat: 'office-equipment' },
-  { name: 'Sạc DP', slug: 'sac-du-phong', cat: 'power-bank' },
+  { name: 'PC', slug: 'pc', cat: 'pc' },
+  { name: 'Màn hình', slug: 'monitor', cat: 'monitor' },
+  { name: 'Mainboard', slug: 'mainboard', cat: 'mainboard' },
+  { name: 'CPU', slug: 'cpu', cat: 'cpu' },
+  { name: 'VGA', slug: 'vga', cat: 'vga' },
+  { name: 'RAM', slug: 'ram', cat: 'ram' },
+  { name: 'Ổ cứng', slug: 'storage', cat: 'storage' },
+  { name: 'Case', slug: 'case', cat: 'case' },
+  { name: 'Tản nhiệt', slug: 'cooling', cat: 'cooling' },
+  { name: 'Nguồn', slug: 'psu', cat: 'psu' },
+  { name: 'Bàn phím', slug: 'keyboard', cat: 'keyboard' },
+  { name: 'Chuột', slug: 'mouse', cat: 'mouse' },
+  { name: 'Ghế', slug: 'chair', cat: 'chair' },
+  { name: 'Tai nghe', slug: 'headset', cat: 'headset' },
+  { name: 'Loa', slug: 'speaker', cat: 'speaker' },
+  { name: 'Console', slug: 'console', cat: 'console' },
+  { name: 'Phụ kiện', slug: 'accessories', cat: 'accessories' },
+  { name: 'Thiết bị VP', slug: 'office-equipment', cat: 'office-equipment' },
+  { name: 'Sạc DP', slug: 'power-bank', cat: 'power-bank' },
 ];
 
 const BEST_SELLER_TABS = [
@@ -100,18 +100,18 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
     }
     if (activeTab === 'components') {
       return products.filter((p) =>
-        ['main-cpu-vga', 'case-nguon-tan', 'o-cung'].includes(p.category?.slug || '') ||
+        ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu', 'main-cpu-vga', 'case-nguon-tan', 'o-cung'].includes(p.category?.slug || '') ||
         p.name.toLowerCase().includes('rtx') ||
         p.name.toLowerCase().includes('cpu') ||
         p.name.toLowerCase().includes('ram')
       );
     }
     if (activeTab === 'monitor') {
-      return products.filter((p) => p.category?.slug.includes('man-hinh') || p.name.toLowerCase().includes('màn hình'));
+      return products.filter((p) => p.category?.slug === 'monitor' || p.category?.slug.includes('man-hinh') || p.name.toLowerCase().includes('màn hình'));
     }
     if (activeTab === 'gear') {
       return products.filter((p) =>
-        ['ban-phim', 'chuot-lot-chuot', 'tai-nghe'].includes(p.category?.slug || '') ||
+        ['keyboard', 'mouse', 'chair', 'headset', 'speaker', 'ban-phim', 'chuot-lot-chuot', 'tai-nghe'].includes(p.category?.slug || '') ||
         p.name.toLowerCase().includes('chuột') ||
         p.name.toLowerCase().includes('bàn phím')
       );

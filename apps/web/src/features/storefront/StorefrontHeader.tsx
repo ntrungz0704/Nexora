@@ -582,13 +582,13 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=pc-nexora">PC Gaming</Link>
+              <Link to="/search?cat=pc">PC Gaming</Link>
             </li>
             <li className="desktop-only-link">
               <Link to="/search?cat=laptop">Laptop</Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=main-cpu-vga">Linh kiện PC</Link>
+              <Link to="/search?cat=pc-linh-kien">Linh kiện PC</Link>
             </li>
             <li className="desktop-only-link">
               <Link to="/search?cat=man-hinh">Màn hình</Link>
@@ -603,7 +603,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=ban-phim">Gaming Gear</Link>
+              <Link to="/search?cat=gaming-gear">Gaming Gear</Link>
             </li>
             <li className="desktop-only-link">
               <Link to="/search?cat=thiet-bi-van-phong">Thiết bị văn phòng</Link>
@@ -614,7 +614,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               </Link>
             </li>
             <li>
-              <Link to="/posts">Tin công nghệ</Link>
+              <Link to="/post">Tin công nghệ</Link>
             </li>
             <li className="desktop-only-link">
               <Link to="/ai-assistant" style={{ color: '#8B5CF6', fontWeight: 700 }}>

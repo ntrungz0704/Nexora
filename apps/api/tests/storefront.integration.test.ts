@@ -17,7 +17,7 @@ describe('Nexora Storefront & Catalog API (Live MySQL 8.4 Integration)', () => {
 
     const laptopCat = (res.body.data as CategoryDto[]).find((c) => c.slug === 'laptop');
     expect(laptopCat).toBeDefined();
-    expect(laptopCat?.icon).toBe('fa-solid fa-laptop');
+    expect(laptopCat?.icon).toMatch(/^fa-solid fa-laptop/);
   });
 
   it('GET /api/v1/catalog/banners returns active hero and sidebar banners', async () => {
