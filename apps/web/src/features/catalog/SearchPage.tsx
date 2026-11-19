@@ -12,6 +12,16 @@ import type { AuthUser, ProductDto } from '@nexora/shared';
 
 const BRANDS = ['ASUS', 'ACER', 'MSI', 'LENOVO', 'LG', 'SAMSUNG', 'INTEL', 'LOGITECH'];
 
+function removeVietnameseTones(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim();
+}
+
 export const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { slug } = useParams<{ slug?: string }>();
@@ -73,13 +83,17 @@ export const SearchPage: React.FC = () => {
         const catName = (product.category?.name || '').toLowerCase();
         const pName = product.name.toLowerCase();
         const cleanQueryCat = queryCat.toLowerCase().replace(/\s+/g, '-');
-        const cleanQueryCatSpace = queryCat.toLowerCase().replace(/-/g, ' ');
+        const queryNorm = removeVietnameseTones(queryCat.replace(/-/g, ' '));
+        const catNorm = removeVietnameseTones(catName);
+        const pNameNorm = removeVietnameseTones(pName);
 
         const matchesCat =
+          catSlug === cleanQueryCat ||
           catSlug.includes(cleanQueryCat) ||
-          catSlug.includes(queryCat.toLowerCase()) ||
-          catName.includes(cleanQueryCatSpace) ||
-          pName.includes(cleanQueryCatSpace);
+          cleanQueryCat.includes(catSlug) ||
+          catNorm.includes(queryNorm) ||
+          queryNorm.includes(catNorm) ||
+          pNameNorm.includes(queryNorm);
 
         if (!matchesCat) {
           return false;
@@ -144,8 +158,18 @@ export const SearchPage: React.FC = () => {
     setSearchParams({});
   };
 
+  const activeCategory = useMemo(() => {
+    if (!queryCat || queryCat === 'all') return null;
+    const clean = queryCat.toLowerCase().replace(/\s+/g, '-');
+    const norm = removeVietnameseTones(queryCat.replace(/-/g, ' '));
+    return categories.find((c) => {
+      const cNorm = removeVietnameseTones(c.name);
+      return c.slug === clean || c.slug === queryCat || cNorm === norm;
+    });
+  }, [categories, queryCat]);
+
   const activeCategoryName =
-    categories.find((c) => c.slug === queryCat)?.name || (queryPromo ? 'Sản phẩm Khuyến mãi' : 'Tất cả sản phẩm');
+    activeCategory?.name || (queryPromo ? 'Sản phẩm Khuyến mãi' : 'Tất cả sản phẩm');
 
   return (
     <div className="home-page-wrapper">
@@ -284,8 +308,12 @@ export const SearchPage: React.FC = () => {
                       to={`/category/${c.slug}`}
                       style={{
                         fontSize: '13px',
-                        color: queryCat === c.slug ? 'var(--primary, #0A5BFF)' : 'var(--text-secondary)',
-                        fontWeight: queryCat === c.slug ? 700 : 500,
+                        color:
+                          queryCat === c.slug || activeCategory?.id === c.id
+                            ? 'var(--primary, #0A5BFF)'
+                            : 'var(--text-secondary)',
+                        fontWeight:
+                          queryCat === c.slug || activeCategory?.id === c.id ? 700 : 500,
                         textDecoration: 'none',
                         padding: '4px 0',
                       }}
