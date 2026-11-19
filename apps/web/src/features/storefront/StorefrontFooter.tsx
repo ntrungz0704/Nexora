@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { BottomFeatures } from './BottomFeatures';
 
-export const StorefrontFooter: React.FC = () => {
+export const StorefrontFooter: React.FC<{ hideFeatures?: boolean }> = ({ hideFeatures = false }) => {
   return (
-    <footer className="site-footer">
+    <>
+      {!hideFeatures && <BottomFeatures />}
+      <footer className="site-footer">
       <div className="container footer-grid">
         <div className="footer-col footer-brand">
           <Link
@@ -96,5 +99,6 @@ export const StorefrontFooter: React.FC = () => {
         </div>
       </div>
     </footer>
+    </>
   );
 };

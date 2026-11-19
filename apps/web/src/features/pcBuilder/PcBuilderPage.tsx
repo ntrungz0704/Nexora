@@ -30,6 +30,7 @@ const BUILDER_PARTS: BuilderPartCategory[] = [
   { key: 'monitor', name: 'Màn hình', icon: 'fa-solid fa-tv', wattage: 0, isCore: false },
   { key: 'mouse', name: 'Chuột', icon: 'fa-solid fa-computer-mouse', wattage: 0, isCore: false },
   { key: 'keyboard', name: 'Bàn phím', icon: 'fa-solid fa-keyboard', wattage: 0, isCore: false },
+  { key: 'chair', name: 'Ghế Gaming', icon: 'fa-solid fa-chair', wattage: 0, isCore: false },
   { key: 'headset', name: 'Tai nghe', icon: 'fa-solid fa-headphones', wattage: 0, isCore: false },
 ];
 

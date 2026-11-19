@@ -7,7 +7,6 @@ import { PromoCards } from './PromoCards';
 import { ServicePolicyBar } from './ServicePolicyBar';
 import { FlashSaleSection } from './FlashSaleSection';
 import { ProductCatalogSection } from './ProductCatalogSection';
-import { BottomFeatures } from './BottomFeatures';
 import { PromoPopup } from './PromoPopup';
 import { StorefrontFooter } from './StorefrontFooter';
 import { storefrontService } from '../../services/storefrontService';
@@ -150,9 +149,6 @@ export const StorefrontHome: React.FC = () => {
           products={products}
           onAddToCart={(p) => addToCartMutation.mutate(p)}
         />
-
-        {/* 14. BOTTOM FEATURES */}
-        <BottomFeatures />
       </main>
 
       {/* 15. FOOTER */}

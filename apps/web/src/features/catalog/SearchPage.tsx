@@ -193,24 +193,28 @@ export const SearchPage: React.FC = () => {
         const pNameNorm = removeVietnameseTones(pName);
 
         const isOfficeEquip =
-          (queryNorm.includes('van phong') || queryNorm.includes('office') || queryNorm.includes('thiet bi vp')) &&
-          (catNorm.includes('van phong') || pNameNorm.includes('canon') || pNameNorm.includes('epson') || pNameNorm.includes('may in') || pNameNorm.includes('in '));
+          (queryNorm.includes('van phong') || queryNorm.includes('office') || queryNorm.includes('thiet bi vp') || cleanQueryCat === 'thiet-bi-van-phong') &&
+          (catNorm.includes('van phong') || catSlug.includes('van-phong') || pNameNorm.includes('canon') || pNameNorm.includes('epson') || pNameNorm.includes('may in') || pNameNorm.includes('in '));
 
         const isPowerBank =
-          (queryNorm.includes('sac du phong') || queryNorm.includes('sac dp') || queryNorm.includes('power bank')) &&
-          (catNorm.includes('sac du phong') || pNameNorm.includes('sac') || pNameNorm.includes('anker'));
+          (queryNorm.includes('sac du phong') || queryNorm.includes('sac dp') || queryNorm.includes('power bank') || cleanQueryCat === 'sac-du-phong') &&
+          (catNorm.includes('sac du phong') || catSlug.includes('sac') || pNameNorm.includes('sac') || pNameNorm.includes('anker'));
 
         const isGear =
           (queryNorm.includes('gaming gear') || queryNorm.includes('gear')) &&
           (catSlug.includes('ban-phim') || catSlug.includes('chuot') || catSlug.includes('tai-nghe') || pNameNorm.includes('chuot') || pNameNorm.includes('ban phim') || pNameNorm.includes('tai nghe'));
 
         const isLinhKien =
-          (queryNorm.includes('linh kien') || queryNorm.includes('pc linh kien') || queryNorm.includes('component')) &&
-          (catSlug.includes('main') || catSlug.includes('case') || catSlug.includes('cung') || pNameNorm.includes('rtx') || pNameNorm.includes('core') || pNameNorm.includes('ryzen') || pNameNorm.includes('ssd'));
+          (queryNorm.includes('linh kien') || queryNorm.includes('pc linh kien') || queryNorm.includes('component') || cleanQueryCat === 'pc-linh-kien' || cleanQueryCat === 'linh-kien-pc') &&
+          (catSlug.includes('main') || catSlug.includes('case') || catSlug.includes('cung') || catSlug.includes('linh-kien') || pNameNorm.includes('rtx') || pNameNorm.includes('core') || pNameNorm.includes('ryzen') || pNameNorm.includes('ssd') || pNameNorm.includes('ram') || pNameNorm.includes('nguon') || pNameNorm.includes('tan'));
 
         const isPcBuild =
-          (queryNorm.includes('pc build') || queryNorm.includes('may tinh bo') || queryNorm === 'pc' || queryNorm === 'pc-nexora') &&
-          (catSlug.includes('pc') || pNameNorm.includes('pc gaming') || pNameNorm.includes('workstation'));
+          (queryNorm.includes('pc build') || queryNorm.includes('may tinh bo') || queryNorm === 'pc' || queryNorm === 'pc-techpilot' || queryNorm === 'pc-nexora') &&
+          (catSlug.includes('pc') || pNameNorm.includes('pc gaming') || pNameNorm.includes('workstation') || pNameNorm.includes('pc '));
+
+        const isLaptop =
+          (queryNorm.includes('laptop') || cleanQueryCat === 'laptop' || cleanQueryCat === 'laptop-gaming') &&
+          (catSlug.includes('laptop') || pNameNorm.includes('laptop') || pNameNorm.includes('macbook') || pNameNorm.includes('legion') || pNameNorm.includes('nitro'));
 
         const matchesCat =
           isOfficeEquip ||
@@ -218,6 +222,7 @@ export const SearchPage: React.FC = () => {
           isGear ||
           isLinhKien ||
           isPcBuild ||
+          isLaptop ||
           catSlug === cleanQueryCat ||
           catSlug.includes(cleanQueryCat) ||
           cleanQueryCat.includes(catSlug) ||
@@ -342,6 +347,37 @@ export const SearchPage: React.FC = () => {
     return 'Thương hiệu';
   }, [selectedBrands]);
 
+  // Pagination
+  const PAGE_SIZE = 24;
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredProducts.slice(start, start + PAGE_SIZE);
+  }, [filteredProducts, currentPage]);
+
+  const { startPage, endPage, middlePages } = useMemo(() => {
+    const range = 2;
+    const start = Math.max(2, currentPage - range);
+    const end = Math.min(totalPages - 1, currentPage + range);
+    const pages: number[] = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return { startPage: start, endPage: end, middlePages: pages };
+  }, [currentPage, totalPages]);
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
+    if (newPage > 1) {
+      params.set('page', String(newPage));
+    } else {
+      params.delete('page');
+    }
+    setSearchParams(params);
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+  };
+
   return (
     <div className="home-page-wrapper">
       {toastMessage && (
@@ -448,69 +484,28 @@ export const SearchPage: React.FC = () => {
             </div>
 
             {/* Widget 2: Danh mục sản phẩm */}
-            <div
-              className="search-widget"
-              style={{
-                background: 'var(--surface-card, #FFFFFF)',
-                border: '1px solid var(--border, #E2E8F0)',
-                borderRadius: '16px',
-                padding: '20px',
-                boxShadow: 'var(--shadow-card, 0 4px 20px rgba(0,0,0,0.04))',
-              }}
-            >
-              <h3 style={{ fontSize: '15px', fontWeight: 800, margin: '0 0 14px 0', color: 'var(--text-primary, #0F172A)' }}>
-                Danh mục sản phẩm
-              </h3>
-              <div className="category-list" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div className="search-widget">
+              <h3>Danh mục sản phẩm</h3>
+              <div className="category-list">
                 <Link
                   to="/search"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '8px 10px',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: !queryCat ? 700 : 500,
-                    color: !queryCat ? '#0A5BFF' : 'var(--text-secondary, #475569)',
-                    backgroundColor: !queryCat ? '#EFF6FF' : 'transparent',
-                    textDecoration: 'none',
-                  }}
+                  className={`category-list__item ${!queryCat || queryCat === 'all' ? 'is-active' : ''}`}
                 >
-                  <i className="fa-solid fa-boxes-stacked" style={{ width: '16px', textAlign: 'center' }}></i>
+                  <i className="fa-solid fa-boxes-stacked"></i>
                   <span>Tất cả danh mục</span>
                 </Link>
 
-                {[
-                  { slug: 'laptop', name: 'Laptop', icon: 'fa-solid fa-laptop' },
-                  { slug: 'pc-nexora', name: 'PC', icon: 'fa-solid fa-desktop' },
-                  { slug: 'man-hinh', name: 'Màn hình', icon: 'fa-solid fa-tv' },
-                  { slug: 'main-cpu-vga', name: 'Mainboard, CPU, VGA', icon: 'fa-solid fa-microchip' },
-                  { slug: 'case-nguon-tan', name: 'Case, Nguồn, Tản', icon: 'fa-solid fa-fan' },
-                  { slug: 'o-cung', name: 'Ổ cứng SSD & HDD', icon: 'fa-solid fa-hard-drive' },
-                  { slug: 'ban-phim', name: 'Gaming Gear', icon: 'fa-solid fa-gamepad' },
-                  { slug: 'thiet-bi-van-phong', name: 'Thiết bị văn phòng', icon: 'fa-solid fa-print' },
-                  { slug: 'sac-du-phong', name: 'Sạc dự phòng', icon: 'fa-solid fa-battery-half' },
-                ].map((cat) => {
-                  const isActive = queryCat === cat.slug;
+                {categories.map((cat) => {
+                  const cleanCat = cat.slug.toLowerCase();
+                  const cleanCurrent = (queryCat || '').toLowerCase().replace(/\s+/g, '-');
+                  const isActive = cleanCurrent === cleanCat || cleanCurrent.includes(cleanCat) || cleanCat.includes(cleanCurrent);
                   return (
                     <Link
-                      key={cat.slug}
-                      to={`/category/${cat.slug}`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '8px 10px',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: isActive ? 700 : 500,
-                        color: isActive ? '#0A5BFF' : 'var(--text-secondary, #475569)',
-                        backgroundColor: isActive ? '#EFF6FF' : 'transparent',
-                        textDecoration: 'none',
-                      }}
+                      key={cat.id || cat.slug}
+                      to={`/search?cat=${cat.slug}`}
+                      className={`category-list__item ${isActive ? 'is-active' : ''}`}
                     >
-                      <i className={cat.icon} style={{ width: '16px', textAlign: 'center' }}></i>
+                      <i className={cat.icon || 'fa-solid fa-tag'}></i>
                       <span>{cat.name}</span>
                     </Link>
                   );
@@ -713,22 +708,89 @@ export const SearchPage: React.FC = () => {
 
             {/* Products Grid */}
             {filteredProducts.length > 0 ? (
-              <div
-                className="products-grid"
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
-                  gap: '18px',
-                }}
-              >
-                {filteredProducts.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    product={p}
-                    onAddToCart={(prod) => addToCartMutation.mutate(prod)}
-                  />
-                ))}
-              </div>
+              <>
+                <div
+                  className="products-grid"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
+                    gap: '18px',
+                  }}
+                >
+                  {paginatedProducts.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      product={p}
+                      onAddToCart={(prod) => addToCartMutation.mutate(prod)}
+                    />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="pagination">
+                    {currentPage > 1 && (
+                      <button
+                        type="button"
+                        className="pagination__btn"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        aria-label="Trang trước"
+                      >
+                        <i className="fa-solid fa-chevron-left"></i>
+                      </button>
+                    )}
+
+                    {/* Trang đầu tiên */}
+                    <button
+                      type="button"
+                      className={`pagination__item ${currentPage === 1 ? 'is-active' : ''}`}
+                      onClick={() => handlePageChange(1)}
+                    >
+                      1
+                    </button>
+
+                    {/* Dấu ba chấm đầu */}
+                    {startPage > 2 && <span className="pagination__dots">&hellip;</span>}
+
+                    {/* Các trang ở giữa */}
+                    {middlePages.map((page) => (
+                      <button
+                        key={page}
+                        type="button"
+                        className={`pagination__item ${currentPage === page ? 'is-active' : ''}`}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    {/* Dấu ba chấm cuối */}
+                    {endPage < totalPages - 1 && <span className="pagination__dots">&hellip;</span>}
+
+                    {/* Trang cuối cùng */}
+                    {totalPages > 1 && (
+                      <button
+                        type="button"
+                        className={`pagination__item ${currentPage === totalPages ? 'is-active' : ''}`}
+                        onClick={() => handlePageChange(totalPages)}
+                      >
+                        {totalPages}
+                      </button>
+                    )}
+
+                    {currentPage < totalPages && (
+                      <button
+                        type="button"
+                        className="pagination__btn"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        aria-label="Trang sau"
+                      >
+                        <i className="fa-solid fa-chevron-right"></i>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
               <div
                 style={{

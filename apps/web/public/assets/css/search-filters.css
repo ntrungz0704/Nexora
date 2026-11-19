@@ -286,3 +286,169 @@
     border-color: var(--border, #334155);
     color: var(--text-secondary, #94A3B8);
 }
+
+/* =========================================================================
+   TECHPILOT SEARCH SIDEBAR & PAGINATION PARITY
+   ========================================================================= */
+
+/* Sidebar Widgets */
+.search-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.search-widget {
+    background: var(--bg-card, #FFFFFF);
+    border: 1px solid var(--border, #E2E8F0);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.search-widget h3 {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0 0 14px 0;
+    color: var(--text-primary, #0F172A);
+}
+
+.search-widget__form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.search-widget__form input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border, #E2E8F0);
+    border-radius: 8px;
+    font-size: 13.5px;
+    background-color: var(--bg-card, #FFFFFF);
+    color: var(--text-primary, #0F172A);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.search-widget__form input:focus {
+    border-color: #0A5BFF;
+}
+
+.search-widget__form .btn--block {
+    width: 100%;
+    padding: 10px;
+    background: #0A5BFF;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.search-widget__form .btn--block:hover {
+    background: #0047D4;
+}
+
+/* Category List in Sidebar */
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.category-list__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--text-secondary, #475569);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.category-list__item i {
+    width: 18px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.category-list__item:hover {
+    background: #EFF6FF;
+    color: #0A5BFF;
+}
+
+.category-list__item.is-active {
+    background: #0A5BFF !important;
+    color: #FFFFFF !important;
+    font-weight: 700;
+}
+
+.category-list__item.is-active i {
+    color: #FFFFFF !important;
+}
+
+/* Pagination Bar */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.pagination__item,
+.pagination__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border, #E2E8F0);
+    background-color: var(--bg-card, #FFFFFF);
+    color: var(--text-primary, #0F172A);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.pagination__dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 40px;
+    color: #94A3B8;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.pagination__item:hover,
+.pagination__btn:hover {
+    border-color: #0A5BFF;
+    color: #0A5BFF;
+    background-color: #EFF6FF;
+}
+
+.pagination__item.is-active {
+    background-color: #0A5BFF !important;
+    border-color: #0A5BFF !important;
+    color: #FFFFFF !important;
+    cursor: default;
+}
