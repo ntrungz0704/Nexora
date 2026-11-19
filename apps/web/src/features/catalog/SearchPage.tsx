@@ -51,7 +51,7 @@ export const SearchPage: React.FC = () => {
 
   const { data: productsData } = useQuery({
     queryKey: ['products'],
-    queryFn: () => storefrontService.getProducts({ limit: 60 }),
+    queryFn: () => storefrontService.getProducts({ limit: 120 }),
   });
   const allProducts = useMemo(() => productsData?.products || [], [productsData]);
 
@@ -87,7 +87,32 @@ export const SearchPage: React.FC = () => {
         const catNorm = removeVietnameseTones(catName);
         const pNameNorm = removeVietnameseTones(pName);
 
+        const isOfficeEquip =
+          (queryNorm.includes('van phong') || queryNorm.includes('office') || queryNorm.includes('thiet bi vp')) &&
+          (catNorm.includes('van phong') || pNameNorm.includes('canon') || pNameNorm.includes('epson') || pNameNorm.includes('may in') || pNameNorm.includes('in '));
+
+        const isPowerBank =
+          (queryNorm.includes('sac du phong') || queryNorm.includes('sac dp') || queryNorm.includes('power bank')) &&
+          (catNorm.includes('sac du phong') || pNameNorm.includes('sac') || pNameNorm.includes('anker'));
+
+        const isGear =
+          (queryNorm.includes('gaming gear') || queryNorm.includes('gear')) &&
+          (catSlug.includes('ban-phim') || catSlug.includes('chuot') || catSlug.includes('tai-nghe') || pNameNorm.includes('chuot') || pNameNorm.includes('ban phim') || pNameNorm.includes('tai nghe'));
+
+        const isLinhKien =
+          (queryNorm.includes('linh kien') || queryNorm.includes('pc linh kien') || queryNorm.includes('component')) &&
+          (catSlug.includes('main') || catSlug.includes('case') || catSlug.includes('cung') || pNameNorm.includes('rtx') || pNameNorm.includes('core') || pNameNorm.includes('ryzen') || pNameNorm.includes('ssd'));
+
+        const isPcBuild =
+          (queryNorm.includes('pc build') || queryNorm.includes('may tinh bo') || queryNorm === 'pc') &&
+          (catSlug.includes('pc') || pNameNorm.includes('pc gaming') || pNameNorm.includes('workstation'));
+
         const matchesCat =
+          isOfficeEquip ||
+          isPowerBank ||
+          isGear ||
+          isLinhKien ||
+          isPcBuild ||
           catSlug === cleanQueryCat ||
           catSlug.includes(cleanQueryCat) ||
           cleanQueryCat.includes(catSlug) ||

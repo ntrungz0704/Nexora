@@ -70,7 +70,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const { data: productsData } = useQuery({
     queryKey: ['products'],
-    queryFn: () => storefrontService.getProducts({ limit: 40 }),
+    queryFn: () => storefrontService.getProducts({ limit: 120 }),
   });
   const allProducts = productsData?.products || [];
 

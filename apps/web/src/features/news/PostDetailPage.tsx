@@ -7,12 +7,15 @@ import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
+import { ARTICLES_SEED, type ArticleItem } from './articlesData';
 import type { AuthUser } from '@nexora/shared';
 
 export const PostDetailPage: React.FC = () => {
-  const { slug: _slug } = useParams<{ slug: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const article = (ARTICLES_SEED.find((a) => a.slug === slug || a.id === slug) || ARTICLES_SEED[0]) as ArticleItem;
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -86,21 +89,21 @@ export const PostDetailPage: React.FC = () => {
         {/* Article Container */}
         <article style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', border: '1px solid #E2E8F0', padding: '40px', boxShadow: '0 4px 25px rgba(0,0,0,0.04)' }}>
           <span style={{ backgroundColor: '#EFF6FF', color: '#0A5BFF', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase' }}>
-            ĐÁNH GIÁ CHUYÊN SÂU
+            ⭐ {article.category} Chuyên Sâu
           </span>
 
           <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#0F172A', margin: '16px 0 14px 0', lineHeight: '1.3' }}>
-            Đánh Giá Chi Tiết Siêu Phẩm Card Đồ Họa Mới Nhất: Bước Nhảy Vọt Về Sức Mạnh AI
+            {article.title}
           </h1>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '20px', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#0A5BFF', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                HL
+                {article.author.slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>Hoàng Long</div>
-                <div style={{ fontSize: '12px', color: '#94A3B8' }}>Chuyên gia phần cứng TechPilot • 18/11/2026</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{article.author}</div>
+                <div style={{ fontSize: '12px', color: '#94A3B8' }}>Chuyên gia phần cứng TechPilot • {article.date} • {article.readTime}</div>
               </div>
             </div>
 
@@ -116,6 +119,18 @@ export const PostDetailPage: React.FC = () => {
                 <i className="fa-solid fa-share-nodes"></i> Chia sẻ
               </button>
             </div>
+          </div>
+
+          {/* Featured Image */}
+          <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '32px', maxHeight: '420px', backgroundColor: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img
+              src={article.image}
+              alt={article.title}
+              style={{ width: '100%', maxHeight: '420px', objectFit: 'cover' }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/assets/images/banner-rtx-bg.jpg';
+              }}
+            />
           </div>
 
           {/* Table of Contents */}

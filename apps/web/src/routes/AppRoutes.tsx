@@ -72,8 +72,11 @@ export function AppRoutes() {
         <Route path="/post" element={<NewsPage />} />
         <Route path="/posts" element={<NewsPage />} />
         <Route path="/news" element={<NewsPage />} />
+        <Route path="/tin-tuc" element={<NewsPage />} />
         <Route path="/post/:slug" element={<PostDetailPage />} />
+        <Route path="/post/detail/:slug" element={<PostDetailPage />} />
         <Route path="/news/:slug" element={<PostDetailPage />} />
+        <Route path="/tin-tuc/:slug" element={<PostDetailPage />} />
 
         {/* 5. Customer Services & Support */}
         <Route path="/order-tracking" element={<OrderTrackingPage />} />

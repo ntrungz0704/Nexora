@@ -1242,16 +1242,12 @@ html.dark-mode .search-highlight {
     margin-top: 20px;
     margin-bottom: 28px;
     min-height: 560px;
-    align-items: stretch;
-    position: relative;
-    z-index: 2;
 }
 
 .hero-section__left {
     position: relative !important;
     height: 100%;
-    min-height: 560px;
-    z-index: 10 !important;
+    z-index: 1010 !important;
 }
 
 
@@ -1577,9 +1573,6 @@ html.dark-mode .search-highlight {
     padding: 24px;
     box-shadow: var(--shadow-card);
     margin-bottom: 40px;
-    position: relative;
-    z-index: 1;
-    clear: both;
 }
 
 .feature-item {
@@ -5741,9 +5734,8 @@ html.dark-mode .alert--info a {
 @media (min-width: 1201px) and (max-height: 820px) {
     .hero-section {
         margin-top: 12px;
-        margin-bottom: 30px;
-        min-height: 590px;
-        height: auto;
+        margin-bottom: 16px;
+        height: 480px;
     }
 
     .carousel-slide {

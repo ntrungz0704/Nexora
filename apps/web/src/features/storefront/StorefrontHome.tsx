@@ -37,7 +37,7 @@ export const StorefrontHome: React.FC = () => {
   // 2. Fetch Products
   const { data: productsData } = useQuery({
     queryKey: ['products'],
-    queryFn: () => storefrontService.getProducts({ limit: 20 }),
+    queryFn: () => storefrontService.getProducts({ limit: 120 }),
   });
   const products = productsData?.products || [];
 
