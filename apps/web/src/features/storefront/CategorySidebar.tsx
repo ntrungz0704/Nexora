@@ -308,124 +308,176 @@ const STATIC_MENU_TREE: MenuItemDef[] = [
   },
 ];
 
-interface CategorySidebarProps {
+export interface CategorySidebarProps {
   categories?: CategoryDto[];
+  isStatic?: boolean;
+  onClose?: () => void;
 }
 
-export const CategorySidebar: React.FC<CategorySidebarProps> = () => {
+export const CategorySidebar: React.FC<CategorySidebarProps> = ({ isStatic = true, onClose }) => {
   const [activePanelId, setActivePanelId] = useState<string | null>(null);
 
   const activeCategory = STATIC_MENU_TREE.find((c) => c.id === activePanelId);
 
   return (
-    <section
-      className={`category-dropdown is-static ${activePanelId ? 'has-active-panel' : ''}`}
-      id="categoryStaticMenu"
-      aria-label="Menu danh mục sản phẩm"
-      onMouseLeave={() => setActivePanelId(null)}
-    >
-      <div className="category-dropdown__inner">
-        {/* Sidebar */}
-        <nav className="category-dropdown__sidebar" aria-label="Danh mục chính">
-          {STATIC_MENU_TREE.map((cat) => {
-            const isHovered = activePanelId === cat.id;
-            const hasMega = Boolean(cat.megaColumns && cat.megaColumns.length > 0);
+    <>
+      {!isStatic && (
+        <div
+          className="category-overlay"
+          id="categoryMenuOverlay"
+          style={{ display: 'block', zIndex: 998 }}
+          onClick={onClose}
+        />
+      )}
+      <section
+        className={`category-dropdown ${isStatic ? 'is-static' : 'is-active'} ${activePanelId ? 'has-active-panel' : ''}`}
+        id={isStatic ? 'categoryStaticMenu' : 'categoryMegaDropdown'}
+        aria-label="Menu danh mục sản phẩm"
+        onMouseLeave={() => setActivePanelId(null)}
+        style={!isStatic ? { zIndex: 9999 } : undefined}
+      >
+        <div className="category-dropdown__inner">
+          {!isStatic && onClose && (
+            <button
+              className="category-drawer-close"
+              type="button"
+              onClick={onClose}
+              aria-label="Đóng danh mục"
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'none',
+                border: 'none',
+                fontSize: '20px',
+                color: '#64748B',
+                cursor: 'pointer',
+                zIndex: 10,
+              }}
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          )}
 
-            return (
-              <div
-                key={cat.id}
-                className={`category-sidebar__row ${isHovered ? 'is-active' : ''}`}
-                onMouseEnter={() => {
-                  if (hasMega) {
-                    setActivePanelId(cat.id);
-                  } else {
-                    setActivePanelId(null);
-                  }
-                }}
-              >
-                <div className="category-sidebar__item-wrapper">
-                  <Link to={`/category/${cat.slug}`} className="category-sidebar__item">
-                    <div className="category-sidebar__item-left">
-                      <i className={`${cat.icon} category-icon`} aria-hidden="true"></i>
-                      <span>{cat.name}</span>
-                    </div>
-                    {hasMega && (
-                      <i
-                        className="fa-solid fa-chevron-right category-chevron desktop-only-inline"
-                        aria-hidden="true"
-                      ></i>
-                    )}
+          {/* Sidebar */}
+          <nav className="category-dropdown__sidebar" aria-label="Danh mục chính">
+            {STATIC_MENU_TREE.map((cat) => {
+              const isHovered = activePanelId === cat.id;
+              const hasMega = Boolean(cat.megaColumns && cat.megaColumns.length > 0);
+
+              return (
+                <div
+                  key={cat.id}
+                  className={`category-sidebar__row ${isHovered ? 'is-active' : ''}`}
+                  onMouseEnter={() => {
+                    if (hasMega) {
+                      setActivePanelId(cat.id);
+                    } else {
+                      setActivePanelId(null);
+                    }
+                  }}
+                >
+                  <div className="category-sidebar__item-wrapper">
+                    <Link
+                      to={`/category/${cat.slug}`}
+                      className="category-sidebar__item"
+                      onClick={() => {
+                        if (onClose) onClose();
+                      }}
+                    >
+                      <div className="category-sidebar__item-left">
+                        <i className={`${cat.icon} category-icon`} aria-hidden="true"></i>
+                        <span>{cat.name}</span>
+                      </div>
+                      {hasMega && (
+                        <i
+                          className="fa-solid fa-chevron-right category-chevron desktop-only-inline"
+                          aria-hidden="true"
+                        ></i>
+                      )}
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Desktop Mega Panels Flyout */}
+          {activeCategory && activeCategory.megaColumns && (
+            <div className="category-dropdown__mega">
+              <div className="category-mega__panel is-active">
+                <div className="mega-panel__header">
+                  <span className="mega-panel__group-name">{activeCategory.name}</span>
+                  <Link
+                    to={`/category/${activeCategory.slug}`}
+                    className="mega-panel__view-all"
+                    onClick={() => {
+                      if (onClose) onClose();
+                    }}
+                  >
+                    Xem tất cả {activeCategory.name}{' '}
+                    <i className="fa-solid fa-chevron-right" style={{ fontSize: '11px' }}></i>
                   </Link>
                 </div>
-              </div>
-            );
-          })}
-        </nav>
 
-        {/* Desktop Mega Panels Flyout */}
-        {activeCategory && activeCategory.megaColumns && (
-          <div className="category-dropdown__mega">
-            <div className="category-mega__panel is-active">
-              <div className="mega-panel__header">
-                <span className="mega-panel__group-name">{activeCategory.name}</span>
-                <Link to={`/category/${activeCategory.slug}`} className="mega-panel__view-all">
-                  Xem tất cả {activeCategory.name}{' '}
-                  <i className="fa-solid fa-chevron-right" style={{ fontSize: '11px' }}></i>
-                </Link>
-              </div>
-
-              <div className="mega-panel__inner">
-                {activeCategory.megaColumns.map((col, colIdx) => (
-                  <div key={colIdx} className="mega-panel__column">
-                    <h4 className="mega-panel__title">{col.title}</h4>
-                    <ul className="mega-panel__list">
-                      {col.items.map((item, itemIdx) => (
-                        <li key={itemIdx}>
-                          <Link to={`/search?${item.query}`}>
-                            {item.name}
-                            {item.badge === 'hot' && (
-                              <span
-                                className="mega-badge mega-badge--hot"
-                                style={{
-                                  marginLeft: '6px',
-                                  fontSize: '9px',
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  backgroundColor: '#EF4444',
-                                  color: '#FFFFFF',
-                                  fontWeight: 700,
-                                }}
-                              >
-                                HOT
-                              </span>
-                            )}
-                            {item.badge === 'new' && (
-                              <span
-                                className="mega-badge mega-badge--new"
-                                style={{
-                                  marginLeft: '6px',
-                                  fontSize: '9px',
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  backgroundColor: '#0A5BFF',
-                                  color: '#FFFFFF',
-                                  fontWeight: 700,
-                                }}
-                              >
-                                Mới
-                              </span>
-                            )}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                <div className="mega-panel__inner">
+                  {activeCategory.megaColumns.map((col, colIdx) => (
+                    <div key={colIdx} className="mega-panel__column">
+                      <h4 className="mega-panel__title">{col.title}</h4>
+                      <ul className="mega-panel__list">
+                        {col.items.map((item, itemIdx) => (
+                          <li key={itemIdx}>
+                            <Link
+                              to={`/search?${item.query}`}
+                              onClick={() => {
+                                if (onClose) onClose();
+                              }}
+                            >
+                              {item.name}
+                              {item.badge === 'hot' && (
+                                <span
+                                  className="mega-badge mega-badge--hot"
+                                  style={{
+                                    marginLeft: '6px',
+                                    fontSize: '9px',
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    backgroundColor: '#EF4444',
+                                    color: '#FFFFFF',
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  HOT
+                                </span>
+                              )}
+                              {item.badge === 'new' && (
+                                <span
+                                  className="mega-badge mega-badge--new"
+                                  style={{
+                                    marginLeft: '6px',
+                                    fontSize: '9px',
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    backgroundColor: '#0A5BFF',
+                                    color: '#FFFFFF',
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  Mới
+                                </span>
+                              )}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-    </section>
+          )}
+        </div>
+      </section>
+    </>
   );
 };

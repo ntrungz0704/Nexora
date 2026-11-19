@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { storefrontService } from '../../services/storefrontService';
+import { getProductImage } from '../../lib/productImage';
+import { CategorySidebar } from './CategorySidebar';
 import type { AuthUser, CategoryDto } from '@nexora/shared';
 
 interface StorefrontHeaderProps {
@@ -14,6 +18,24 @@ interface StorefrontHeaderProps {
   isCategoryMenuOpen?: boolean;
 }
 
+function highlightMatch(text: string, query: string) {
+  if (!query) return text;
+  const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === query.toLowerCase() ? (
+          <mark key={i} className="search-highlight">
+            {part}
+          </mark>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
 export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   categories,
   cartCount,
@@ -23,15 +45,78 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   onOpenAuth: _onOpenAuth,
   onLogout,
   onToggleCategoryMenu,
-  isCategoryMenuOpen,
+  isCategoryMenuOpen: controlledCategoryMenuOpen,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const [internalCategoryMenuOpen, setInternalCategoryMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() =>
     typeof document !== 'undefined' ? document.documentElement.classList.contains('dark-mode') : false,
   );
   const navigate = useNavigate();
+  const searchContainerRef = useRef<HTMLFormElement>(null);
+
+  const isCategoryMenuOpen = controlledCategoryMenuOpen ?? internalCategoryMenuOpen;
+
+  // Debounce live search typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery.trim());
+    }, 120);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Live search products query
+  const { data: searchResults, isFetching: isSearching } = useQuery({
+    queryKey: ['live-search', debouncedQuery, selectedCat],
+    queryFn: () => storefrontService.getProducts({ q: debouncedQuery, category: selectedCat, limit: 6 }),
+    enabled: debouncedQuery.length > 0,
+    staleTime: 30 * 1000,
+  });
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close on Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsSearchFocused(false);
+        setInternalCategoryMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleToggleCategoryMenu = () => {
+    if (onToggleCategoryMenu) {
+      onToggleCategoryMenu();
+      return;
+    }
+    const staticMenu = document.getElementById('categoryStaticMenu');
+    if (staticMenu && window.location.pathname === '/') {
+      const rect = staticMenu.getBoundingClientRect();
+      if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+        staticMenu.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        staticMenu.classList.add('is-highlighted');
+        setTimeout(() => staticMenu.classList.remove('is-highlighted'), 1500);
+        return;
+      }
+    }
+    setInternalCategoryMenuOpen((prev) => !prev);
+  };
 
   const toggleTheme = () => {
     const nextDark = !isDarkMode;
@@ -44,6 +129,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim() && !selectedCat) return;
+    setIsSearchFocused(false);
     const params = new URLSearchParams();
     if (searchQuery.trim()) params.set('q', searchQuery.trim());
     if (selectedCat) params.set('cat', selectedCat);
@@ -147,9 +233,9 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
 
             <button
               type="button"
-              className="category-toggle desktop-only-link"
+              className={`category-toggle desktop-only-link ${isCategoryMenuOpen ? 'is-active' : ''}`}
               id="categoryMenuToggle"
-              onClick={onToggleCategoryMenu}
+              onClick={handleToggleCategoryMenu}
               aria-expanded={isCategoryMenuOpen}
             >
               <i className="fa-solid fa-layer-group"></i>
@@ -158,14 +244,24 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             </button>
           </div>
 
-          {/* Search Bar */}
-          <form className="search-bar" onSubmit={handleSearch} id="headerSearchForm">
+          {/* Search Bar with Real-time Live Instant Search */}
+          <form
+            ref={searchContainerRef}
+            className="search-bar"
+            onSubmit={handleSearch}
+            id="headerSearchForm"
+            style={{ position: 'relative' }}
+          >
             <input
               type="text"
               name="q"
               placeholder="Bạn muốn mua gì hôm nay? Đang giảm giá 50%..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setIsSearchFocused(true);
+              }}
+              onFocus={() => setIsSearchFocused(true)}
               autoComplete="off"
             />
             <select
@@ -185,6 +281,88 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             <button type="submit" aria-label="Tìm kiếm">
               <i className="fa-solid fa-magnifying-glass"></i>
             </button>
+
+            {/* Live Search Instant Autocomplete Dropdown */}
+            {isSearchFocused && debouncedQuery.length > 0 && (
+              <div className="search-autocomplete-dropdown" role="listbox">
+                {isSearching ? (
+                  <div className="search-autocomplete-loading">
+                    <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '6px' }}></i>
+                    Đang tìm kiếm sản phẩm cho "<strong>{debouncedQuery}</strong>"...
+                  </div>
+                ) : searchResults && searchResults.products.length > 0 ? (
+                  <>
+                    <div className="search-autocomplete-header">
+                      Gợi ý sản phẩm cho "<strong>{debouncedQuery}</strong>" ({searchResults.total} kết quả)
+                    </div>
+                    <div className="search-autocomplete-list">
+                      {searchResults.products.map((p) => {
+                        const price = Number(p.price);
+                        const salePrice = p.salePrice ? Number(p.salePrice) : null;
+                        const discount = salePrice && price > 0 ? Math.round(((price - salePrice) / price) * 100) : 0;
+                        return (
+                          <Link
+                            key={p.id}
+                            to={`/product/detail/${p.slug}`}
+                            className="search-autocomplete-item"
+                            role="option"
+                            onClick={() => {
+                              setIsSearchFocused(false);
+                              setSearchQuery('');
+                            }}
+                          >
+                            <div className="search-item-thumb">
+                              <img
+                                src={getProductImage(p)}
+                                alt=""
+                                onError={(e) => {
+                                  const t = e.target as HTMLImageElement;
+                                  t.onerror = null;
+                                  t.src = '/assets/images/placeholder.webp';
+                                }}
+                              />
+                            </div>
+                            <div className="search-item-info">
+                              {p.category && <span className="search-item-cat">{p.category.name}</span>}
+                              <div className="search-item-name">{highlightMatch(p.name, debouncedQuery)}</div>
+                              <div className="search-item-price-row">
+                                <span className="search-item-price-new">
+                                  {(salePrice || price).toLocaleString('vi-VN')}đ
+                                </span>
+                                {salePrice && (
+                                  <span className="search-item-price-old">
+                                    {price.toLocaleString('vi-VN')}đ
+                                  </span>
+                                )}
+                                {discount > 0 && (
+                                  <span className="product-badge-discount">-{discount}%</span>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                    <Link
+                      to={`/search?q=${encodeURIComponent(debouncedQuery)}${selectedCat ? `&cat=${encodeURIComponent(selectedCat)}` : ''}`}
+                      className="search-autocomplete-footer"
+                      onClick={() => setIsSearchFocused(false)}
+                    >
+                      <span>Xem tất cả {searchResults.total} sản phẩm</span>
+                      <i className="fa-solid fa-arrow-right"></i>
+                    </Link>
+                  </>
+                ) : (
+                  <div className="search-autocomplete-empty">
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                    <p>
+                      Không tìm thấy sản phẩm phù hợp với "<strong>{debouncedQuery}</strong>"
+                    </p>
+                    <span className="empty-sub">Thử tìm kiếm từ khóa khác như "Laptop", "RTX 4060", "B760"...</span>
+                  </div>
+                )}
+              </div>
+            )}
           </form>
 
           {/* Actions: Wishlist, Cart, User, Theme */}
@@ -456,6 +634,14 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
           </ul>
         </div>
       </nav>
+
+      {/* 4. Category Mega Menu Dropdown */}
+      {isCategoryMenuOpen && (
+        <CategorySidebar
+          isStatic={false}
+          onClose={() => setInternalCategoryMenuOpen(false)}
+        />
+      )}
     </div>
     </>
   );

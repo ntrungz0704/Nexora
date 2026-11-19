@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
@@ -14,20 +14,31 @@ interface BuilderPartCategory {
   key: string;
   name: string;
   icon: string;
-  categorySlug: string;
   wattage: number;
+  isCore?: boolean;
 }
 
-const BUILDER_CATEGORIES: BuilderPartCategory[] = [
-  { key: 'cpu', name: 'Bộ vi xử lý (CPU)', icon: 'fa-solid fa-microchip', categorySlug: 'main-cpu-vga', wattage: 125 },
-  { key: 'mainboard', name: 'Bo mạch chủ (Mainboard)', icon: 'fa-solid fa-chess-board', categorySlug: 'main-cpu-vga', wattage: 50 },
-  { key: 'ram', name: 'Bộ nhớ trong (RAM)', icon: 'fa-solid fa-memory', categorySlug: 'linh-kien-pc', wattage: 15 },
-  { key: 'vga', name: 'Card màn hình rời (VGA)', icon: 'fa-solid fa-ticket', categorySlug: 'main-cpu-vga', wattage: 250 },
-  { key: 'storage', name: 'Ổ cứng SSD / HDD', icon: 'fa-solid fa-hard-drive', categorySlug: 'o-cung', wattage: 10 },
-  { key: 'psu', name: 'Nguồn máy tính (PSU)', icon: 'fa-solid fa-plug', categorySlug: 'case-nguon-tan', wattage: 0 },
-  { key: 'case', name: 'Vỏ máy tính (Case)', icon: 'fa-solid fa-computer', categorySlug: 'case-nguon-tan', wattage: 0 },
-  { key: 'cooling', name: 'Tản nhiệt CPU (Cooler)', icon: 'fa-solid fa-fan', categorySlug: 'case-nguon-tan', wattage: 20 },
+const BUILDER_PARTS: BuilderPartCategory[] = [
+  { key: 'cpu', name: 'Bộ vi xử lý (CPU)', icon: 'fa-solid fa-microchip', wattage: 125, isCore: true },
+  { key: 'mainboard', name: 'Bo mạch chủ (Mainboard)', icon: 'fa-solid fa-clone', wattage: 50, isCore: true },
+  { key: 'ram', name: 'Bộ nhớ trong (RAM)', icon: 'fa-solid fa-server', wattage: 15, isCore: true },
+  { key: 'vga', name: 'Card màn hình (VGA)', icon: 'fa-solid fa-sd-card', wattage: 250, isCore: false },
+  { key: 'storage', name: 'Ổ cứng (SSD/HDD)', icon: 'fa-solid fa-database', wattage: 10, isCore: true },
+  { key: 'psu', name: 'Nguồn máy tính (PSU)', icon: 'fa-solid fa-plug', wattage: 0, isCore: true },
+  { key: 'case', name: 'Vỏ máy tính (Case)', icon: 'fa-solid fa-box', wattage: 0, isCore: true },
+  { key: 'cooler', name: 'Tản nhiệt PC', icon: 'fa-solid fa-fan', wattage: 25, isCore: false },
+  { key: 'monitor', name: 'Màn hình', icon: 'fa-solid fa-tv', wattage: 0, isCore: false },
+  { key: 'mouse', name: 'Chuột', icon: 'fa-solid fa-computer-mouse', wattage: 0, isCore: false },
+  { key: 'keyboard', name: 'Bàn phím', icon: 'fa-solid fa-keyboard', wattage: 0, isCore: false },
+  { key: 'headset', name: 'Tai nghe', icon: 'fa-solid fa-headphones', wattage: 0, isCore: false },
 ];
+
+interface SelectedPartInfo {
+  product: ProductDto | null;
+  isOwned: boolean;
+  name: string;
+  price: number;
+}
 
 export const PcBuilderPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -35,15 +46,26 @@ export const PcBuilderPage: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Selected components map
-  const [selectedParts, setSelectedParts] = useState<Record<string, ProductDto>>({});
-  // Active category being picked in modal
-  const [activePickingCategory, setActivePickingCategory] = useState<BuilderPartCategory | null>(null);
+  // Flow mode: 'build_full' | 'upgrade' | 'prebuilt'
+  const [flowMode, setFlowMode] = useState<'build_full' | 'upgrade' | 'prebuilt'>('build_full');
+
+  // Selected parts dictionary
+  const [config, setConfig] = useState<Record<string, SelectedPartInfo>>(() => {
+    try {
+      const saved = localStorage.getItem('nexora_pc_config');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Modal picking state
+  const [activePart, setActivePart] = useState<BuilderPartCategory | null>(null);
   const [modalSearch, setModalSearch] = useState('');
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   const { data: categories = [] } = useQuery({
@@ -55,7 +77,7 @@ export const PcBuilderPage: React.FC = () => {
     queryKey: ['products'],
     queryFn: () => storefrontService.getProducts({ limit: 120 }),
   });
-  const allProducts = React.useMemo(() => productsData?.products || [], [productsData]);
+  const allProducts = useMemo(() => productsData?.products || [], [productsData]);
 
   const { data: cart } = useQuery({
     queryKey: ['cart'],
@@ -68,62 +90,166 @@ export const PcBuilderPage: React.FC = () => {
     enabled: !!currentUser,
   });
 
-  // Calculate totals
-  const totalAmount = Object.values(selectedParts).reduce((sum, p) => {
-    const pr = p.salePrice ? Number(p.salePrice) : Number(p.price);
-    return sum + pr;
-  }, 0);
+  // Save config to localStorage
+  const saveConfig = (newConfig: Record<string, SelectedPartInfo>) => {
+    setConfig(newConfig);
+    try {
+      localStorage.setItem('nexora_pc_config', JSON.stringify(newConfig));
+    } catch {
+      // ignore
+    }
+  };
 
-  const estimatedWattage = BUILDER_CATEGORIES.reduce((watt, cat) => {
-    return selectedParts[cat.key] ? watt + cat.wattage : watt;
-  }, 100);
-
-  const recommendedPsu = Math.ceil((estimatedWattage * 1.3) / 50) * 50;
-
-  const handleSelectPart = (catKey: string, product: ProductDto) => {
-    setSelectedParts((prev) => ({ ...prev, [catKey]: product }));
-    setActivePickingCategory(null);
+  // Select a product from modal
+  const handleSelectProduct = (product: ProductDto) => {
+    if (!activePart) return;
+    const price = product.salePrice ? Number(product.salePrice) : Number(product.price);
+    const newConfig = {
+      ...config,
+      [activePart.key]: {
+        product,
+        isOwned: false,
+        name: product.name,
+        price,
+      },
+    };
+    saveConfig(newConfig);
+    setActivePart(null);
     setModalSearch('');
     showToast(`Đã chọn "${product.name}" vào cấu hình.`);
   };
 
-  const handleRemovePart = (catKey: string) => {
-    setSelectedParts((prev) => {
-      const next = { ...prev };
-      delete next[catKey];
-      return next;
-    });
-    showToast('Đã bỏ linh kiện khỏi cấu hình.');
+  // Toggle "Đã có sẵn" owned part
+  const handleToggleOwned = (part: BuilderPartCategory) => {
+    const existing = config[part.key];
+    if (existing && existing.isOwned) {
+      const next = { ...config };
+      delete next[part.key];
+      saveConfig(next);
+      showToast(`Đã bỏ ${part.name} khỏi cấu hình.`);
+    } else {
+      const newConfig = {
+        ...config,
+        [part.key]: {
+          product: null,
+          isOwned: true,
+          name: `[Đã có sẵn] ${part.name}`,
+          price: 0,
+        },
+      };
+      saveConfig(newConfig);
+      showToast(`Đã đánh dấu sở hữu sẵn ${part.name}.`);
+    }
   };
 
-  const handleClearAll = () => {
-    setSelectedParts({});
+  // Remove a part
+  const handleRemovePart = (partKey: string) => {
+    const next = { ...config };
+    delete next[partKey];
+    saveConfig(next);
+    showToast('Đã xóa linh kiện khỏi cấu hình.');
+  };
+
+  // Reset all
+  const handleResetConfig = () => {
+    saveConfig({});
     showToast('Đã làm mới cấu hình PC.');
   };
 
-  const handleAddAllToCart = async () => {
-    const parts = Object.values(selectedParts);
-    if (parts.length === 0) {
-      showToast('Vui lòng chọn ít nhất 1 linh kiện trước khi thêm vào giỏ hàng.');
+  // Pre-built PC selection: load parts
+  const handleSelectPrebuilt = (pc: ProductDto) => {
+    const price = pc.salePrice ? Number(pc.salePrice) : Number(pc.price);
+    const newConfig: Record<string, SelectedPartInfo> = {
+      case: {
+        product: pc,
+        isOwned: false,
+        name: pc.name,
+        price,
+      },
+    };
+    saveConfig(newConfig);
+    setFlowMode('build_full');
+    showToast(`Đã chọn bộ "${pc.name}" vào dàn PC!`);
+  };
+
+  // Calculations
+  const partKeys = Object.keys(config);
+  const selectedCount = partKeys.length;
+  const buyItems = partKeys.filter((k) => config[k] && !config[k].isOwned && config[k].product);
+  const ownedItems = partKeys.filter((k) => config[k] && config[k].isOwned);
+
+  const totalPrice = buyItems.reduce((sum, k) => sum + (config[k]?.price || 0), 0);
+
+  // Power PSU estimation
+  const hasCpu = Boolean(config['cpu']);
+  const hasGpu = Boolean(config['vga']);
+
+  const estimatedWattage = useMemo(() => {
+    if (!hasCpu && !hasGpu) return 0;
+    let base = 80; // motherboard, fans, chipset
+    for (const part of BUILDER_PARTS) {
+      if (config[part.key]) {
+        base += part.wattage;
+      }
+    }
+    return base;
+  }, [config, hasCpu, hasGpu]);
+
+  const gpuMinimumWattage = useMemo(() => {
+    if (!hasGpu) return 0;
+    const gpuName = (config['vga']?.name || '').toLowerCase();
+    if (gpuName.includes('4090')) return 850;
+    if (gpuName.includes('4080')) return 750;
+    if (gpuName.includes('4070')) return 650;
+    if (gpuName.includes('4060')) return 550;
+    return 500;
+  }, [config, hasGpu]);
+
+  const recommendedPsuWattage = useMemo(() => {
+    if (!hasCpu && !hasGpu) return 300;
+    const calc = Math.ceil((estimatedWattage * 1.3) / 50) * 50;
+    return Math.max(calc, gpuMinimumWattage, 450);
+  }, [estimatedWattage, gpuMinimumWattage, hasCpu, hasGpu]);
+
+  // Missing core blockers
+  const missingCoreBlockers = useMemo(() => {
+    if (flowMode === 'upgrade') return [];
+    const coreKeys = ['cpu', 'mainboard', 'ram', 'storage', 'psu', 'case'];
+    const missing = coreKeys.filter((k) => !config[k]);
+    if (missing.length === 0) return [];
+    return [
+      `Thiếu linh kiện cốt lõi: ${missing.map((k) => BUILDER_PARTS.find((p) => p.key === k)?.name.toUpperCase().split(' ')[0]).join(', ')}`,
+    ];
+  }, [config, flowMode]);
+
+  // Add all newly bought components to cart
+  const handleAddToCart = async () => {
+    if (buyItems.length === 0) {
+      showToast('Vui lòng chọn ít nhất 1 linh kiện cần mua để thêm vào giỏ hàng.');
       return;
     }
     try {
-      for (const part of parts) {
-        await cartService.addItem(part.id, 1);
+      for (const key of buyItems) {
+        const prod = config[key]?.product;
+        if (prod) {
+          await cartService.addItem(prod.id, 1);
+        }
       }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      showToast(`Đã thêm toàn bộ ${parts.length} linh kiện cấu hình vào giỏ hàng!`);
+      showToast(`Đã thêm ${buyItems.length} linh kiện vào giỏ hàng thành công!`);
       navigate('/cart');
     } catch {
       showToast('Có lỗi xảy ra khi thêm vào giỏ hàng.');
     }
   };
 
-  const filteredModalProducts = React.useMemo(() => {
-    if (!activePickingCategory) return [];
-    const catKey = activePickingCategory.key;
+  // Filtered products for modal picker
+  const filteredModalProducts = useMemo(() => {
+    if (!activePart) return [];
+    const catKey = activePart.key;
+
     return allProducts.filter((p) => {
-      // 1. Text search within modal
+      // 1. Text search
       if (modalSearch.trim()) {
         const q = modalSearch.toLowerCase().trim();
         const matchesName = p.name.toLowerCase().includes(q);
@@ -198,7 +324,7 @@ export const PcBuilderPage: React.FC = () => {
             !nameLower.includes('nguồn') &&
             !nameLower.includes('tản')
           );
-        case 'cooling':
+        case 'cooler':
           return (
             nameLower.includes('tản nhiệt') ||
             nameLower.includes('cooler') ||
@@ -206,11 +332,48 @@ export const PcBuilderPage: React.FC = () => {
             nameLower.includes('deepcool') ||
             nameLower.includes('thermalright')
           );
+        case 'monitor':
+          return (
+            nameLower.includes('màn hình') ||
+            nameLower.includes('monitor') ||
+            catSlug.includes('man-hinh')
+          );
+        case 'mouse':
+          return (
+            nameLower.includes('chuột') ||
+            nameLower.includes('mouse') ||
+            nameLower.includes('superlight')
+          );
+        case 'keyboard':
+          return (
+            nameLower.includes('bàn phím') ||
+            nameLower.includes('keyboard') ||
+            nameLower.includes('mechanical')
+          );
+        case 'headset':
+          return (
+            nameLower.includes('tai nghe') ||
+            nameLower.includes('headphone') ||
+            nameLower.includes('headset') ||
+            nameLower.includes('cloud') ||
+            nameLower.includes('g733')
+          );
         default:
           return true;
       }
     });
-  }, [allProducts, activePickingCategory, modalSearch]);
+  }, [allProducts, activePart, modalSearch]);
+
+  // Pre-built PC products
+  const prebuiltPcs = useMemo(() => {
+    return allProducts.filter(
+      (p) =>
+        p.category?.slug === 'pc-nexora' ||
+        p.name.toLowerCase().includes('pc ') ||
+        p.name.toLowerCase().includes('creator') ||
+        p.name.toLowerCase().includes('workstation'),
+    );
+  }, [allProducts]);
 
   return (
     <div className="pc-builder-page-wrapper" style={{ backgroundColor: 'var(--bg-main, #F8FAFC)', minHeight: '100vh' }}>
@@ -220,7 +383,7 @@ export const PcBuilderPage: React.FC = () => {
             position: 'fixed',
             bottom: '24px',
             right: '24px',
-            zIndex: 9999,
+            zIndex: 99999,
             backgroundColor: '#0A5BFF',
             color: '#FFFFFF',
             padding: '12px 20px',
@@ -233,7 +396,7 @@ export const PcBuilderPage: React.FC = () => {
             fontSize: '13px',
           }}
         >
-          <i className="fa-solid fa-circle-check" style={{ color: '#00C8FF', fontSize: '16px' }}></i>
+          <i className="fa-solid fa-circle-check" style={{ color: '#00C8FF' }}></i>
           <span>{toastMessage}</span>
         </div>
       )}
@@ -250,462 +413,427 @@ export const PcBuilderPage: React.FC = () => {
         }}
       />
 
-      {/* Main Builder Container */}
-      <main className="container" style={{ margin: '30px auto 60px auto', maxWidth: '1280px', padding: '0 16px' }}>
-        {/* Breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary, #64748B)', marginBottom: '24px' }}>
-          <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Trang chủ</Link>
-          <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px' }}></i>
-          <span style={{ color: 'var(--primary, #0A5BFF)', fontWeight: 600 }}>Xây dựng cấu hình PC</span>
+      <div className="pc-builder-container">
+        {/* Header */}
+        <div className="pc-builder-header">
+          <h1>
+            <i className="fa-solid fa-sliders" style={{ marginRight: '8px' }}></i>
+            Xây Dựng Cấu Hình PC & Tự Chọn Linh Kiện
+          </h1>
+          <p>Hệ thống tự động kiểm tra tương thích Socket, RAM, Kích thước Case & Ước tính Nguồn (PSU) chính xác 100%</p>
         </div>
 
-        {/* Hero Header */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #0A5BFF 0%, #1E40AF 100%)',
-            borderRadius: '20px',
-            padding: '36px 40px',
-            color: '#FFFFFF',
-            marginBottom: '32px',
-            boxShadow: '0 10px 25px rgba(10, 91, 255, 0.15)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '20px',
-          }}
-        >
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.2)', padding: '6px 14px', borderRadius: '30px', fontSize: '12px', fontWeight: 700, marginBottom: '12px' }}>
-              <i className="fa-solid fa-screwdriver-wrench"></i>
-              <span>PC BUILDER 2.0</span>
-            </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0' }}>Xây Dựng Cấu Hình PC Chuyên Nghiệp</h1>
-            <p style={{ margin: 0, opacity: 0.9, fontSize: '14px', maxWidth: '600px' }}>
-              Tự tay chọn linh kiện máy tính phù hợp ngân sách và hiệu năng. Hệ thống tự động tính toán điện năng và kiểm tra tương thích.
-            </p>
+        {/* 3 Flow Selector Banner */}
+        <div className="tp-flow-banner">
+          <div style={{ fontWeight: 700, color: '#1E293B', marginBottom: '10px', fontSize: '14.5px' }}>
+            <i className="fa-solid fa-route" style={{ color: '#0B63E5', marginRight: '6px' }}></i>
+            Bạn đang muốn xây dựng cấu hình thế nào?
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             <button
               type="button"
-              onClick={handleClearAll}
-              style={{
-                background: 'rgba(255,255,255,0.15)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.3)',
-                padding: '10px 20px',
-                borderRadius: '10px',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
+              className={`btn-flow-tab ${flowMode === 'build_full' ? 'active' : ''}`}
+              onClick={() => setFlowMode('build_full')}
             >
-              <i className="fa-solid fa-arrow-rotate-right"></i> Làm mới
+              <i className="fa-solid fa-desktop"></i> Build máy mới hoàn chỉnh
             </button>
             <button
               type="button"
-              onClick={() => window.print()}
-              style={{
-                background: '#FFFFFF',
-                color: '#0A5BFF',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: '10px',
-                fontWeight: 700,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              }}
+              className={`btn-flow-tab ${flowMode === 'upgrade' ? 'active' : ''}`}
+              onClick={() => setFlowMode('upgrade')}
             >
-              <i className="fa-solid fa-print"></i> In / Xuất Báo Giá
+              <i className="fa-solid fa-wrench"></i> Nâng cấp máy đang có / Đã có sẵn linh kiện
+            </button>
+            <button
+              type="button"
+              className={`btn-flow-tab ${flowMode === 'prebuilt' ? 'active' : ''}`}
+              onClick={() => setFlowMode('prebuilt')}
+            >
+              <i className="fa-solid fa-box-open"></i> Chọn PC lắp sẵn TechPilot
             </button>
           </div>
         </div>
 
-        {/* 2-Column Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '30px', alignItems: 'start' }}>
-          {/* Left Column: Components List */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {BUILDER_CATEGORIES.map((cat, idx) => {
-              const selected = selectedParts[cat.key];
-              const price = selected ? (selected.salePrice ? Number(selected.salePrice) : Number(selected.price)) : 0;
-              return (
-                <div
-                  key={cat.key}
-                  style={{
-                    backgroundColor: 'var(--surface-card, #FFFFFF)',
-                    border: selected ? '1.5px solid #0A5BFF' : '1px solid var(--border, #E2E8F0)',
-                    borderRadius: '16px',
-                    padding: '20px 24px',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '20px',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {/* Left: Category Info */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: '0 0 220px' }}>
-                    <div
-                      style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '12px',
-                        backgroundColor: selected ? '#EFF6FF' : '#F1F5F9',
-                        color: selected ? '#0A5BFF' : '#64748B',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '18px',
-                      }}
-                    >
-                      <i className={cat.icon}></i>
+        {/* TAB 1 & 2: PC Builder List & Summary */}
+        {flowMode !== 'prebuilt' ? (
+          <div className="pc-builder-layout">
+            {/* Left: 12 Components List */}
+            <main className="pc-builder-list">
+              {BUILDER_PARTS.map((part) => {
+                const selected = config[part.key];
+                return (
+                  <div key={part.key} className="pc-builder-row">
+                    <div className="pc-builder-icon">
+                      <i className={part.icon}></i>
                     </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>
-                        Linh kiện {idx + 1}
-                      </div>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
-                        {cat.name}
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Middle: Selected Part or Empty */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {selected ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                        <img
-                          src={getProductImage(selected)}
-                          alt={selected.name}
-                          style={{ width: '50px', height: '50px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #E2E8F0', padding: '4px' }}
-                        />
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <Link
-                            to={`/product/detail/${selected.slug}`}
-                            style={{
-                              fontSize: '13.5px',
-                              fontWeight: 600,
-                              color: 'var(--text-primary, #0F172A)',
-                              textDecoration: 'none',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 1,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
+                    <div className="pc-builder-part-name">
+                      {part.name}
+                    </div>
+
+                    <div className="pc-builder-selected-info">
+                      {selected ? (
+                        <>
+                          {selected.product && (
+                            <img
+                              src={getProductImage(selected.product)}
+                              alt={selected.name}
+                              className="pc-builder-selected-img"
+                              onError={(e) => {
+                                const t = e.target as HTMLImageElement;
+                                t.onerror = null;
+                                t.src = '/assets/images/placeholder.webp';
+                              }}
+                            />
+                          )}
+                          <div className="pc-builder-selected-details">
+                            <span className="pc-builder-selected-title" title={selected.name}>
+                              {selected.name}
+                            </span>
+                            {selected.isOwned ? (
+                              <span style={{ fontSize: '12px', fontWeight: 700, color: '#059669' }}>
+                                <i className="fa-solid fa-circle-check"></i> Đã sở hữu
+                              </span>
+                            ) : (
+                              <span className="pc-builder-selected-price">
+                                {selected.price.toLocaleString('vi-VN')}đ
+                              </span>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <span className="pc-builder-placeholder">Chưa chọn linh kiện</span>
+                      )}
+                    </div>
+
+                    <div className="pc-builder-actions">
+                      {selected ? (
+                        <>
+                          <button
+                            type="button"
+                            className="btn-change-part"
+                            onClick={() => {
+                              setActivePart(part);
+                              setModalSearch('');
                             }}
                           >
-                            {selected.name}
-                          </Link>
-                          <div style={{ fontSize: '14px', fontWeight: 800, color: '#EF4444', marginTop: '2px' }}>
-                            {price.toLocaleString('vi-VN')}đ
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: '13px', color: '#94A3B8', fontStyle: 'italic' }}>
-                        Chưa chọn sản phẩm
-                      </div>
-                    )}
+                            Đổi
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-remove-part"
+                            onClick={() => handleRemovePart(part.key)}
+                            title="Xóa linh kiện"
+                          >
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="btn-select-part"
+                            onClick={() => {
+                              setActivePart(part);
+                              setModalSearch('');
+                            }}
+                          >
+                            <i className="fa-solid fa-plus"></i> Chọn mua
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-owned-part"
+                            onClick={() => handleToggleOwned(part)}
+                            title="Khai báo bạn đã sở hữu linh kiện này"
+                          >
+                            <i className="fa-solid fa-check"></i> Đã có
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
+                );
+              })}
+            </main>
 
-                  {/* Right: Actions */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {selected ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setActivePickingCategory(cat)}
-                          style={{
-                            padding: '8px 14px',
-                            borderRadius: '8px',
-                            border: '1px solid #E2E8F0',
-                            background: '#F8FAFC',
-                            color: '#334155',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Đổi
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemovePart(cat.key)}
-                          style={{
-                            width: '34px',
-                            height: '34px',
-                            borderRadius: '8px',
-                            border: '1px solid #FEE2E2',
-                            background: '#FEF2F2',
-                            color: '#EF4444',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                          }}
-                          title="Xóa linh kiện"
-                        >
-                          <i className="fa-solid fa-trash-can" style={{ fontSize: '13px' }}></i>
-                        </button>
-                      </>
-                    ) : (
+            {/* Right: Summary & PSU Estimation */}
+            <aside style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* PSU Analysis Card */}
+              <div className="pc-builder-summary-card">
+                <div className="pc-builder-summary-title">
+                  <span>
+                    <i className="fa-solid fa-bolt" style={{ color: '#EAB308', marginRight: '6px' }}></i>
+                    Ước tính công suất Nguồn
+                  </span>
+                </div>
+
+                {!hasCpu && !hasGpu ? (
+                  <div style={{ fontSize: '13px', color: 'var(--text-secondary, #64748B)', textAlign: 'center', padding: '16px 0' }}>
+                    Vui lòng chọn CPU hoặc VGA để hệ thống bắt đầu tính toán công suất nguồn phù hợp.
+                  </div>
+                ) : (
+                  <div>
+                    <div className="pc-builder-summary-row">
+                      <span>Công suất tải đỉnh ước tính:</span>
+                      <strong style={{ color: '#0B63E5' }}>{estimatedWattage}W</strong>
+                    </div>
+                    <div className="pc-builder-summary-row">
+                      <span>Tối thiểu do VGA đề xuất:</span>
+                      <strong>{gpuMinimumWattage > 0 ? `${gpuMinimumWattage}W` : '(Chưa chọn VGA)'}</strong>
+                    </div>
+                    <div
+                      className="pc-builder-summary-row"
+                      style={{ marginTop: '8px', borderTop: '1px dashed #E2E8F0', paddingTop: '8px' }}
+                    >
+                      <span style={{ fontWeight: 600 }}>Nguồn khuyến nghị:</span>
+                      <strong style={{ color: '#EF4444', fontSize: '16px' }}>{recommendedPsuWattage}W</strong>
+                    </div>
+                    <div className="pc-builder-summary-row" style={{ marginTop: '6px' }}>
+                      <span>Trạng thái nguồn:</span>
+                      <span
+                        style={{
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          background: config['psu'] ? '#D1FAE5' : '#FEF3C7',
+                          color: config['psu'] ? '#059669' : '#D97706',
+                        }}
+                      >
+                        {config['psu'] ? 'Đã trang bị nguồn' : 'Chưa chọn Nguồn'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94A3B8', fontStyle: 'italic', marginTop: '8px', textAlign: 'right' }}>
+                      * Đã bao gồm 30% dự phòng công suất an toàn.
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Build Summary Card */}
+              <div className="pc-builder-summary-card">
+                <div className="pc-builder-summary-title">
+                  <span>Tóm tắt cấu hình</span>
+                  <i className="fa-solid fa-desktop" style={{ color: '#0B63E5' }}></i>
+                </div>
+
+                <div className="pc-builder-summary-row">
+                  <span>Linh kiện trong cấu hình:</span>
+                  <strong style={{ color: 'var(--text-primary, #0F172A)' }}>{selectedCount}</strong>
+                </div>
+
+                <div className="pc-builder-summary-row">
+                  <span>Mua mới / Đã có sẵn:</span>
+                  <span>
+                    <strong style={{ color: '#0B63E5' }}>{buyItems.length}</strong> mua /{' '}
+                    <strong style={{ color: '#059669' }}>{ownedItems.length}</strong> sẵn
+                  </span>
+                </div>
+
+                {/* Compatibility Alerts */}
+                {missingCoreBlockers.length > 0 && (
+                  <div style={{ marginTop: '14px', fontSize: '12px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary, #0F172A)' }}>
+                      Kiểm tra tương thích:
+                    </div>
+                    <div
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        backgroundColor: '#FEF2F2',
+                        border: '1px solid #FCA5A5',
+                        color: '#DC2626',
+                        fontWeight: 600,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '6px' }}></i>
+                      {missingCoreBlockers[0]}
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ borderTop: '1px solid var(--border, #E2E8F0)', margin: '16px 0' }}></div>
+
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary, #64748B)', textAlign: 'right' }}>
+                  Tổng giá tiền cần thanh toán:
+                </div>
+                <div className="pc-builder-total-price">
+                  {totalPrice.toLocaleString('vi-VN')}đ
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-add-config-to-cart"
+                  onClick={handleAddToCart}
+                  disabled={buyItems.length === 0}
+                >
+                  <i className="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-reset-config"
+                  onClick={handleResetConfig}
+                >
+                  <i className="fa-solid fa-trash-can" style={{ marginRight: '4px' }}></i> Xóa hết cấu hình
+                </button>
+              </div>
+            </aside>
+          </div>
+        ) : (
+          /* TAB 3: Pre-built PCs Grid */
+          <div>
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary, #0F172A)', margin: '0 0 6px 0' }}>
+                📦 Danh Sách Bộ PC Lắp Sẵn Tối Ưu Bởi TechPilot
+              </h3>
+              <p style={{ color: 'var(--text-secondary, #64748B)', fontSize: '14.5px', margin: 0 }}>
+                Đã được các chuyên gia TechPilot lắp ráp và test độ ổn định. Mua nguyên bộ hoặc tùy chỉnh theo ý bạn!
+              </p>
+            </div>
+
+            <div className="prebuilt-grid">
+              {prebuiltPcs.map((pc) => {
+                const price = pc.salePrice ? Number(pc.salePrice) : Number(pc.price);
+                return (
+                  <div key={pc.id} className="prebuilt-card">
+                    <div>
+                      <img
+                        src={getProductImage(pc)}
+                        alt={pc.name}
+                        className="prebuilt-img"
+                        onError={(e) => {
+                          const t = e.target as HTMLImageElement;
+                          t.onerror = null;
+                          t.src = '/assets/images/placeholder.webp';
+                        }}
+                      />
+                      <h4 style={{ fontSize: '15px', fontWeight: 700, margin: '0 0 8px 0', color: 'var(--text-primary, #0F172A)' }}>
+                        {pc.name}
+                      </h4>
+                      {pc.specs && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
+                          {Object.entries(pc.specs).slice(0, 3).map(([k, v]) => (
+                            <div key={k}>
+                              <span style={{ fontWeight: 600 }}>{k}:</span> {String(v)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#EF4444', marginBottom: '12px' }}>
+                        {price.toLocaleString('vi-VN')}đ
+                      </div>
                       <button
                         type="button"
-                        onClick={() => setActivePickingCategory(cat)}
-                        style={{
-                          padding: '9px 18px',
-                          borderRadius: '10px',
-                          border: 'none',
-                          backgroundColor: '#0A5BFF',
-                          color: '#FFFFFF',
-                          fontSize: '12.5px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          boxShadow: '0 4px 12px rgba(10, 91, 255, 0.2)',
-                        }}
+                        className="btn-select-part"
+                        style={{ width: '100%', justifyContent: 'center' }}
+                        onClick={() => handleSelectPrebuilt(pc)}
                       >
-                        <i className="fa-solid fa-plus"></i> Chọn linh kiện
+                        <i className="fa-solid fa-check"></i> Chọn cấu hình này
                       </button>
-                    )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Right Column: Sticky Summary Box */}
-          <div
-            style={{
-              position: 'sticky',
-              top: '90px',
-              backgroundColor: 'var(--surface-card, #FFFFFF)',
-              border: '1px solid var(--border, #E2E8F0)',
-              borderRadius: '20px',
-              padding: '28px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
-            }}
-          >
-            <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 20px 0', color: 'var(--text-primary, #0F172A)' }}>
-              Tóm Tắt Cấu Hình
-            </h3>
-
-            {/* Spec Highlights */}
-            <div style={{ backgroundColor: '#F8FAFC', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px' }}>
-                <span style={{ color: '#64748B' }}>Số linh kiện đã chọn:</span>
-                <strong style={{ color: '#0F172A' }}>{Object.keys(selectedParts).length} / {BUILDER_CATEGORIES.length}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px' }}>
-                <span style={{ color: '#64748B' }}>Công suất tiêu thụ ước tính:</span>
-                <strong style={{ color: '#3B82F6' }}>~{estimatedWattage} W</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                <span style={{ color: '#64748B' }}>Khuyến nghị nguồn (PSU):</span>
-                <strong style={{ color: '#10B981' }}>{recommendedPsu} W+</strong>
-              </div>
-            </div>
-
-            {/* Total Price */}
-            <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '18px', marginBottom: '24px' }}>
-              <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>
-                Tổng Chi Phí Ước Tính:
-              </div>
-              <div style={{ fontSize: '26px', fontWeight: 900, color: '#EF4444' }}>
-                {totalAmount.toLocaleString('vi-VN')}đ
-              </div>
-              <small style={{ color: '#94A3B8', fontSize: '11px' }}>Đã bao gồm 10% VAT & Hỗ trợ lắp ráp miễn phí</small>
-            </div>
-
-            {/* Actions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button
-                type="button"
-                onClick={handleAddAllToCart}
-                disabled={Object.keys(selectedParts).length === 0}
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  backgroundColor: Object.keys(selectedParts).length > 0 ? '#0A5BFF' : '#CBD5E1',
-                  color: '#FFFFFF',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: Object.keys(selectedParts).length > 0 ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: Object.keys(selectedParts).length > 0 ? '0 6px 20px rgba(10, 91, 255, 0.3)' : 'none',
-                }}
-              >
-                <i className="fa-solid fa-cart-plus"></i> Thêm Tất Cả Vào Giỏ Hàng
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigate('/checkout')}
-                disabled={Object.keys(selectedParts).length === 0}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '12px',
-                  border: '1.5px solid #0A5BFF',
-                  backgroundColor: 'transparent',
-                  color: '#0A5BFF',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  cursor: Object.keys(selectedParts).length > 0 ? 'pointer' : 'not-allowed',
-                }}
-              >
-                Đặt Mua Ngay
-              </button>
+                );
+              })}
             </div>
           </div>
-        </div>
-      </main>
+        )}
+      </div>
 
-      {/* Part Picker Modal */}
-      {activePickingCategory && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: '20px',
-              maxWidth: '850px',
-              width: '100%',
-              maxHeight: '85vh',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
-              overflow: 'hidden',
-            }}
-          >
-            {/* Modal Header */}
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0F172A' }}>
-                  Chọn {activePickingCategory.name}
-                </h3>
-                <p style={{ margin: '4px 0 0 0', fontSize: '12.5px', color: '#64748B' }}>
-                  Danh sách sản phẩm chính hãng sẵn sàng lắp đặt
-                </p>
-              </div>
+      {/* Modal Chọn Linh Kiện */}
+      {activePart && (
+        <div className="pc-modal-backdrop" onClick={() => setActivePart(null)}>
+          <div className="pc-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="pc-modal-header">
+              <h4 className="pc-modal-title">
+                Chọn {activePart.name}
+              </h4>
               <button
                 type="button"
-                onClick={() => { setActivePickingCategory(null); setModalSearch(''); }}
-                style={{ background: 'none', border: 'none', fontSize: '20px', color: '#94A3B8', cursor: 'pointer' }}
+                className="pc-modal-close"
+                onClick={() => setActivePart(null)}
               >
-                <i className="fa-solid fa-xmark"></i>
+                &times;
               </button>
             </div>
 
-            {/* Modal Search */}
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid #F1F5F9', backgroundColor: '#F8FAFC' }}>
-              <input
-                type="text"
-                placeholder="Tìm linh kiện theo tên, mã sản phẩm, thương hiệu..."
-                value={modalSearch}
-                onChange={(e) => setModalSearch(e.target.value)}
+            <div className="pc-modal-body">
+              {/* Compatibility Notice */}
+              <div
                 style={{
-                  width: '100%',
-                  padding: '10px 16px',
-                  borderRadius: '10px',
-                  border: '1px solid #CBD5E1',
-                  fontSize: '13px',
-                  outline: 'none',
+                  padding: '10px 14px',
+                  backgroundColor: '#EFF6FF',
+                  borderLeft: '4px solid #3B82F6',
+                  color: '#1E3A8A',
+                  fontSize: '12.5px',
+                  borderRadius: '4px',
+                  fontWeight: 600,
                 }}
-              />
-            </div>
+              >
+                <i className="fa-solid fa-circle-info" style={{ marginRight: '6px' }}></i>
+                Tự động hiển thị linh kiện tương thích với dàn PC của bạn.
+              </div>
 
-            {/* Modal Products List */}
-            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
-              {filteredModalProducts.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748B' }}>
-                  <i className="fa-solid fa-box-open" style={{ fontSize: '36px', color: '#CBD5E1', marginBottom: '12px', display: 'block' }}></i>
-                  <p style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Không tìm thấy linh kiện phù hợp cho mục này</p>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94A3B8' }}>Thử xóa từ khóa tìm kiếm để xem tất cả linh kiện</p>
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-                  {filteredModalProducts.map((p) => {
-                    const pr = p.salePrice ? Number(p.salePrice) : Number(p.price);
+              {/* Search Box */}
+              <div className="pc-search-box">
+                <i className="fa-solid fa-magnifying-glass"></i>
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm sản phẩm theo tên, thương hiệu..."
+                  value={modalSearch}
+                  onChange={(e) => setModalSearch(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              {/* Products List Container */}
+              <div className="pc-modal-products-list">
+                {filteredModalProducts.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748B' }}>
+                    <i className="fa-solid fa-box-open" style={{ fontSize: '36px', color: '#CBD5E1', marginBottom: '10px', display: 'block' }}></i>
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Không tìm thấy linh kiện phù hợp</p>
+                    <span style={{ fontSize: '12px', color: '#94A3B8' }}>Thử xóa từ khóa tìm kiếm để xem tất cả linh kiện</span>
+                  </div>
+                ) : (
+                  filteredModalProducts.map((p) => {
+                    const price = p.salePrice ? Number(p.salePrice) : Number(p.price);
                     return (
-                      <div
-                        key={p.id}
-                        style={{
-                          border: '1px solid #E2E8F0',
-                          borderRadius: '12px',
-                          padding: '14px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          transition: 'border-color 0.2s ease',
-                        }}
-                      >
-                        <div>
-                          <img
-                            src={getProductImage(p)}
-                            alt={p.name}
-                            onError={(e) => {
-                              const t = e.target as HTMLImageElement;
-                              t.onerror = null;
-                              t.src = '/assets/images/placeholder.webp';
-                            }}
-                            style={{ width: '100%', height: '120px', objectFit: 'contain', marginBottom: '10px' }}
-                          />
-                          <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#0F172A', marginBottom: '6px', height: '36px', overflow: 'hidden' }}>
-                            {p.name}
-                          </div>
-                          <div style={{ fontSize: '14px', fontWeight: 800, color: '#EF4444' }}>
-                            {pr.toLocaleString('vi-VN')}đ
-                          </div>
+                      <div key={p.id} className="pc-modal-item">
+                        <img
+                          src={getProductImage(p)}
+                          alt={p.name}
+                          className="pc-modal-item-img"
+                          onError={(e) => {
+                            const t = e.target as HTMLImageElement;
+                            t.onerror = null;
+                            t.src = '/assets/images/placeholder.webp';
+                          }}
+                        />
+                        <div className="pc-modal-item-name">
+                          <span>{p.name}</span>
+                          <span className="pc-builder-compatibility-badge">
+                            <i className="fa-solid fa-circle-check"></i> Sẵn sàng lắp ráp
+                          </span>
+                        </div>
+                        <div className="pc-modal-item-price">
+                          {price.toLocaleString('vi-VN')}đ
                         </div>
                         <button
                           type="button"
-                          onClick={() => handleSelectPart(activePickingCategory.key, p)}
-                          style={{
-                            marginTop: '12px',
-                            width: '100%',
-                            padding: '8px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            backgroundColor: '#0A5BFF',
-                            color: '#FFFFFF',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                          }}
+                          className="btn-choose-item"
+                          onClick={() => handleSelectProduct(p)}
                         >
-                          Chọn vào dàn PC
+                          Chọn
                         </button>
                       </div>
                     );
-                  })}
-                </div>
-              )}
+                  })
+                )}
+              </div>
             </div>
           </div>
         </div>

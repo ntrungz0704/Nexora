@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
@@ -10,7 +10,63 @@ import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser, ProductDto } from '@nexora/shared';
 
-const BRANDS = ['ASUS', 'ACER', 'MSI', 'LENOVO', 'LG', 'SAMSUNG', 'INTEL', 'LOGITECH'];
+const BRANDS = ['ASUS', 'ACER', 'MSI', 'LENOVO', 'LG', 'SAMSUNG', 'INTEL', 'AMD', 'LOGITECH', 'CORSAIR', 'GIGABYTE'];
+
+const PRICE_RANGES = [
+  { id: 'all', label: 'Tất cả mức giá', min: 0, max: 0 },
+  { id: 'under-15m', label: 'Dưới 15 triệu', min: 0, max: 15000000 },
+  { id: '15-25m', label: 'Từ 15 đến 25 triệu', min: 15000000, max: 25000000 },
+  { id: 'over-25m', label: 'Trên 25 triệu', min: 25000000, max: 0 },
+];
+
+interface SubcategoryDef {
+  key: string;
+  name: string;
+  query: string;
+}
+
+const CATEGORY_SUBGROUPS: Record<string, SubcategoryDef[]> = {
+  'linh-kien-pc': [
+    { key: 'mainboard', name: 'MAINBOARD', query: 'mainboard' },
+    { key: 'cpu', name: 'CPU', query: 'cpu' },
+    { key: 'vga', name: 'VGA', query: 'vga' },
+    { key: 'ram', name: 'RAM', query: 'ram' },
+    { key: 'storage', name: 'Ổ CỨNG', query: 'ssd' },
+    { key: 'case', name: 'CASE', query: 'case' },
+    { key: 'cooling', name: 'TẢN NHIỆT', query: 'tan-nhiet' },
+    { key: 'psu', name: 'NGUỒN', query: 'nguon' },
+  ],
+  'main-cpu-vga': [
+    { key: 'mainboard', name: 'MAINBOARD', query: 'mainboard' },
+    { key: 'cpu', name: 'CPU', query: 'cpu' },
+    { key: 'vga', name: 'VGA', query: 'vga' },
+    { key: 'ram', name: 'RAM', query: 'ram' },
+    { key: 'storage', name: 'Ổ CỨNG', query: 'ssd' },
+    { key: 'case', name: 'CASE', query: 'case' },
+    { key: 'cooling', name: 'TẢN NHIỆT', query: 'tan-nhiet' },
+    { key: 'psu', name: 'NGUỒN', query: 'nguon' },
+  ],
+  'laptop': [
+    { key: 'gaming', name: 'LAPTOP GAMING', query: 'gaming' },
+    { key: 'office', name: 'LAPTOP VĂN PHÒNG', query: 'van-phong' },
+    { key: 'macbook', name: 'MACBOOK', query: 'macbook' },
+  ],
+  'pc-nexora': [
+    { key: 'gaming', name: 'PC GAMING', query: 'gaming' },
+    { key: 'creator', name: 'PC ĐỒ HỌA', query: 'creator' },
+    { key: 'office', name: 'PC VĂN PHÒNG', query: 'van-phong' },
+  ],
+  'gaming-gear': [
+    { key: 'keyboard', name: 'BÀN PHÍM', query: 'ban-phim' },
+    { key: 'mouse', name: 'CHUỘT', query: 'chuot' },
+    { key: 'headset', name: 'TAI NGHE', query: 'tai-nghe' },
+  ],
+  'thiet-bi-van-phong': [
+    { key: 'printer', name: 'MÁY IN', query: 'may-in' },
+    { key: 'ink', name: 'MỰC IN', query: 'muc-in' },
+    { key: 'scanner', name: 'MÁY QUÉT', query: 'scanner' },
+  ],
+};
 
 function removeVietnameseTones(str: string): string {
   return str
@@ -31,13 +87,39 @@ export const SearchPage: React.FC = () => {
   const queryCat = slug || searchParams.get('cat') || '';
   const queryPromo = searchParams.get('promo') === '1';
 
+  const [userKeyword, setUserKeyword] = useState<string | null>(null);
+  const keywordInput = userKeyword !== null ? userKeyword : queryQ;
+
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'newest'>('featured');
+  const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'title-asc' | 'title-desc'>('newest');
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [userPromoOnly, setUserPromoOnly] = useState<boolean | null>(null);
+  const promoOnly = userPromoOnly !== null ? userPromoOnly : queryPromo;
+  const [activeSubgroup, setActiveSubgroup] = useState<string>('');
+
+  // Dropdown states for filter chips
+  const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false);
+  const [isBrandDropdownOpen, setIsBrandDropdownOpen] = useState(false);
+  const priceDropdownRef = useRef<HTMLDivElement>(null);
+  const brandDropdownRef = useRef<HTMLDivElement>(null);
 
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Close filter dropdowns on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (priceDropdownRef.current && !priceDropdownRef.current.contains(e.target as Node)) {
+        setIsPriceDropdownOpen(false);
+      }
+      if (brandDropdownRef.current && !brandDropdownRef.current.contains(e.target as Node)) {
+        setIsBrandDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -74,6 +156,29 @@ export const SearchPage: React.FC = () => {
     },
   });
 
+  // Determine active category object
+  const activeCategory = useMemo(() => {
+    if (!queryCat || queryCat === 'all') return null;
+    const clean = queryCat.toLowerCase().replace(/\s+/g, '-');
+    const norm = removeVietnameseTones(queryCat.replace(/-/g, ' '));
+    return categories.find((c) => {
+      const cNorm = removeVietnameseTones(c.name);
+      return c.slug === clean || c.slug === queryCat || cNorm === norm;
+    });
+  }, [categories, queryCat]);
+
+  // Subgroups list for this category
+  const subcategoryList: SubcategoryDef[] = useMemo(() => {
+    const catSlug = queryCat.toLowerCase();
+    if (CATEGORY_SUBGROUPS[catSlug]) return CATEGORY_SUBGROUPS[catSlug]!;
+    if (catSlug.includes('linh-kien') || catSlug.includes('main')) return CATEGORY_SUBGROUPS['linh-kien-pc']!;
+    if (catSlug.includes('laptop')) return CATEGORY_SUBGROUPS['laptop']!;
+    if (catSlug.includes('pc')) return CATEGORY_SUBGROUPS['pc-nexora']!;
+    if (catSlug.includes('van-phong') || catSlug.includes('thiet-bi')) return CATEGORY_SUBGROUPS['thiet-bi-van-phong']!;
+    if (catSlug.includes('gear') || catSlug.includes('phim') || catSlug.includes('chuot')) return CATEGORY_SUBGROUPS['gaming-gear']!;
+    return CATEGORY_SUBGROUPS['linh-kien-pc']!;
+  }, [queryCat]);
+
   // Filter products logic
   const filteredProducts = useMemo(() => {
     return allProducts.filter((product) => {
@@ -104,7 +209,7 @@ export const SearchPage: React.FC = () => {
           (catSlug.includes('main') || catSlug.includes('case') || catSlug.includes('cung') || pNameNorm.includes('rtx') || pNameNorm.includes('core') || pNameNorm.includes('ryzen') || pNameNorm.includes('ssd'));
 
         const isPcBuild =
-          (queryNorm.includes('pc build') || queryNorm.includes('may tinh bo') || queryNorm === 'pc') &&
+          (queryNorm.includes('pc build') || queryNorm.includes('may tinh bo') || queryNorm === 'pc' || queryNorm === 'pc-nexora') &&
           (catSlug.includes('pc') || pNameNorm.includes('pc gaming') || pNameNorm.includes('workstation'));
 
         const matchesCat =
@@ -125,7 +230,19 @@ export const SearchPage: React.FC = () => {
         }
       }
 
-      // 2. Query text filter
+      // 2. Subcategory filter
+      if (activeSubgroup) {
+        const subDef = subcategoryList.find((s) => s.key === activeSubgroup);
+        if (subDef) {
+          const qSub = subDef.query.toLowerCase();
+          const pNameLower = product.name.toLowerCase();
+          const pCatSlug = (product.category?.slug || '').toLowerCase();
+          const matchesSub = pNameLower.includes(qSub) || pCatSlug.includes(qSub);
+          if (!matchesSub) return false;
+        }
+      }
+
+      // 3. Query text filter
       if (queryQ.trim()) {
         const q = queryQ.toLowerCase().trim();
         const matchesName = product.name.toLowerCase().includes(q);
@@ -133,26 +250,27 @@ export const SearchPage: React.FC = () => {
         if (!matchesName && !matchesCat) return false;
       }
 
-      // 3. Promo filter
-      if (queryPromo) {
+      // 4. Promo filter
+      if (promoOnly) {
         const p = Number(product.price);
         const sp = product.salePrice ? Number(product.salePrice) : null;
         if (!sp || sp >= p) return false;
       }
 
-      // 4. In stock filter
+      // 5. In stock filter
       if (inStockOnly && product.stockQuantity <= 0) {
         return false;
       }
 
-      // 5. Brand filter
+      // 6. Brand filter
       if (selectedBrands.length > 0) {
         const pName = product.name.toUpperCase();
-        const matchesBrand = selectedBrands.some((b) => pName.includes(b));
+        const bName = (product.brand?.name || '').toUpperCase();
+        const matchesBrand = selectedBrands.some((b) => pName.includes(b) || bName.includes(b));
         if (!matchesBrand) return false;
       }
 
-      // 6. Price range
+      // 7. Price range filter
       const curPrice = product.salePrice ? Number(product.salePrice) : Number(product.price);
       if (priceRange === 'under-15m' && curPrice >= 15000000) return false;
       if (priceRange === '15-25m' && (curPrice < 15000000 || curPrice > 25000000)) return false;
@@ -164,37 +282,65 @@ export const SearchPage: React.FC = () => {
       const pB = b.salePrice ? Number(b.salePrice) : Number(b.price);
       if (sortBy === 'price-asc') return pA - pB;
       if (sortBy === 'price-desc') return pB - pA;
-      if (sortBy === 'newest') return b.id - a.id;
-      return 0;
+      if (sortBy === 'title-asc') return a.name.localeCompare(b.name, 'vi');
+      if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
+      return b.id - a.id; // newest
     });
-  }, [allProducts, queryCat, queryQ, queryPromo, selectedBrands, priceRange, inStockOnly, sortBy]);
+  }, [allProducts, queryCat, activeSubgroup, subcategoryList, queryQ, promoOnly, inStockOnly, selectedBrands, priceRange, sortBy]);
 
-  const toggleBrand = (b: string) => {
-    setSelectedBrands((prev) =>
-      prev.includes(b) ? prev.filter((item) => item !== b) : [...prev, b],
-    );
+  // Subgroup counts map
+  const subgroupCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const sub of subcategoryList) {
+      const qSub = sub.query.toLowerCase();
+      const count = allProducts.filter((p) => {
+        const pNameLower = p.name.toLowerCase();
+        const pCatSlug = (p.category?.slug || '').toLowerCase();
+        return pNameLower.includes(qSub) || pCatSlug.includes(qSub);
+      }).length;
+      counts[sub.key] = count;
+    }
+    return counts;
+  }, [allProducts, subcategoryList]);
+
+  const handleSidebarSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams(searchParams);
+    if (keywordInput.trim()) {
+      params.set('q', keywordInput.trim());
+    } else {
+      params.delete('q');
+    }
+    setUserKeyword(null);
+    setSearchParams(params);
   };
 
-  const handleClearFilters = () => {
+  const handleClearAllFilters = () => {
     setSelectedBrands([]);
     setPriceRange('all');
     setInStockOnly(false);
-    setSortBy('featured');
-    setSearchParams({});
+    setUserPromoOnly(false);
+    setActiveSubgroup('');
+    setSortBy('newest');
+    setUserKeyword('');
+    const params = new URLSearchParams();
+    if (queryCat) params.set('cat', queryCat);
+    setSearchParams(params);
   };
 
-  const activeCategory = useMemo(() => {
-    if (!queryCat || queryCat === 'all') return null;
-    const clean = queryCat.toLowerCase().replace(/\s+/g, '-');
-    const norm = removeVietnameseTones(queryCat.replace(/-/g, ' '));
-    return categories.find((c) => {
-      const cNorm = removeVietnameseTones(c.name);
-      return c.slug === clean || c.slug === queryCat || cNorm === norm;
-    });
-  }, [categories, queryCat]);
-
   const activeCategoryName =
-    activeCategory?.name || (queryPromo ? 'Sản phẩm Khuyến mãi' : 'Tất cả sản phẩm');
+    activeCategory?.name || (queryPromo ? 'Sản phẩm Khuyến mãi' : (queryQ ? `Tìm kiếm: "${queryQ}"` : 'Tất cả sản phẩm'));
+
+  const activePriceLabel = useMemo(() => {
+    const found = PRICE_RANGES.find((r) => r.id === priceRange);
+    return found && found.id !== 'all' ? found.label : 'Giá';
+  }, [priceRange]);
+
+  const activeBrandLabel = useMemo(() => {
+    if (selectedBrands.length === 1) return selectedBrands[0];
+    if (selectedBrands.length > 1) return `Thương hiệu (${selectedBrands.length})`;
+    return 'Thương hiệu';
+  }, [selectedBrands]);
 
   return (
     <div className="home-page-wrapper">
@@ -237,286 +383,393 @@ export const SearchPage: React.FC = () => {
 
       <main style={{ minHeight: '600px', paddingBottom: '80px' }}>
         {/* Breadcrumb */}
-        <div className="container" style={{ padding: '16px 0' }}>
-          <nav
-            style={{
-              fontSize: '13px',
-              color: 'var(--text-secondary, #6B7280)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>
-              Trang chủ
-            </Link>
-            <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px' }}></i>
-            <span style={{ fontWeight: 600, color: 'var(--text-primary, #111827)' }}>
-              {queryQ ? `Tìm kiếm: "${queryQ}"` : activeCategoryName}
-            </span>
-          </nav>
-        </div>
+        <section className="container breadcrumb" style={{ padding: '16px 0', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+          <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>Trang chủ</Link>
+          <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: '#94A3B8' }}></i>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary, #0F172A)' }}>{activeCategoryName}</span>
+        </section>
 
-        <section className="container">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '260px minmax(0, 1fr)',
-              gap: '24px',
-              alignItems: 'flex-start',
-            }}
-          >
-            {/* Left Column: Filter Sidebar */}
-            <aside
+        {/* 2-Column Search Layout */}
+        <section className="container search-page" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '28px', alignItems: 'start' }}>
+          {/* Sidebar */}
+          <aside className="search-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Widget 1: Bộ lọc tìm kiếm */}
+            <div
+              className="search-widget"
               style={{
-                backgroundColor: 'var(--surface-card, #FFFFFF)',
+                background: 'var(--surface-card, #FFFFFF)',
+                border: '1px solid var(--border, #E2E8F0)',
                 borderRadius: '16px',
-                border: '1px solid var(--border, #E5E7EB)',
                 padding: '20px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                boxShadow: 'var(--shadow-card, 0 4px 20px rgba(0,0,0,0.04))',
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '16px',
-                  borderBottom: '1px solid var(--border)',
-                  paddingBottom: '12px',
-                }}
+              <h3 style={{ fontSize: '15px', fontWeight: 800, margin: '0 0 14px 0', color: 'var(--text-primary, #0F172A)' }}>
+                Bộ lọc tìm kiếm
+              </h3>
+              <form onSubmit={handleSidebarSearch} className="search-widget__form" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input
+                  type="text"
+                  placeholder="Nhập từ khóa tìm kiếm..."
+                  value={keywordInput}
+                  onChange={(e) => setUserKeyword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border, #CBD5E1)',
+                    fontSize: '13px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <button
+                  type="submit"
+                  className="btn btn--block"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    backgroundColor: '#0A5BFF',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <i className="fa-solid fa-magnifying-glass"></i> Lọc kết quả
+                </button>
+              </form>
+            </div>
+
+            {/* Widget 2: Danh mục sản phẩm */}
+            <div
+              className="search-widget"
+              style={{
+                background: 'var(--surface-card, #FFFFFF)',
+                border: '1px solid var(--border, #E2E8F0)',
+                borderRadius: '16px',
+                padding: '20px',
+                boxShadow: 'var(--shadow-card, 0 4px 20px rgba(0,0,0,0.04))',
+              }}
+            >
+              <h3 style={{ fontSize: '15px', fontWeight: 800, margin: '0 0 14px 0', color: 'var(--text-primary, #0F172A)' }}>
+                Danh mục sản phẩm
+              </h3>
+              <div className="category-list" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <Link
+                  to="/search"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 10px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: !queryCat ? 700 : 500,
+                    color: !queryCat ? '#0A5BFF' : 'var(--text-secondary, #475569)',
+                    backgroundColor: !queryCat ? '#EFF6FF' : 'transparent',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <i className="fa-solid fa-boxes-stacked" style={{ width: '16px', textAlign: 'center' }}></i>
+                  <span>Tất cả danh mục</span>
+                </Link>
+
+                {[
+                  { slug: 'laptop', name: 'Laptop', icon: 'fa-solid fa-laptop' },
+                  { slug: 'pc-nexora', name: 'PC', icon: 'fa-solid fa-desktop' },
+                  { slug: 'man-hinh', name: 'Màn hình', icon: 'fa-solid fa-tv' },
+                  { slug: 'main-cpu-vga', name: 'Mainboard, CPU, VGA', icon: 'fa-solid fa-microchip' },
+                  { slug: 'case-nguon-tan', name: 'Case, Nguồn, Tản', icon: 'fa-solid fa-fan' },
+                  { slug: 'o-cung', name: 'Ổ cứng SSD & HDD', icon: 'fa-solid fa-hard-drive' },
+                  { slug: 'ban-phim', name: 'Gaming Gear', icon: 'fa-solid fa-gamepad' },
+                  { slug: 'thiet-bi-van-phong', name: 'Thiết bị văn phòng', icon: 'fa-solid fa-print' },
+                  { slug: 'sac-du-phong', name: 'Sạc dự phòng', icon: 'fa-solid fa-battery-half' },
+                ].map((cat) => {
+                  const isActive = queryCat === cat.slug;
+                  return (
+                    <Link
+                      key={cat.slug}
+                      to={`/category/${cat.slug}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px 10px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: isActive ? 700 : 500,
+                        color: isActive ? '#0A5BFF' : 'var(--text-secondary, #475569)',
+                        backgroundColor: isActive ? '#EFF6FF' : 'transparent',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <i className={cat.icon} style={{ width: '16px', textAlign: 'center' }}></i>
+                      <span>{cat.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Results */}
+          <main className="search-main">
+            {/* Header: Title, Count, Sort */}
+            <div
+              className="search-results-header"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                marginBottom: '16px',
+                flexWrap: 'wrap',
+                gap: '12px',
+              }}
+            >
+              <div>
+                <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '0 0 6px 0', color: 'var(--text-primary, #0F172A)' }}>
+                  {activeCategoryName}
+                </h1>
+                <p className="results-count" style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary, #64748B)' }}>
+                  Tìm thấy <strong>{filteredProducts.length}</strong> mẫu sản phẩm phù hợp
+                </p>
+              </div>
+
+              <div className="sort-options" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <label htmlFor="sortBy" style={{ fontSize: '13px', color: 'var(--text-secondary, #64748B)' }}>Xếp theo:</label>
+                <select
+                  id="sortBy"
+                  className="sort-select"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  style={{
+                    height: '38px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border, #CBD5E1)',
+                    padding: '0 12px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    backgroundColor: 'var(--surface-card, #FFFFFF)',
+                    color: 'var(--text-primary, #0F172A)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="newest">Mới nhất</option>
+                  <option value="price-low">Giá từ thấp đến cao</option>
+                  <option value="price-high">Giá từ cao đến thấp</option>
+                  <option value="title-asc">Tên từ A-Z</option>
+                  <option value="title-desc">Tên từ Z-A</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Subcategory Chips Bar */}
+            {subcategoryList && subcategoryList.length > 0 && (
+              <div className="subcategory-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 0', marginBottom: '8px' }}>
+                <button
+                  type="button"
+                  className={`subcategory-chip ${activeSubgroup === '' ? 'is-active' : ''}`}
+                  onClick={() => setActiveSubgroup('')}
+                >
+                  TẤT CẢ
+                </button>
+                {subcategoryList.map((sub) => {
+                  const count = subgroupCounts[sub.key] || 0;
+                  return (
+                    <button
+                      key={sub.key}
+                      type="button"
+                      className={`subcategory-chip ${activeSubgroup === sub.key ? 'is-active' : ''}`}
+                      onClick={() => setActiveSubgroup(activeSubgroup === sub.key ? '' : sub.key)}
+                    >
+                      {sub.name} <span style={{ fontWeight: 400, opacity: 0.7, marginLeft: '4px' }}>({count})</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Filter Chips Bar */}
+            <div className="filter-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '12px 0', marginBottom: '16px', borderBottom: '1px solid var(--border, #E2E8F0)', alignItems: 'center' }}>
+              {/* Quick Toggle: Sẵn hàng */}
+              <span
+                className={`filter-chip ${inStockOnly ? 'is-active' : ''}`}
+                onClick={() => setInStockOnly(!inStockOnly)}
+                title="Chỉ hiện sản phẩm còn hàng"
               >
-                <h3 style={{ fontSize: '15px', fontWeight: 800, margin: 0 }}>
-                  <i className="fa-solid fa-sliders" style={{ color: '#0A5BFF', marginRight: '6px' }}></i>
-                  Bộ lọc tìm kiếm
-                </h3>
-                {(selectedBrands.length > 0 || priceRange !== 'all' || inStockOnly) && (
-                  <button
-                    type="button"
-                    onClick={handleClearFilters}
-                    style={{
-                      border: 'none',
-                      background: 'none',
-                      color: '#EF4444',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      padding: 0,
-                    }}
+                <i className="fa-solid fa-box-open"></i> Sẵn hàng
+              </span>
+
+              {/* Quick Toggle: Đang giảm giá */}
+              <span
+                className={`filter-chip ${promoOnly ? 'is-active' : ''}`}
+                onClick={() => setUserPromoOnly(!promoOnly)}
+                title="Sản phẩm đang giảm giá"
+              >
+                <i className="fa-solid fa-tags"></i> Đang giảm giá
+              </span>
+
+              {/* Price Dropdown Chip */}
+              <div ref={priceDropdownRef} style={{ position: 'relative' }}>
+                <span
+                  className={`filter-chip ${priceRange !== 'all' ? 'is-active' : ''}`}
+                  onClick={() => {
+                    setIsPriceDropdownOpen(!isPriceDropdownOpen);
+                    setIsBrandDropdownOpen(false);
+                  }}
+                >
+                  <i className="fa-solid fa-money-bill-wave"></i>
+                  {activePriceLabel}
+                  <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px' }}></i>
+                </span>
+
+                {isPriceDropdownOpen && (
+                  <div
+                    className="filter-chip__dropdown is-open"
+                    style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100 }}
                   >
-                    Xóa lọc
-                  </button>
+                    {PRICE_RANGES.map((pr) => (
+                      <div
+                        key={pr.id}
+                        className={`filter-chip__dropdown-item ${priceRange === pr.id ? 'is-selected' : ''}`}
+                        onClick={() => {
+                          setPriceRange(pr.id);
+                          setIsPriceDropdownOpen(false);
+                        }}
+                      >
+                        {pr.label}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
-              {/* 1. Category Tree */}
-              <div style={{ marginBottom: '20px' }}>
-                <h4 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}>
-                  Danh mục sản phẩm
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
-                  <Link
-                    to="/search"
-                    style={{
-                      fontSize: '13px',
-                      color: !queryCat ? 'var(--primary, #0A5BFF)' : 'var(--text-secondary)',
-                      fontWeight: !queryCat ? 700 : 500,
-                      textDecoration: 'none',
-                      padding: '4px 0',
-                    }}
+              {/* Brand Dropdown Chip */}
+              <div ref={brandDropdownRef} style={{ position: 'relative' }}>
+                <span
+                  className={`filter-chip ${selectedBrands.length > 0 ? 'is-active' : ''}`}
+                  onClick={() => {
+                    setIsBrandDropdownOpen(!isBrandDropdownOpen);
+                    setIsPriceDropdownOpen(false);
+                  }}
+                >
+                  <i className="fa-solid fa-building"></i>
+                  {activeBrandLabel}
+                  <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px' }}></i>
+                </span>
+
+                {isBrandDropdownOpen && (
+                  <div
+                    className="filter-chip__dropdown is-open"
+                    style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100, maxHeight: '280px', overflowY: 'auto' }}
                   >
-                    Tất cả danh mục
-                  </Link>
-                  {categories.map((c) => (
-                    <Link
-                      key={c.id}
-                      to={`/category/${c.slug}`}
-                      style={{
-                        fontSize: '13px',
-                        color:
-                          queryCat === c.slug || activeCategory?.id === c.id
-                            ? 'var(--primary, #0A5BFF)'
-                            : 'var(--text-secondary)',
-                        fontWeight:
-                          queryCat === c.slug || activeCategory?.id === c.id ? 700 : 500,
-                        textDecoration: 'none',
-                        padding: '4px 0',
+                    <div
+                      className={`filter-chip__dropdown-item ${selectedBrands.length === 0 ? 'is-selected' : ''}`}
+                      onClick={() => {
+                        setSelectedBrands([]);
+                        setIsBrandDropdownOpen(false);
                       }}
                     >
-                      {c.name}
-                    </Link>
-                  ))}
-                </div>
+                      Tất cả thương hiệu
+                    </div>
+                    {BRANDS.map((b) => {
+                      const isSel = selectedBrands.includes(b);
+                      return (
+                        <div
+                          key={b}
+                          className={`filter-chip__dropdown-item ${isSel ? 'is-selected' : ''}`}
+                          onClick={() => {
+                            setSelectedBrands((prev) =>
+                              prev.includes(b) ? prev.filter((item) => item !== b) : [...prev, b],
+                            );
+                          }}
+                        >
+                          {b}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
-              {/* 2. Price Range */}
-              <div style={{ marginBottom: '20px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                <h4 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}>
-                  Khoảng giá
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
-                  {[
-                    { id: 'all', label: 'Tất cả mức giá' },
-                    { id: 'under-15m', label: 'Dưới 15 triệu' },
-                    { id: '15-25m', label: 'Từ 15 đến 25 triệu' },
-                    { id: 'over-25m', label: 'Trên 25 triệu' },
-                  ].map((r) => (
-                    <label key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                      <input
-                        type="radio"
-                        name="priceRange"
-                        checked={priceRange === r.id}
-                        onChange={() => setPriceRange(r.id)}
-                        style={{ accentColor: '#0A5BFF' }}
-                      />
-                      <span>{r.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              {/* Clear filters shortcut */}
+              {(selectedBrands.length > 0 || priceRange !== 'all' || inStockOnly || promoOnly || activeSubgroup) && (
+                <button
+                  type="button"
+                  className="clear-all-filters"
+                  onClick={handleClearAllFilters}
+                >
+                  <i className="fa-solid fa-xmark"></i> Xóa tất cả lọc
+                </button>
+              )}
+            </div>
 
-              {/* 3. Brands */}
-              <div style={{ marginBottom: '20px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                <h4 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}>
-                  Thương hiệu
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
-                  {BRANDS.map((b) => (
-                    <label key={b} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={selectedBrands.includes(b)}
-                        onChange={() => toggleBrand(b)}
-                        style={{ accentColor: '#0A5BFF' }}
-                      />
-                      <span>{b}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* 4. Stock toggle */}
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={inStockOnly}
-                    onChange={(e) => setInStockOnly(e.target.checked)}
-                    style={{ accentColor: '#0A5BFF' }}
+            {/* Products Grid */}
+            {filteredProducts.length > 0 ? (
+              <div
+                className="products-grid"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
+                  gap: '18px',
+                }}
+              >
+                {filteredProducts.map((p) => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    onAddToCart={(prod) => addToCartMutation.mutate(prod)}
                   />
-                  <span>Chỉ hiện sản phẩm còn hàng</span>
-                </label>
+                ))}
               </div>
-            </aside>
-
-            {/* Right Column: Search Results */}
-            <div>
-              {/* Top Filter & Sort Bar */}
+            ) : (
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '16px',
+                  textAlign: 'center',
+                  padding: '80px 20px',
                   backgroundColor: 'var(--surface-card, #FFFFFF)',
-                  padding: '12px 18px',
-                  borderRadius: '12px',
+                  borderRadius: '16px',
                   border: '1px solid var(--border, #E5E7EB)',
                 }}
               >
-                <div style={{ fontSize: '14px', fontWeight: 700 }}>
-                  Tìm thấy{' '}
-                  <span style={{ color: 'var(--primary, #0A5BFF)' }}>
-                    {filteredProducts.length}
-                  </span>{' '}
-                  sản phẩm
+                <div
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    backgroundColor: '#F3F4F6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 16px auto',
+                  }}
+                >
+                  <i className="fa-solid fa-magnifying-glass" style={{ fontSize: '24px', color: '#9CA3AF' }}></i>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Sắp xếp:</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                    style={{
-                      height: '36px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      padding: '0 10px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      backgroundColor: 'var(--surface-card)',
-                      color: 'var(--text-primary)',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <option value="featured">Nổi bật nhất</option>
-                    <option value="price-asc">Giá: Thấp đến Cao</option>
-                    <option value="price-desc">Giá: Cao đến Thấp</option>
-                    <option value="newest">Hàng mới về</option>
-                  </select>
-                </div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '6px' }}>
+                  Không tìm thấy sản phẩm phù hợp
+                </h3>
+                <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '20px' }}>
+                  Hãy thử thay đổi từ khóa hoặc xóa bớt các bộ lọc đang chọn.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearAllFilters}
+                  className="auth-btn-primary"
+                  style={{ display: 'inline-block', width: 'auto', padding: '0 24px', height: '42px', fontSize: '13px' }}
+                >
+                  Xóa tất cả bộ lọc
+                </button>
               </div>
-
-              {/* Product Grid */}
-              {filteredProducts.length > 0 ? (
-                <div
-                  className="products-grid"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                    gap: '16px',
-                  }}
-                >
-                  {filteredProducts.map((p) => (
-                    <ProductCard
-                      key={p.id}
-                      product={p}
-                      onAddToCart={(prod) => addToCartMutation.mutate(prod)}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div
-                  style={{
-                    textAlign: 'center',
-                    padding: '80px 20px',
-                    backgroundColor: 'var(--surface-card, #FFFFFF)',
-                    borderRadius: '16px',
-                    border: '1px solid var(--border, #E5E7EB)',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '64px',
-                      height: '64px',
-                      borderRadius: '50%',
-                      backgroundColor: '#F3F4F6',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 16px auto',
-                    }}
-                  >
-                    <i className="fa-solid fa-magnifying-glass" style={{ fontSize: '24px', color: '#9CA3AF' }}></i>
-                  </div>
-                  <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '6px' }}>
-                    Không tìm thấy sản phẩm phù hợp
-                  </h3>
-                  <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '20px' }}>
-                    Hãy thử thay đổi từ khóa hoặc xóa bớt các bộ lọc đang chọn.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleClearFilters}
-                    className="auth-btn-primary"
-                    style={{ display: 'inline-block', width: 'auto', padding: '0 24px', height: '42px', fontSize: '13px' }}
-                  >
-                    Xóa tất cả bộ lọc
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+            )}
+          </main>
         </section>
       </main>
 
