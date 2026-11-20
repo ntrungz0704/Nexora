@@ -151,6 +151,18 @@ export const SearchPage: React.FC = () => {
   const queryCat = slug || searchParams.get('cat') || '';
   const queryPromo = searchParams.get('promo') === '1';
 
+  // Extract custom query parameters (e.g. ?ram=ddr5, ?cpu=i7, ?vga=rtx)
+  const specParams = useMemo(() => {
+    const params: Record<string, string> = {};
+    searchParams.forEach((val, key) => {
+      const k = key.toLowerCase().trim();
+      if (!['q', 'cat', 'promo', 'page', 'sort', 'brand', 'price', 'instock'].includes(k)) {
+        params[k] = val.toLowerCase().trim();
+      }
+    });
+    return params;
+  }, [searchParams]);
+
   const [userKeyword, setUserKeyword] = useState<string | null>(null);
   const keywordInput = userKeyword !== null ? userKeyword : queryQ;
 
@@ -306,7 +318,35 @@ export const SearchPage: React.FC = () => {
         }
       }
 
-      // 3. Real-time Live Query text filter (instant matching as you type)
+      // 3. Spec & custom query filters (e.g. ?ram=ddr5, ?cpu=i7)
+      for (const [specKey, specVal] of Object.entries(specParams)) {
+        if (!specVal) continue;
+        const pNameLower = product.name.toLowerCase();
+        const pDescLower = (product.shortDescription || '').toLowerCase();
+        const pSpecs = (product.specs || {}) as Record<string, unknown>;
+
+        let found = false;
+        // Check in specs object
+        for (const [k, v] of Object.entries(pSpecs)) {
+          const kLower = k.toLowerCase();
+          const vStr = String(v).toLowerCase();
+          if (kLower.includes(specKey) && vStr.includes(specVal)) {
+            found = true;
+            break;
+          }
+          if (vStr.includes(specVal)) {
+            found = true;
+            break;
+          }
+        }
+        // Also check product name & description
+        if (!found && (pNameLower.includes(specVal) || pDescLower.includes(specVal))) {
+          found = true;
+        }
+        if (!found) return false;
+      }
+
+      // 4. Real-time Live Query text filter (instant matching as you type)
       const searchNeedle = (userKeyword !== null ? userKeyword : queryQ).toLowerCase().trim();
       if (searchNeedle) {
         const matchesName = product.name.toLowerCase().includes(searchNeedle);
@@ -351,7 +391,7 @@ export const SearchPage: React.FC = () => {
       if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
       return b.id - a.id; // newest
     });
-  }, [allProducts, queryCat, activeSubgroup, subcategoryList, queryQ, userKeyword, promoOnly, inStockOnly, selectedBrands, priceRange, sortBy]);
+  }, [allProducts, queryCat, activeSubgroup, subcategoryList, queryQ, userKeyword, promoOnly, inStockOnly, selectedBrands, priceRange, sortBy, specParams]);
 
   // Subgroup counts map
   const subgroupCounts = useMemo(() => {
@@ -395,6 +435,12 @@ export const SearchPage: React.FC = () => {
 
   const activeCategoryName = useMemo(() => {
     if (queryPromo) return 'Sản phẩm đang Khuyến mãi';
+    if (Object.keys(specParams).length > 0) {
+      const summary = Object.entries(specParams)
+        .map(([k, v]) => `${k.toUpperCase()}: ${v}`)
+        .join(', ');
+      return `Bộ lọc thông số: ${summary}`;
+    }
     if (!queryCat || queryCat === 'all') {
       return queryQ ? `Tìm kiếm: "${queryQ}"` : 'Tất cả sản phẩm';
     }
@@ -416,7 +462,7 @@ export const SearchPage: React.FC = () => {
     if (clean === 'laptop' || clean === 'laptop-gaming') return 'Laptop & Laptop Gaming';
     if (clean === 'man-hinh' || clean === 'monitor') return 'Màn hình máy tính';
     return activeCategory?.name || queryCat.replace(/-/g, ' ');
-  }, [activeCategory, queryCat, queryPromo, queryQ]);
+  }, [activeCategory, queryCat, queryPromo, queryQ, specParams]);
 
   const activePriceLabel = useMemo(() => {
     const found = PRICE_RANGES.find((r) => r.id === priceRange);
@@ -582,7 +628,11 @@ export const SearchPage: React.FC = () => {
                 {categories.map((cat) => {
                   const cleanCat = cat.slug.toLowerCase();
                   const cleanCurrent = (queryCat || '').toLowerCase().replace(/\s+/g, '-');
-                  const isActive = cleanCurrent === cleanCat || cleanCurrent.includes(cleanCat) || cleanCat.includes(cleanCurrent);
+                  const isActive = Boolean(
+                    cleanCurrent &&
+                      (cleanCurrent === cleanCat ||
+                        (VIRTUAL_GROUPS[cleanCurrent]?.includes(cleanCat) ?? false))
+                  );
                   return (
                     <Link
                       key={cat.id || cat.slug}

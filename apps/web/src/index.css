@@ -109,3 +109,78 @@ input:disabled,
 .product-card--out-of-stock .product-card__add--disabled {
   cursor: not-allowed !important;
 }
+
+/* =======================================================
+   ADMIN PANEL DARK MODE (TECHPILOT VISUAL PARITY)
+   ======================================================= */
+html.dark-mode .admin-page-wrapper {
+  background-color: #0B132B !important;
+  color: #F8FAFC !important;
+}
+
+html.dark-mode .admin-sidebar {
+  background-color: #080D1A !important;
+  border-color: #1E293B !important;
+}
+
+html.dark-mode .admin-header-bar {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark-mode .admin-card-surface {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark-mode .admin-filter-surface {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark-mode .admin-input-control {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark-mode .admin-input-control:focus {
+  border-color: #3B82F6 !important;
+}
+
+html.dark-mode .admin-input-control::placeholder {
+  color: #64748B !important;
+}
+
+html.dark-mode .admin-table-head {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+
+html.dark-mode .admin-table-row {
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+html.dark-mode .admin-table-row:hover {
+  background-color: rgba(51, 65, 85, 0.4) !important;
+}
+
+html.dark-mode .admin-text-title {
+  color: #F8FAFC !important;
+}
+
+html.dark-mode .admin-text-muted {
+  color: #94A3B8 !important;
+}
+
+html.dark-mode .admin-stat-card {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+

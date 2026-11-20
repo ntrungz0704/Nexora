@@ -52,6 +52,9 @@ function ScrollToTop() {
 }
 
 export function AppRoutes() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
   return (
     <>
       <ScrollToTop />
@@ -153,7 +156,7 @@ export function AppRoutes() {
         {/* 11. Fallback 404 Not Found Page */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-      <FloatingChatbot />
+      {!isAdmin && <FloatingChatbot />}
     </>
   );
 }

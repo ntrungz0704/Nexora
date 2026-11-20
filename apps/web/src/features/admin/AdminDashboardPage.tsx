@@ -154,7 +154,26 @@ export const AdminDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdminTab>(getTabFromPath);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    typeof document !== 'undefined' ? document.documentElement.classList.contains('dark-mode') : false,
+  );
+
+  const toggleTheme = () => {
+    const nextDark = !isDarkMode;
+    setIsDarkMode(nextDark);
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark-mode', nextDark);
+    }
+    localStorage.setItem('techpilot-theme', nextDark ? 'dark' : 'light');
+    localStorage.setItem('nexora-theme', nextDark ? 'dark' : 'light');
+  };
+
   const handleTabChange = (tabId: AdminTab) => {
+    setEditingBrand(null);
+    setEditingCoupon(null);
+    setEditingFlashSale(null);
+    setEditingProduct(null);
+    setEditingCategory(null);
     setActiveTab(tabId);
     navigate(tabId === 'dashboard' ? '/admin' : `/admin/${tabId}`);
   };
@@ -351,7 +370,12 @@ export const AdminDashboardPage: React.FC = () => {
   const [editCouponDiscount, setEditCouponDiscount] = useState('10');
   const [editCouponType, setEditCouponType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT'>('PERCENTAGE');
   const [editCouponMinOrder, setEditCouponMinOrder] = useState('500000');
+  const [editCouponMaxDiscount, setEditCouponMaxDiscount] = useState('200000');
   const [editCouponUsageLimit, setEditCouponUsageLimit] = useState('');
+  const [editCouponUserLimit, setEditCouponUserLimit] = useState('1');
+  const [editCouponStartsAt, setEditCouponStartsAt] = useState('2026-08-01T00:00');
+  const [editCouponExpiresAt, setEditCouponExpiresAt] = useState('2026-08-31T23:59');
+  const [editCouponDesc, setEditCouponDesc] = useState('');
 
   // Flash Sale Modal States
   const [isAddFlashSaleOpen, setIsAddFlashSaleOpen] = useState(false);
@@ -363,6 +387,8 @@ export const AdminDashboardPage: React.FC = () => {
   const [editFsName, setEditFsName] = useState('');
   const [editFsStart, setEditFsStart] = useState('');
   const [editFsEnd, setEditFsEnd] = useState('');
+  const [editFsIsActive, setEditFsIsActive] = useState(true);
+  const [editFsProductIds, setEditFsProductIds] = useState<number[]>([1, 2, 3]);
 
   // Post Modal States
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
@@ -615,7 +641,12 @@ export const AdminDashboardPage: React.FC = () => {
     setEditCouponType(c.discountType);
     setEditCouponDiscount(String(c.discountValue));
     setEditCouponMinOrder(String(c.minOrderValue));
+    setEditCouponMaxDiscount(c.maxDiscount ? String(c.maxDiscount) : '200000');
     setEditCouponUsageLimit(c.usageLimit ? String(c.usageLimit) : '');
+    setEditCouponUserLimit('1');
+    setEditCouponStartsAt(c.startsAt ? c.startsAt.slice(0, 16) : '2026-08-01T00:00');
+    setEditCouponExpiresAt(c.expiresAt ? c.expiresAt.slice(0, 16) : '2026-08-31T23:59');
+    setEditCouponDesc(c.description || 'Mã ưu đãi chiết khấu trực tiếp cho đơn hàng công nghệ tại TechPilot.');
   };
 
   const handleUpdateCoupon = async (e: React.FormEvent) => {
@@ -630,7 +661,11 @@ export const AdminDashboardPage: React.FC = () => {
           discountType: editCouponType,
           discountValue: Number(editCouponDiscount),
           minOrderValue: Number(editCouponMinOrder),
+          maxDiscount: editCouponMaxDiscount ? Number(editCouponMaxDiscount) : null,
           usageLimit: editCouponUsageLimit ? Number(editCouponUsageLimit) : null,
+          description: editCouponDesc,
+          startsAt: editCouponStartsAt,
+          expiresAt: editCouponExpiresAt,
         }),
       });
       if (res.ok) {
@@ -673,8 +708,14 @@ export const AdminDashboardPage: React.FC = () => {
   const handleOpenEditFlashSale = (fs: AdminFlashSaleItem) => {
     setEditingFlashSale(fs);
     setEditFsName(fs.name);
-    setEditFsStart(fs.startTime ? fs.startTime.slice(0, 16) : '');
-    setEditFsEnd(fs.endTime ? fs.endTime.slice(0, 16) : '');
+    setEditFsStart(fs.startTime ? fs.startTime.slice(0, 16) : '2026-08-10T12:00');
+    setEditFsEnd(fs.endTime ? fs.endTime.slice(0, 16) : '2026-08-15T23:59');
+    setEditFsIsActive(fs.isActive);
+    if (fs.items && fs.items.length > 0) {
+      setEditFsProductIds(fs.items.map((it) => it.productId));
+    } else {
+      setEditFsProductIds(products.slice(0, 4).map((p) => p.id));
+    }
   };
 
   const handleUpdateFlashSale = async (e: React.FormEvent) => {
@@ -688,6 +729,7 @@ export const AdminDashboardPage: React.FC = () => {
           name: editFsName,
           startTime: editFsStart,
           endTime: editFsEnd,
+          isActive: editFsIsActive,
         }),
       });
       if (res.ok) {
@@ -1299,9 +1341,9 @@ export const AdminDashboardPage: React.FC = () => {
         )}
 
         {/* Top Header - Exact TechPilot Parity */}
-        <div className="flex items-center justify-between gap-4 mb-6 bg-white px-6 py-3.5 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex items-center justify-between gap-4 mb-6 bg-white px-6 py-3.5 rounded-2xl border border-gray-100 shadow-sm admin-header-bar">
           <div>
-            <h1 className="text-sm md:text-base font-bold text-gray-800">
+            <h1 className="text-sm md:text-base font-bold text-gray-800 admin-text-title">
               Xin chào, Quản trị viên
             </h1>
           </div>
@@ -1313,7 +1355,7 @@ export const AdminDashboardPage: React.FC = () => {
               <input
                 type="text"
                 placeholder="Tìm kiếm..."
-                className="pl-8 pr-4 py-1.5 bg-slate-50 border border-gray-200 focus:border-blue-500 focus:bg-white rounded-lg text-xs outline-none transition-all w-48"
+                className="pl-8 pr-4 py-1.5 bg-slate-50 border border-gray-200 focus:border-blue-500 focus:bg-white rounded-lg text-xs outline-none transition-all w-48 admin-input-control"
               />
             </div>
 
@@ -1330,10 +1372,12 @@ export const AdminDashboardPage: React.FC = () => {
 
             {/* Dark mode button */}
             <button
-              className="w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 flex items-center justify-center text-sm transition-colors"
-              title="Giao diện tối"
+              type="button"
+              onClick={toggleTheme}
+              className="w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 flex items-center justify-center text-sm transition-colors cursor-pointer"
+              title={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
             >
-              <i className="fa-regular fa-moon"></i>
+              <i className={`fa-solid ${isDarkMode ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'}`}></i>
             </button>
 
             {/* Notification Bell */}
@@ -1898,8 +1942,149 @@ export const AdminDashboardPage: React.FC = () => {
 
         {/* TAB 3: PRODUCTS MANAGEMENT - Exact TechPilot Parity */}
         {activeTab === 'products' && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            {/* Top Section */}
+          editingProduct ? (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="border-b border-gray-100 pb-4 mb-6">
+                <h3 className="font-extrabold text-xl text-gray-900 admin-text-title">Chỉnh sửa sản phẩm</h3>
+              </div>
+              <form onSubmit={handleUpdateProduct} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Tên sản phẩm <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editProductName}
+                    onChange={(e) => setEditProductName(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Giá niêm yết (VNĐ) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={editProductPrice}
+                      onChange={(e) => setEditProductPrice(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Giá khuyến mãi (VNĐ)
+                    </label>
+                    <input
+                      type="number"
+                      value={editProductSalePrice}
+                      onChange={(e) => setEditProductSalePrice(e.target.value)}
+                      placeholder="Để trống nếu không giảm giá"
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Tồn kho (đơn vị)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={editProductStock}
+                      onChange={(e) => setEditProductStock(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Danh mục
+                    </label>
+                    <select
+                      value={editProductCategory}
+                      onChange={(e) => setEditProductCategory(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    >
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Thương hiệu
+                    </label>
+                    <select
+                      value={editProductBrand}
+                      onChange={(e) => setEditProductBrand(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    >
+                      <option value="">-- Chọn thương hiệu --</option>
+                      {brands.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Trạng thái kinh doanh
+                  </label>
+                  <select
+                    value={editProductStatus}
+                    onChange={(e) => setEditProductStatus(e.target.value as 'ACTIVE' | 'INACTIVE')}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                  >
+                    <option value="ACTIVE">Đang bán (ACTIVE)</option>
+                    <option value="INACTIVE">Ngừng bán (INACTIVE)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Mô tả sản phẩm
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={editProductDesc}
+                    onChange={(e) => setEditProductDesc(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    placeholder="Mô tả thông số chi tiết sản phẩm..."
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-floppy-disk"></i>
+                    <span>Cập nhật</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingProduct(null)}
+                    className="px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i>
+                    <span>Quay lại</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              {/* Top Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h3 className="font-extrabold text-lg text-gray-900">Danh sách sản phẩm</h3>
               <div className="flex items-center gap-3">
@@ -2173,218 +2358,402 @@ export const AdminDashboardPage: React.FC = () => {
               </button>
             </div>
           </div>
+          )
         )}
 
         {/* TAB 4: CATEGORIES MANAGEMENT - Exact TechPilot Parity */}
         {activeTab === 'categories' && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h3 className="font-extrabold text-lg text-gray-900">Danh sách danh mục sản phẩm</h3>
-              <button
-                onClick={() => setIsAddCategoryOpen(true)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
-              >
-                <i className="fa-solid fa-plus"></i>
-                <span>Thêm danh mục mới</span>
-              </button>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="bg-slate-50/70 p-4 rounded-xl border border-gray-100 mb-6 flex items-center gap-3 text-xs">
-              <div className="flex-1 max-w-sm">
-                <input
-                  type="text"
-                  placeholder="Tìm danh mục theo tên..."
-                  value={categorySearch}
-                  onChange={(e) => setCategorySearch(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium"
-                />
+          editingCategory ? (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="border-b border-gray-100 pb-4 mb-6">
+                <h3 className="font-extrabold text-xl text-gray-900 admin-text-title">Chỉnh sửa danh mục</h3>
               </div>
-              <button
-                type="button"
-                className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors"
-              >
-                <i className="fa-solid fa-magnifying-glass text-gray-500"></i>
-                <span>Tìm kiếm</span>
-              </button>
-            </div>
+              <form onSubmit={handleUpdateCategory} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Tên danh mục <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editCategoryName}
+                    onChange={(e) => setEditCategoryName(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                  />
+                </div>
 
-            {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50">
-                    <th className="py-3 px-3 w-12 text-center">STT</th>
-                    <th className="py-3 px-3">Tên danh mục</th>
-                    <th className="py-3 px-3">Slug</th>
-                    <th className="py-3 px-3 text-center">Thứ tự</th>
-                    <th className="py-3 px-3 text-center">Số mẫu</th>
-                    <th className="py-3 px-3 text-center">Tổng tồn kho</th>
-                    <th className="py-3 px-3 text-center">Trạng thái</th>
-                    <th className="py-3 px-3 text-right">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                  {filteredCategories.map((c, idx) => (
-                    <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{idx + 1}</td>
-                      <td className="py-3.5 px-3 font-bold text-gray-900">{c.name}</td>
-                      <td className="py-3.5 px-3 font-mono text-gray-500">{c.slug}</td>
-                      <td className="py-3.5 px-3 text-center text-gray-600 font-semibold">{c.sortOrder || 0}</td>
-                      <td className="py-3.5 px-3 text-center">
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                          {products.filter((p) => p.categoryId === c.id).length || 31} mẫu
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                          {products.filter((p) => p.categoryId === c.id).reduce((acc, p) => acc + (p.stockQuantity || 0), 0) || 495} đơn vị
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => handleToggleCategoryStatus(c.id, c.isActive !== false)}
-                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                              c.isActive === false ? 'bg-gray-300' : 'bg-emerald-500'
-                            }`}
-                            title="Bấm để bật/tắt hoạt động"
-                          >
-                            <span
-                              className={`inline-block h-4 w-4 rounded-full bg-white shadow transform ring-0 transition duration-200 ease-in-out ${
-                                c.isActive === false ? 'translate-x-0' : 'translate-x-4'
-                              }`}
-                            ></span>
-                          </button>
-                          <span
-                            className={`text-[11px] font-bold ${
-                              c.isActive === false ? 'text-gray-400' : 'text-emerald-600'
-                            }`}
-                          >
-                            {c.isActive === false ? 'Tạm ẩn' : 'Đang hoạt động'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <button
-                          onClick={() => handleOpenEditCategory(c)}
-                          className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200"
-                        >
-                          <i className="fa-regular fa-pen-to-square"></i>
-                          <span>Sửa</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Slug
+                    </label>
+                    <input
+                      type="text"
+                      value={editCategorySlug}
+                      onChange={(e) => setEditCategorySlug(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm font-mono admin-input-control"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Thứ tự hiển thị
+                    </label>
+                    <input
+                      type="number"
+                      value={editCategorySort}
+                      onChange={(e) => setEditCategorySort(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Icon FontAwesome
+                  </label>
+                  <input
+                    type="text"
+                    value={editCategoryIcon}
+                    onChange={(e) => setEditCategoryIcon(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm font-mono admin-input-control"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Mô tả
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editCategoryDesc}
+                    onChange={(e) => setEditCategoryDesc(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-floppy-disk"></i>
+                    <span>Cập nhật</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingCategory(null)}
+                    className="px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i>
+                    <span>Quay lại</span>
+                  </button>
+                </div>
+              </form>
             </div>
-          </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h3 className="font-extrabold text-lg text-gray-900 admin-text-title">Danh sách danh mục sản phẩm</h3>
+                <button
+                  onClick={() => setIsAddCategoryOpen(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+                >
+                  <i className="fa-solid fa-plus"></i>
+                  <span>Thêm danh mục mới</span>
+                </button>
+              </div>
+
+              {/* Filter Bar */}
+              <div className="bg-slate-50/70 p-4 rounded-xl border border-gray-100 mb-6 flex items-center gap-3 text-xs admin-filter-surface">
+                <div className="flex-1 max-w-sm">
+                  <input
+                    type="text"
+                    placeholder="Tìm danh mục theo tên..."
+                    value={categorySearch}
+                    onChange={(e) => setCategorySearch(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer admin-input-control"
+                >
+                  <i className="fa-solid fa-magnifying-glass text-gray-500"></i>
+                  <span>Tìm kiếm</span>
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head">
+                      <th className="py-3 px-3 w-12 text-center">STT</th>
+                      <th className="py-3 px-3">Tên danh mục</th>
+                      <th className="py-3 px-3">Slug</th>
+                      <th className="py-3 px-3 text-center">Thứ tự</th>
+                      <th className="py-3 px-3 text-center">Số mẫu</th>
+                      <th className="py-3 px-3 text-center">Tổng tồn kho</th>
+                      <th className="py-3 px-3 text-center">Trạng thái</th>
+                      <th className="py-3 px-3 text-right">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                    {filteredCategories.map((c, idx) => (
+                      <tr key={c.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
+                        <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{idx + 1}</td>
+                        <td className="py-3.5 px-3 font-bold text-gray-900 admin-text-title">{c.name}</td>
+                        <td className="py-3.5 px-3 font-mono text-gray-500 admin-text-muted">{c.slug}</td>
+                        <td className="py-3.5 px-3 text-center text-gray-600 font-semibold admin-text-muted">{c.sortOrder || 0}</td>
+                        <td className="py-3.5 px-3 text-center">
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                            {products.filter((p) => p.categoryId === c.id).length || 31} mẫu
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            {products.filter((p) => p.categoryId === c.id).reduce((acc, p) => acc + (p.stockQuantity || 0), 0) || 495} đơn vị
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleCategoryStatus(c.id, c.isActive !== false)}
+                              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                                c.isActive === false ? 'bg-gray-300' : 'bg-emerald-500'
+                              }`}
+                              title="Bấm để bật/tắt hoạt động"
+                            >
+                              <span
+                                className={`inline-block h-4 w-4 rounded-full bg-white shadow transform ring-0 transition duration-200 ease-in-out ${
+                                  c.isActive === false ? 'translate-x-0' : 'translate-x-4'
+                                }`}
+                              ></span>
+                            </button>
+                            <span
+                              className={`text-[11px] font-bold ${
+                                c.isActive === false ? 'text-gray-400 admin-text-muted' : 'text-emerald-600'
+                              }`}
+                            >
+                              {c.isActive === false ? 'Tạm ẩn' : 'Đang hoạt động'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-3 text-right">
+                          <button
+                            onClick={() => handleOpenEditCategory(c)}
+                            className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200 cursor-pointer admin-input-control"
+                          >
+                            <i className="fa-regular fa-pen-to-square"></i>
+                            <span>Sửa</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
         )}
 
         {/* TAB 5: BRANDS MANAGEMENT - Exact TechPilot Parity */}
         {activeTab === 'brands' && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h3 className="font-extrabold text-lg text-gray-900">Danh sách thương hiệu</h3>
-              <button
-                onClick={() => setIsAddBrandOpen(true)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
-              >
-                <i className="fa-solid fa-plus"></i>
-                <span>Thêm thương hiệu mới</span>
-              </button>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="bg-slate-50/70 p-4 rounded-xl border border-gray-100 mb-6 flex items-center gap-3 text-xs">
-              <div className="flex-1 max-w-sm">
-                <input
-                  type="text"
-                  placeholder="Tìm thương hiệu theo tên..."
-                  value={brandSearch}
-                  onChange={(e) => setBrandSearch(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium"
-                />
+          editingBrand ? (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="border-b border-gray-100 pb-4 mb-6">
+                <h3 className="font-extrabold text-xl text-gray-900 admin-text-title">Chỉnh sửa thương hiệu</h3>
               </div>
-              <button
-                type="button"
-                className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors"
-              >
-                <i className="fa-solid fa-magnifying-glass text-gray-500"></i>
-                <span>Tìm kiếm</span>
-              </button>
-            </div>
+              <form onSubmit={handleUpdateBrand} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Tên thương hiệu <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editBrandName}
+                    onChange={(e) => setEditBrandName(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                  />
+                </div>
 
-            {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50">
-                    <th className="py-3 px-3 w-12 text-center">STT</th>
-                    <th className="py-3 px-3 text-center">Logo</th>
-                    <th className="py-3 px-3">Tên thương hiệu</th>
-                    <th className="py-3 px-3">Slug</th>
-                    <th className="py-3 px-3">Mô tả</th>
-                    <th className="py-3 px-3 text-center">Số sản phẩm</th>
-                    <th className="py-3 px-3 text-center">Trạng thái</th>
-                    <th className="py-3 px-3 text-right">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                  {filteredBrands.map((b, idx) => (
-                    <tr key={b.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{idx + 1}</td>
-                      <td className="py-3.5 px-3 text-center">
-                        {b.logoUrl ? (
-                          <img src={b.logoUrl} alt={b.name} className="h-6 max-w-[80px] object-contain mx-auto" />
-                        ) : (
-                          <span className="text-gray-400 italic text-[11px]">Không có logo</span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-3 font-bold text-gray-900">{b.name}</td>
-                      <td className="py-3.5 px-3 font-mono text-gray-500">{b.slug}</td>
-                      <td className="py-3.5 px-3 text-gray-500 text-[11px] max-w-sm truncate">
-                        {b.description || `Thương hiệu công nghệ hàng đầu ${b.name} chính hãng tại Nexora.`}
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                          {b._count?.products || 6} sản phẩm
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleBrandStatus(b.id, b.isActive !== false)}
-                          className="text-[11px] font-bold text-emerald-600 flex items-center justify-center gap-1 mx-auto cursor-pointer"
-                          title="Bấm để bật/tắt hoạt động"
-                        >
-                          <i
-                            className={`fa-solid ${
-                              b.isActive === false ? 'fa-square text-gray-300' : 'fa-check-square text-blue-600'
-                            }`}
-                          ></i>
-                          <span className={b.isActive === false ? 'text-gray-400' : 'text-emerald-600'}>
-                            {b.isActive === false ? 'Tạm ẩn' : 'Đang hoạt động'}
-                          </span>
-                        </button>
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <button
-                          onClick={() => handleOpenEditBrand(b)}
-                          className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200"
-                        >
-                          <i className="fa-regular fa-pen-to-square"></i>
-                          <span>Sửa</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Slug (Tự sinh nếu để trống)
+                  </label>
+                  <input
+                    type="text"
+                    value={editBrandSlug}
+                    onChange={(e) => setEditBrandSlug(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm font-mono admin-input-control"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Thay đổi hình ảnh Logo
+                  </label>
+                  {editBrandLogo && (
+                    <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-xl inline-block admin-filter-surface">
+                      <img src={editBrandLogo} alt="Logo preview" className="h-10 max-w-[140px] object-contain" />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => setEditBrandLogo(reader.result as string);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-gray-400 admin-text-muted mt-2">
+                    Định dạng hỗ trợ: JPG, PNG, WEBP, GIF, SVG. Dung lượng tối đa: 2MB. Khuyến nghị ảnh vuông hoặc chữ nhật ngang tỷ lệ chuẩn.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Mô tả thương hiệu
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={editBrandDesc}
+                    onChange={(e) => setEditBrandDesc(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    placeholder="Thương hiệu công nghệ hàng đầu..."
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-floppy-disk"></i>
+                    <span>Cập nhật</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingBrand(null)}
+                    className="px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i>
+                    <span>Quay lại</span>
+                  </button>
+                </div>
+              </form>
             </div>
-          </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h3 className="font-extrabold text-lg text-gray-900 admin-text-title">Danh sách thương hiệu</h3>
+                <button
+                  onClick={() => setIsAddBrandOpen(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+                >
+                  <i className="fa-solid fa-plus"></i>
+                  <span>Thêm thương hiệu mới</span>
+                </button>
+              </div>
+
+              {/* Filter Bar */}
+              <div className="bg-slate-50/70 p-4 rounded-xl border border-gray-100 mb-6 flex items-center gap-3 text-xs admin-filter-surface">
+                <div className="flex-1 max-w-sm">
+                  <input
+                    type="text"
+                    placeholder="Tìm thương hiệu theo tên..."
+                    value={brandSearch}
+                    onChange={(e) => setBrandSearch(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer admin-input-control"
+                >
+                  <i className="fa-solid fa-magnifying-glass text-gray-500"></i>
+                  <span>Tìm kiếm</span>
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head">
+                      <th className="py-3 px-3 w-12 text-center">STT</th>
+                      <th className="py-3 px-3 text-center">Logo</th>
+                      <th className="py-3 px-3">Tên thương hiệu</th>
+                      <th className="py-3 px-3">Slug</th>
+                      <th className="py-3 px-3">Mô tả</th>
+                      <th className="py-3 px-3 text-center">Số sản phẩm</th>
+                      <th className="py-3 px-3 text-center">Trạng thái</th>
+                      <th className="py-3 px-3 text-right">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                    {filteredBrands.map((b, idx) => (
+                      <tr key={b.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
+                        <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{idx + 1}</td>
+                        <td className="py-3.5 px-3 text-center">
+                          {b.logoUrl ? (
+                            <img src={b.logoUrl} alt={b.name} className="h-6 max-w-[80px] object-contain mx-auto" />
+                          ) : (
+                            <span className="text-gray-400 italic text-[11px] admin-text-muted">Không có logo</span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-3 font-bold text-gray-900 admin-text-title">{b.name}</td>
+                        <td className="py-3.5 px-3 font-mono text-gray-500 admin-text-muted">{b.slug}</td>
+                        <td className="py-3.5 px-3 text-gray-500 text-[11px] max-w-sm truncate admin-text-muted">
+                          {b.description || `Thương hiệu công nghệ hàng đầu ${b.name} chính hãng tại TechPilot.`}
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            {b._count?.products || 6} sản phẩm
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleBrandStatus(b.id, b.isActive !== false)}
+                            className="text-[11px] font-bold text-emerald-600 flex items-center justify-center gap-1 mx-auto cursor-pointer"
+                            title="Bấm để bật/tắt hoạt động"
+                          >
+                            <i
+                              className={`fa-solid ${
+                                b.isActive === false ? 'fa-square text-gray-300' : 'fa-check-square text-blue-600'
+                              }`}
+                            ></i>
+                            <span className={b.isActive === false ? 'text-gray-400 admin-text-muted' : 'text-emerald-600'}>
+                              {b.isActive === false ? 'Tạm ẩn' : 'Đang hoạt động'}
+                            </span>
+                          </button>
+                        </td>
+                        <td className="py-3.5 px-3 text-right">
+                          <button
+                            onClick={() => handleOpenEditBrand(b)}
+                            className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200 cursor-pointer admin-input-control"
+                          >
+                            <i className="fa-regular fa-pen-to-square"></i>
+                            <span>Sửa</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
         )}
 
         {/* TAB 6: INVENTORY LOGS */}
@@ -2445,173 +2814,493 @@ export const AdminDashboardPage: React.FC = () => {
 
         {/* TAB 7: COUPONS - Exact TechPilot Parity */}
         {activeTab === 'coupons' && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-extrabold text-lg text-gray-900">
-                Mã giảm giá &amp; Khuyến mãi (Coupons)
-              </h3>
-              <button
-                onClick={() => setIsAddCouponOpen(true)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
-              >
-                <i className="fa-solid fa-plus text-xs"></i>
-                <span>Tạo mã giảm giá mới</span>
-              </button>
-            </div>
+          editingCoupon ? (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="border-b border-gray-100 pb-4 mb-6">
+                <h3 className="font-extrabold text-xl text-gray-900 admin-text-title">Chỉnh sửa mã giảm giá</h3>
+              </div>
 
-            {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50">
-                    <th className="py-3 px-3 w-12 text-center">ID</th>
-                    <th className="py-3 px-3">Mã code</th>
-                    <th className="py-3 px-3">Loại</th>
-                    <th className="py-3 px-3">Giá trị giảm</th>
-                    <th className="py-3 px-3">Đơn tối thiểu</th>
-                    <th className="py-3 px-3">Giới hạn lượt dùng</th>
-                    <th className="py-3 px-3 text-center">Đã dùng</th>
-                    <th className="py-3 px-3">Thời gian hiệu lực</th>
-                    <th className="py-3 px-3 text-center">Trạng thái</th>
-                    <th className="py-3 px-3 text-right">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                  {coupons.map((cp) => (
-                    <tr key={cp.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{cp.id}</td>
-                      <td className="py-3.5 px-3 font-bold text-blue-600 font-mono text-sm tracking-wide">{cp.code}</td>
-                      <td className="py-3.5 px-3 text-gray-600">{cp.discountType === 'PERCENTAGE' ? 'Giảm phần trăm' : 'Giảm tiền mặt'}</td>
-                      <td className="py-3.5 px-3 font-bold text-gray-900">
-                        {cp.discountType === 'PERCENTAGE' ? `${cp.discountValue}%` : `${Number(cp.discountValue).toLocaleString('vi-VN')}đ`}
-                      </td>
-                      <td className="py-3.5 px-3 text-gray-700">{Number(cp.minOrderValue).toLocaleString('vi-VN')}đ</td>
-                      <td className="py-3.5 px-3 text-gray-600">
-                        {cp.usageLimit ? `${cp.usageLimit} lượt` : 'Không giới hạn'}
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-600 border border-blue-200">
-                          {cp.usedCount || 0} lượt
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-[11px] text-gray-500 leading-tight">
-                        <div>Bắt đầu: {cp.startsAt ? new Date(cp.startsAt).toLocaleDateString('vi-VN') : '27/07/2026'} 00:23</div>
-                        <div>Kết thúc: {cp.expiresAt ? new Date(cp.expiresAt).toLocaleDateString('vi-VN') : '27/08/2026'} 00:23</div>
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={cp.isActive}
-                            onChange={() => handleToggleCoupon(cp.id)}
-                            className="w-3.5 h-3.5 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
-                          />
-                          <span className={`text-[11px] font-bold ${cp.isActive ? 'text-emerald-600' : 'text-gray-400'}`}>
-                            {cp.isActive ? 'Hoạt động' : 'Tạm tắt'}
-                          </span>
-                        </label>
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <button
-                          onClick={() => handleOpenEditCoupon(cp)}
-                          className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1 shadow-sm"
-                        >
-                          <i className="fa-regular fa-pen-to-square"></i>
-                          <span>Sửa</span>
-                        </button>
-                      </td>
+              {/* Policy alert banner */}
+              <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs flex items-start gap-3">
+                <i className="fa-solid fa-circle-info text-blue-600 text-base mt-0.5 shrink-0"></i>
+                <div>
+                  <span className="font-bold">Chính sách hệ thống:</span> Để đảm bảo quyền lợi và biên lợi nhuận kinh doanh, mức chiết khấu tối đa được phép thiết lập không vượt quá 20% cho mỗi mã giảm giá.
+                </div>
+              </div>
+
+              <form onSubmit={handleUpdateCoupon} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Mã Code Giảm Giá <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editCouponCode}
+                      onChange={(e) => setEditCouponCode(e.target.value.toUpperCase())}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-mono font-bold text-sm text-blue-600 admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Loại hình giảm giá
+                    </label>
+                    <select
+                      value={editCouponType}
+                      onChange={(e) => setEditCouponType(e.target.value as 'PERCENTAGE' | 'FIXED_AMOUNT')}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    >
+                      <option value="PERCENTAGE">% Phần trăm</option>
+                      <option value="FIXED_AMOUNT">Số tiền cố định</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Giá trị giảm <span className="text-red-500">* (Tối đa 20%)</span>
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      max={editCouponType === 'PERCENTAGE' ? 20 : undefined}
+                      value={editCouponDiscount}
+                      onChange={(e) => setEditCouponDiscount(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Giá trị đơn hàng tối thiểu (đ)
+                    </label>
+                    <input
+                      type="number"
+                      value={editCouponMinOrder}
+                      onChange={(e) => setEditCouponMinOrder(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Mức giảm tối đa (đ)
+                    </label>
+                    <input
+                      type="number"
+                      value={editCouponMaxDiscount}
+                      onChange={(e) => setEditCouponMaxDiscount(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Tổng giới hạn lượt sử dụng
+                    </label>
+                    <input
+                      type="number"
+                      value={editCouponUsageLimit}
+                      onChange={(e) => setEditCouponUsageLimit(e.target.value)}
+                      placeholder="Không giới hạn nếu để trống"
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Giới hạn sử dụng mỗi tài khoản
+                    </label>
+                    <input
+                      type="number"
+                      value={editCouponUserLimit}
+                      onChange={(e) => setEditCouponUserLimit(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Ngày bắt đầu hiệu lực
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={editCouponStartsAt}
+                      onChange={(e) => setEditCouponStartsAt(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Ngày kết thúc hiệu lực
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={editCouponExpiresAt}
+                      onChange={(e) => setEditCouponExpiresAt(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                    Mô tả mã giảm giá
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editCouponDesc}
+                    onChange={(e) => setEditCouponDesc(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-floppy-disk"></i>
+                    <span>Cập nhật</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingCoupon(null)}
+                    className="px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i>
+                    <span>Quay lại</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-extrabold text-lg text-gray-900 admin-text-title">
+                  Mã giảm giá &amp; Khuyến mãi (Coupons)
+                </h3>
+                <button
+                  onClick={() => setIsAddCouponOpen(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                >
+                  <i className="fa-solid fa-plus text-xs"></i>
+                  <span>Tạo mã giảm giá mới</span>
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head">
+                      <th className="py-3 px-3 w-12 text-center">ID</th>
+                      <th className="py-3 px-3">Mã code</th>
+                      <th className="py-3 px-3">Loại</th>
+                      <th className="py-3 px-3">Giá trị giảm</th>
+                      <th className="py-3 px-3">Đơn tối thiểu</th>
+                      <th className="py-3 px-3">Giới hạn lượt dùng</th>
+                      <th className="py-3 px-3 text-center">Đã dùng</th>
+                      <th className="py-3 px-3">Thời gian hiệu lực</th>
+                      <th className="py-3 px-3 text-center">Trạng thái</th>
+                      <th className="py-3 px-3 text-right">Hành động</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 8: FLASH SALES - Exact TechPilot Parity */}
-        {activeTab === 'flash-sales' && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-extrabold text-lg text-gray-900">
-                Chương trình Flash Sale
-              </h3>
-              <button
-                onClick={() => setIsAddFlashSaleOpen(true)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
-              >
-                <i className="fa-solid fa-plus text-xs"></i>
-                <span>Tạo chiến dịch mới</span>
-              </button>
-            </div>
-
-            {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50">
-                    <th className="py-3 px-3 w-12 text-center">ID</th>
-                    <th className="py-3 px-3">Tên chiến dịch</th>
-                    <th className="py-3 px-3">Thời gian bắt đầu</th>
-                    <th className="py-3 px-3">Thời gian kết thúc</th>
-                    <th className="py-3 px-3 text-center">Số sản phẩm</th>
-                    <th className="py-3 px-3 text-center">Quota</th>
-                    <th className="py-3 px-3 text-center">Trạng thái</th>
-                    <th className="py-3 px-3 text-right">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                  {flashSales.map((fs) => (
-                    <tr key={fs.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{fs.id}</td>
-                      <td className="py-3.5 px-3 font-bold text-blue-600">{fs.name}</td>
-                      <td className="py-3.5 px-3 text-gray-600">
-                        {new Date(fs.startTime).toLocaleDateString('vi-VN')} {new Date(fs.startTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                      </td>
-                      <td className="py-3.5 px-3 text-gray-600">
-                        {new Date(fs.endTime).toLocaleDateString('vi-VN')} {new Date(fs.endTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-600 border border-blue-200">
-                          {fs.items?.length || 5} sản phẩm
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                          {fs.items && fs.items.length > 0 ? `${fs.items.reduce((acc, it) => acc + (it.quantityForSale || 0), 0)} chiếc` : 'Chưa có số quota'}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-center">
-                        <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold ${
-                          fs.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
-                        }`}>
-                          {fs.isActive ? 'Đang diễn ra' : 'Đã kết thúc'}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <label className="inline-flex items-center cursor-pointer">
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                    {coupons.map((cp) => (
+                      <tr key={cp.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
+                        <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{cp.id}</td>
+                        <td className="py-3.5 px-3 font-bold text-blue-600 font-mono text-sm tracking-wide">{cp.code}</td>
+                        <td className="py-3.5 px-3 text-gray-600 admin-text-muted">{cp.discountType === 'PERCENTAGE' ? 'Giảm phần trăm' : 'Giảm tiền mặt'}</td>
+                        <td className="py-3.5 px-3 font-bold text-gray-900 admin-text-title">
+                          {cp.discountType === 'PERCENTAGE' ? `${cp.discountValue}%` : `${Number(cp.discountValue).toLocaleString('vi-VN')}đ`}
+                        </td>
+                        <td className="py-3.5 px-3 text-gray-700 admin-text-muted">{Number(cp.minOrderValue).toLocaleString('vi-VN')}đ</td>
+                        <td className="py-3.5 px-3 text-gray-600 admin-text-muted">
+                          {cp.usageLimit ? `${cp.usageLimit} lượt` : 'Không giới hạn'}
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-600 border border-blue-200">
+                            {cp.usedCount || 0} lượt
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-[11px] text-gray-500 leading-tight admin-text-muted">
+                          <div>Bắt đầu: {cp.startsAt ? new Date(cp.startsAt).toLocaleDateString('vi-VN') : '27/07/2026'} 00:23</div>
+                          <div>Kết thúc: {cp.expiresAt ? new Date(cp.expiresAt).toLocaleDateString('vi-VN') : '27/08/2026'} 00:23</div>
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <label className="inline-flex items-center gap-1.5 cursor-pointer">
                             <input
                               type="checkbox"
-                              checked={fs.isActive}
-                              onChange={() => handleToggleFlashSale(fs.id)}
-                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
+                              checked={cp.isActive}
+                              onChange={() => handleToggleCoupon(cp.id)}
+                              className="w-3.5 h-3.5 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
                             />
+                            <span className={`text-[11px] font-bold ${cp.isActive ? 'text-emerald-600' : 'text-gray-400 admin-text-muted'}`}>
+                              {cp.isActive ? 'Hoạt động' : 'Tạm tắt'}
+                            </span>
                           </label>
+                        </td>
+                        <td className="py-3.5 px-3 text-right">
                           <button
-                            onClick={() => handleOpenEditFlashSale(fs)}
-                            className="px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
+                            onClick={() => handleOpenEditCoupon(cp)}
+                            className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1 shadow-sm cursor-pointer admin-input-control"
                           >
                             <i className="fa-regular fa-pen-to-square"></i>
                             <span>Sửa</span>
                           </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )
+        )}
+
+        {/* TAB 8: FLASH SALES - Exact TechPilot Parity */}
+        {activeTab === 'flash-sales' && (
+          editingFlashSale ? (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="border-b border-gray-100 pb-4 mb-6">
+                <h3 className="font-extrabold text-xl text-gray-900 admin-text-title">Chỉnh sửa chiến dịch Flash Sale</h3>
+              </div>
+
+              <form onSubmit={handleUpdateFlashSale} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Tiêu đề chiến dịch <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editFsName}
+                      onChange={(e) => setEditFsName(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Trạng thái chiến dịch
+                    </label>
+                    <select
+                      value={editFsIsActive ? 'ACTIVE' : 'INACTIVE'}
+                      onChange={(e) => setEditFsIsActive(e.target.value === 'ACTIVE')}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    >
+                      <option value="ACTIVE">Đang hoạt động</option>
+                      <option value="INACTIVE">Tạm dừng</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Thời gian bắt đầu <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={editFsStart}
+                      onChange={(e) => setEditFsStart(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 admin-text-title mb-1.5">
+                      Thời gian kết thúc <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={editFsEnd}
+                      onChange={(e) => setEditFsEnd(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 font-medium text-sm admin-input-control"
+                    />
+                  </div>
+                </div>
+
+                {/* Rule Warning Banner */}
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3">
+                  <i className="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5 shrink-0"></i>
+                  <div>
+                    <span className="font-bold">Quy tắc Flash Sale:</span> Sản phẩm được chọn sẽ hiển thị trong khung giờ khuyến mãi với giá ưu đãi đặc biệt. Vui lòng kiểm tra kỹ giá bán và số lượng phân bổ để tránh thất thoát.
+                  </div>
+                </div>
+
+                {/* Product Table in Flash Sale */}
+                <div>
+                  <h4 className="font-bold text-sm text-gray-800 admin-text-title mb-3">Sản phẩm tham gia Flash Sale</h4>
+                  <div className="overflow-x-auto border border-gray-200 rounded-xl admin-filter-surface">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/70 admin-table-head">
+                          <th className="py-3 px-3 w-10 text-center">Chọn</th>
+                          <th className="py-3 px-3">Tên sản phẩm</th>
+                          <th className="py-3 px-3">Giá bán hiện tại (đ)</th>
+                          <th className="py-3 px-3">Giá Flash Sale (đ)</th>
+                          <th className="py-3 px-3 text-center">Mở bán</th>
+                          <th className="py-3 px-3 text-center">Đã bán</th>
+                          <th className="py-3 px-3 text-center">Giới hạn/khách</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                        {products.slice(0, 8).map((p) => {
+                          const isSelected = editFsProductIds.includes(p.id);
+                          return (
+                            <tr key={p.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
+                              <td className="py-3 px-3 text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => {
+                                    setEditFsProductIds((prev) =>
+                                      prev.includes(p.id) ? prev.filter((id) => id !== p.id) : [...prev, p.id],
+                                    );
+                                  }}
+                                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
+                                />
+                              </td>
+                              <td className="py-3 px-3 font-bold text-gray-900 admin-text-title">{p.name}</td>
+                              <td className="py-3 px-3 text-gray-600 admin-text-muted">{Number(p.price).toLocaleString('vi-VN')}đ</td>
+                              <td className="py-3 px-3">
+                                <input
+                                  type="number"
+                                  defaultValue={Math.round(Number(p.price) * 0.85)}
+                                  className="w-32 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-bold text-blue-600 admin-input-control"
+                                />
+                              </td>
+                              <td className="py-3 px-3 text-center">
+                                <input
+                                  type="number"
+                                  defaultValue={10}
+                                  className="w-16 px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-center admin-input-control"
+                                />
+                              </td>
+                              <td className="py-3 px-3 text-center text-gray-400 font-semibold admin-text-muted">0</td>
+                              <td className="py-3 px-3 text-center">
+                                <input
+                                  type="number"
+                                  defaultValue={1}
+                                  className="w-14 px-2 py-1.5 border border-gray-200 rounded-lg text-xs text-center admin-input-control"
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-floppy-disk"></i>
+                    <span>Cập nhật</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingFlashSale(null)}
+                    className="px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left"></i>
+                    <span>Quay lại</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-extrabold text-lg text-gray-900 admin-text-title">
+                  Chương trình Flash Sale
+                </h3>
+                <button
+                  onClick={() => setIsAddFlashSaleOpen(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                >
+                  <i className="fa-solid fa-plus text-xs"></i>
+                  <span>Tạo chiến dịch mới</span>
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head">
+                      <th className="py-3 px-3 w-12 text-center">ID</th>
+                      <th className="py-3 px-3">Tên chiến dịch</th>
+                      <th className="py-3 px-3">Thời gian bắt đầu</th>
+                      <th className="py-3 px-3">Thời gian kết thúc</th>
+                      <th className="py-3 px-3 text-center">Số sản phẩm</th>
+                      <th className="py-3 px-3 text-center">Quota</th>
+                      <th className="py-3 px-3 text-center">Trạng thái</th>
+                      <th className="py-3 px-3 text-right">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                    {flashSales.map((fs) => (
+                      <tr key={fs.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
+                        <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{fs.id}</td>
+                        <td className="py-3.5 px-3 font-bold text-blue-600">{fs.name}</td>
+                        <td className="py-3.5 px-3 text-gray-600 admin-text-muted">
+                          {new Date(fs.startTime).toLocaleDateString('vi-VN')} {new Date(fs.startTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td className="py-3.5 px-3 text-gray-600 admin-text-muted">
+                          {new Date(fs.endTime).toLocaleDateString('vi-VN')} {new Date(fs.endTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-600 border border-blue-200">
+                            {fs.items?.length || 5} sản phẩm
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            {fs.items && fs.items.length > 0 ? `${fs.items.reduce((acc, it) => acc + (it.quantityForSale || 0), 0)} chiếc` : 'Chưa có số quota'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-center">
+                          <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold ${
+                            fs.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                          }`}>
+                            {fs.isActive ? 'Đang diễn ra' : 'Đã kết thúc'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <label className="inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={fs.isActive}
+                                onChange={() => handleToggleFlashSale(fs.id)}
+                                className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
+                              />
+                            </label>
+                            <button
+                              onClick={() => handleOpenEditFlashSale(fs)}
+                              className="px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm cursor-pointer admin-input-control"
+                            >
+                              <i className="fa-regular fa-pen-to-square"></i>
+                              <span>Sửa</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
         )}
 
         {/* TAB 9: BANNERS - Exact TechPilot Parity */}
@@ -2826,20 +3515,20 @@ export const AdminDashboardPage: React.FC = () => {
 
         {/* TAB 11: USERS & ROLES - Exact TechPilot Parity */}
         {activeTab === 'users' && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 admin-card-surface">
             <div className="mb-6">
-              <h3 className="font-extrabold text-lg text-gray-900">Quản lý người dùng & phân quyền</h3>
+              <h3 className="font-extrabold text-lg text-gray-900 admin-text-title">Quản lý người dùng & phân quyền</h3>
             </div>
 
             {/* Filter Bar */}
-            <div className="bg-slate-50/70 p-4 rounded-xl border border-gray-100 mb-6 flex flex-wrap items-center gap-3 text-xs">
+            <div className="bg-slate-50/70 p-4 rounded-xl border border-gray-100 mb-6 flex flex-wrap items-center gap-3 text-xs admin-filter-surface">
               <div className="flex-1 min-w-[240px]">
                 <input
                   type="text"
                   placeholder="Tìm theo tên, email, sđt..."
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium"
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
                 />
               </div>
 
@@ -2847,7 +3536,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <select
                   value={userRoleFilter}
                   onChange={(e) => setUserRoleFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium"
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
                 >
                   <option value="">Tất cả chức vụ</option>
                   <option value="CUSTOMER">Customer</option>
@@ -2858,7 +3547,7 @@ export const AdminDashboardPage: React.FC = () => {
 
               <button
                 type="button"
-                className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors"
+                className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer admin-input-control"
               >
                 <i className="fa-solid fa-filter text-gray-500"></i>
                 <span>Lọc tài khoản</span>
@@ -2869,7 +3558,7 @@ export const AdminDashboardPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50">
+                  <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head">
                     <th className="py-3 px-3 w-12 text-center">ID</th>
                     <th className="py-3 px-3">Họ và tên</th>
                     <th className="py-3 px-3">Email</th>
@@ -2883,12 +3572,12 @@ export const AdminDashboardPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
                   {filteredUsers.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-50/60 transition-colors">
+                    <tr key={u.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
                       <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{u.id}</td>
-                      <td className="py-3.5 px-3 font-bold text-gray-900">{u.fullName}</td>
-                      <td className="py-3.5 px-3 text-gray-600">{u.email}</td>
-                      <td className="py-3.5 px-3 text-gray-600">{u.phone || '+84937981139'}</td>
-                      <td className="py-3.5 px-3 text-gray-400 text-[11px] max-w-xs truncate">—</td>
+                      <td className="py-3.5 px-3 font-bold text-gray-900 admin-text-title">{u.fullName}</td>
+                      <td className="py-3.5 px-3 text-gray-600 admin-text-muted">{u.email}</td>
+                      <td className="py-3.5 px-3 text-gray-600 admin-text-muted">{u.phone || '+84937981139'}</td>
+                      <td className="py-3.5 px-3 text-gray-400 text-[11px] max-w-xs truncate admin-text-muted">—</td>
                       <td className="py-3.5 px-3 text-center">
                         <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold ${
                           u.role === 'ADMIN'
@@ -2909,15 +3598,21 @@ export const AdminDashboardPage: React.FC = () => {
                           {u.status === 'ACTIVE' ? 'Hoạt động' : 'Tạm khóa'}
                         </span>
                       </td>
-                      <td className="py-3.5 px-3 text-gray-500 text-[11px]">
+                      <td className="py-3.5 px-3 text-gray-500 text-[11px] admin-text-muted">
                         {new Date(u.createdAt).toLocaleDateString('vi-VN')} {new Date(u.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3.5 px-3 text-right">
                         {u.id === 1 ? (
-                          <span className="text-xs text-gray-500 font-semibold inline-flex items-center gap-1.5">
-                            <i className="fa-solid fa-lock text-gray-400 text-xs"></i>
-                            Quản trị viên tối cao
-                          </span>
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="px-2.5 py-1 bg-red-500/70 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 opacity-70 cursor-not-allowed">
+                              <i className="fa-solid fa-lock text-[10px]"></i>
+                              <span>Khoá</span>
+                            </span>
+                            <span className="text-xs text-gray-500 admin-text-muted font-semibold inline-flex items-center gap-1.5">
+                              <i className="fa-solid fa-shield-halved text-blue-600 text-xs"></i>
+                              <span>Quản trị tối cao</span>
+                            </span>
+                          </div>
                         ) : (
                           <div className="flex items-center justify-end gap-2">
                             <button
@@ -3552,386 +4247,6 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
           </div>
         )}
-        {/* EDIT PRODUCT MODAL */}
-        {editingProduct && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
-                <h3 className="font-extrabold text-lg text-gray-900">
-                  Chỉnh Sửa Sản Phẩm #{editingProduct.id}
-                </h3>
-                <button
-                  onClick={() => setEditingProduct(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              <form onSubmit={handleUpdateProduct} className="p-6 space-y-4 overflow-y-auto flex-1">
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Tên sản phẩm *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editProductName}
-                    onChange={(e) => setEditProductName(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Giá niêm yết (VND) *</label>
-                    <input
-                      type="number"
-                      required
-                      value={editProductPrice}
-                      onChange={(e) => setEditProductPrice(e.target.value)}
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Giá khuyến mãi (VND)</label>
-                    <input
-                      type="number"
-                      value={editProductSalePrice}
-                      onChange={(e) => setEditProductSalePrice(e.target.value)}
-                      placeholder="Để trống nếu không sale"
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Tồn kho</label>
-                    <input
-                      type="number"
-                      required
-                      value={editProductStock}
-                      onChange={(e) => setEditProductStock(e.target.value)}
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Danh mục</label>
-                    <select
-                      value={editProductCategory}
-                      onChange={(e) => setEditProductCategory(e.target.value)}
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none bg-white"
-                    >
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Thương hiệu</label>
-                    <select
-                      value={editProductBrand}
-                      onChange={(e) => setEditProductBrand(e.target.value)}
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none bg-white"
-                    >
-                      <option value="">-- Chọn --</option>
-                      {brands.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Trạng thái kinh doanh</label>
-                  <select
-                    value={editProductStatus}
-                    onChange={(e) =>
-                      setEditProductStatus(e.target.value as 'ACTIVE' | 'INACTIVE')
-                    }
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none bg-white"
-                  >
-                    <option value="ACTIVE">Đang bán (ACTIVE)</option>
-                    <option value="INACTIVE">Ngừng bán (INACTIVE)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Mô tả ngắn</label>
-                  <textarea
-                    rows={3}
-                    value={editProductDesc}
-                    onChange={(e) => setEditProductDesc(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
-                  ></textarea>
-                </div>
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={() => setEditingProduct(null)}
-                    className="px-5 py-2.5 text-gray-500 font-bold text-sm"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition-all"
-                  >
-                    Lưu cập nhật
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* EDIT CATEGORY MODAL */}
-        {editingCategory && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
-                <h3 className="font-extrabold text-lg text-gray-900">
-                  Chỉnh Sửa Danh Mục #{editingCategory.id}
-                </h3>
-                <button
-                  onClick={() => setEditingCategory(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              <form onSubmit={handleUpdateCategory} className="p-6 space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Tên danh mục *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editCategoryName}
-                    onChange={(e) => setEditCategoryName(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Slug</label>
-                    <input
-                      type="text"
-                      value={editCategorySlug}
-                      onChange={(e) => setEditCategorySlug(e.target.value)}
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Thứ tự</label>
-                    <input
-                      type="number"
-                      value={editCategorySort}
-                      onChange={(e) => setEditCategorySort(e.target.value)}
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Icon FontAwesome</label>
-                  <input
-                    type="text"
-                    value={editCategoryIcon}
-                    onChange={(e) => setEditCategoryIcon(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Mô tả</label>
-                  <textarea
-                    rows={2}
-                    value={editCategoryDesc}
-                    onChange={(e) => setEditCategoryDesc(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                  ></textarea>
-                </div>
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={() => setEditingCategory(null)}
-                    className="px-4 py-2 text-gray-500 font-bold text-sm"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
-                  >
-                    Lưu danh mục
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* EDIT BRAND MODAL */}
-        {editingBrand && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
-                <h3 className="font-extrabold text-lg text-gray-900">
-                  Chỉnh Sửa Thương Hiệu #{editingBrand.id}
-                </h3>
-                <button
-                  onClick={() => setEditingBrand(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              <form onSubmit={handleUpdateBrand} className="p-6 space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Tên thương hiệu *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editBrandName}
-                    onChange={(e) => setEditBrandName(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Slug</label>
-                  <input
-                    type="text"
-                    value={editBrandSlug}
-                    onChange={(e) => setEditBrandSlug(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Logo URL</label>
-                  <input
-                    type="text"
-                    value={editBrandLogo}
-                    onChange={(e) => setEditBrandLogo(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Mô tả</label>
-                  <input
-                    type="text"
-                    value={editBrandDesc}
-                    onChange={(e) => setEditBrandDesc(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                  />
-                </div>
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={() => setEditingBrand(null)}
-                    className="px-4 py-2 text-gray-500 font-bold text-sm"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
-                  >
-                    Lưu thương hiệu
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* EDIT COUPON MODAL */}
-        {editingCoupon && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
-                <h3 className="font-extrabold text-lg text-gray-900">
-                  Chỉnh Sửa Mã Giảm Giá #{editingCoupon.id}
-                </h3>
-                <button
-                  onClick={() => setEditingCoupon(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              <form onSubmit={handleUpdateCoupon} className="p-6 space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Mã Voucher (Code) *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editCouponCode}
-                    onChange={(e) => setEditCouponCode(e.target.value.toUpperCase())}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono font-bold"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Loại giảm</label>
-                    <select
-                      value={editCouponType}
-                      onChange={(e) =>
-                        setEditCouponType(e.target.value as 'PERCENTAGE' | 'FIXED_AMOUNT')
-                      }
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm bg-white"
-                    >
-                      <option value="PERCENTAGE">Phần trăm (%)</option>
-                      <option value="FIXED_AMOUNT">Số tiền (VNĐ)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Mức giảm *</label>
-                    <input
-                      type="number"
-                      required
-                      value={editCouponDiscount}
-                      onChange={(e) => setEditCouponDiscount(e.target.value)}
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-bold"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Đơn tối thiểu (VNĐ)</label>
-                    <input
-                      type="number"
-                      value={editCouponMinOrder}
-                      onChange={(e) => setEditCouponMinOrder(e.target.value)}
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-600">Giới hạn lượt dùng</label>
-                    <input
-                      type="number"
-                      value={editCouponUsageLimit}
-                      onChange={(e) => setEditCouponUsageLimit(e.target.value)}
-                      placeholder="Không giới hạn"
-                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={() => setEditingCoupon(null)}
-                    className="px-4 py-2 text-gray-500 font-bold text-sm"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
-                  >
-                    Lưu mã giảm giá
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
         {/* ADD FLASH SALE MODAL */}
         {isAddFlashSaleOpen && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -3995,72 +4310,6 @@ export const AdminDashboardPage: React.FC = () => {
                     className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
                   >
                     Tạo chiến dịch
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* EDIT FLASH SALE MODAL */}
-        {editingFlashSale && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
-                <h3 className="font-extrabold text-lg text-gray-900">
-                  Chỉnh Sửa Flash Sale #{editingFlashSale.id}
-                </h3>
-                <button
-                  onClick={() => setEditingFlashSale(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              <form onSubmit={handleUpdateFlashSale} className="p-6 space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Tên chiến dịch *</label>
-                  <input
-                    type="text"
-                    required
-                    value={editFsName}
-                    onChange={(e) => setEditFsName(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Thời gian bắt đầu *</label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={editFsStart}
-                    onChange={(e) => setEditFsStart(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-600">Thời gian kết thúc *</label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={editFsEnd}
-                    onChange={(e) => setEditFsEnd(e.target.value)}
-                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
-                  />
-                </div>
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={() => setEditingFlashSale(null)}
-                    className="px-4 py-2 text-gray-500 font-bold text-sm"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
-                  >
-                    Lưu Flash Sale
                   </button>
                 </div>
               </form>

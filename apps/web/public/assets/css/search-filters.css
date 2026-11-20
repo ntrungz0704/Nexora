@@ -367,8 +367,8 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-height: 480px;
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
 }
 
 .category-list__item {
@@ -402,6 +402,89 @@
 }
 
 .category-list__item.is-active i {
+    color: #FFFFFF !important;
+}
+
+/* =========================================================================
+   DARK THEME ENHANCEMENTS FOR SEARCH & SIDEBAR
+   ========================================================================= */
+html.dark-mode .search-widget,
+.dark-mode .search-widget,
+[data-theme="dark"] .search-widget {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+html.dark-mode .search-widget h3,
+.dark-mode .search-widget h3,
+[data-theme="dark"] .search-widget h3 {
+    color: #F8FAFC !important;
+}
+
+html.dark-mode .search-widget__form input,
+.dark-mode .search-widget__form input,
+[data-theme="dark"] .search-widget__form input {
+    background: #0F172A !important;
+    border-color: #334155 !important;
+    color: #F8FAFC !important;
+}
+
+html.dark-mode .category-list__item,
+.dark-mode .category-list__item,
+[data-theme="dark"] .category-list__item {
+    color: #CBD5E1 !important;
+}
+
+html.dark-mode .category-list__item:hover,
+.dark-mode .category-list__item:hover,
+[data-theme="dark"] .category-list__item:hover {
+    background: rgba(59, 130, 246, 0.18) !important;
+    color: #60A5FA !important;
+}
+
+html.dark-mode .category-list__item.is-active,
+.dark-mode .category-list__item.is-active,
+[data-theme="dark"] .category-list__item.is-active {
+    background: #0A5BFF !important;
+    color: #FFFFFF !important;
+}
+
+html.dark-mode .sort-select,
+.dark-mode .sort-select,
+[data-theme="dark"] .sort-select {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+    color: #F8FAFC !important;
+}
+
+html.dark-mode .pagination__item,
+html.dark-mode .pagination__btn,
+.dark-mode .pagination__item,
+.dark-mode .pagination__btn,
+[data-theme="dark"] .pagination__item,
+[data-theme="dark"] .pagination__btn {
+    background-color: #1E293B !important;
+    border-color: #334155 !important;
+    color: #CBD5E1 !important;
+}
+
+html.dark-mode .pagination__item:hover,
+html.dark-mode .pagination__btn:hover,
+.dark-mode .pagination__item:hover,
+.dark-mode .pagination__btn:hover,
+[data-theme="dark"] .pagination__item:hover,
+[data-theme="dark"] .pagination__btn:hover {
+    border-color: #3B82F6 !important;
+    color: #60A5FA !important;
+    background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+html.dark-mode .pagination__item.is-active,
+.dark-mode .pagination__item.is-active,
+[data-theme="dark"] .pagination__item.is-active {
+    background-color: #0A5BFF !important;
+    border-color: #0A5BFF !important;
     color: #FFFFFF !important;
 }
 
