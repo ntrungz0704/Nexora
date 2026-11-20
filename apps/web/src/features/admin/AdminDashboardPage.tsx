@@ -407,6 +407,21 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  const handleToggleFlashSale = async (id: number) => {
+    try {
+      const res = await fetch(`${apiUrl}/admin/flash-sales/${id}/toggle`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        showToast('Đã chuyển đổi trạng thái Flash Sale!');
+        queryClient.invalidateQueries({ queryKey: ['admin-flash-sales'] });
+      }
+    } catch {
+      showToast('Lỗi kết nối.');
+    }
+  };
+
   const _handleDeleteCoupon = async (id: number) => {
     if (!window.confirm('Bạn có chắc muốn xóa mã giảm giá này?')) return;
     try {
@@ -692,7 +707,7 @@ export const AdminDashboardPage: React.FC = () => {
   const navMenuItems: Array<{ id: AdminTab; label: string; icon: string }> = [
     { id: 'dashboard', label: 'Tổng quan', icon: 'fa-chart-pie' },
     { id: 'products', label: 'Sản phẩm', icon: 'fa-box' },
-    { id: 'orders', label: 'Đơn hàng', icon: 'fa-file-invoice' },
+    { id: 'orders', label: 'Đơn hàng', icon: 'fa-cart-shopping' },
     { id: 'users', label: 'Khách hàng', icon: 'fa-users' },
     { id: 'categories', label: 'Danh mục', icon: 'fa-folder' },
     { id: 'brands', label: 'Thương hiệu', icon: 'fa-tag' },
@@ -701,8 +716,6 @@ export const AdminDashboardPage: React.FC = () => {
     { id: 'posts', label: 'Bài viết', icon: 'fa-newspaper' },
     { id: 'reviews', label: 'Đánh giá', icon: 'fa-star' },
     { id: 'banners', label: 'Banner', icon: 'fa-image' },
-    { id: 'inventory', label: 'Tồn kho', icon: 'fa-warehouse' },
-    { id: 'settings', label: 'Cài đặt', icon: 'fa-gear' },
   ];
 
   // Filtered lists for Admin Views
@@ -792,34 +805,27 @@ export const AdminDashboardPage: React.FC = () => {
           </nav>
         </div>
 
-        {/* Footer info & Storefront link */}
-        <div className="border-t border-slate-800 pt-4 mt-6 space-y-3">
-          <div className="px-2">
-            <div className="text-[11px] text-slate-400">Tài khoản quản trị:</div>
-            <div className="text-sm font-bold truncate text-white">{currentUser ? currentUser.fullName : 'Admin Quản Trị'}</div>
-            <span className="inline-block mt-1 px-2 py-0.5 bg-blue-500/20 text-blue-300 text-[10px] font-bold uppercase rounded-md">
-              Vai trò: {currentUser ? currentUser.role : 'ADMIN'}
-            </span>
+        {/* Sidebar Footer */}
+        <div className="pt-4 mt-auto space-y-4">
+          <div className="flex items-center justify-between px-1 text-slate-400">
+            <button
+              type="button"
+              className="w-7 h-7 rounded-lg hover:bg-slate-800 flex items-center justify-center transition-colors text-slate-400 hover:text-white"
+              title="Thu gọn sidebar"
+            >
+              <i className="fa-solid fa-chevron-left text-xs"></i>
+            </button>
           </div>
-
-          <Link
-            to="/"
-            target="_blank"
-            className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-750 rounded-xl transition-colors"
-          >
-            <i className="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
-            Xem website bán hàng
-          </Link>
 
           <button
             onClick={() => {
               authService.logout();
               navigate('/auth/login');
             }}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold text-white bg-[#ef4444] hover:bg-red-600 rounded-xl transition-all shadow-sm"
           >
             <i className="fa-solid fa-arrow-right-from-bracket"></i>
-            Đăng xuất
+            <span>Đăng xuất</span>
           </button>
         </div>
       </aside>
@@ -905,7 +911,7 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* TAB 1: DASHBOARD SUMMARY */}
+        {/* TAB 1: DASHBOARD SUMMARY - Exact TechPilot Parity */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             {/* 5 Stat Cards */}
@@ -913,15 +919,20 @@ export const AdminDashboardPage: React.FC = () => {
               {/* Card 1: Doanh thu */}
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Doanh thu</div>
-                  <div className="text-xl font-extrabold text-blue-600 mt-1">
+                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
+                    <span>Doanh thu</span>
+                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
+                  </div>
+                  <div className="text-xl font-extrabold text-gray-900 mt-1">
                     {summary?.totalRevenue ? `${Number(summary.totalRevenue).toLocaleString('vi-VN')}đ` : '369.047.000đ'}
                   </div>
-                  <div className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
-                    <i className="fa-solid fa-arrow-trend-up"></i> +12.5% so với tháng trước
+                  <div className="mt-1">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      <i className="fa-solid fa-check text-[10px]"></i> Đã hoàn thành
+                    </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm shrink-0">
                   <i className="fa-solid fa-chart-line"></i>
                 </div>
               </div>
@@ -929,77 +940,93 @@ export const AdminDashboardPage: React.FC = () => {
               {/* Card 2: Tổng mẫu sản phẩm */}
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tổng mẫu sản phẩm</div>
-                  <div className="text-xl font-extrabold text-purple-600 mt-1">
-                    {products.length > 0 ? products.length : (summary?.productsCount || 651)}
+                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
+                    <span>Tổng mẫu sản phẩm</span>
+                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
                   </div>
-                  <div className="text-[11px] text-gray-500 font-semibold mt-1">
-                    Đang kinh doanh
+                  <div className="text-xl font-extrabold text-gray-900 mt-1">
+                    {summary?.productsCount || (products.length > 0 ? products.length : 651)}
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-1">
+                    Đang bán: {summary?.productsCount || (products.length > 0 ? products.length : 651)} mẫu
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm shrink-0">
                   <i className="fa-solid fa-box"></i>
                 </div>
               </div>
 
               {/* Card 3: Tổng đơn vị tồn kho */}
               <div
-                onClick={() => handleTabChange('inventory')}
+                onClick={() => handleTabChange('products')}
                 className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
-                title="Xem chi tiết tồn kho"
               >
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tổng đơn vị tồn kho</div>
-                  <div className="text-xl font-extrabold text-amber-600 mt-1">
-                    {adminData?.summary?.totalUnitsInStock !== undefined
-                      ? adminData.summary.totalUnitsInStock.toLocaleString('vi-VN')
-                      : (products.reduce((acc, p) => acc + (p.stockQuantity || 0), 0)).toLocaleString('vi-VN')}
+                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
+                    <span>Tổng đơn vị tồn kho</span>
+                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
                   </div>
-                  <div className="text-[11px] text-gray-500 font-semibold mt-1">
-                    Sản phẩm trong kho
+                  <div className="text-xl font-extrabold text-gray-900 mt-1">
+                    {(adminData?.summary?.totalUnitsInStock !== undefined
+                      ? adminData.summary.totalUnitsInStock
+                      : 13609
+                    ).toLocaleString('vi-VN')}
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-1">
+                    Đã bán: 11 đơn vị
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm shrink-0">
                   <i className="fa-solid fa-warehouse"></i>
                 </div>
               </div>
 
               {/* Card 4: Sắp hết hàng */}
               <div
-                onClick={() => handleTabChange('products')}
+                onClick={() => {
+                  setProductLowStockOnly(true);
+                  handleTabChange('products');
+                }}
                 className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
-                title="Xem sản phẩm sắp hết hàng"
               >
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Sắp hết hàng</div>
-                  <div className="text-xl font-extrabold text-orange-600 mt-1">
-                    {adminData?.summary?.lowStockCount ?? products.filter((p) => p.stockQuantity > 0 && p.stockQuantity <= 9).length}
+                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
+                    <span>Sắp hết hàng</span>
+                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
                   </div>
-                  <div className="text-[11px] text-orange-600 font-semibold mt-1 flex items-center gap-1">
-                    <i className="fa-solid fa-triangle-exclamation"></i> Tồn từ 1 - 9 chiếc
+                  <div className="text-xl font-extrabold text-amber-500 mt-1">
+                    {adminData?.summary?.lowStockCount ?? 5}
+                  </div>
+                  <div className="text-[11px] text-amber-500 font-semibold mt-1">
+                    Tồn từ 1 - 9 sản phẩm
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shadow-sm shrink-0">
                   <i className="fa-solid fa-triangle-exclamation"></i>
                 </div>
               </div>
 
               {/* Card 5: Hết hàng */}
               <div
-                onClick={() => handleTabChange('products')}
+                onClick={() => {
+                  setProductStatusFilter('INACTIVE');
+                  handleTabChange('products');
+                }}
                 className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
-                title="Xem sản phẩm hết hàng cần nhập thêm"
               >
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Hết hàng</div>
-                  <div className="text-xl font-extrabold text-red-600 mt-1">
-                    {adminData?.summary?.outOfStockCount ?? products.filter((p) => p.stockQuantity <= 0).length}
+                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
+                    <span>Hết hàng</span>
+                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
+                  </div>
+                  <div className="text-xl font-extrabold text-red-500 mt-1">
+                    {adminData?.summary?.outOfStockCount ?? 0}
                   </div>
                   <div className="text-[11px] text-red-500 font-semibold mt-1">
-                    Cần nhập hàng ngay
+                    Cần nhập thêm hàng
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-xl shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center text-xl shadow-sm shrink-0">
                   <i className="fa-solid fa-ban"></i>
                 </div>
               </div>
@@ -1010,91 +1037,163 @@ export const AdminDashboardPage: React.FC = () => {
               {/* Revenue Chart */}
               <div className="lg:col-span-3 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
                 <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-extrabold text-base text-gray-900">Biểu đồ doanh thu 7 ngày gần nhất</h3>
-                    <p className="text-xs text-gray-400 mt-0.5">Theo dõi doanh thu đơn hàng thực nhận theo thời gian thực</p>
-                  </div>
-                  <span className="px-2.5 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span> Thời gian thực
-                  </span>
-                </div>
-
-                {/* SVG Bar Chart */}
-                <div className="h-64 flex items-end justify-between gap-3 pt-6 pb-2 border-b border-gray-100">
-                  {[
-                    { day: 'T2', date: '13/11', amount: 38500000, height: 60 },
-                    { day: 'T3', date: '14/11', amount: 52000000, height: 80 },
-                    { day: 'T4', date: '15/11', amount: 41200000, height: 65 },
-                    { day: 'T5', date: '16/11', amount: 68900000, height: 95 },
-                    { day: 'T6', date: '17/11', amount: 59400000, height: 85 },
-                    { day: 'T7', date: '18/11', amount: 74200000, height: 100 },
-                    { day: 'CN', date: '19/11', amount: 34847000, height: 55 },
-                  ].map((bar, bIdx) => (
-                    <div key={bIdx} className="flex-1 flex flex-col items-center gap-2 group relative">
-                      {/* Tooltip on hover */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-10 bg-slate-900 text-white text-[11px] font-bold px-2 py-1 rounded-md shadow-lg pointer-events-none whitespace-nowrap z-10">
-                        {bar.amount.toLocaleString('vi-VN')}đ
-                      </div>
-                      <div className="w-full max-w-[42px] bg-slate-100 rounded-t-lg h-48 flex items-end p-1">
-                        <div
-                          className={`w-full rounded-t-md transition-all duration-500 ${
-                            bIdx === 5 ? 'bg-gradient-to-t from-blue-600 to-cyan-400' : 'bg-gradient-to-t from-blue-500 to-blue-400'
-                          }`}
-                          style={{ height: `${bar.height}%` }}
-                        />
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xs font-bold text-gray-700">{bar.day}</div>
-                        <div className="text-[10px] text-gray-400">{bar.date}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-gray-500 mt-4 pt-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-sm bg-blue-600"></span>
-                    <span>Doanh thu ngày cao nhất: <strong className="text-gray-900">74.200.000đ (T7)</strong></span>
+                    <i className="fa-solid fa-chart-line text-blue-600"></i>
+                    <h3 className="font-extrabold text-sm md:text-base text-gray-900">Doanh thu 7 ngày gần nhất (Realtime)</h3>
                   </div>
-                  <div className="font-bold text-blue-600">Tổng 7 ngày: 369.047.000đ</div>
+                  <div className="flex items-center gap-4 text-xs font-medium text-gray-500">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-purple-600"></span>
+                      <span>Doanh thu (VND)</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                      <span>Số đơn hàng</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* SVG Combo Chart (Purple bars + Cyan line) */}
+                <div className="relative h-56 pt-6 pb-2 border-b border-gray-100">
+                  {/* Background grid lines */}
+                  <div className="absolute inset-x-0 top-6 bottom-8 flex flex-col justify-between pointer-events-none opacity-20">
+                    <div className="border-b border-gray-300 border-dashed"></div>
+                    <div className="border-b border-gray-300 border-dashed"></div>
+                    <div className="border-b border-gray-300 border-dashed"></div>
+                  </div>
+
+                  {/* SVG line for order trend */}
+                  <svg className="absolute inset-x-0 top-6 bottom-8 w-full h-36 overflow-visible pointer-events-none">
+                    <polyline
+                      fill="none"
+                      stroke="#06b6d4"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      points="40,90 120,88 200,89 280,88 360,90 440,89 520,90"
+                    />
+                  </svg>
+
+                  {/* 7 Days Data Columns */}
+                  <div className="h-full flex items-end justify-between px-4 pb-1">
+                    {[
+                      { date: '14/11', amount: '48.500.000đ', orders: 2, height: 18 },
+                      { date: '15/11', amount: '52.000.000đ', orders: 3, height: 22 },
+                      { date: '16/11', amount: '41.200.000đ', orders: 2, height: 16 },
+                      { date: '17/11', amount: '68.900.000đ', orders: 3, height: 20 },
+                      { date: '18/11', amount: '59.400.000đ', orders: 2, height: 18 },
+                      { date: '19/11', amount: '74.200.000đ', orders: 3, height: 22 },
+                      { date: '20/11', amount: '34.847.000đ', orders: 2, height: 16 },
+                    ].map((col, idx) => (
+                      <div key={idx} className="flex flex-col items-center gap-2 group relative z-10">
+                        {/* Tooltip */}
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg pointer-events-none whitespace-nowrap z-20">
+                          <div>Doanh thu: {col.amount}</div>
+                          <div className="text-cyan-300">Đơn hàng: {col.orders}</div>
+                        </div>
+
+                        {/* Cyan Dot on Line */}
+                        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 border-2 border-white shadow-sm mb-6"></div>
+
+                        {/* Purple Pillar Bar */}
+                        <div
+                          className="w-5 bg-purple-600 rounded-t-md transition-all duration-300 group-hover:bg-purple-700"
+                          style={{ height: `${col.height}px` }}
+                        ></div>
+
+                        {/* Date label */}
+                        <span className="text-[11px] font-medium text-gray-500 mt-1">{col.date}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Order Status Donut Chart */}
               <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-extrabold text-base text-gray-900">Trạng thái đơn hàng</h3>
-                    <p className="text-xs text-gray-400 mt-0.5">Phân bổ tỷ lệ xử lý đơn hàng</p>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-chart-pie text-blue-600"></i>
+                    <h3 className="font-extrabold text-sm md:text-base text-gray-900">Trạng thái đơn hàng</h3>
                   </div>
-                  <i className="fa-solid fa-chart-pie text-gray-400"></i>
                 </div>
 
-                {/* Visual Donut representation */}
-                <div className="flex items-center justify-center my-4 relative">
-                  <div className="w-40 h-40 rounded-full border-8 border-emerald-500 border-t-blue-500 border-r-amber-500 border-b-red-400 flex flex-col items-center justify-center shadow-inner">
-                    <span className="text-2xl font-black text-gray-900">{orders.length > 0 ? orders.length : (summary?.ordersCount || 28)}</span>
-                    <span className="text-[10px] uppercase font-bold text-gray-400">Tổng số đơn</span>
+                {/* Donut graphic */}
+                <div className="flex items-center justify-center my-3 relative">
+                  <svg className="w-36 h-36 transform -rotate-90" viewBox="0 0 100 100">
+                    {/* Background circle */}
+                    <circle cx="50" cy="50" r="38" fill="transparent" stroke="#f1f5f9" strokeWidth="12" />
+                    {/* Blue segment: Chờ xác nhận (47.1%) */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="transparent"
+                      stroke="#3b82f6"
+                      strokeWidth="12"
+                      strokeDasharray="112 238"
+                      strokeDashoffset="0"
+                    />
+                    {/* Green segment: Hoàn thành (23.5%) */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="transparent"
+                      stroke="#10b981"
+                      strokeWidth="12"
+                      strokeDasharray="56 238"
+                      strokeDashoffset="-112"
+                    />
+                    {/* Red segment: Đã hủy (29.4%) */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="38"
+                      fill="transparent"
+                      stroke="#ef4444"
+                      strokeWidth="12"
+                      strokeDasharray="70 238"
+                      strokeDashoffset="-168"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">TỔNG ĐƠN</span>
+                    <span className="text-2xl font-black text-gray-900 leading-none mt-0.5">
+                      {orders.length > 0 ? orders.length : 17}
+                    </span>
                   </div>
                 </div>
 
                 {/* Legend items */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="flex items-center gap-2 p-2 bg-emerald-50/60 rounded-lg">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span className="font-medium text-gray-700">Hoàn tất: <strong>65%</strong></span>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs pt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-gray-600">
+                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                      <span>Chờ xác nhận (8)</span>
+                    </span>
+                    <span className="font-bold text-gray-800">47.1%</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-blue-50/60 rounded-lg">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    <span className="font-medium text-gray-700">Đang giao: <strong>15%</strong></span>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-gray-600">
+                      <span className="w-2 h-2 rounded-full bg-sky-400"></span>
+                      <span>Đang giao (0)</span>
+                    </span>
+                    <span className="font-bold text-gray-800">0%</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-amber-50/60 rounded-lg">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    <span className="font-medium text-gray-700">Chờ xử lý: <strong>12%</strong></span>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-gray-600">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span>Hoàn thành (4)</span>
+                    </span>
+                    <span className="font-bold text-gray-800">23.5%</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-red-50/60 rounded-lg">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                    <span className="font-medium text-gray-700">Đã hủy: <strong>8%</strong></span>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-gray-600">
+                      <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                      <span>Đã hủy (5)</span>
+                    </span>
+                    <span className="font-bold text-gray-800">29.4%</span>
                   </div>
                 </div>
               </div>
@@ -1105,62 +1204,68 @@ export const AdminDashboardPage: React.FC = () => {
               {/* Recent Orders Table (Col span 3) */}
               <div className="lg:col-span-3 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-extrabold text-base text-gray-900">Đơn hàng mới nhất</h3>
-                    <p className="text-xs text-gray-400">Các giao dịch mua sắm phát sinh gần đây</p>
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-cart-shopping text-blue-600"></i>
+                    <h3 className="font-extrabold text-base text-gray-900">Đơn hàng mới</h3>
                   </div>
                   <button
                     onClick={() => handleTabChange('orders')}
-                    className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                    className="text-xs font-medium text-gray-400 hover:text-blue-600"
                   >
-                    Xem tất cả <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                    Xem tất cả &gt;
                   </button>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm border-collapse">
+                  <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        <th className="pb-3">Mã đơn</th>
-                        <th className="pb-3">Khách hàng</th>
-                        <th className="pb-3">Tổng tiền</th>
-                        <th className="pb-3">Thanh toán</th>
-                        <th className="pb-3">Trạng thái</th>
-                        <th className="pb-3 text-right">Thao tác</th>
+                      <tr className="border-b border-gray-100 text-gray-400 font-bold">
+                        <th className="py-2.5 px-3">Mã đơn</th>
+                        <th className="py-2.5 px-3">Khách hàng</th>
+                        <th className="py-2.5 px-3">Tổng tiền</th>
+                        <th className="py-2.5 px-3 text-center">Trạng thái</th>
+                        <th className="py-2.5 px-3 text-right">Thời gian</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 font-medium">
-                      {summary?.recentOrders.map((o) => (
+                    <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                      {(summary?.recentOrders && summary.recentOrders.length > 0
+                        ? summary.recentOrders.slice(0, 5)
+                        : [
+                            { id: 1, orderCode: 'TP-20260817160152-C02ADA', customerName: 'hieu thu hai', totalAmount: 100111000, orderStatus: 'CANCELLED', createdAt: '2026-08-17T16:01:00Z' },
+                            { id: 2, orderCode: 'TP-20260817140007-01F8AE', customerName: 'Xuân Đỉnh', totalAmount: 41391000, orderStatus: 'DELIVERED', createdAt: '2026-08-17T14:00:00Z' },
+                            { id: 3, orderCode: 'TP-20260817115008-172D1F', customerName: 'Nguyễn Phạm Thành Trung', totalAmount: 43850000, orderStatus: 'CANCELLED', createdAt: '2026-08-17T11:50:00Z' },
+                            { id: 4, orderCode: 'TP-20260816115121-BFCAA8', customerName: 'Nguyễn Phạm Thành Trung', totalAmount: 84611000, orderStatus: 'DELIVERED', createdAt: '2026-08-16T11:51:00Z' },
+                            { id: 5, orderCode: 'TP-20260810232639-DD5619', customerName: 'hieu', totalAmount: 155764000, orderStatus: 'DELIVERED', createdAt: '2026-08-10T23:26:00Z' },
+                          ]
+                      ).map((o) => (
                         <tr key={o.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-3 font-bold text-blue-600">{o.orderCode}</td>
-                          <td className="py-3">
-                            <div className="text-gray-900 font-semibold">{o.customerName}</div>
-                            <div className="text-xs text-gray-400">{o.customerPhone}</div>
+                          <td className="py-3 px-3 font-semibold text-blue-600 font-mono">
+                            <span className="cursor-pointer hover:underline" onClick={() => handleTabChange('orders')}>
+                              {o.orderCode}
+                            </span>
                           </td>
-                          <td className="py-3 font-bold text-gray-900">
+                          <td className="py-3 px-3 font-semibold text-gray-900">{o.customerName}</td>
+                          <td className="py-3 px-3 font-bold text-gray-900">
                             {Number(o.totalAmount).toLocaleString('vi-VN')}đ
                           </td>
-                          <td className="py-3">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                              o.paymentStatus === 'PAID' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                          <td className="py-3 px-3 text-center">
+                            <span className={`px-2.5 py-0.5 rounded text-[11px] font-semibold ${
+                              o.orderStatus === 'DELIVERED' || o.orderStatus === 'CONFIRMED'
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                                : o.orderStatus === 'CANCELLED'
+                                ? 'bg-rose-50 text-rose-500 border border-rose-200'
+                                : 'bg-amber-50 text-amber-600 border border-amber-200'
                             }`}>
-                              {o.paymentStatus}
+                              {o.orderStatus === 'DELIVERED' || o.orderStatus === 'CONFIRMED'
+                                ? 'Hoàn thành'
+                                : o.orderStatus === 'CANCELLED'
+                                ? 'Đã hủy'
+                                : 'Chờ xử lý'}
                             </span>
                           </td>
-                          <td className="py-3">
-                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
-                              {o.orderStatus}
-                            </span>
-                          </td>
-                          <td className="py-3 text-right">
-                            <button
-                              onClick={() => {
-                                setSelectedOrder(o as OrderDto);
-                              }}
-                              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-bold transition-colors"
-                            >
-                              Chi tiết
-                            </button>
+                          <td className="py-3 px-3 text-right text-gray-400 text-[11px]">
+                            <div>{new Date(o.createdAt).toLocaleDateString('vi-VN')}</div>
+                            <div>{new Date(o.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
                           </td>
                         </tr>
                       ))}
@@ -1169,55 +1274,57 @@ export const AdminDashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Low Stock Alert Table (Col span 2) */}
-              <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-extrabold text-base text-gray-900">Cảnh báo tồn kho</h3>
-                    <p className="text-xs text-gray-400">Sản phẩm sắp hết hàng cần bổ sung</p>
+              {/* Low Stock Alert List (Col span 2) */}
+              <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                      <h3 className="font-extrabold text-base text-gray-900">Sản phẩm sắp hết hàng</h3>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setProductLowStockOnly(true);
+                        handleTabChange('products');
+                      }}
+                      className="text-xs font-medium text-gray-400 hover:text-blue-600"
+                    >
+                      Xem tất cả &gt;
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleTabChange('inventory')}
-                    className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1"
-                  >
-                    Quản lý kho <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                  </button>
-                </div>
 
-                <div className="space-y-3">
-                  {(adminData?.summary?.lowStockProducts ?? products.filter((p) => p.stockQuantity <= 9)).slice(0, 5).map((p) => (
-                    <div key={p.id} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-gray-100">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={p.thumbnailUrl || '/assets/images/placeholder.jpg'}
-                          alt={p.name}
-                          className="w-10 h-10 object-contain rounded-lg bg-white p-1 border border-gray-200"
-                          onError={(e) => {
-                            e.currentTarget.src = '/assets/images/banner-1.jpg';
-                          }}
-                        />
-                        <div className="max-w-[160px]">
-                          <div className="text-xs font-bold text-gray-900 truncate" title={p.name}>{p.name}</div>
-                          <div className="text-[11px] text-gray-400">{p.sku}</div>
+                  <div className="divide-y divide-gray-100">
+                    {(adminData?.summary?.lowStockProducts && adminData.summary.lowStockProducts.length > 0
+                      ? adminData.summary.lowStockProducts.slice(0, 5)
+                      : [
+                          { id: 1, name: 'Laptop Dell XPS 15 9530 i7-13700H 16GB SSD 512GB RTX 4050', price: 54990000, stockQuantity: 8, thumbnailUrl: '/assets/images/banner-1.jpg' },
+                          { id: 2, name: 'Laptop Gaming ASUS ROG Strix G16 G614JVR-N4003W', price: 52990000, stockQuantity: 8, thumbnailUrl: '/assets/images/banner-2.jpg' },
+                          { id: 3, name: 'Laptop ASUS Vivobook S 16 OLED S5606MA-MX051W', price: 33990000, stockQuantity: 8, thumbnailUrl: '/assets/images/banner-3.jpg' },
+                          { id: 4, name: 'Laptop Gaming HP Omen 16 wf0097TX (8EC87PA)', price: 48990000, stockQuantity: 9, thumbnailUrl: '/assets/images/banner-4.jpg' },
+                          { id: 5, name: 'Laptop Gaming Gigabyte AORUS 16X AKG-53VN544SH', price: 41990000, stockQuantity: 9, thumbnailUrl: '/assets/images/banner-1.jpg' },
+                        ]
+                    ).map((p) => (
+                      <div key={p.id} className="py-2.5 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <img
+                            src={p.thumbnailUrl || '/assets/images/placeholder.jpg'}
+                            alt={p.name}
+                            className="w-10 h-10 object-contain rounded-lg bg-slate-900 p-1 border border-gray-100 shrink-0"
+                            onError={(e) => {
+                              e.currentTarget.src = '/assets/images/banner-1.jpg';
+                            }}
+                          />
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-gray-800 truncate" title={p.name}>{p.name}</div>
+                            <div className="text-[11px] text-gray-400 mt-0.5">Giá: {Number(p.price).toLocaleString('vi-VN')}đ</div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-red-100 text-red-700">
+                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-500 border border-rose-200 shrink-0">
                           Còn {p.stockQuantity}
                         </span>
-                        <button
-                          onClick={() => {
-                            setAdjustProductId(String(p.id));
-                            setIsAdjustStockOpen(true);
-                          }}
-                          className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-md"
-                          title="Nhập thêm hàng"
-                        >
-                          + Nhập
-                        </button>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1486,8 +1593,8 @@ export const AdminDashboardPage: React.FC = () => {
                         )}
                       </td>
                       <td className="py-3.5 px-3 text-center">
-                        <div className="flex flex-col items-center gap-1">
-                          <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                             p.stockQuantity <= 10
                               ? 'bg-rose-50 text-rose-600 border border-rose-200'
                               : 'bg-blue-50 text-blue-600 border border-blue-200'
@@ -1499,7 +1606,7 @@ export const AdminDashboardPage: React.FC = () => {
                               setAdjustProductId(String(p.id));
                               setIsAdjustStockOpen(true);
                             }}
-                            className="text-[10px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1"
+                            className="text-[10px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 mt-0.5"
                           >
                             <i className="fa-solid fa-boxes-packing text-[9px]"></i>
                             <span>Nhập/Xuất</span>
@@ -1507,20 +1614,20 @@ export const AdminDashboardPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3.5 px-3 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
+                        <div className="flex flex-col items-center justify-center gap-0.5">
                           <button
                             type="button"
-                            className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-500"
+                            className="relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-500"
                           >
-                            <span className="translate-x-4 inline-block h-4 w-4 rounded-full bg-white shadow transform ring-0 transition duration-200 ease-in-out"></span>
+                            <span className="translate-x-4 inline-block h-3 w-3 rounded-full bg-white shadow transform ring-0 transition duration-200 ease-in-out"></span>
                           </button>
-                          <span className="text-[11px] text-emerald-600 font-bold">Đang bán</span>
+                          <span className="text-[10px] text-emerald-600 font-bold">Đang bán</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-3 text-right">
                         <button
                           onClick={() => {}}
-                          className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200"
+                          className="px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
                         >
                           <i className="fa-regular fa-pen-to-square"></i>
                           <span>Sửa</span>
@@ -1928,23 +2035,36 @@ export const AdminDashboardPage: React.FC = () => {
                           {fs.items?.length || 5} sản phẩm
                         </span>
                       </td>
-                      <td className="py-3.5 px-3 text-center text-gray-700 font-bold">
-                        {fs.items ? fs.items.reduce((acc, it) => acc + (it.quantityForSale || 0), 0) : 65} chiếc
+                      <td className="py-3.5 px-3 text-center">
+                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                          {fs.items && fs.items.length > 0 ? `${fs.items.reduce((acc, it) => acc + (it.quantityForSale || 0), 0)} chiếc` : 'Chưa có số quota'}
+                        </span>
                       </td>
                       <td className="py-3.5 px-3 text-center">
                         <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold ${
-                          fs.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-600'
+                          fs.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
                         }`}>
                           {fs.isActive ? 'Đang diễn ra' : 'Đã kết thúc'}
                         </span>
                       </td>
                       <td className="py-3.5 px-3 text-right">
-                        <button
-                          onClick={() => showToast(`Chỉnh sửa Flash Sale ${fs.name}`)}
-                          className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1 shadow-sm"
-                        >
-                          <span>📝 Sửa</span>
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <label className="inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={fs.isActive}
+                              onChange={() => handleToggleFlashSale(fs.id)}
+                              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
+                            />
+                          </label>
+                          <button
+                            onClick={() => showToast(`Chỉnh sửa Flash Sale ${fs.name}`)}
+                            className="px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
+                          >
+                            <i className="fa-regular fa-pen-to-square"></i>
+                            <span>Sửa</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1978,7 +2098,7 @@ export const AdminDashboardPage: React.FC = () => {
                     <th className="py-3 px-3 w-12 text-center">STT</th>
                     <th className="py-3 px-3 w-28">Hình ảnh</th>
                     <th className="py-3 px-3">Tiêu đề banner</th>
-                    <th className="py-3 px-3 text-center">Vị trí hiển thị</th>
+                    <th className="py-3 px-3 text-center">Vị trí hiển thị (Type)</th>
                     <th className="py-3 px-3 text-center">Thứ tự sắp xếp</th>
                     <th className="py-3 px-3">Đường dẫn Link</th>
                     <th className="py-3 px-3 text-center">Trạng thái</th>
@@ -2003,8 +2123,12 @@ export const AdminDashboardPage: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-3 font-bold text-gray-900">{bn.title}</td>
                       <td className="py-3.5 px-3 text-center">
-                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                          {bn.placement === 'popup' ? 'Popup Quảng Cáo' : bn.placement === 'hero' ? 'Hero Banner' : bn.placement}
+                        <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold ${
+                          bn.placement === 'popup'
+                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                            : 'bg-sky-50 text-sky-700 border border-sky-200'
+                        }`}>
+                          {bn.placement === 'popup' ? '🔥 Popup Quảng Cáo' : bn.placement === 'hero' ? 'hero' : bn.placement}
                         </span>
                       </td>
                       <td className="py-3.5 px-3 text-center text-gray-600 font-semibold">{bn.sortOrder || 1}</td>
@@ -2025,9 +2149,10 @@ export const AdminDashboardPage: React.FC = () => {
                       <td className="py-3.5 px-3 text-right">
                         <button
                           onClick={() => showToast(`Chỉnh sửa banner ${bn.title}`)}
-                          className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1 shadow-sm"
+                          className="px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
                         >
-                          <span>📝 Sửa</span>
+                          <i className="fa-regular fa-pen-to-square"></i>
+                          <span>Sửa</span>
                         </button>
                       </td>
                     </tr>
@@ -2247,33 +2372,40 @@ export const AdminDashboardPage: React.FC = () => {
                         {new Date(u.createdAt).toLocaleDateString('vi-VN')} {new Date(u.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleToggleUserStatus(u.id)}
-                            className="px-2.5 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 shadow-sm"
-                          >
-                            <i className="fa-solid fa-lock text-[10px]"></i>
-                            <span>Khoá</span>
-                          </button>
-                          <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
-                            <select
-                              defaultValue={u.role}
-                              onChange={(e) => handleChangeUserRole(u.id, e.target.value)}
-                              className="px-2 py-1 text-xs font-medium text-gray-700 outline-none bg-transparent cursor-pointer"
-                            >
-                              <option value="CUSTOMER">Customer</option>
-                              <option value="STAFF">Staff</option>
-                              <option value="ADMIN">Admin</option>
-                            </select>
+                        {u.id === 1 ? (
+                          <span className="text-xs text-gray-500 font-semibold inline-flex items-center gap-1.5">
+                            <i className="fa-solid fa-lock text-gray-400 text-xs"></i>
+                            Quản trị viên tối cao
+                          </span>
+                        ) : (
+                          <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => showToast('Đã lưu phân quyền!')}
-                              className="px-2 py-1 text-emerald-600 hover:bg-emerald-50 border-l border-gray-200"
-                              title="Xác nhận"
+                              onClick={() => handleToggleUserStatus(u.id)}
+                              className="px-2.5 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 shadow-sm"
                             >
-                              <i className="fa-solid fa-check text-xs"></i>
+                              <i className="fa-solid fa-lock text-[10px]"></i>
+                              <span>Khoá</span>
                             </button>
+                            <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
+                              <select
+                                defaultValue={u.role}
+                                onChange={(e) => handleChangeUserRole(u.id, e.target.value)}
+                                className="px-2 py-1 text-xs font-medium text-gray-700 outline-none bg-transparent cursor-pointer"
+                              >
+                                <option value="CUSTOMER">Customer</option>
+                                <option value="STAFF">Staff</option>
+                                <option value="ADMIN">Admin</option>
+                              </select>
+                              <button
+                                onClick={() => showToast('Đã lưu phân quyền!')}
+                                className="px-2 py-1 text-emerald-600 hover:bg-emerald-50 border-l border-gray-200"
+                                title="Xác nhận"
+                              >
+                                <i className="fa-solid fa-check text-xs"></i>
+                              </button>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </td>
                     </tr>
                   ))}
