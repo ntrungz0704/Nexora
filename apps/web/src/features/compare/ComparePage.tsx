@@ -223,6 +223,90 @@ export const ComparePage: React.FC = () => {
     setAiVerdict(null);
   };
 
+  // Dynamic multi-criteria Persona scoring matching TechPilot ProductComparisonService
+  const calculateProductPersonaScore = (p: ProductDto, personaCode: string): number => {
+    let specsObj: Record<string, unknown> = {};
+    if (p.specs) {
+      if (typeof p.specs === 'string') {
+        try {
+          specsObj = JSON.parse(p.specs);
+        } catch {
+          specsObj = {};
+        }
+      } else if (typeof p.specs === 'object') {
+        specsObj = p.specs as Record<string, unknown>;
+      }
+    }
+    const innerSpecs: Record<string, unknown> =
+      specsObj.specs && typeof specsObj.specs === 'object'
+        ? (specsObj.specs as Record<string, unknown>)
+        : specsObj;
+
+    const price = Number(p.salePrice || p.price) || 20000000;
+    const ramGb = Number(innerSpecs.ram_gb || 8);
+    const storageGb = Number(innerSpecs.storage_gb || 512);
+    const refreshRate = Number(innerSpecs.refresh_rate_hz || innerSpecs.refresh_rate || 60);
+    const weightKg = Number(innerSpecs.weight_kg || 2.0);
+    const gpuStr = String(innerSpecs.gpu_model || '').toLowerCase();
+    const hasDedicatedGpu =
+      gpuStr.includes('rtx') ||
+      gpuStr.includes('gtx') ||
+      gpuStr.includes('radeon') ||
+      gpuStr.includes('geforce');
+
+    let score = 70;
+
+    // RAM score
+    if (ramGb >= 32) score += 10;
+    else if (ramGb >= 16) score += 6;
+    else if (ramGb >= 8) score += 2;
+
+    // Storage score
+    if (storageGb >= 1000) score += 8;
+    else if (storageGb >= 512) score += 5;
+
+    // Dedicated GPU
+    if (hasDedicatedGpu) score += 8;
+
+    // Value for money
+    if (price < 20000000) score += 6;
+    else if (price < 35000000) score += 3;
+
+    // Persona-specific weights
+    switch (personaCode) {
+      case 'gamer':
+      case 'esports':
+        if (hasDedicatedGpu) score += 10;
+        if (refreshRate >= 144) score += 6;
+        if (ramGb >= 16) score += 4;
+        break;
+      case 'developer':
+        if (ramGb >= 32) score += 12;
+        else if (ramGb >= 16) score += 8;
+        if (storageGb >= 1000) score += 5;
+        break;
+      case 'student':
+      case 'office':
+        if (price < 20000000) score += 10;
+        if (weightKg <= 1.8) score += 6;
+        break;
+      case 'creator':
+        if (hasDedicatedGpu) score += 8;
+        if (ramGb >= 16) score += 6;
+        if (storageGb >= 1000) score += 6;
+        break;
+      case 'business':
+        if (weightKg <= 1.5) score += 10;
+        if (price < 25000000) score += 5;
+        break;
+      default:
+        if (price < 25000000 && ramGb >= 16) score += 8;
+        break;
+    }
+
+    return Math.min(98, Math.max(68, Math.round(score)));
+  };
+
   // Run AI Persona Analysis
   const handleRunAiAnalysis = () => {
     if (comparedProducts.length < 2) {
@@ -231,18 +315,24 @@ export const ComparePage: React.FC = () => {
     }
     setIsAiAnalyzing(true);
     setTimeout(() => {
-      // Pick best product based on price/score calculation
-      const sorted = [...comparedProducts].sort((a, b) => {
-        const pA = Number(a.salePrice || a.price);
-        const pB = Number(b.salePrice || b.price);
-        return pA - pB;
+      // Score each product dynamically based on real specs, price and selected persona
+      const scored = comparedProducts.map((p) => ({
+        product: p,
+        score: calculateProductPersonaScore(p, selectedPersonaCode),
+      }));
+
+      // Sort by score descending (highest score wins); if tied, sort by price ascending
+      scored.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return Number(a.product.salePrice || a.product.price) - Number(b.product.salePrice || b.product.price);
       });
-      const winner = sorted[0];
-      if (winner) {
-        setAiWinnerId(winner.id);
+
+      const winnerData = scored[0];
+      if (winnerData) {
+        setAiWinnerId(winnerData.product.id);
         const personaObj = currentPersonas.find((p) => p.code === selectedPersonaCode) || currentPersonas[0];
         setAiVerdict(
-          `Dựa trên thuật toán Nexora AI đối chiếu Persona "${personaObj?.label}": "${winner.name}" đạt điểm tối ưu cao nhất (94/100) nhờ mức giá cạnh tranh, cấu hình hài hòa và hiệu năng bền bỉ.`
+          `Dựa trên thuật toán Nexora AI đối chiếu Persona "${personaObj?.label}": "${winnerData.product.name}" đạt điểm tối ưu cao nhất (${winnerData.score}/100) nhờ cấu hình phù hợp vượt trội và tỷ lệ hiệu năng/giá thành tối ưu cho nhu cầu này.`
         );
       }
       setIsAiAnalyzing(false);

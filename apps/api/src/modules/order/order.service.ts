@@ -168,21 +168,37 @@ export class OrderService {
       // Decrement stock & record inventory log in deterministic sorted order to prevent MySQL deadlocks
       const sortedItems = [...rawItems].sort((a, b) => a.productId - b.productId);
       for (const item of sortedItems) {
-        const prod = productMap.get(item.productId)!;
-        const newBalance = prod.stockQuantity - item.quantity;
-
-        await tx.product.update({
-          where: { id: prod.id },
-          data: { stockQuantity: newBalance },
+        // Atomic conditional decrement: strictly check stockQuantity >= item.quantity directly in MySQL InnoDB
+        const updateResult = await tx.product.updateMany({
+          where: {
+            id: item.productId,
+            stockQuantity: { gte: item.quantity },
+          },
+          data: {
+            stockQuantity: { decrement: item.quantity },
+          },
         });
+
+        if (updateResult.count === 0) {
+          const currentProd = await tx.product.findUnique({ where: { id: item.productId } });
+          throw new AppError(
+            400,
+            'INSUFFICIENT_STOCK',
+            `Sản phẩm "${currentProd?.name || 'Sản phẩm'}" không đủ số lượng trong kho (còn ${currentProd?.stockQuantity ?? 0}).`,
+          );
+        }
+
+        const refreshed = await tx.product.findUniqueOrThrow({ where: { id: item.productId } });
+        const balanceBefore = refreshed.stockQuantity + item.quantity;
+        const balanceAfter = refreshed.stockQuantity;
 
         await tx.inventoryLog.create({
           data: {
-            productId: prod.id,
+            productId: item.productId,
             changeType: 'SALE',
             quantity: -item.quantity,
-            balanceBefore: prod.stockQuantity,
-            balanceAfter: newBalance,
+            balanceBefore,
+            balanceAfter,
             referenceType: 'ORDER',
             referenceId: orderCode,
             note: `Bán lẻ qua đơn hàng ${orderCode}`,

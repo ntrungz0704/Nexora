@@ -121,6 +121,63 @@ describe('RBAC & Concurrency Security Test Suite', () => {
     expect(order2.body.error.message).toContain('không đủ số lượng trong kho');
   });
 
+  it('CONCURRENCY-2: Two simultaneous order requests (Promise.all) for the last single stock unit: exactly ONE succeeds (201) and ONE fails (400)', async () => {
+    // 1. Create product with stockQuantity = 1
+    const prodRes = await request(app)
+      .post('/api/v1/admin/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        name: 'Sản Phẩm Đua Đặt Hàng Đồng Thời',
+        slug: `san-pham-dua-kho-${Date.now()}`,
+        categoryId: 1,
+        price: '600000',
+        stockQuantity: 1,
+        sku: `SKU-RACE-${Date.now().toString().slice(-4)}`,
+        shortDescription: 'Thử nghiệm race condition 2 đơn đồng thời',
+      });
+
+    expect(prodRes.status).toBe(201);
+    const product = prodRes.body.data;
+
+    // 2. Fire 2 simultaneous purchase requests via Promise.all
+    const [resA, resB] = await Promise.all([
+      request(app)
+        .post('/api/v1/orders')
+        .send({
+          customerName: 'Người Mua Nhanh A',
+          customerEmail: 'buyerA@nexora.local',
+          customerPhone: '0901111111',
+          shippingAddress: '123 Cầu Giấy, Hà Nội',
+          paymentMethod: 'COD',
+          items: [{ productId: product.id, quantity: 1 }],
+        }),
+      request(app)
+        .post('/api/v1/orders')
+        .send({
+          customerName: 'Người Mua Nhanh B',
+          customerEmail: 'buyerB@nexora.local',
+          customerPhone: '0902222222',
+          shippingAddress: '456 Đống Đa, Hà Nội',
+          paymentMethod: 'COD',
+          items: [{ productId: product.id, quantity: 1 }],
+        }),
+    ]);
+
+    const statuses = [resA.status, resB.status].sort();
+    // Exactly one must succeed (201) and exactly one must be rejected (400)
+    expect(statuses).toEqual([201, 400]);
+
+    const failedRes = resA.status === 400 ? resA : resB;
+    expect(failedRes.body.success).toBe(false);
+    expect(failedRes.body.error.code).toBe('INSUFFICIENT_STOCK');
+
+    // Verify final stock is exactly 0 in database (no negative stock, no overselling)
+    const checkRes = await request(app)
+      .get(`/api/v1/catalog/products/${product.slug}`);
+    expect(checkRes.status).toBe(200);
+    expect(checkRes.body.data.stockQuantity).toBe(0);
+  });
+
   describe('P1 Auth Security Regression Tests', () => {
     it('AUTH-P1-1: Plaintext fallback "TechPilotAdmin2026!" is strictly rejected with 401', async () => {
       const res = await request(app)

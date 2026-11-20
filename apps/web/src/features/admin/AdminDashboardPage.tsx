@@ -181,8 +181,8 @@ export const AdminDashboardPage: React.FC = () => {
       const headers = getAuthHeaders();
       const [sumRes, ordersRes, prodsRes, catsRes, logsRes] = await Promise.all([
         fetch(`${apiUrl}/admin/dashboard/summary`, { headers }),
-        fetch(`${apiUrl}/admin/orders?limit=50`, { headers }),
-        fetch(`${apiUrl}/admin/products?limit=50`, { headers }),
+        fetch(`${apiUrl}/admin/orders?limit=100`, { headers }),
+        fetch(`${apiUrl}/admin/products?limit=1000`, { headers }),
         fetch(`${apiUrl}/admin/categories`, { headers }),
         fetch(`${apiUrl}/admin/inventory/logs?limit=50`, { headers }),
       ]);
@@ -725,10 +725,11 @@ export const AdminDashboardPage: React.FC = () => {
     if (productCategoryFilter && p.category?.name !== productCategoryFilter) return false;
     if (productBrandFilter && p.brand?.name !== productBrandFilter) return false;
     if (productStatusFilter && p.status !== productStatusFilter) return false;
-    if (productLowStockOnly && p.stockQuantity >= 10) return false;
+    if (productLowStockOnly && (p.stockQuantity >= 10 || p.stockQuantity <= 0)) return false;
     if (productZeroStockOnly && p.stockQuantity > 0) return false;
     return true;
   });
+  const totalProductPages = Math.max(1, Math.ceil(filteredProducts.length / 10));
   const paginatedProducts = filteredProducts.slice((productPage - 1) * 10, productPage * 10);
 
   const filteredOrders = orders.filter((o) => {
@@ -1665,7 +1666,17 @@ export const AdminDashboardPage: React.FC = () => {
 
             {/* Pagination */}
             <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-gray-100 text-xs">
-              {[1, 2, 3].map((page) => (
+              <button
+                type="button"
+                disabled={productPage <= 1}
+                onClick={() => setProductPage((p) => Math.max(1, p - 1))}
+                className="w-8 h-8 rounded-full font-bold text-gray-600 hover:bg-gray-100 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Trang trước"
+              >
+                <i className="fa-solid fa-chevron-left text-[10px]"></i>
+              </button>
+
+              {Array.from({ length: Math.min(totalProductPages, 5) }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
                   onClick={() => setProductPage(page)}
@@ -1678,16 +1689,29 @@ export const AdminDashboardPage: React.FC = () => {
                   {page}
                 </button>
               ))}
-              <span className="text-gray-400">...</span>
+
+              {totalProductPages > 5 && (
+                <>
+                  <span className="text-gray-400">...</span>
+                  <button
+                    onClick={() => setProductPage(totalProductPages)}
+                    className={`w-8 h-8 rounded-full font-bold flex items-center justify-center transition-all ${
+                      productPage === totalProductPages
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {totalProductPages}
+                  </button>
+                </>
+              )}
+
               <button
-                onClick={() => setProductPage(66)}
-                className="w-8 h-8 rounded-full font-bold text-gray-600 hover:bg-gray-100 flex items-center justify-center"
-              >
-                66
-              </button>
-              <button
-                onClick={() => setProductPage((p) => Math.min(p + 1, 66))}
-                className="w-8 h-8 rounded-full font-bold text-gray-600 hover:bg-gray-100 flex items-center justify-center"
+                type="button"
+                disabled={productPage >= totalProductPages}
+                onClick={() => setProductPage((p) => Math.min(p + 1, totalProductPages))}
+                className="w-8 h-8 rounded-full font-bold text-gray-600 hover:bg-gray-100 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Trang sau"
               >
                 <i className="fa-solid fa-chevron-right text-[10px]"></i>
               </button>

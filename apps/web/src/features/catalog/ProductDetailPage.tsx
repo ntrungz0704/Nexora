@@ -139,15 +139,10 @@ function parseSpecs(rawSpecs: unknown, product?: ProductDto): FormattedSpec[] {
     traverse(parsed);
   }
 
-  // Add customer-centric commercial specifications that users care about
+  // Add authentic relational metadata from verified product record
   if (product) {
     if (product.brand?.name) addSpec('Thương hiệu', product.brand.name);
     if (product.category?.name) addSpec('Dòng sản phẩm', product.category.name);
-    addSpec('Tình trạng', 'Mới 100% nguyên hộp, chính hãng (Full Box)');
-    addSpec('Bảo hành', '24 tháng chính hãng (1 đổi 1 trong 30 ngày nếu lỗi NSX)');
-    addSpec('Hóa đơn & VAT', 'Đã bao gồm thuế giá trị gia tăng (VAT 10%)');
-    addSpec('Hỗ trợ kỹ thuật', 'Cài đặt phần mềm, vệ sinh máy miễn phí trọn đời tại Nexora');
-    addSpec('Vận chuyển', 'Giao hỏa tốc trong 2h nội thành, miễn phí giao hàng toàn quốc');
   }
 
   return results;
