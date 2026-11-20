@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark-mode, .dark *, .dark-mode *));
+
 /* =======================================================
    TECHPILOT MASCOT FLOATING AI CHATBOT LAUNCHER
    ======================================================= */
@@ -114,8 +116,11 @@ input:disabled,
    ADMIN PANEL DARK MODE (TECHPILOT VISUAL PARITY)
    ======================================================= */
 html.dark-mode,
+html.dark,
 html.dark-mode body,
-html.dark-mode #root {
+html.dark body,
+html.dark-mode #root,
+html.dark #root {
   background-color: #0B132B !important;
   color: #F8FAFC !important;
 }

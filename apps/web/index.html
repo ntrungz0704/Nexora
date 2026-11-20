@@ -23,6 +23,7 @@
         const stored = localStorage.getItem('techpilot-theme') || localStorage.getItem('nexora-theme');
         const useDark = stored === 'dark';
         document.documentElement.classList.toggle('dark-mode', useDark);
+        document.documentElement.classList.toggle('dark', useDark);
       })();
     </script>
   </head>

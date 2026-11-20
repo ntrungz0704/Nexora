@@ -163,6 +163,7 @@ export const AdminDashboardPage: React.FC = () => {
     setIsDarkMode(nextDark);
     if (typeof document !== 'undefined') {
       document.documentElement.classList.toggle('dark-mode', nextDark);
+      document.documentElement.classList.toggle('dark', nextDark);
     }
     localStorage.setItem('techpilot-theme', nextDark ? 'dark' : 'light');
     localStorage.setItem('nexora-theme', nextDark ? 'dark' : 'light');
@@ -1176,7 +1177,7 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
-  const handleSwitchToStaff = async () => {
+  const _handleSwitchToStaff = async () => {
     try {
       const session = await authService.login({ email: 'staff@nexora.local', password: 'password123' });
       setCurrentUser(session.user);
@@ -1187,7 +1188,7 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
-  const isStaffOrAdmin = currentUser?.role === 'ADMIN' || currentUser?.role === 'STAFF';
+  const _isStaffOrAdmin = currentUser?.role === 'ADMIN' || currentUser?.role === 'STAFF';
 
   const navMenuItems: Array<{ id: AdminTab; label: string; icon: string }> = [
     { id: 'dashboard', label: 'Tổng quan', icon: 'fa-chart-pie' },
@@ -1259,30 +1260,26 @@ export const AdminDashboardPage: React.FC = () => {
       )}
 
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-5 shrink-0 shadow-2xl z-20 overflow-y-auto max-h-screen admin-sidebar">
-        <div>
+      <aside className="w-64 bg-[#0A1128] text-white flex flex-col justify-between shrink-0 shadow-2xl z-20 min-h-screen admin-sidebar">
+        <div className="pt-6 px-4">
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-3 mb-6 px-1">
-            <img
-              src="/assets/images/logo.png"
-              alt="Nexora Admin"
-              className="h-8 object-contain"
-            />
-            <span className="text-[10px] bg-blue-600/30 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/30 font-bold uppercase">
-              Admin
-            </span>
+          <Link to="/" className="flex items-center gap-3 mb-8 px-2 group">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white text-base shadow-md group-hover:scale-105 transition-transform">
+              <i className="fa-solid fa-paper-plane text-sm"></i>
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white">TechPilot</span>
           </Link>
 
           {/* Navigation Items */}
-          <nav className="space-y-1">
+          <nav className="space-y-1.5">
             {navMenuItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleTabChange(item.id)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
                   activeTab === item.id
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-[#1877F2] text-white shadow-lg shadow-blue-500/20'
+                    : 'text-slate-300 hover:text-white hover:bg-white/5 font-medium'
                 }`}
               >
                 <i className={`fas ${item.icon} w-5 text-center text-sm`}></i>
@@ -1293,11 +1290,11 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="pt-4 mt-auto space-y-4">
-          <div className="flex items-center justify-between px-1 text-slate-400">
+        <div className="p-4 mt-auto">
+          <div className="flex items-center justify-between mb-4 px-2 text-slate-400">
             <button
               type="button"
-              className="w-7 h-7 rounded-lg hover:bg-slate-800 flex items-center justify-center transition-colors text-slate-400 hover:text-white"
+              className="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors text-slate-400 hover:text-white cursor-pointer"
               title="Thu gọn sidebar"
             >
               <i className="fa-solid fa-chevron-left text-xs"></i>
@@ -1309,7 +1306,7 @@ export const AdminDashboardPage: React.FC = () => {
               authService.logout();
               navigate('/auth/login');
             }}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-bold text-white bg-[#ef4444] hover:bg-red-600 rounded-xl transition-all shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 text-xs font-bold text-white bg-[#FF4D4F] hover:bg-red-600 rounded-2xl transition-all shadow-md cursor-pointer"
           >
             <i className="fa-solid fa-arrow-right-from-bracket"></i>
             <span>Đăng xuất</span>
@@ -1319,43 +1316,22 @@ export const AdminDashboardPage: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 min-w-0 p-6 lg:p-8 overflow-y-auto max-h-screen bg-[#F4F6F9] dark:bg-[#0B132B]">
-        {/* Permission Banner */}
-        {!isStaffOrAdmin && (
-          <div className="mb-6 bg-amber-50 border border-amber-300 text-amber-900 px-6 py-4 rounded-2xl flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-3">
-              <i className="fas fa-triangle-exclamation text-amber-600 text-xl"></i>
-              <div>
-                <h4 className="font-bold text-sm">Bạn chưa đăng nhập bằng tài khoản Staff / Admin</h4>
-                <p className="text-xs text-amber-700 mt-0.5">
-                  Để trải nghiệm đầy đủ quyền sửa đơn hàng, tạo sản phẩm và quản lý tồn kho, hãy bấm nút đăng nhập mẫu bên cạnh.
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={handleSwitchToStaff}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm shrink-0"
-            >
-              Đăng nhập Staff Mẫu
-            </button>
-          </div>
-        )}
-
         {/* Top Header - Exact TechPilot Parity */}
-        <div className="flex items-center justify-between gap-4 mb-6 bg-white px-6 py-3.5 rounded-2xl border border-gray-100 shadow-sm admin-header-bar">
+        <div className="flex items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-sm md:text-base font-bold text-gray-800 admin-text-title">
+            <h1 className="text-base font-bold text-gray-800 dark:text-white admin-text-title">
               Xin chào, Quản trị viên
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* Quick Search */}
-            <div className="relative hidden md:block">
-              <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+            <div className="relative w-72 hidden md:block">
+              <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
               <input
                 type="text"
                 placeholder="Tìm kiếm..."
-                className="pl-8 pr-4 py-1.5 bg-slate-50 border border-gray-200 focus:border-blue-500 focus:bg-white rounded-lg text-xs outline-none transition-all w-48 admin-input-control"
+                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 rounded-full text-xs text-gray-700 dark:text-gray-200 shadow-sm focus:outline-none focus:border-blue-500 admin-input-control"
               />
             </div>
 
@@ -1363,10 +1339,10 @@ export const AdminDashboardPage: React.FC = () => {
             <Link
               to="/"
               target="_blank"
-              className="px-3.5 py-1.5 bg-white border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
+              className="px-4 py-2 bg-white dark:bg-slate-800 border border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700/50 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-colors"
               title="Mở website khách hàng"
             >
-              <i className="fa-solid fa-globe text-[11px]"></i>
+              <i className="fa-solid fa-globe text-xs"></i>
               <span className="hidden sm:inline">Xem Website</span>
             </Link>
 
@@ -1374,27 +1350,27 @@ export const AdminDashboardPage: React.FC = () => {
             <button
               type="button"
               onClick={toggleTheme}
-              className="w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 flex items-center justify-center text-sm transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 shadow-sm flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors cursor-pointer"
               title={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
             >
-              <i className={`fa-solid ${isDarkMode ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'}`}></i>
+              <i className={`fa-solid ${isDarkMode ? 'fa-sun text-amber-400 text-sm' : 'fa-moon text-slate-600 text-xs'}`}></i>
             </button>
 
             {/* Notification Bell */}
             <div className="relative">
               <button
-                className="w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 flex items-center justify-center text-sm transition-colors"
+                className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-gray-200/80 dark:border-slate-700 shadow-sm flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors"
                 title="Thông báo"
               >
-                <i className="fa-regular fa-bell"></i>
+                <i className="fa-solid fa-bell text-xs"></i>
               </button>
-              <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
                 3
               </span>
             </div>
 
             {/* User Avatar */}
-            <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+            <div className="w-9 h-9 rounded-full bg-[#1877F2] text-white font-bold text-xs flex items-center justify-center shadow-md">
               AD
             </div>
           </div>
@@ -1404,69 +1380,64 @@ export const AdminDashboardPage: React.FC = () => {
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             {/* 5 Stat Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
               {/* Card 1: Doanh thu */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                    <span>Doanh thu</span>
-                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
-                  </div>
-                  <div className="text-xl font-extrabold text-gray-900 mt-1">
-                    {summary?.totalRevenue ? `${Number(summary.totalRevenue).toLocaleString('vi-VN')}đ` : '369.047.000đ'}
-                  </div>
-                  <div className="mt-1">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      <i className="fa-solid fa-check text-[10px]"></i> Đã hoàn thành
-                    </span>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                    Doanh thu <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs">
+                    <i className="fa-solid fa-chart-line"></i>
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm shrink-0">
-                  <i className="fa-solid fa-chart-line"></i>
+                <div className="text-2xl font-black text-gray-900 dark:text-white my-2 tracking-tight">
+                  {summary?.totalRevenue ? `${Number(summary.totalRevenue).toLocaleString('vi-VN')}đ` : '369.047.000đ'}
+                </div>
+                <div className="text-xs font-semibold text-emerald-500 flex items-center gap-1">
+                  <i className="fa-solid fa-check text-[10px]"></i> Đã hoàn thành
                 </div>
               </div>
 
               {/* Card 2: Tổng mẫu sản phẩm */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                    <span>Tổng mẫu sản phẩm</span>
-                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
-                  </div>
-                  <div className="text-xl font-extrabold text-gray-900 mt-1">
-                    {summary?.productsCount || (products.length > 0 ? products.length : 651)}
-                  </div>
-                  <div className="text-[11px] text-gray-400 mt-1">
-                    Đang bán: {summary?.productsCount || (products.length > 0 ? products.length : 651)} mẫu
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                    Tổng mẫu sản phẩm <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xs">
+                    <i className="fa-solid fa-boxes-stacked"></i>
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm shrink-0">
-                  <i className="fa-solid fa-box"></i>
+                <div className="text-2xl font-black text-gray-900 dark:text-white my-2 tracking-tight">
+                  {summary?.productsCount || (products.length > 0 ? products.length : 651)}
+                </div>
+                <div className="text-xs text-gray-400 dark:text-slate-400">
+                  Đang bán: <span className="text-blue-600 dark:text-blue-400 font-semibold">{summary?.productsCount || (products.length > 0 ? products.length : 651)} mẫu</span>
                 </div>
               </div>
 
               {/* Card 3: Tổng đơn vị tồn kho */}
               <div
                 onClick={() => handleTabChange('products')}
-                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60 flex flex-col justify-between cursor-pointer hover:shadow-md transition-shadow"
               >
-                <div>
-                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                    <span>Tổng đơn vị tồn kho</span>
-                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
-                  </div>
-                  <div className="text-xl font-extrabold text-gray-900 mt-1">
-                    {(adminData?.summary?.totalUnitsInStock !== undefined
-                      ? adminData.summary.totalUnitsInStock
-                      : 13609
-                    ).toLocaleString('vi-VN')}
-                  </div>
-                  <div className="text-[11px] text-gray-400 mt-1">
-                    Đã bán: 11 đơn vị
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                    Tổng đơn vị tồn kho <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
+                    <i className="fa-solid fa-warehouse"></i>
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm shrink-0">
-                  <i className="fa-solid fa-warehouse"></i>
+                <div className="text-2xl font-black text-gray-900 dark:text-white my-2 tracking-tight">
+                  {(adminData?.summary?.totalUnitsInStock !== undefined
+                    ? adminData.summary.totalUnitsInStock
+                    : 13609
+                  ).toLocaleString('vi-VN')}
+                </div>
+                <div className="text-xs text-gray-400 dark:text-slate-400">
+                  Đã bán: 11 đơn vị
                 </div>
               </div>
 
@@ -1476,22 +1447,21 @@ export const AdminDashboardPage: React.FC = () => {
                   setProductLowStockOnly(true);
                   handleTabChange('products');
                 }}
-                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60 flex flex-col justify-between cursor-pointer hover:shadow-md transition-shadow"
               >
-                <div>
-                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                    <span>Sắp hết hàng</span>
-                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
-                  </div>
-                  <div className="text-xl font-extrabold text-amber-500 mt-1">
-                    {adminData?.summary?.lowStockCount ?? 5}
-                  </div>
-                  <div className="text-[11px] text-amber-500 font-semibold mt-1">
-                    Tồn từ 1 - 9 sản phẩm
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                    Sắp hết hàng <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-500 dark:text-amber-400 flex items-center justify-center text-xs">
+                    <i className="fa-solid fa-triangle-exclamation"></i>
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shadow-sm shrink-0">
-                  <i className="fa-solid fa-triangle-exclamation"></i>
+                <div className="text-2xl font-black text-amber-500 my-2 tracking-tight">
+                  {adminData?.summary?.lowStockCount ?? 5}
+                </div>
+                <div className="text-xs text-gray-400 dark:text-slate-400 font-medium">
+                  Tồn từ 1 - 9 sản phẩm
                 </div>
               </div>
 
@@ -1502,22 +1472,21 @@ export const AdminDashboardPage: React.FC = () => {
                   setProductLowStockOnly(false);
                   handleTabChange('products');
                 }}
-                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60 flex flex-col justify-between cursor-pointer hover:shadow-md transition-shadow"
               >
-                <div>
-                  <div className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                    <span>Hết hàng</span>
-                    <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
-                  </div>
-                  <div className="text-xl font-extrabold text-red-500 mt-1">
-                    {adminData?.summary?.outOfStockCount ?? (products.filter((p) => p.stockQuantity <= 0).length || 0)}
-                  </div>
-                  <div className="text-[11px] text-red-500 font-semibold mt-1">
-                    Cần nhập thêm hàng
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                    Hết hàng <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
+                  </span>
+                  <div className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-300 flex items-center justify-center text-xs">
+                    <i className="fa-solid fa-ban"></i>
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center text-xl shadow-sm shrink-0">
-                  <i className="fa-solid fa-ban"></i>
+                <div className="text-2xl font-black text-red-500 my-2 tracking-tight">
+                  {adminData?.summary?.outOfStockCount ?? (products.filter((p) => p.stockQuantity <= 0).length || 0)}
+                </div>
+                <div className="text-xs text-red-500 font-semibold">
+                  Cần nhập thêm hàng
                 </div>
               </div>
             </div>
@@ -1525,13 +1494,13 @@ export const AdminDashboardPage: React.FC = () => {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
               {/* Revenue Chart */}
-              <div className="lg:col-span-3 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+              <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60 flex flex-col justify-between">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-chart-line text-blue-600"></i>
-                    <h3 className="font-extrabold text-sm md:text-base text-gray-900">Doanh thu 7 ngày gần nhất (Realtime)</h3>
+                    <i className="fa-solid fa-chart-simple text-purple-600 text-sm"></i>
+                    <h3 className="font-bold text-sm md:text-base text-gray-900 dark:text-white">Doanh thu 7 ngày gần nhất (Realtime)</h3>
                   </div>
-                  <div className="flex items-center gap-4 text-xs font-medium text-gray-500">
+                  <div className="flex items-center gap-4 text-xs font-medium text-gray-500 dark:text-slate-400">
                     <span className="flex items-center gap-1.5">
                       <span className="w-2.5 h-2.5 rounded-sm bg-purple-600"></span>
                       <span>Doanh thu (VND)</span>
@@ -1543,56 +1512,44 @@ export const AdminDashboardPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* SVG Combo Chart (Purple bars + Cyan line) */}
-                <div className="relative h-56 pt-6 pb-2 border-b border-gray-100">
+                {/* SVG Combo Chart (Purple bars + Cyan line matching TechPilot) */}
+                <div className="relative h-64 pt-8 pb-4 flex flex-col justify-between">
                   {/* Background grid lines */}
-                  <div className="absolute inset-x-0 top-6 bottom-8 flex flex-col justify-between pointer-events-none opacity-20">
-                    <div className="border-b border-gray-300 border-dashed"></div>
-                    <div className="border-b border-gray-300 border-dashed"></div>
-                    <div className="border-b border-gray-300 border-dashed"></div>
+                  <div className="absolute inset-x-0 top-12 bottom-12 flex flex-col justify-between pointer-events-none opacity-15">
+                    <div className="border-b border-gray-300"></div>
+                    <div className="border-b border-gray-300"></div>
+                    <div className="border-b border-gray-300"></div>
                   </div>
 
-                  {/* SVG line for order trend */}
-                  <svg className="absolute inset-x-0 top-6 bottom-8 w-full h-36 overflow-visible pointer-events-none">
-                    <polyline
-                      fill="none"
-                      stroke="#06b6d4"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      points="40,90 120,88 200,89 280,88 360,90 440,89 520,90"
-                    />
-                  </svg>
+                  {/* Horizontal cyan order trend line */}
+                  <div className="absolute inset-x-8 top-[52%] h-0.5 bg-cyan-400 z-10 pointer-events-none"></div>
 
                   {/* 7 Days Data Columns */}
-                  <div className="h-full flex items-end justify-between px-4 pb-1">
+                  <div className="h-full flex items-end justify-between px-6 pb-2 relative z-20">
                     {[
-                      { date: '14/11', amount: '48.500.000đ', orders: 2, height: 18 },
-                      { date: '15/11', amount: '52.000.000đ', orders: 3, height: 22 },
-                      { date: '16/11', amount: '41.200.000đ', orders: 2, height: 16 },
-                      { date: '17/11', amount: '68.900.000đ', orders: 3, height: 20 },
-                      { date: '18/11', amount: '59.400.000đ', orders: 2, height: 18 },
-                      { date: '19/11', amount: '74.200.000đ', orders: 3, height: 22 },
-                      { date: '20/11', amount: '34.847.000đ', orders: 2, height: 16 },
+                      { date: '15/11', amount: '52.000.000đ', orders: 2 },
+                      { date: '16/11', amount: '41.200.000đ', orders: 2 },
+                      { date: '17/11', amount: '68.900.000đ', orders: 2 },
+                      { date: '18/11', amount: '59.400.000đ', orders: 2 },
+                      { date: '19/11', amount: '74.200.000đ', orders: 2 },
+                      { date: '20/11', amount: '34.847.000đ', orders: 2 },
+                      { date: '21/11', amount: '38.000.000đ', orders: 2 },
                     ].map((col, idx) => (
-                      <div key={idx} className="flex flex-col items-center gap-2 group relative z-10">
+                      <div key={idx} className="flex flex-col items-center group relative cursor-pointer">
                         {/* Tooltip */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg pointer-events-none whitespace-nowrap z-20">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg pointer-events-none whitespace-nowrap z-30">
                           <div>Doanh thu: {col.amount}</div>
                           <div className="text-cyan-300">Đơn hàng: {col.orders}</div>
                         </div>
 
-                        {/* Cyan Dot on Line */}
-                        <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 border-2 border-white shadow-sm mb-6"></div>
+                        {/* Cyan Circle Dot on the Line */}
+                        <div className="absolute -top-[70px] w-3 h-3 rounded-full bg-cyan-400 border-2 border-white dark:border-slate-800 shadow-sm z-30"></div>
 
-                        {/* Purple Pillar Bar */}
-                        <div
-                          className="w-5 bg-purple-600 rounded-t-md transition-all duration-300 group-hover:bg-purple-700"
-                          style={{ height: `${col.height}px` }}
-                        ></div>
+                        {/* Purple Pillar Bar grounded at bottom */}
+                        <div className="w-5 h-7 bg-purple-600 rounded-t-md transition-all duration-300 group-hover:bg-purple-700 shadow-sm"></div>
 
                         {/* Date label */}
-                        <span className="text-[11px] font-medium text-gray-500 mt-1">{col.date}</span>
+                        <span className="text-[11px] font-medium text-gray-400 dark:text-slate-400 mt-2">{col.date}</span>
                       </div>
                     ))}
                   </div>
@@ -1600,90 +1557,89 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               {/* Order Status Donut Chart */}
-              <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+              <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60 flex flex-col justify-between">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-chart-pie text-blue-600"></i>
-                    <h3 className="font-extrabold text-sm md:text-base text-gray-900">Trạng thái đơn hàng</h3>
+                    <i className="fa-solid fa-chart-pie text-blue-600 text-sm"></i>
+                    <h3 className="font-bold text-sm md:text-base text-gray-900 dark:text-white">Trạng thái đơn hàng</h3>
                   </div>
                 </div>
 
                 {/* Donut graphic */}
                 <div className="flex items-center justify-center my-3 relative">
                   <svg className="w-36 h-36 transform -rotate-90" viewBox="0 0 100 100">
-                    {/* Background circle */}
-                    <circle cx="50" cy="50" r="38" fill="transparent" stroke="#f1f5f9" strokeWidth="12" />
+                    <circle cx="50" cy="50" r="36" fill="transparent" stroke="#f1f5f9" strokeWidth="14" />
                     {/* Blue segment: Chờ xác nhận (47.1%) */}
                     <circle
                       cx="50"
                       cy="50"
-                      r="38"
+                      r="36"
                       fill="transparent"
-                      stroke="#3b82f6"
-                      strokeWidth="12"
-                      strokeDasharray="112 238"
+                      stroke="#1877F2"
+                      strokeWidth="14"
+                      strokeDasharray="106.5 226.2"
                       strokeDashoffset="0"
                     />
                     {/* Green segment: Hoàn thành (23.5%) */}
                     <circle
                       cx="50"
                       cy="50"
-                      r="38"
+                      r="36"
                       fill="transparent"
                       stroke="#10b981"
-                      strokeWidth="12"
-                      strokeDasharray="56 238"
-                      strokeDashoffset="-112"
+                      strokeWidth="14"
+                      strokeDasharray="53.2 226.2"
+                      strokeDashoffset="-106.5"
                     />
                     {/* Red segment: Đã hủy (29.4%) */}
                     <circle
                       cx="50"
                       cy="50"
-                      r="38"
+                      r="36"
                       fill="transparent"
                       stroke="#ef4444"
-                      strokeWidth="12"
-                      strokeDasharray="70 238"
-                      strokeDashoffset="-168"
+                      strokeWidth="14"
+                      strokeDasharray="66.5 226.2"
+                      strokeDashoffset="-159.7"
                     />
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">TỔNG ĐƠN</span>
-                    <span className="text-2xl font-black text-gray-900 leading-none mt-0.5">
+                    <span className="text-2xl font-black text-gray-900 dark:text-white leading-none mt-0.5">
                       {orders.length > 0 ? orders.length : 17}
                     </span>
                   </div>
                 </div>
 
                 {/* Legend items */}
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs pt-2">
+                <div className="space-y-2 pt-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-gray-600">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#1877F2]"></span>
                       <span>Chờ xác nhận (8)</span>
                     </span>
-                    <span className="font-bold text-gray-800">47.1%</span>
+                    <span className="font-bold text-gray-800 dark:text-white">47.1%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-gray-600">
-                      <span className="w-2 h-2 rounded-full bg-sky-400"></span>
+                    <span className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
+                      <span className="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
                       <span>Đang giao (0)</span>
                     </span>
-                    <span className="font-bold text-gray-800">0%</span>
+                    <span className="font-bold text-gray-800 dark:text-white">0%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-gray-600">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                       <span>Hoàn thành (4)</span>
                     </span>
-                    <span className="font-bold text-gray-800">23.5%</span>
+                    <span className="font-bold text-gray-800 dark:text-white">23.5%</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-gray-600">
-                      <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                    <span className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
                       <span>Đã hủy (5)</span>
                     </span>
-                    <span className="font-bold text-gray-800">29.4%</span>
+                    <span className="font-bold text-gray-800 dark:text-white">29.4%</span>
                   </div>
                 </div>
               </div>
@@ -1692,24 +1648,24 @@ export const AdminDashboardPage: React.FC = () => {
             {/* Tables Section: Recent Orders & Low Stock Alert */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
               {/* Recent Orders Table (Col span 3) */}
-              <div className="lg:col-span-3 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-cart-shopping text-blue-600"></i>
-                    <h3 className="font-extrabold text-base text-gray-900">Đơn hàng mới</h3>
+                    <i className="fa-solid fa-clock-rotate-left text-blue-600 text-sm"></i>
+                    <h3 className="font-bold text-sm md:text-base text-gray-900 dark:text-white">Đơn hàng mới</h3>
                   </div>
                   <button
                     onClick={() => handleTabChange('orders')}
-                    className="text-xs font-medium text-gray-400 hover:text-blue-600"
+                    className="text-xs text-gray-500 dark:text-slate-400 hover:text-blue-600 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-600 transition-colors font-medium cursor-pointer"
                   >
-                    Xem tất cả &gt;
+                    Xem tất cả
                   </button>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-gray-100 text-gray-400 font-bold">
+                      <tr className="border-b border-gray-100 dark:border-slate-700 text-gray-400 font-bold">
                         <th className="py-2.5 px-3">Mã đơn</th>
                         <th className="py-2.5 px-3">Khách hàng</th>
                         <th className="py-2.5 px-3">Tổng tiền</th>
@@ -1717,7 +1673,7 @@ export const AdminDashboardPage: React.FC = () => {
                         <th className="py-2.5 px-3 text-right">Thời gian</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                    <tbody className="divide-y divide-gray-100 dark:divide-slate-700 font-medium text-gray-700 dark:text-slate-200">
                       {(summary?.recentOrders && summary.recentOrders.length > 0
                         ? summary.recentOrders.slice(0, 5)
                         : [
@@ -1728,14 +1684,14 @@ export const AdminDashboardPage: React.FC = () => {
                             { id: 5, orderCode: 'TP-20260810232639-DD5619', customerName: 'hieu', totalAmount: 155764000, orderStatus: 'DELIVERED', createdAt: '2026-08-10T23:26:00Z' },
                           ]
                       ).map((o) => (
-                        <tr key={o.id} className="hover:bg-slate-50/50 transition-colors">
+                        <tr key={o.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
                           <td className="py-3 px-3 font-semibold text-blue-600 font-mono">
                             <span className="cursor-pointer hover:underline" onClick={() => handleTabChange('orders')}>
                               {o.orderCode}
                             </span>
                           </td>
-                          <td className="py-3 px-3 font-semibold text-gray-900">{o.customerName}</td>
-                          <td className="py-3 px-3 font-bold text-gray-900">
+                          <td className="py-3 px-3 font-semibold text-gray-900 dark:text-white">{o.customerName}</td>
+                          <td className="py-3 px-3 font-bold text-gray-900 dark:text-white">
                             {Number(o.totalAmount).toLocaleString('vi-VN')}đ
                           </td>
                           <td className="py-3 px-3 text-center">
@@ -1743,7 +1699,7 @@ export const AdminDashboardPage: React.FC = () => {
                               o.orderStatus === 'DELIVERED' || o.orderStatus === 'CONFIRMED'
                                 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                                 : o.orderStatus === 'CANCELLED'
-                                ? 'bg-rose-50 text-rose-500 border border-rose-200'
+                                ? 'bg-[#FFF1F0] text-[#FF4D4F] border border-[#FFCCC7]'
                                 : 'bg-amber-50 text-amber-600 border border-amber-200'
                             }`}>
                               {o.orderStatus === 'DELIVERED' || o.orderStatus === 'CONFIRMED'
@@ -1765,25 +1721,25 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               {/* Low Stock Alert List (Col span 2) */}
-              <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+              <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-700/60 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <i className="fa-solid fa-triangle-exclamation text-amber-500"></i>
-                      <h3 className="font-extrabold text-base text-gray-900">Sản phẩm sắp hết hàng</h3>
+                      <i className="fa-solid fa-triangle-exclamation text-amber-500 text-sm"></i>
+                      <h3 className="font-bold text-sm md:text-base text-gray-900 dark:text-white">Sản phẩm sắp hết hàng</h3>
                     </div>
                     <button
                       onClick={() => {
                         setProductLowStockOnly(true);
                         handleTabChange('products');
                       }}
-                      className="text-xs font-medium text-gray-400 hover:text-blue-600"
+                      className="text-xs text-gray-500 dark:text-slate-400 hover:text-blue-600 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-600 transition-colors font-medium cursor-pointer"
                     >
-                      Xem tất cả &gt;
+                      Xem tất cả
                     </button>
                   </div>
 
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-gray-100 dark:divide-slate-700">
                     {(adminData?.summary?.lowStockProducts && adminData.summary.lowStockProducts.length > 0
                       ? adminData.summary.lowStockProducts.slice(0, 5)
                       : [
@@ -1799,17 +1755,17 @@ export const AdminDashboardPage: React.FC = () => {
                           <img
                             src={p.thumbnailUrl || '/assets/images/placeholder.jpg'}
                             alt={p.name}
-                            className="w-10 h-10 object-contain rounded-lg bg-slate-900 p-1 border border-gray-100 shrink-0"
+                            className="w-11 h-11 object-contain rounded-xl bg-gray-50 dark:bg-slate-700 p-1 border border-gray-100 dark:border-slate-600 shrink-0"
                             onError={(e) => {
                               e.currentTarget.src = '/assets/images/banner-1.jpg';
                             }}
                           />
                           <div className="min-w-0">
-                            <div className="text-xs font-bold text-gray-800 truncate" title={p.name}>{p.name}</div>
+                            <div className="text-xs font-bold text-gray-800 dark:text-slate-200 truncate hover:text-blue-600 cursor-pointer" title={p.name}>{p.name}</div>
                             <div className="text-[11px] text-gray-400 mt-0.5">Giá: {Number(p.price).toLocaleString('vi-VN')}đ</div>
                           </div>
                         </div>
-                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-500 border border-rose-200 shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFF1F0] text-[#FF4D4F] border border-[#FFCCC7] shrink-0">
                           Còn {p.stockQuantity}
                         </span>
                       </div>
