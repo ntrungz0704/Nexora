@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import type { AuthUser } from '@nexora/shared';
 
@@ -9,6 +10,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +30,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       const session = await authService.login({ email, password });
       onSuccess(session.user);
       onClose();
+      if (session.user.role === 'ADMIN' || session.user.role === 'STAFF') {
+        navigate('/admin');
+      }
     } catch (err: unknown) {
       const errorResponse = err as { response?: { data?: { error?: { message?: string } } } };
       setErrorMsg(

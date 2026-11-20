@@ -25,9 +25,15 @@ export const LoginPage: React.FC = () => {
     setErrorMsg('');
     setIsLoading(true);
     try {
-      await authService.login({ email, password });
-      const redirect = searchParams.get('redirect') || '/';
-      navigate(redirect);
+      const session = await authService.login({ email, password });
+      const redirect = searchParams.get('redirect');
+      if (redirect) {
+        navigate(redirect);
+      } else if (session.user.role === 'ADMIN' || session.user.role === 'STAFF') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err: unknown) {
       const errorResponse = err as { response?: { data?: { error?: { message?: string } } } };
       setErrorMsg(

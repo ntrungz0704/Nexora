@@ -71,6 +71,9 @@ export class AdminService {
       customersCount,
       productsCount,
       lowStockCount,
+      outOfStockCount,
+      stockUnitsAggregate,
+      lowStockProducts,
       recentOrders,
     ] = await Promise.all([
       prisma.order.count(),
@@ -80,7 +83,20 @@ export class AdminService {
       }),
       prisma.user.count({ where: { role: 'CUSTOMER' } }),
       prisma.product.count(),
-      prisma.product.count({ where: { stockQuantity: { lt: 5 } } }),
+      prisma.product.count({ where: { stockQuantity: { gt: 0, lte: 9 } } }),
+      prisma.product.count({ where: { stockQuantity: { lte: 0 } } }),
+      prisma.product.aggregate({
+        _sum: { stockQuantity: true },
+      }),
+      prisma.product.findMany({
+        where: { stockQuantity: { lte: 9 } },
+        take: 5,
+        orderBy: { stockQuantity: 'asc' },
+        include: {
+          category: { select: { id: true, name: true, slug: true } },
+          brand: { select: { id: true, name: true, slug: true } },
+        },
+      }),
       prisma.order.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
@@ -98,6 +114,9 @@ export class AdminService {
       customersCount,
       productsCount,
       lowStockCount,
+      outOfStockCount,
+      totalUnitsInStock: stockUnitsAggregate._sum.stockQuantity ?? 0,
+      lowStockProducts: lowStockProducts.map((p) => this.mapProductToDto(p)),
       recentOrders: recentOrders.map((o) => ({
         id: o.id.toString(),
         orderCode: o.orderCode,

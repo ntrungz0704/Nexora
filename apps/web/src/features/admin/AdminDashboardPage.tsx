@@ -943,11 +943,17 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               {/* Card 3: Tổng đơn vị tồn kho */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
+              <div
+                onClick={() => handleTabChange('inventory')}
+                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                title="Xem chi tiết tồn kho"
+              >
                 <div>
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tổng đơn vị tồn kho</div>
                   <div className="text-xl font-extrabold text-amber-600 mt-1">
-                    {products.length > 0 ? products.reduce((acc, p) => acc + (p.stockQuantity || 0), 0).toLocaleString('vi-VN') : '13,609'}
+                    {adminData?.summary?.totalUnitsInStock !== undefined
+                      ? adminData.summary.totalUnitsInStock.toLocaleString('vi-VN')
+                      : (products.reduce((acc, p) => acc + (p.stockQuantity || 0), 0)).toLocaleString('vi-VN')}
                   </div>
                   <div className="text-[11px] text-gray-500 font-semibold mt-1">
                     Sản phẩm trong kho
@@ -959,14 +965,18 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               {/* Card 4: Sắp hết hàng */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
+              <div
+                onClick={() => handleTabChange('products')}
+                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                title="Xem sản phẩm sắp hết hàng"
+              >
                 <div>
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Sắp hết hàng</div>
                   <div className="text-xl font-extrabold text-orange-600 mt-1">
-                    {products.filter((p) => p.stockQuantity > 0 && p.stockQuantity <= 5).length || 5}
+                    {adminData?.summary?.lowStockCount ?? products.filter((p) => p.stockQuantity > 0 && p.stockQuantity <= 9).length}
                   </div>
                   <div className="text-[11px] text-orange-600 font-semibold mt-1 flex items-center gap-1">
-                    <i className="fa-solid fa-triangle-exclamation"></i> Tồn kho ≤ 5 chiếc
+                    <i className="fa-solid fa-triangle-exclamation"></i> Tồn từ 1 - 9 chiếc
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl shadow-sm">
@@ -975,11 +985,15 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               {/* Card 5: Hết hàng */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
+              <div
+                onClick={() => handleTabChange('products')}
+                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                title="Xem sản phẩm hết hàng cần nhập thêm"
+              >
                 <div>
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Hết hàng</div>
                   <div className="text-xl font-extrabold text-red-600 mt-1">
-                    {products.filter((p) => p.stockQuantity === 0).length || 0}
+                    {adminData?.summary?.outOfStockCount ?? products.filter((p) => p.stockQuantity <= 0).length}
                   </div>
                   <div className="text-[11px] text-red-500 font-semibold mt-1">
                     Cần nhập hàng ngay
@@ -1171,7 +1185,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {products.filter((p) => p.stockQuantity <= 5).slice(0, 5).map((p) => (
+                  {(adminData?.summary?.lowStockProducts ?? products.filter((p) => p.stockQuantity <= 9)).slice(0, 5).map((p) => (
                     <div key={p.id} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-gray-100">
                       <div className="flex items-center gap-3">
                         <img

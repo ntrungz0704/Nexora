@@ -53,25 +53,42 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return entries.slice(0, 3);
   }, [product.specs]);
 
+  const isOutOfStock = (product.stockQuantity ?? 1) <= 0;
+
   return (
-    <div className="product-card" data-full-title={product.name} title={product.name}>
-      {hasDiscount && discountPercent > 0 && (
+    <div className={`product-card ${isOutOfStock ? 'product-card--out-of-stock' : ''}`} data-full-title={product.name} title={product.name}>
+      {isOutOfStock ? (
         <span
-          className={`product-card__badge ${
-            isFlashSale ? 'product-card__badge--flash' : 'product-card__badge--promo'
-          }`}
-          title={isFlashSale ? '⚡ Flash Sale Giảm Sâu' : '🏷️ Sản phẩm Khuyến Mãi'}
+          className="product-card__badge"
+          style={{
+            backgroundColor: '#EF4444',
+            color: '#FFFFFF',
+            fontWeight: 700,
+            zIndex: 4,
+          }}
+          title="Sản phẩm hiện đang tạm hết hàng"
         >
-          {isFlashSale ? (
-            <>
-              <i className="fa-solid fa-fire-flame-curved"></i> 🔥 -{discountPercent}%
-            </>
-          ) : (
-            <>
-              <i className="fa-solid fa-tag"></i> -{discountPercent}%
-            </>
-          )}
+          <i className="fa-solid fa-circle-xmark"></i> Hết hàng
         </span>
+      ) : (
+        hasDiscount && discountPercent > 0 && (
+          <span
+            className={`product-card__badge ${
+              isFlashSale ? 'product-card__badge--flash' : 'product-card__badge--promo'
+            }`}
+            title={isFlashSale ? '⚡ Flash Sale Giảm Sâu' : '🏷️ Sản phẩm Khuyến Mãi'}
+          >
+            {isFlashSale ? (
+              <>
+                <i className="fa-solid fa-fire-flame-curved"></i> 🔥 -{discountPercent}%
+              </>
+            ) : (
+              <>
+                <i className="fa-solid fa-tag"></i> -{discountPercent}%
+              </>
+            )}
+          </span>
+        )
       )}
 
       {/* Wishlist Button: Auth Required Parity with TechPilot */}
@@ -216,13 +233,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="product-card__add-form">
         <button
           type="button"
-          className="product-card__add"
+          disabled={isOutOfStock}
+          className={`product-card__add ${isOutOfStock ? 'product-card__add--disabled' : ''}`}
+          style={isOutOfStock ? { backgroundColor: '#94A3B8', borderColor: '#94A3B8', cursor: 'not-allowed', color: '#FFFFFF' } : undefined}
           onClick={(e) => {
             e.preventDefault();
-            onAddToCart(product);
+            if (!isOutOfStock) {
+              onAddToCart(product);
+            }
           }}
         >
-          <i className="fa-solid fa-cart-plus"></i> Thêm vào giỏ
+          <i className={isOutOfStock ? "fa-solid fa-ban" : "fa-solid fa-cart-plus"}></i> {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
         </button>
       </div>
     </div>

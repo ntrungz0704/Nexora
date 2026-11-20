@@ -15,10 +15,10 @@ export const ARTICLES_SEED: ArticleItem[] = [
   {
     id: '1',
     slug: 'top-5-laptop-ban-chay-nhat-2026',
-    title: 'Top 5 laptop bán chạy nhất TechPilot trong năm 2026',
+    title: 'Top 5 laptop bán chạy nhất Nexora trong năm 2026',
     excerpt: 'Tổng hợp 5 mẫu laptop bán chạy nhất với thiết kế mỏng nhẹ, hiệu năng AI vượt trội và thời lượng pin ấn tượng đáp ứng mọi nhu cầu học tập, làm việc và gaming.',
     category: 'Tư vấn chọn mua',
-    author: 'TechPilot',
+    author: 'Nexora Team',
     date: '19/11/2026',
     views: 8920,
     image: '/assets/images/posts/laptop_sinh_vien_2026.jpg',

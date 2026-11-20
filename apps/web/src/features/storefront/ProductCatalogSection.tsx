@@ -529,57 +529,59 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {[
                 {
+                  slug: 'nvidia-rtx-50-series-blackwell-review',
                   title: 'Đánh giá chi tiết NVIDIA RTX 50 Series: Kiến trúc Blackwell',
                   img: '/assets/images/news/news-rtx-50.jpg',
                   date: '18/11/2026',
                   desc: 'Tìm hiểu sức mạnh thực tế của dòng card RTX 5090 và RTX 5080 với GDDR7...',
                 },
                 {
+                  slug: 'intel-i9-14900k-vs-amd-ryzen-7-7800x3d',
                   title: 'So sánh Intel Core Ultra 9 vs AMD Ryzen 9 9950X',
                   img: '/assets/images/news/news-intel-ultra.jpg',
                   date: '17/11/2026',
                   desc: 'Kiểm nghiệm hiệu năng render Cinebench 2026 và Blender giữa 2 con chip đầu bảng...',
                 },
                 {
+                  slug: 'top-ban-phim-co-gaming-khong-day-2026',
                   title: 'Top 5 bàn phím cơ không dây độ trễ siêu thấp cho eSports',
                   img: '/assets/images/news/news-mouse-gaming.jpg',
                   date: '15/11/2026',
                   desc: 'Tổng hợp các bàn phím Switch cơ học bấm mượt mà, kết nối 2.4GHz không giật lag...',
                 },
                 {
+                  slug: '10-meo-toi-uu-windows-11-gaming-2026',
                   title: 'Hướng dẫn cân chỉnh màu màn hình Gaming OLED cao cấp',
                   img: '/assets/images/news/news-build-pc.jpg',
                   date: '12/11/2026',
                   desc: 'Bí quyết giúp người dùng khai thác tối đa dải màu DCI-P3 99% và bảo vệ màn hình...',
                 },
               ].map((news, idx) => (
-                <div
+                <Link
                   key={idx}
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: '12px',
-                    border: '1px solid var(--border)',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                  }}
+                  to={`/post/${news.slug}`}
+                  className="news-card news-card-hover"
+                  style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column' }}
                 >
-                  <div style={{ height: '130px', overflow: 'hidden' }}>
-                    <img src={news.img} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div className="news-card__thumb">
+                    <img
+                      src={news.img}
+                      alt={news.title}
+                      loading="lazy"
+                    />
                   </div>
-                  <div style={{ padding: '14px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <div>
-                      <span style={{ fontSize: '11px', color: '#94A3B8' }}><i className="fa-regular fa-clock"></i> {news.date}</span>
-                      <h4 style={{ fontSize: '13px', fontWeight: 700, margin: '6px 0', lineHeight: '1.4', color: '#0F172A' }}>
-                        {news.title}
-                      </h4>
-                      <p style={{ fontSize: '11.5px', color: '#64748B', margin: 0, lineClamp: 2, display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        {news.desc}
-                      </p>
-                    </div>
+                  <div className="news-card__body">
+                    <span className="news-card__date">
+                      <i className="fa-regular fa-clock" style={{ marginRight: '4px' }}></i>{news.date}
+                    </span>
+                    <h4 className="news-card__title">
+                      {news.title}
+                    </h4>
+                    <p className="news-card__summary">
+                      {news.desc}
+                    </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

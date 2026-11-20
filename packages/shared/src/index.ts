@@ -373,6 +373,9 @@ export const AdminDashboardSummarySchema = z.object({
   customersCount: z.number(),
   productsCount: z.number(),
   lowStockCount: z.number(),
+  outOfStockCount: z.number().optional(),
+  totalUnitsInStock: z.number().optional(),
+  lowStockProducts: z.array(ProductSchema).optional(),
   recentOrders: z.array(OrderDtoSchema),
 });
 export type AdminDashboardSummaryDto = z.infer<typeof AdminDashboardSummarySchema>;

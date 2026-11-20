@@ -498,6 +498,25 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                     >
                       Vai trò: <strong style={{ color: 'var(--primary)' }}>{currentUser.role}</strong>
                     </div>
+                    {(currentUser.role === 'ADMIN' || currentUser.role === 'STAFF') && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsAccountDropdownOpen(false)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '9px 16px',
+                          fontSize: '12.5px',
+                          fontWeight: 700,
+                          color: '#0A5BFF',
+                          backgroundColor: 'rgba(10, 91, 255, 0.08)',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        <i className="fa-solid fa-user-shield"></i> Trang quản trị
+                      </Link>
+                    )}
                     <Link
                       to="/profile"
                       onClick={() => setIsAccountDropdownOpen(false)}

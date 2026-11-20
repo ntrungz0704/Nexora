@@ -11,6 +11,88 @@ import { wishlistService } from '../../services/wishlistService';
 import { getProductImage } from '../../lib/productImage';
 import type { AuthUser } from '@nexora/shared';
 
+interface FormattedSpec {
+  label: string;
+  value: string;
+}
+
+const SPEC_LABEL_MAP: Record<string, string> = {
+  cpu_model: 'Bộ vi xử lý (CPU)',
+  cpu: 'Bộ vi xử lý (CPU)',
+  gpu_model: 'Card màn hình (VGA/GPU)',
+  gpu: 'Card đồ họa (VGA)',
+  ram_gb: 'Dung lượng RAM',
+  ram: 'Bộ nhớ RAM',
+  ram_type: 'Loại RAM',
+  storage_gb: 'Dung lượng ổ cứng',
+  storage_type: 'Loại ổ cứng',
+  storage: 'Ổ cứng',
+  screen_size: 'Kích thước màn hình',
+  resolution: 'Độ phân giải',
+  refresh_rate: 'Tần số quét',
+  panel_type: 'Tấm nền màn hình',
+  battery_wh: 'Dung lượng Pin',
+  battery: 'Pin',
+  weight_kg: 'Trọng lượng máy',
+  weight: 'Trọng lượng',
+  os: 'Hệ điều hành',
+  color: 'Màu sắc',
+  warranty_months: 'Thời hạn bảo hành',
+  warranty: 'Bảo hành',
+  power_watts: 'Công suất nguồn',
+  psu: 'Nguồn máy tính (PSU)',
+  form_factor: 'Kích thước / Form Factor',
+  socket: 'Socket hỗ trợ',
+  chipset: 'Chipset',
+  connectivity: 'Kết nối',
+  wireless: 'Kết nối không dây',
+  switch_type: 'Loại switch bàn phím',
+  dpi: 'Độ phân giải DPI',
+  sensor: 'Cảm biến',
+  ports: 'Cổng kết nối',
+  audio: 'Âm thanh',
+  cooling: 'Tản nhiệt',
+  mainboard: 'Bo mạch chủ',
+  case: 'Vỏ thùng máy (Case)',
+};
+
+const IGNORED_SPEC_KEYS = new Set(['schema_version', 'category_slug', 'use_cases', 'model']);
+
+function parseSpecs(rawSpecs: unknown): FormattedSpec[] {
+  if (!rawSpecs || typeof rawSpecs !== 'object') return [];
+  const results: FormattedSpec[] = [];
+
+  const traverse = (obj: Record<string, unknown>) => {
+    for (const [key, val] of Object.entries(obj)) {
+      if (IGNORED_SPEC_KEYS.has(key)) continue;
+      if (val === null || val === undefined || val === '') continue;
+
+      if (typeof val === 'object' && !Array.isArray(val)) {
+        traverse(val as Record<string, unknown>);
+      } else {
+        const label = SPEC_LABEL_MAP[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+        let valStr = String(val);
+
+        if (key === 'ram_gb' && !valStr.toLowerCase().includes('gb')) valStr += ' GB';
+        if (key === 'storage_gb' && !valStr.toLowerCase().includes('gb')) {
+          const num = Number(val);
+          valStr = !isNaN(num) && num >= 1024 ? `${num / 1024} TB` : `${valStr} GB`;
+        }
+        if (key === 'weight_kg' && !valStr.toLowerCase().includes('kg')) valStr += ' kg';
+        if (key === 'refresh_rate' && !valStr.toLowerCase().includes('hz')) valStr += ' Hz';
+        if (key === 'battery_wh' && !valStr.toLowerCase().includes('wh')) valStr += ' Wh';
+        if (key === 'warranty_months' && !valStr.toLowerCase().includes('tháng')) valStr += ' tháng';
+        if (key === 'power_watts' && !valStr.toLowerCase().includes('w')) valStr += ' W';
+
+        results.push({ label, value: valStr });
+      }
+    }
+  };
+
+  traverse(rawSpecs as Record<string, unknown>);
+  return results;
+}
+
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -123,7 +205,8 @@ export const ProductDetailPage: React.FC = () => {
     return val.toLocaleString('vi-VN') + 'đ';
   };
 
-  const specsEntries = product.specs ? Object.entries(product.specs) : [];
+  const specsList = parseSpecs(product.specs);
+  const isOutOfStock = product.stockQuantity <= 0;
   const relatedProducts = allProducts.filter((item) => item.id !== product.id).slice(0, 4);
 
   return (
@@ -316,9 +399,15 @@ export const ProductDetailPage: React.FC = () => {
                 <span style={{ fontSize: '13px', fontWeight: 700 }}>5.0</span>
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>(24 đánh giá)</span>
                 <span style={{ color: 'var(--border)' }}>|</span>
-                <span style={{ fontSize: '12px', color: '#16A34A', fontWeight: 600 }}>
-                  <i className="fa-solid fa-circle-check"></i> Còn hàng ({product.stockQuantity} sản phẩm)
-                </span>
+                {isOutOfStock ? (
+                  <span style={{ fontSize: '13px', color: '#EF4444', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <i className="fa-solid fa-circle-xmark"></i> Hết hàng
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '12px', color: '#16A34A', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <i className="fa-solid fa-circle-check"></i> Còn hàng ({product.stockQuantity} sản phẩm)
+                  </span>
+                )}
               </div>
 
               {/* Price Box */}
@@ -353,18 +442,19 @@ export const ProductDetailPage: React.FC = () => {
               </div>
 
               {/* Specs Highlights */}
-              {specsEntries.length > 0 && (
+              {specsList.length > 0 && (
                 <div style={{ marginBottom: '20px' }}>
                   <h4 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '8px' }}>
                     Thông số nổi bật:
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-                    {specsEntries.slice(0, 4).map(([key, val], i) => (
+                    {specsList.slice(0, 4).map((spec, i) => (
                       <div
                         key={i}
                         style={{
                           fontSize: '12px',
-                          backgroundColor: '#F1F5F9',
+                          backgroundColor: 'var(--surface-muted, #F1F5F9)',
+                          color: 'var(--text-primary)',
                           padding: '6px 12px',
                           borderRadius: '8px',
                           display: 'flex',
@@ -373,7 +463,7 @@ export const ProductDetailPage: React.FC = () => {
                         }}
                       >
                         <i className="fa-solid fa-microchip" style={{ color: '#0A5BFF' }}></i>
-                        <strong>{key}:</strong> {String(val)}
+                        <strong>{spec.label}:</strong> {spec.value}
                       </div>
                     ))}
                   </div>
@@ -390,35 +480,38 @@ export const ProductDetailPage: React.FC = () => {
                     borderRadius: '10px',
                     overflow: 'hidden',
                     height: '48px',
+                    opacity: isOutOfStock ? 0.5 : 1,
                   }}
                 >
                   <button
                     type="button"
+                    disabled={isOutOfStock}
                     onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                     style={{
                       width: '38px',
                       height: '100%',
                       border: 'none',
-                      background: '#F3F4F6',
+                      background: 'var(--surface-muted, #F3F4F6)',
                       fontWeight: 700,
-                      cursor: 'pointer',
+                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                     }}
                   >
                     -
                   </button>
-                  <span style={{ width: '44px', textAlign: 'center', fontWeight: 700, fontSize: '14px' }}>
+                  <span style={{ width: '44px', textAlign: 'center', fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>
                     {quantity}
                   </span>
                   <button
                     type="button"
+                    disabled={isOutOfStock}
                     onClick={() => setQuantity((prev) => prev + 1)}
                     style={{
                       width: '38px',
                       height: '100%',
                       border: 'none',
-                      background: '#F3F4F6',
+                      background: 'var(--surface-muted, #F3F4F6)',
                       fontWeight: 700,
-                      cursor: 'pointer',
+                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                     }}
                   >
                     +
@@ -427,39 +520,47 @@ export const ProductDetailPage: React.FC = () => {
 
                 <button
                   type="button"
+                  disabled={isOutOfStock || addToCartMutation.isPending}
                   onClick={() => addToCartMutation.mutate(quantity)}
                   style={{
                     flex: 1,
                     height: '48px',
                     borderRadius: '10px',
-                    border: '2px solid #0A5BFF',
-                    backgroundColor: '#EFF6FF',
-                    color: '#0A5BFF',
+                    border: isOutOfStock ? '1px solid var(--border, #D1D5DB)' : '2px solid #0A5BFF',
+                    backgroundColor: isOutOfStock ? 'var(--surface-muted, #F3F4F6)' : '#EFF6FF',
+                    color: isOutOfStock ? 'var(--text-secondary, #9CA3AF)' : '#0A5BFF',
                     fontWeight: 700,
                     fontSize: '14px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px',
-                    cursor: 'pointer',
+                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                     transition: 'all 0.15s',
                   }}
                 >
-                  <i className="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                  <i className={isOutOfStock ? "fa-solid fa-ban" : "fa-solid fa-cart-plus"}></i>
+                  {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ hàng'}
                 </button>
 
                 <button
                   type="button"
+                  disabled={isOutOfStock}
                   onClick={handleBuyNow}
-                  className="auth-btn-primary"
+                  className={isOutOfStock ? "" : "auth-btn-primary"}
                   style={{
                     flex: 1,
                     height: '48px',
                     fontSize: '14px',
                     margin: 0,
+                    borderRadius: '10px',
+                    border: 'none',
+                    backgroundColor: isOutOfStock ? 'var(--border, #E5E7EB)' : undefined,
+                    color: isOutOfStock ? 'var(--text-secondary, #9CA3AF)' : undefined,
+                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  Mua ngay
+                  {isOutOfStock ? 'Tạm hết hàng' : 'Mua ngay'}
                 </button>
               </div>
 
@@ -547,39 +648,45 @@ export const ProductDetailPage: React.FC = () => {
             {/* Tab 1: Specs Table */}
             {activeTab === 'specs' && (
               <div>
-                <table
-                  style={{
-                    width: '100%',
-                    borderCollapse: 'collapse',
-                    fontSize: '13px',
-                  }}
-                >
-                  <tbody>
-                    {specsEntries.map(([k, v], idx) => (
-                      <tr
-                        key={k}
-                        style={{
-                          backgroundColor: idx % 2 === 0 ? '#F8FAFC' : 'transparent',
-                          borderBottom: '1px solid var(--border, #E2E8F0)',
-                        }}
-                      >
-                        <td
+                {specsList.length > 0 ? (
+                  <table
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      fontSize: '13px',
+                    }}
+                  >
+                    <tbody>
+                      {specsList.map((spec, idx) => (
+                        <tr
+                          key={idx}
                           style={{
-                            padding: '12px 16px',
-                            fontWeight: 700,
-                            width: '35%',
-                            color: 'var(--text-primary)',
+                            backgroundColor: idx % 2 === 0 ? 'var(--surface-muted, rgba(0, 0, 0, 0.02))' : 'transparent',
+                            borderBottom: '1px solid var(--border, #E2E8F0)',
                           }}
                         >
-                          {k}
-                        </td>
-                        <td style={{ padding: '12px 16px', color: 'var(--text-secondary)' }}>
-                          {String(v)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          <td
+                            style={{
+                              padding: '12px 16px',
+                              fontWeight: 700,
+                              width: '35%',
+                              color: 'var(--text-primary)',
+                            }}
+                          >
+                            {spec.label}
+                          </td>
+                          <td style={{ padding: '12px 16px', color: 'var(--text-secondary)' }}>
+                            {spec.value}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                    Thông số kỹ thuật chi tiết của sản phẩm đang được cập nhật.
+                  </div>
+                )}
               </div>
             )}
 
