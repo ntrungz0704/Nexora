@@ -107,7 +107,7 @@ const STATIC_MENU_TREE: MenuItemDef[] = [
   },
   {
     id: 'pc-nexora',
-    name: 'PC TechPilot',
+    name: 'PC Nexora',
     slug: 'pc-nexora',
     icon: 'fa-solid fa-desktop',
     megaColumns: [

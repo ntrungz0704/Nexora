@@ -414,7 +414,7 @@ export const CartPage: React.FC = () => {
                   <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: '8px' }}>
                     <input
                       type="text"
-                      placeholder="Nhập mã TECHPILOT"
+                      placeholder="Nhập mã NEXORA"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                       style={{

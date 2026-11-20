@@ -125,7 +125,7 @@ export const StorefrontHome: React.FC = () => {
         <section className="container hero-section">
           {/* Left: Vertical Category Menu */}
           <div className="hero-section__left" id="heroCategorySlot">
-            <CategorySidebar categories={categories} />
+            <CategorySidebar isStatic={true} categories={categories} />
           </div>
 
           {/* Center: Large Hero Banner Carousel */}

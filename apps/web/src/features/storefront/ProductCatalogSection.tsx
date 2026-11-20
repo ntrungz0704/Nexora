@@ -491,7 +491,7 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               <div>
                 <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8 }}>PREMIUM LINE</span>
                 <h3 style={{ fontSize: '22px', fontWeight: 800, margin: '8px 0', color: '#FFFFFF' }}>Máy tính bộ đồng bộ</h3>
-                <p style={{ fontSize: '13px', lineHeight: 1.5, opacity: 0.9 }}>Trải nghiệm các bộ máy tính All-in-One, máy tính văn phòng và máy tính đồng bộ cấu hình cao tại TechPilot.</p>
+                <p style={{ fontSize: '13px', lineHeight: 1.5, opacity: 0.9 }}>Trải nghiệm các bộ máy tính All-in-One, máy tính văn phòng và máy tính đồng bộ cấu hình cao tại Nexora.</p>
               </div>
               <Link
                 to="/search?cat=pc-nexora"
@@ -718,7 +718,7 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {/* ===== 17. CUSTOMER REVIEWS ===== */}
       <section className="container section" style={{ marginTop: '36px', marginBottom: '36px' }}>
         <div className="section__head">
-          <h2>Khách hàng nói gì về TechPilot</h2>
+          <h2>Khách hàng nói gì về Nexora</h2>
         </div>
         <div className="review-strip" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
           {CUSTOMER_REVIEWS.map((rev, idx) => (

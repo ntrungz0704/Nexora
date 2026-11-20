@@ -264,7 +264,7 @@ export const WishlistPage: React.FC = () => {
                   lineHeight: '1.5',
                 }}
               >
-                Hãy khám phá các sản phẩm công nghệ tuyệt vời tại TechPilot và nhấn vào biểu tượng
+                Hãy khám phá các sản phẩm công nghệ tuyệt vời tại Nexora và nhấn vào biểu tượng
                 trái tim để lưu lại những món đồ bạn yêu thích!
               </p>
               <Link

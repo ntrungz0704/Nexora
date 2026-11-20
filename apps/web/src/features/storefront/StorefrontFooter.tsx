@@ -53,7 +53,7 @@ export const StorefrontFooter: React.FC<{ hideFeatures?: boolean }> = ({ hideFea
 
         <div className="footer-col">
           <h4>Về chúng tôi</h4>
-          <Link to="/about">Giới thiệu TechPilot</Link>
+          <Link to="/about">Giới thiệu Nexora</Link>
           <Link to="/careers">Tuyển dụng nhân viên</Link>
           <Link to="/contact">Liên hệ hợp tác</Link>
           <Link to="/stores">Hệ thống cửa hàng</Link>

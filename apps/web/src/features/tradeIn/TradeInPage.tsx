@@ -138,7 +138,7 @@ export const TradeInPage: React.FC = () => {
                 marginBottom: '14px',
               }}
             >
-              🔥 TECHPILOT TRADE-IN 2026
+              🔥 NEXORA TRADE-IN 2026
             </span>
             <h1 style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 12px 0', lineHeight: '1.3' }}>
               Thu Cũ Đổi Mới — Trợ Giá Lên Tới 6.000.000đ

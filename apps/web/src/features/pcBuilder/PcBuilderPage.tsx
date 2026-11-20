@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
@@ -366,6 +366,23 @@ export const PcBuilderPage: React.FC = () => {
     if (!activePart) return [];
     const catKey = activePart.key;
 
+    const PART_CATEGORY_MAP: Record<string, string[]> = {
+      cpu: ['cpu'],
+      mainboard: ['mainboard'],
+      ram: ['ram'],
+      vga: ['vga'],
+      storage: ['storage'],
+      psu: ['psu'],
+      case: ['case'],
+      cooler: ['cooling'],
+      monitor: ['monitor'],
+      mouse: ['mouse'],
+      keyboard: ['keyboard'],
+      chair: ['chair'],
+    };
+
+    const targetSlugs = PART_CATEGORY_MAP[catKey] || [catKey];
+
     return allProducts.filter((p) => {
       // 1. Text search
       if (modalSearch.trim()) {
@@ -378,33 +395,37 @@ export const PcBuilderPage: React.FC = () => {
       const nameLower = p.name.toLowerCase();
       const catSlug = (p.category?.slug || '').toLowerCase();
 
+      // Check category slug match
+      if (targetSlugs.some((s) => catSlug === s || catSlug.includes(s))) {
+        return true;
+      }
+
+      // Fallback keyword matching
       switch (catKey) {
         case 'cpu':
-          return catSlug === 'cpu' || nameLower.includes('cpu') || nameLower.includes('intel core') || nameLower.includes('ryzen');
+          return nameLower.includes('cpu') || nameLower.includes('intel core') || nameLower.includes('ryzen');
         case 'mainboard':
-          return catSlug === 'mainboard' || nameLower.includes('mainboard') || nameLower.includes('bo mạch');
+          return nameLower.includes('mainboard') || nameLower.includes('bo mạch') || nameLower.includes('b760') || nameLower.includes('z790') || nameLower.includes('b650');
         case 'ram':
-          return catSlug === 'ram' || nameLower.includes('ram');
+          return nameLower.includes('ram') || nameLower.includes('ddr4') || nameLower.includes('ddr5');
         case 'vga':
-          return catSlug === 'vga' || nameLower.includes('vga') || nameLower.includes('rtx') || nameLower.includes('card màn hình');
+          return nameLower.includes('vga') || nameLower.includes('rtx') || nameLower.includes('card màn hình') || nameLower.includes('radeon');
         case 'storage':
-          return catSlug === 'storage' || catSlug.includes('o-cung') || nameLower.includes('ssd') || nameLower.includes('ổ cứng');
+          return nameLower.includes('ssd') || nameLower.includes('ổ cứng') || nameLower.includes('nvme');
         case 'psu':
-          return catSlug === 'psu' || nameLower.includes('psu') || nameLower.includes('nguồn');
+          return nameLower.includes('psu') || nameLower.includes('nguồn');
         case 'case':
-          return catSlug === 'case' || nameLower.includes('case') || nameLower.includes('vỏ');
+          return nameLower.includes('case') || nameLower.includes('vỏ');
         case 'cooler':
-          return catSlug === 'cooling' || nameLower.includes('tản nhiệt') || nameLower.includes('cooler');
+          return nameLower.includes('tản nhiệt') || nameLower.includes('cooler') || nameLower.includes('aio');
         case 'monitor':
-          return catSlug === 'monitor' || nameLower.includes('màn hình');
+          return nameLower.includes('màn hình');
         case 'mouse':
-          return catSlug === 'mouse' || nameLower.includes('chuột');
+          return nameLower.includes('chuột');
         case 'keyboard':
-          return catSlug === 'keyboard' || nameLower.includes('bàn phím');
+          return nameLower.includes('bàn phím');
         case 'chair':
-          return catSlug === 'chair' || nameLower.includes('ghế');
-        case 'headset':
-          return catSlug === 'headset' || nameLower.includes('tai nghe');
+          return nameLower.includes('ghế');
         default:
           return true;
       }
@@ -462,6 +483,15 @@ export const PcBuilderPage: React.FC = () => {
         }}
       />
 
+      {/* Breadcrumb */}
+      <section className="container">
+        <div className="breadcrumb" style={{ paddingTop: '16px', paddingBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+          <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>Trang chủ</Link>
+          <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: '#94A3B8' }}></i>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary, #0F172A)' }}>Xây dựng cấu hình PC</span>
+        </div>
+      </section>
+
       <div className="pc-builder-container">
         {/* Header */}
         <div className="pc-builder-header">
@@ -498,7 +528,7 @@ export const PcBuilderPage: React.FC = () => {
               className={`btn-flow-tab ${flowMode === 'prebuilt' ? 'active' : ''}`}
               onClick={() => setFlowMode('prebuilt')}
             >
-              <i className="fa-solid fa-box-open"></i> Chọn PC lắp sẵn TechPilot
+              <i className="fa-solid fa-box-open"></i> Chọn PC lắp sẵn Nexora
             </button>
           </div>
         </div>
@@ -743,10 +773,10 @@ export const PcBuilderPage: React.FC = () => {
           <div>
             <div style={{ marginBottom: '20px' }}>
               <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary, #0F172A)', margin: '0 0 6px 0' }}>
-                📦 Danh Sách Bộ PC Lắp Sẵn Tối Ưu Bởi TechPilot
+                📦 Danh Sách Bộ PC Lắp Sẵn Tối Ưu Bởi Nexora
               </h3>
               <p style={{ color: 'var(--text-secondary, #64748B)', fontSize: '14.5px', margin: 0 }}>
-                Đã được các chuyên gia TechPilot lắp ráp và test độ ổn định. Mua nguyên bộ hoặc tùy chỉnh theo ý bạn!
+                Đã được các chuyên gia Nexora lắp ráp và test độ ổn định. Mua nguyên bộ hoặc tùy chỉnh theo ý bạn!
               </p>
             </div>
 
@@ -769,15 +799,40 @@ export const PcBuilderPage: React.FC = () => {
                       <h4 style={{ fontSize: '15px', fontWeight: 700, margin: '0 0 8px 0', color: 'var(--text-primary, #0F172A)' }}>
                         {pc.name}
                       </h4>
-                      {pc.specs && (
+                      {pc.specs ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
-                          {Object.entries(pc.specs).slice(0, 3).map(([k, v]) => (
-                            <div key={k}>
-                              <span style={{ fontWeight: 600 }}>{k}:</span> {String(v)}
-                            </div>
-                          ))}
+                          {(() => {
+                            const rawSpecs = ((pc.specs as Record<string, unknown>)?.specs as Record<string, unknown>) || (pc.specs as Record<string, unknown>);
+                            const cpu = rawSpecs.cpu_model || rawSpecs.cpu || rawSpecs.CPU;
+                            const gpu = rawSpecs.gpu_model || rawSpecs.gpu || rawSpecs.VGA || rawSpecs.vga;
+                            const ram = rawSpecs.ram_gb ? `${rawSpecs.ram_gb}GB RAM` : rawSpecs.ram || rawSpecs.RAM;
+                            const storage = rawSpecs.storage_gb ? `${rawSpecs.storage_gb}GB SSD` : rawSpecs.storage || rawSpecs.ssd;
+
+                            const items = [
+                              cpu ? `⚡ CPU: ${cpu}` : null,
+                              gpu ? `🎮 VGA: ${gpu}` : null,
+                              ram ? `💾 RAM: ${ram}` : null,
+                              storage ? `🚀 Ổ cứng: ${storage}` : null,
+                            ].filter(Boolean);
+
+                            if (items.length > 0) {
+                              return items.map((it, idx) => (
+                                <div key={idx} style={{ color: '#334155', fontWeight: 500 }}>
+                                  {it}
+                                </div>
+                              ));
+                            }
+                            return (
+                              <div style={{ color: '#334155', fontWeight: 500 }}>
+                                ⚡ Cấu hình chuẩn tối ưu hiệu năng
+                              </div>
+                            );
+                          })()}
                         </div>
-                      )}
+                      ) : null}
+                      <div style={{ fontSize: '11px', color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
+                        <i className="fa-solid fa-shield-halved"></i> Bảo hành 36 tháng • 1 đổi 1 30 ngày
+                      </div>
                     </div>
 
                     <div>

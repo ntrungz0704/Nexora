@@ -301,7 +301,7 @@ export const ComparePage: React.FC = () => {
         <div style={{ marginBottom: '24px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0F172A)', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 6px 0' }}>
             <i className="fa-solid fa-code-compare" style={{ color: '#0A5BFF' }}></i>
-            So sánh sản phẩm theo Persona (TechPilot 4.0)
+            So sánh sản phẩm theo Persona (Nexora 4.0)
           </h2>
           <p style={{ color: '#64748B', fontSize: '14.5px', margin: 0 }}>
             Chọn danh mục trước, thêm 2-4 sản phẩm và chọn đối tượng (Persona) để hệ thống phân tích người chiến thắng.
@@ -329,13 +329,24 @@ export const ComparePage: React.FC = () => {
                   key={cat.key}
                   type="button"
                   onClick={() => handleSelectCategory(cat.key)}
-                  className={`cat-tab-btn px-4 py-2 rounded-full text-xs font-bold inline-flex items-center gap-1.5 transition-all border cursor-pointer ${
-                    isActive
-                      ? 'active bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
-                      : isCategoryLocked
-                      ? 'locked bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300 hover:-translate-y-0.5'
-                  }`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: isCategoryLocked && !isActive ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    textDecoration: 'none',
+                    backgroundColor: isActive ? '#0A5BFF' : isCategoryLocked ? '#F1F5F9' : '#FFFFFF',
+                    color: isActive ? '#FFFFFF' : isCategoryLocked ? '#94A3B8' : '#1E293B',
+                    border: `1.5px solid ${isActive ? '#0A5BFF' : '#E2E8F0'}`,
+                    boxShadow: isActive ? '0 4px 12px rgba(10, 91, 255, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
+                    opacity: isCategoryLocked && !isActive ? 0.6 : 1,
+                  }}
+                  className={`cat-tab-btn ${isActive ? 'active' : ''}`}
                   title={isCategoryLocked && !isActive ? 'Đã khóa danh mục theo sản phẩm so sánh' : cat.label}
                 >
                   <i className={`fa-solid ${cat.icon}`}></i>

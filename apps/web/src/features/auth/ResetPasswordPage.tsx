@@ -76,7 +76,7 @@ export const ResetPasswordPage: React.FC = () => {
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '24px' }}>
           <img
             src="/assets/images/logo.png"
-            alt="TechPilot"
+            alt="Nexora"
             style={{ height: '44px', objectFit: 'contain' }}
           />
         </Link>

@@ -149,11 +149,17 @@
     text-decoration: none;
 }
 
-.subcategory-chip:hover,
-.subcategory-chip.is-active {
-    border-color: #3B82F6;
-    color: #3B82F6;
+.subcategory-chip:hover {
+    border-color: #0A5BFF;
+    color: #0A5BFF;
     background: #EFF6FF;
+}
+
+.subcategory-chip.is-active {
+    border-color: #0A5BFF !important;
+    color: #FFFFFF !important;
+    background: #0A5BFF !important;
+    box-shadow: 0 4px 12px rgba(10, 91, 255, 0.25);
 }
 
 /* Brand filter chips */

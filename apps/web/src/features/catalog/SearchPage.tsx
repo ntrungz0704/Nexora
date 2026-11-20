@@ -154,6 +154,22 @@ export const SearchPage: React.FC = () => {
   const [userKeyword, setUserKeyword] = useState<string | null>(null);
   const keywordInput = userKeyword !== null ? userKeyword : queryQ;
 
+  // Sync debounced search to URL params
+  useEffect(() => {
+    if (userKeyword === null) return;
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(searchParams);
+      if (userKeyword.trim()) {
+        params.set('q', userKeyword.trim());
+      } else {
+        params.delete('q');
+      }
+      params.delete('page');
+      setSearchParams(params, { replace: true });
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [userKeyword, searchParams, setSearchParams]);
+
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'title-asc' | 'title-desc'>('newest');
@@ -290,12 +306,13 @@ export const SearchPage: React.FC = () => {
         }
       }
 
-      // 3. Query text filter
-      if (queryQ.trim()) {
-        const q = queryQ.toLowerCase().trim();
-        const matchesName = product.name.toLowerCase().includes(q);
-        const matchesCat = (product.category?.name || '').toLowerCase().includes(q);
-        if (!matchesName && !matchesCat) return false;
+      // 3. Real-time Live Query text filter (instant matching as you type)
+      const searchNeedle = (userKeyword !== null ? userKeyword : queryQ).toLowerCase().trim();
+      if (searchNeedle) {
+        const matchesName = product.name.toLowerCase().includes(searchNeedle);
+        const matchesCat = (product.category?.name || '').toLowerCase().includes(searchNeedle);
+        const matchesBrand = (product.brand?.name || '').toLowerCase().includes(searchNeedle);
+        if (!matchesName && !matchesCat && !matchesBrand) return false;
       }
 
       // 4. Promo filter
@@ -334,7 +351,7 @@ export const SearchPage: React.FC = () => {
       if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
       return b.id - a.id; // newest
     });
-  }, [allProducts, queryCat, activeSubgroup, subcategoryList, queryQ, promoOnly, inStockOnly, selectedBrands, priceRange, sortBy]);
+  }, [allProducts, queryCat, activeSubgroup, subcategoryList, queryQ, userKeyword, promoOnly, inStockOnly, selectedBrands, priceRange, sortBy]);
 
   // Subgroup counts map
   const subgroupCounts = useMemo(() => {
@@ -484,10 +501,12 @@ export const SearchPage: React.FC = () => {
 
       <main style={{ minHeight: '600px', paddingBottom: '80px' }}>
         {/* Breadcrumb */}
-        <section className="container breadcrumb" style={{ padding: '16px 0', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-          <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>Trang chủ</Link>
-          <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: '#94A3B8' }}></i>
-          <span style={{ fontWeight: 600, color: 'var(--text-primary, #0F172A)' }}>{activeCategoryName}</span>
+        <section className="container">
+          <div className="breadcrumb" style={{ paddingTop: '16px', paddingBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+            <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>Trang chủ</Link>
+            <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: '#94A3B8' }}></i>
+            <span style={{ fontWeight: 600, color: 'var(--text-primary, #0F172A)' }}>{activeCategoryName}</span>
+          </div>
         </section>
 
         {/* 2-Column Search Layout */}

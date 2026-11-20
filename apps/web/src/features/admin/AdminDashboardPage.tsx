@@ -1707,7 +1707,7 @@ export const AdminDashboardPage: React.FC = () => {
                       <td className="py-3.5 px-3 font-bold text-gray-900">{b.name}</td>
                       <td className="py-3.5 px-3 font-mono text-gray-500">{b.slug}</td>
                       <td className="py-3.5 px-3 text-gray-500 text-[11px] max-w-sm truncate">
-                        {b.description || `Thương hiệu công nghệ hàng đầu ${b.name} chính hãng tại TechPilot.`}
+                        {b.description || `Thương hiệu công nghệ hàng đầu ${b.name} chính hãng tại Nexora.`}
                       </td>
                       <td className="py-3.5 px-3 text-center">
                         <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
@@ -2110,7 +2110,7 @@ export const AdminDashboardPage: React.FC = () => {
                         </a>
                         <div className="text-[11px] text-gray-400 mt-0.5">{post.category}</div>
                       </td>
-                      <td className="py-3.5 px-3 text-gray-600">{post.author?.fullName || 'Đội ngũ TechPilot'}</td>
+                      <td className="py-3.5 px-3 text-gray-600">{post.author?.fullName || 'Đội ngũ Nexora'}</td>
                       <td className="py-3.5 px-3 text-center text-gray-600 font-bold">{(post.views || 4520).toLocaleString('vi-VN')}</td>
                       <td className="py-3.5 px-3 text-center">
                         <label className="inline-flex items-center gap-1.5 cursor-pointer">
@@ -2334,7 +2334,7 @@ export const AdminDashboardPage: React.FC = () => {
                     <tr key={rev.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{rev.id}</td>
                       <td className="py-3.5 px-3 font-bold text-gray-900 max-w-xs truncate">
-                        {rev.product?.name || 'Sản phẩm TechPilot'}
+                        {rev.product?.name || 'Sản phẩm Nexora'}
                       </td>
                       <td className="py-3.5 px-3 text-gray-800 font-semibold">
                         {rev.user?.fullName || 'Nguyễn Hoàng Nam'}
@@ -2741,7 +2741,7 @@ export const AdminDashboardPage: React.FC = () => {
                     required
                     value={newCouponCode}
                     onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
-                    placeholder="VD: TECHPILOT50"
+                    placeholder="VD: NEXORA50"
                     className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono font-bold"
                   />
                 </div>

@@ -87,7 +87,7 @@ export const CheckoutSuccessPage: React.FC = () => {
             Đặt hàng thành công!
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '28px' }}>
-            Cảm ơn bạn đã tin tưởng mua sắm tại <strong>TechPilot</strong>. Đơn hàng của bạn đã được tiếp nhận và đang được đóng gói.
+            Cảm ơn bạn đã tin tưởng mua sắm tại <strong>Nexora</strong>. Đơn hàng của bạn đã được tiếp nhận và đang được đóng gói.
           </p>
 
           {/* Order Info Card */}

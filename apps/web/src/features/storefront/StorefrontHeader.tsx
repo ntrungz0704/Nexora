@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storefrontService } from '../../services/storefrontService';
 import { getProductImage } from '../../lib/productImage';
@@ -57,7 +57,26 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
     typeof document !== 'undefined' ? document.documentElement.classList.contains('dark-mode') : false,
   );
   const navigate = useNavigate();
+  const location = useLocation();
   const searchContainerRef = useRef<HTMLFormElement>(null);
+
+  const searchParams = new URLSearchParams(location.search);
+  const currentPath = location.pathname;
+  const currentCat = (searchParams.get('cat') || '').toLowerCase();
+  const isPromo = searchParams.get('promo') === '1';
+
+  const isHomeActive = currentPath === '/' && !currentCat && !isPromo;
+  const isPcActive = currentCat === 'pc' || currentPath === '/category/pc';
+  const isLaptopActive = currentCat === 'laptop' || currentPath === '/category/laptop';
+  const isComponentsActive = currentCat === 'pc-linh-kien' || currentCat === 'linh-kien-pc' || currentCat === 'main-cpu-vga' || currentCat === 'case-nguon-tan' || currentPath.includes('/category/linh-kien');
+  const isMonitorActive = currentCat === 'man-hinh' || currentCat === 'monitor' || currentPath === '/category/monitor';
+  const isBuildPcActive = currentPath === '/build-pc' || currentPath === '/pc-builder';
+  const isGearActive = currentCat === 'gaming-gear' || currentCat === 'chuot-lot-chuot' || currentCat === 'chuot' || currentCat === 'ban-phim' || currentCat === 'tai-nghe' || currentCat === 'ghe-ban' || currentCat === 'mouse' || currentCat === 'keyboard' || currentCat === 'headset';
+  const isOfficeActive = currentCat === 'thiet-bi-van-phong' || currentCat === 'office-gear' || currentCat === 'office-equipment';
+  const isPromoActive = isPromo;
+  const isNewsActive = currentPath.startsWith('/post') || currentPath.startsWith('/news') || currentPath.startsWith('/tin-tuc');
+  const isAiActive = currentPath === '/ai-assistant';
+  const isCompareActive = currentPath === '/compare';
 
   const isCategoryMenuOpen = controlledCategoryMenuOpen ?? internalCategoryMenuOpen;
 
@@ -211,7 +230,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               title="Nexora — Hệ Thống Bán Lẻ Máy Tính & Linh Kiện Chính Hãng"
             >
               <img
-                src="/assets/images/nexora-logo.png"
+                src={isDarkMode ? '/assets/images/nexora-logo-white.png' : '/assets/images/nexora-logo.png'}
                 alt="Nexora Logo"
                 style={{ height: '38px', objectFit: 'contain', display: 'block' }}
               />
@@ -563,24 +582,36 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
         <div className="container main-nav__inner">
           <ul className="main-nav__links">
             <li>
-              <Link to="/" className="is-active">
+              <Link to="/" className={isHomeActive ? 'is-active' : ''}>
                 Trang chủ
               </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=pc">PC Gaming</Link>
+              <Link to="/search?cat=pc" className={isPcActive ? 'is-active' : ''}>
+                PC Gaming
+              </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=laptop">Laptop</Link>
+              <Link to="/search?cat=laptop" className={isLaptopActive ? 'is-active' : ''}>
+                Laptop
+              </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=pc-linh-kien">Linh kiện PC</Link>
+              <Link to="/search?cat=pc-linh-kien" className={isComponentsActive ? 'is-active' : ''}>
+                Linh kiện PC
+              </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=man-hinh">Màn hình</Link>
+              <Link to="/search?cat=man-hinh" className={isMonitorActive ? 'is-active' : ''}>
+                Màn hình
+              </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/build-pc" style={{ color: '#FACC15', fontWeight: 700 }}>
+              <Link
+                to="/build-pc"
+                className={isBuildPcActive ? 'is-active' : ''}
+                style={{ color: '#FACC15', fontWeight: 700 }}
+              >
                 <i
                   className="fa-solid fa-screwdriver-wrench"
                   style={{ marginRight: '4px' }}
@@ -589,21 +620,31 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=gaming-gear">Gaming Gear</Link>
+              <Link to="/search?cat=gaming-gear" className={isGearActive ? 'is-active' : ''}>
+                Gaming Gear
+              </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/search?cat=thiet-bi-van-phong">Thiết bị văn phòng</Link>
+              <Link to="/search?cat=thiet-bi-van-phong" className={isOfficeActive ? 'is-active' : ''}>
+                Thiết bị văn phòng
+              </Link>
             </li>
             <li>
-              <Link to="/search?promo=1" className="text-hot">
+              <Link to="/search?promo=1" className={`text-hot ${isPromoActive ? 'is-active' : ''}`}>
                 Khuyến mãi <span className="dot-hot"></span>
               </Link>
             </li>
             <li>
-              <Link to="/post">Tin công nghệ</Link>
+              <Link to="/post" className={isNewsActive ? 'is-active' : ''}>
+                Tin công nghệ
+              </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/ai-assistant" style={{ color: '#8B5CF6', fontWeight: 700 }}>
+              <Link
+                to="/ai-assistant"
+                className={isAiActive ? 'is-active' : ''}
+                style={{ color: '#8B5CF6', fontWeight: 700 }}
+              >
                 <i
                   className="fa-solid fa-wand-magic-sparkles"
                   style={{ marginRight: '4px' }}
@@ -612,7 +653,11 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               </Link>
             </li>
             <li className="desktop-only-link">
-              <Link to="/compare" style={{ color: '#10B981', fontWeight: 700 }}>
+              <Link
+                to="/compare"
+                className={isCompareActive ? 'is-active' : ''}
+                style={{ color: '#10B981', fontWeight: 700 }}
+              >
                 <i className="fa-solid fa-scale-balanced" style={{ marginRight: '4px' }}></i> So
                 sánh
               </Link>

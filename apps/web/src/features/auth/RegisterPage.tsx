@@ -108,7 +108,7 @@ export const RegisterPage: React.FC = () => {
               <div>
                 <h1 className="auth-card__title">Tạo tài khoản mới</h1>
                 <p className="auth-card__subtitle">
-                  Tham gia cùng TechPilot để nhận nhiều ưu đãi hấp dẫn
+                  Tham gia cùng Nexora để nhận nhiều ưu đãi hấp dẫn
                 </p>
               </div>
             </div>
@@ -289,7 +289,7 @@ export const RegisterPage: React.FC = () => {
                     <Link to="/policy/privacy" className="auth-link-accent">
                       Chính sách bảo mật
                     </Link>{' '}
-                    của TechPilot *
+                    của Nexora *
                   </span>
                 </label>
               </div>

@@ -557,7 +557,7 @@ export const CheckoutPage: React.FC = () => {
                     marginTop: '12px',
                   }}
                 >
-                  Bằng cách nhấn Đặt hàng, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo hành của TechPilot.
+                  Bằng cách nhấn Đặt hàng, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo hành của Nexora.
                 </p>
               </div>
             </div>

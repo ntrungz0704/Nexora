@@ -343,7 +343,7 @@ export const AiAssistantPage: React.FC = () => {
                     color: '#0A5BFF',
                   }}
                 >
-                  <i className="fa-solid fa-wand-magic-sparkles"></i> TECHPILOT AI 4.0
+                  <i className="fa-solid fa-wand-magic-sparkles"></i> NEXORA AI 4.0
                 </span>
               </div>
 
@@ -831,7 +831,7 @@ export const AiAssistantPage: React.FC = () => {
                   <i className="fa-solid fa-check-double"></i> Kết quả đã phân tích
                 </span>
                 <h3 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                  🤖 3 Đề Xuất Tối Ưu Từ TechPilot AI
+                  🤖 3 Đề Xuất Tối Ưu Từ Nexora AI
                 </h3>
                 {analysisSummary && (
                   <p style={{ color: 'var(--text-secondary, #64748B)', fontSize: '14.5px', marginTop: '6px' }}>
@@ -987,31 +987,120 @@ export const AiAssistantPage: React.FC = () => {
                           </span>
                         </div>
 
-                        {/* Specs Summary Grid */}
-                        {p.specs && typeof p.specs === 'object' && Object.keys(p.specs).length > 0 && (
+                        {/* Customer Value & Real-World Hardware Highlights */}
+                        <div
+                          style={{
+                            backgroundColor: '#F8FAFC',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(0,0,0,0.06)',
+                            padding: '12px 14px',
+                            marginBottom: '16px',
+                          }}
+                        >
                           <div
                             style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                              gap: '8px',
-                              marginBottom: '16px',
-                              padding: '14px',
-                              backgroundColor: '#F8FAFC',
-                              borderRadius: '12px',
-                              border: '1px solid rgba(0,0,0,0.04)',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              color: '#0A5BFF',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              marginBottom: '8px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
                             }}
                           >
-                            {Object.entries(p.specs)
-                              .filter(([_, v]) => typeof v === 'string' || typeof v === 'number')
-                              .slice(0, 4)
-                              .map(([k, v], sIdx) => (
-                                <div key={sIdx} style={{ fontSize: '12px', lineHeight: 1.35 }}>
-                                  <span style={{ color: 'var(--text-secondary, #64748B)', fontWeight: 500 }}>{k}: </span>
-                                  <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{String(v)}</span>
-                                </div>
-                              ))}
+                            <i className="fa-solid fa-microchip"></i> Cấu hình phần cứng then chốt
                           </div>
-                        )}
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px' }}>
+                            {(() => {
+                              const raw = p.specs as Record<string, unknown> | null;
+                              const inner = (raw && typeof raw === 'object' && raw.specs && typeof raw.specs === 'object')
+                                ? (raw.specs as Record<string, unknown>)
+                                : (raw && typeof raw === 'object' ? raw : {});
+
+                              const cpu = inner.cpu_model || inner.cpu || null;
+                              const gpu = inner.gpu_model || inner.gpu || inner.vga || null;
+                              const ram = inner.ram_gb ? `${inner.ram_gb}GB ${inner.ram_type || 'RAM'}` : inner.ram || null;
+                              const storage = inner.storage_gb ? `${Number(inner.storage_gb) >= 1000 ? `${Number(inner.storage_gb) / 1000}TB` : `${inner.storage_gb}GB`} ${inner.storage_type || 'SSD'}` : inner.storage || null;
+
+                              const items: { label: string; value: string; icon: string }[] = [];
+                              if (cpu) items.push({ label: 'CPU', value: String(cpu), icon: 'fa-microchip' });
+                              if (gpu) items.push({ label: 'Card đồ họa', value: String(gpu), icon: 'fa-tv' });
+                              if (ram) items.push({ label: 'Bộ nhớ RAM', value: String(ram), icon: 'fa-memory' });
+                              if (storage) items.push({ label: 'Ổ cứng SSD', value: String(storage), icon: 'fa-hard-drive' });
+
+                              if (items.length === 0) {
+                                items.push({ label: 'Thương hiệu', value: p.brand?.name || 'Chính hãng', icon: 'fa-tag' });
+                                items.push({ label: 'Phân khúc', value: p.category?.name || 'Máy tính cao cấp', icon: 'fa-layer-group' });
+                                items.push({ label: 'Tình trạng', value: 'Mới 100% Seal', icon: 'fa-box-open' });
+                                items.push({ label: 'Bảo hành', value: '36 Tháng', icon: 'fa-shield-halved' });
+                              }
+
+                              return items.slice(0, 4).map((spec, sIdx) => (
+                                <div key={sIdx} style={{ fontSize: '12px', lineHeight: 1.35 }}>
+                                  <div style={{ color: '#64748B', fontWeight: 500, fontSize: '11px' }}>
+                                    <i className={`fa-solid ${spec.icon}`} style={{ marginRight: '4px', opacity: 0.7 }}></i>
+                                    {spec.label}
+                                  </div>
+                                  <div
+                                    style={{
+                                      color: '#0F172A',
+                                      fontWeight: 700,
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                    }}
+                                    title={spec.value}
+                                  >
+                                    {spec.value}
+                                  </div>
+                                </div>
+                              ));
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* Customer Buying Incentives & Trust Badges */}
+                        <div
+                          style={{
+                            backgroundColor: 'rgba(10, 91, 255, 0.04)',
+                            border: '1px solid rgba(10, 91, 255, 0.12)',
+                            borderRadius: '12px',
+                            padding: '12px 14px',
+                            marginBottom: '16px',
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              color: '#0A5BFF',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              marginBottom: '8px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                            }}
+                          >
+                            <i className="fa-solid fa-gift"></i> Đặc quyền mua hàng tại Nexora
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px', color: '#1E293B' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
+                              <span><strong>Bảo hành 36 tháng</strong> (1 đổi 1 trong 30 ngày)</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
+                              <span><strong>Giao siêu tốc 2h</strong> &amp; Miễn phí vận chuyển toàn quốc</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
+                              <span><strong>Tặng Voucher 500K</strong> + Cài đặt phần mềm trọn đời</span>
+                            </div>
+                          </div>
+                        </div>
 
                         {/* Reasons */}
                         {item.reasons && item.reasons.length > 0 && (

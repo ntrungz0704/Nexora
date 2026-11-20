@@ -588,7 +588,7 @@ export const ProductDetailPage: React.FC = () => {
               <div style={{ lineHeight: 1.8, fontSize: '14px', color: 'var(--text-primary)' }}>
                 <p>{product.shortDescription}</p>
                 <p>
-                  Sản phẩm được phân phối chính hãng bởi <strong>TechPilot</strong> với đầy đủ hóa đơn VAT, tem bảo hành chính hãng và hỗ trợ kỹ thuật trọn đời máy.
+                  Sản phẩm được phân phối chính hãng bởi <strong>Nexora</strong> với đầy đủ hóa đơn VAT, tem bảo hành chính hãng và hỗ trợ kỹ thuật trọn đời máy.
                 </p>
               </div>
             )}

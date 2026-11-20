@@ -19,7 +19,7 @@ export const FloatingChatbot: React.FC = () => {
     {
       id: 'welcome',
       sender: 'ai',
-      text: 'Xin chào! Tôi là TechPilot AI, trợ lý ảo chuyên tư vấn cấu hình PC, laptop và linh kiện máy tính. Bạn đang cần tìm sản phẩm hay cần tư vấn mức ngân sách nào?',
+      text: 'Xin chào! Tôi là Nexora AI, trợ lý ảo chuyên tư vấn cấu hình PC, laptop và linh kiện máy tính. Bạn đang cần tìm sản phẩm hay cần tư vấn mức ngân sách nào?',
       quickReplies: ['Tư vấn laptop gaming', 'Xây dựng cấu hình PC', 'Chính sách bảo hành', 'Phí giao hàng'],
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
@@ -161,7 +161,7 @@ export const FloatingChatbot: React.FC = () => {
                 />
               </span>
               <div>
-                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>TechPilot AI</h4>
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700 }}>Nexora AI</h4>
                 <span
                   style={{
                     fontSize: '11px',
