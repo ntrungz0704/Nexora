@@ -192,26 +192,26 @@ export const CartPage: React.FC = () => {
                 {/* Free Shipping Bar */}
                 <div
                   style={{
-                    backgroundColor: rawTotal >= 300000 ? '#F0FDF4' : '#EFF6FF',
+                    backgroundColor: rawTotal >= 500000 ? '#F0FDF4' : '#EFF6FF',
                     padding: '12px 20px',
                     borderBottom: '1px solid var(--border)',
                     fontSize: '13px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
-                    color: rawTotal >= 300000 ? '#166534' : '#1E40AF',
+                    color: rawTotal >= 500000 ? '#166534' : '#1E40AF',
                     fontWeight: 600,
                   }}
                 >
                   <i
                     className={
-                      rawTotal >= 300000 ? 'fa-solid fa-circle-check' : 'fa-solid fa-truck-fast'
+                      rawTotal >= 500000 ? 'fa-solid fa-circle-check' : 'fa-solid fa-truck-fast'
                     }
                   ></i>
                   <span>
-                    {rawTotal >= 300000
+                    {rawTotal >= 500000
                       ? 'Đơn hàng của bạn đủ điều kiện MIỄN PHÍ VẬN CHUYỂN toàn quốc!'
-                      : `Mua thêm ${formatPrice(300000 - rawTotal)} để được MIỄN PHÍ VẬN CHUYỂN!`}
+                      : `Mua thêm ${formatPrice(500000 - rawTotal)} để được MIỄN PHÍ VẬN CHUYỂN!`}
                   </span>
                 </div>
 

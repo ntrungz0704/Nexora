@@ -72,7 +72,7 @@ export const PolicyPage: React.FC = () => {
         sections: [
           {
             heading: '1. Phí giao hàng & Miễn phí vận chuyển',
-            body: 'Nexora miễn phí 100% cước giao hàng tiêu chuẩn trên toàn quốc cho mọi đơn hàng có giá trị thanh toán từ 300.000đ trở lên. Đơn hàng dưới 300.000đ áp dụng mức phí đồng giá 30.000đ.',
+            body: 'Nexora miễn phí 100% cước giao hàng tiêu chuẩn trên toàn quốc cho mọi đơn hàng có giá trị thanh toán từ 500.000đ trở lên. Đơn hàng dưới 500.000đ áp dụng mức phí đồng giá 30.000đ.',
           },
           {
             heading: '2. Thời gian giao hàng dự kiến',

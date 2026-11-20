@@ -319,6 +319,72 @@ export const AdminDashboardPage: React.FC = () => {
   const [newBannerImage, setNewBannerImage] = useState('/assets/images/banner-1.jpg');
   const [newBannerPlacement, setNewBannerPlacement] = useState('hero');
 
+  // Edit Product Modal States
+  const [editingProduct, setEditingProduct] = useState<ProductDto | null>(null);
+  const [editProductName, setEditProductName] = useState('');
+  const [editProductPrice, setEditProductPrice] = useState('');
+  const [editProductSalePrice, setEditProductSalePrice] = useState('');
+  const [editProductStock, setEditProductStock] = useState('0');
+  const [editProductCategory, setEditProductCategory] = useState('1');
+  const [editProductBrand, setEditProductBrand] = useState('');
+  const [editProductDesc, setEditProductDesc] = useState('');
+  const [editProductStatus, setEditProductStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
+
+  // Edit Category Modal States
+  const [editingCategory, setEditingCategory] = useState<AdminCategoryItem | null>(null);
+  const [editCategoryName, setEditCategoryName] = useState('');
+  const [editCategorySlug, setEditCategorySlug] = useState('');
+  const [editCategoryIcon, setEditCategoryIcon] = useState('fa-solid fa-layer-group');
+  const [editCategoryDesc, setEditCategoryDesc] = useState('');
+  const [editCategorySort, setEditCategorySort] = useState('0');
+
+  // Edit Brand Modal States
+  const [editingBrand, setEditingBrand] = useState<AdminBrandItem | null>(null);
+  const [editBrandName, setEditBrandName] = useState('');
+  const [editBrandSlug, setEditBrandSlug] = useState('');
+  const [editBrandLogo, setEditBrandLogo] = useState('');
+  const [editBrandDesc, setEditBrandDesc] = useState('');
+
+  // Edit Coupon Modal States
+  const [editingCoupon, setEditingCoupon] = useState<AdminCouponItem | null>(null);
+  const [editCouponCode, setEditCouponCode] = useState('');
+  const [editCouponDiscount, setEditCouponDiscount] = useState('10');
+  const [editCouponType, setEditCouponType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT'>('PERCENTAGE');
+  const [editCouponMinOrder, setEditCouponMinOrder] = useState('500000');
+  const [editCouponUsageLimit, setEditCouponUsageLimit] = useState('');
+
+  // Flash Sale Modal States
+  const [isAddFlashSaleOpen, setIsAddFlashSaleOpen] = useState(false);
+  const [newFsName, setNewFsName] = useState('Flash Sale Bùng Nổ TechPilot');
+  const [newFsStart, setNewFsStart] = useState('2026-08-02T17:25');
+  const [newFsEnd, setNewFsEnd] = useState('2026-09-06T18:25');
+
+  const [editingFlashSale, setEditingFlashSale] = useState<AdminFlashSaleItem | null>(null);
+  const [editFsName, setEditFsName] = useState('');
+  const [editFsStart, setEditFsStart] = useState('');
+  const [editFsEnd, setEditFsEnd] = useState('');
+
+  // Post Modal States
+  const [isAddPostOpen, setIsAddPostOpen] = useState(false);
+  const [newPostTitle, setNewPostTitle] = useState('');
+  const [newPostCategory, setNewPostCategory] = useState('Tin công nghệ');
+  const [newPostContent, setNewPostContent] = useState('');
+  const [newPostThumb, setNewPostThumb] = useState('/assets/images/posts/post-1.jpg');
+
+  const [editingPost, setEditingPost] = useState<AdminPostItem | null>(null);
+  const [editPostTitle, setEditPostTitle] = useState('');
+  const [editPostCategory, setEditPostCategory] = useState('Tin công nghệ');
+  const [editPostContent, setEditPostContent] = useState('');
+  const [editPostThumb, setEditPostThumb] = useState('');
+
+  // Edit Banner Modal States
+  const [editingBanner, setEditingBanner] = useState<AdminBannerItem | null>(null);
+  const [editBannerTitle, setEditBannerTitle] = useState('');
+  const [editBannerImage, setEditBannerImage] = useState('');
+  const [editBannerLink, setEditBannerLink] = useState('');
+  const [editBannerPlacement, setEditBannerPlacement] = useState('hero');
+  const [editBannerSort, setEditBannerSort] = useState('1');
+
   // Filter States for Exact TechPilot Parity
   const [productSearch, setProductSearch] = useState('');
   const [productCategoryFilter, setProductCategoryFilter] = useState('');
@@ -341,21 +407,397 @@ export const AdminDashboardPage: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<OrderDto | null>(null);
 
   // Status Handlers
-  const handleUpdateOrderStatus = async (orderId: string | number, newStatus: string) => {
+  const handleUpdateOrderStatus = async (
+    orderId: string | number,
+    newStatus: string,
+    newPaymentStatus?: string,
+  ) => {
     try {
+      const bodyPayload: Record<string, string> = { status: newStatus };
+      if (newPaymentStatus) bodyPayload.paymentStatus = newPaymentStatus;
       const res = await fetch(`${apiUrl}/admin/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(bodyPayload),
       });
       if (res.ok) {
-        showToast(`Đã cập nhật đơn hàng sang ${newStatus}!`);
+        showToast(`Đã cập nhật đơn hàng thành công!`);
         queryClient.invalidateQueries({ queryKey: ['admin-data'] });
         if (selectedOrder && String(selectedOrder.id) === String(orderId)) {
-          setSelectedOrder((prev) => (prev ? { ...prev, orderStatus: newStatus as OrderDto['orderStatus'] } : null));
+          setSelectedOrder((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  orderStatus: newStatus as OrderDto['orderStatus'],
+                  ...(newPaymentStatus && {
+                    paymentStatus: newPaymentStatus as OrderDto['paymentStatus'],
+                  }),
+                }
+              : null,
+          );
         }
       } else {
         showToast('Không thể cập nhật trạng thái đơn.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleToggleProductStatus = async (id: number, currentStatus: string) => {
+    try {
+      const nextStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+      const res = await fetch(`${apiUrl}/admin/products/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      if (res.ok) {
+        showToast(
+          `Đã chuyển trạng thái sản phẩm sang ${nextStatus === 'ACTIVE' ? 'Đang bán' : 'Ngừng bán'}!`,
+        );
+        refetch();
+      } else {
+        showToast('Không thể cập nhật trạng thái sản phẩm.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleOpenEditProduct = (p: ProductDto) => {
+    setEditingProduct(p);
+    setEditProductName(p.name);
+    setEditProductPrice(String(p.price));
+    setEditProductSalePrice(p.salePrice ? String(p.salePrice) : '');
+    setEditProductStock(String(p.stockQuantity));
+    setEditProductCategory(p.categoryId ? String(p.categoryId) : '1');
+    setEditProductBrand(p.brandId ? String(p.brandId) : '');
+    setEditProductDesc(p.shortDescription || '');
+    setEditProductStatus(p.status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE');
+  };
+
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    try {
+      const res = await fetch(`${apiUrl}/admin/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          name: editProductName,
+          price: editProductPrice,
+          salePrice: editProductSalePrice ? editProductSalePrice : null,
+          stockQuantity: parseInt(editProductStock, 10),
+          categoryId: parseInt(editProductCategory, 10),
+          brandId: editProductBrand ? parseInt(editProductBrand, 10) : null,
+          shortDescription: editProductDesc,
+          status: editProductStatus,
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã cập nhật sản phẩm thành công!');
+        setEditingProduct(null);
+        refetch();
+      } else {
+        showToast('Không thể cập nhật sản phẩm.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleOpenEditCategory = (c: AdminCategoryItem) => {
+    setEditingCategory(c);
+    setEditCategoryName(c.name);
+    setEditCategorySlug(c.slug);
+    setEditCategoryIcon(c.icon || 'fa-solid fa-layer-group');
+    setEditCategoryDesc(c.description || '');
+    setEditCategorySort(String(c.sortOrder || 0));
+  };
+
+  const handleUpdateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+    try {
+      const res = await fetch(`${apiUrl}/admin/categories/${editingCategory.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          name: editCategoryName,
+          slug: editCategorySlug,
+          icon: editCategoryIcon,
+          description: editCategoryDesc,
+          sortOrder: parseInt(editCategorySort, 10),
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã cập nhật danh mục!');
+        setEditingCategory(null);
+        refetch();
+      } else {
+        showToast('Không thể cập nhật danh mục.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleToggleCategoryStatus = async (id: number, currentActive: boolean = true) => {
+    try {
+      const res = await fetch(`${apiUrl}/admin/categories/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ isActive: !currentActive }),
+      });
+      if (res.ok) {
+        showToast('Đã đổi trạng thái danh mục!');
+        refetch();
+      }
+    } catch {
+      showToast('Lỗi khi đổi trạng thái danh mục.');
+    }
+  };
+
+  const handleOpenEditBrand = (b: AdminBrandItem) => {
+    setEditingBrand(b);
+    setEditBrandName(b.name);
+    setEditBrandSlug(b.slug);
+    setEditBrandLogo(b.logoUrl || '');
+    setEditBrandDesc(b.description || '');
+  };
+
+  const handleUpdateBrand = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBrand) return;
+    try {
+      const res = await fetch(`${apiUrl}/admin/brands/${editingBrand.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          name: editBrandName,
+          slug: editBrandSlug,
+          logoUrl: editBrandLogo || null,
+          description: editBrandDesc,
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã cập nhật thương hiệu!');
+        setEditingBrand(null);
+        queryClient.invalidateQueries({ queryKey: ['admin-brands'] });
+      } else {
+        showToast('Không thể cập nhật thương hiệu.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleToggleBrandStatus = async (id: number, currentActive: boolean = true) => {
+    try {
+      const res = await fetch(`${apiUrl}/admin/brands/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ isActive: !currentActive }),
+      });
+      if (res.ok) {
+        showToast('Đã đổi trạng thái thương hiệu!');
+        queryClient.invalidateQueries({ queryKey: ['admin-brands'] });
+      }
+    } catch {
+      showToast('Lỗi khi đổi trạng thái thương hiệu.');
+    }
+  };
+
+  const handleOpenEditCoupon = (c: AdminCouponItem) => {
+    setEditingCoupon(c);
+    setEditCouponCode(c.code);
+    setEditCouponType(c.discountType);
+    setEditCouponDiscount(String(c.discountValue));
+    setEditCouponMinOrder(String(c.minOrderValue));
+    setEditCouponUsageLimit(c.usageLimit ? String(c.usageLimit) : '');
+  };
+
+  const handleUpdateCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCoupon) return;
+    try {
+      const res = await fetch(`${apiUrl}/admin/coupons/${editingCoupon.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          code: editCouponCode,
+          discountType: editCouponType,
+          discountValue: Number(editCouponDiscount),
+          minOrderValue: Number(editCouponMinOrder),
+          usageLimit: editCouponUsageLimit ? Number(editCouponUsageLimit) : null,
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã cập nhật mã giảm giá!');
+        setEditingCoupon(null);
+        queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
+      } else {
+        showToast('Không thể cập nhật mã giảm giá.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleCreateFlashSale = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${apiUrl}/admin/flash-sales`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          name: newFsName,
+          startTime: newFsStart,
+          endTime: newFsEnd,
+          productIds: products.slice(0, 5).map((p) => p.id),
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã tạo chiến dịch Flash Sale mới!');
+        setIsAddFlashSaleOpen(false);
+        queryClient.invalidateQueries({ queryKey: ['admin-flash-sales'] });
+      } else {
+        showToast('Không thể tạo Flash Sale.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleOpenEditFlashSale = (fs: AdminFlashSaleItem) => {
+    setEditingFlashSale(fs);
+    setEditFsName(fs.name);
+    setEditFsStart(fs.startTime ? fs.startTime.slice(0, 16) : '');
+    setEditFsEnd(fs.endTime ? fs.endTime.slice(0, 16) : '');
+  };
+
+  const handleUpdateFlashSale = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingFlashSale) return;
+    try {
+      const res = await fetch(`${apiUrl}/admin/flash-sales/${editingFlashSale.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          name: editFsName,
+          startTime: editFsStart,
+          endTime: editFsEnd,
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã cập nhật chiến dịch Flash Sale!');
+        setEditingFlashSale(null);
+        queryClient.invalidateQueries({ queryKey: ['admin-flash-sales'] });
+      } else {
+        showToast('Không thể cập nhật Flash Sale.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPostTitle) {
+      showToast('Vui lòng nhập tiêu đề bài viết.');
+      return;
+    }
+    try {
+      const res = await fetch(`${apiUrl}/admin/posts`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: newPostTitle,
+          category: newPostCategory,
+          content: newPostContent || newPostTitle,
+          thumbnailUrl: newPostThumb,
+          isPublished: true,
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã đăng bài viết mới thành công!');
+        setIsAddPostOpen(false);
+        setNewPostTitle('');
+        setNewPostContent('');
+        queryClient.invalidateQueries({ queryKey: ['admin-posts'] });
+      } else {
+        showToast('Không thể tạo bài viết.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleOpenEditPost = (post: AdminPostItem) => {
+    setEditingPost(post);
+    setEditPostTitle(post.title);
+    setEditPostCategory(post.category);
+    setEditPostContent(post.content);
+    setEditPostThumb(post.thumbnailUrl || '');
+  };
+
+  const handleUpdatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPost) return;
+    try {
+      const res = await fetch(`${apiUrl}/admin/posts/${editingPost.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: editPostTitle,
+          category: editPostCategory,
+          content: editPostContent,
+          thumbnailUrl: editPostThumb,
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã cập nhật bài viết!');
+        setEditingPost(null);
+        queryClient.invalidateQueries({ queryKey: ['admin-posts'] });
+      } else {
+        showToast('Không thể cập nhật bài viết.');
+      }
+    } catch {
+      showToast('Lỗi kết nối máy chủ.');
+    }
+  };
+
+  const handleOpenEditBanner = (bn: AdminBannerItem) => {
+    setEditingBanner(bn);
+    setEditBannerTitle(bn.title);
+    setEditBannerImage(bn.imageUrl);
+    setEditBannerLink(bn.linkUrl || '');
+    setEditBannerPlacement(bn.placement);
+    setEditBannerSort(String(bn.sortOrder || 1));
+  };
+
+  const handleUpdateBanner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBanner) return;
+    try {
+      const res = await fetch(`${apiUrl}/admin/banners/${editingBanner.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: editBannerTitle,
+          imageUrl: editBannerImage,
+          linkUrl: editBannerLink,
+          placement: editBannerPlacement,
+          sortOrder: parseInt(editBannerSort, 10),
+        }),
+      });
+      if (res.ok) {
+        showToast('Đã cập nhật banner!');
+        setEditingBanner(null);
+        queryClient.invalidateQueries({ queryKey: ['admin-banners'] });
+      } else {
+        showToast('Không thể cập nhật banner.');
       }
     } catch {
       showToast('Lỗi kết nối máy chủ.');
@@ -1642,16 +2084,30 @@ export const AdminDashboardPage: React.FC = () => {
                         <div className="flex flex-col items-center justify-center gap-0.5">
                           <button
                             type="button"
-                            className="relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-500"
+                            onClick={() => handleToggleProductStatus(p.id, p.status || 'ACTIVE')}
+                            className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                              p.status === 'INACTIVE' ? 'bg-gray-300' : 'bg-emerald-500'
+                            }`}
+                            title="Bấm để bật/tắt bán"
                           >
-                            <span className="translate-x-4 inline-block h-3 w-3 rounded-full bg-white shadow transform ring-0 transition duration-200 ease-in-out"></span>
+                            <span
+                              className={`inline-block h-3 w-3 rounded-full bg-white shadow transform ring-0 transition duration-200 ease-in-out ${
+                                p.status === 'INACTIVE' ? 'translate-x-0' : 'translate-x-4'
+                              }`}
+                            ></span>
                           </button>
-                          <span className="text-[10px] text-emerald-600 font-bold">Đang bán</span>
+                          <span
+                            className={`text-[10px] font-bold ${
+                              p.status === 'INACTIVE' ? 'text-gray-400' : 'text-emerald-600'
+                            }`}
+                          >
+                            {p.status === 'INACTIVE' ? 'Ngừng bán' : 'Đang bán'}
+                          </span>
                         </div>
                       </td>
                       <td className="py-3.5 px-3 text-right">
                         <button
-                          onClick={() => {}}
+                          onClick={() => handleOpenEditProduct(p)}
                           className="px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
                         >
                           <i className="fa-regular fa-pen-to-square"></i>
@@ -1789,16 +2245,30 @@ export const AdminDashboardPage: React.FC = () => {
                         <div className="flex items-center justify-center gap-1.5">
                           <button
                             type="button"
-                            className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-500"
+                            onClick={() => handleToggleCategoryStatus(c.id, c.isActive !== false)}
+                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                              c.isActive === false ? 'bg-gray-300' : 'bg-emerald-500'
+                            }`}
+                            title="Bấm để bật/tắt hoạt động"
                           >
-                            <span className="translate-x-4 inline-block h-4 w-4 rounded-full bg-white shadow transform ring-0 transition duration-200 ease-in-out"></span>
+                            <span
+                              className={`inline-block h-4 w-4 rounded-full bg-white shadow transform ring-0 transition duration-200 ease-in-out ${
+                                c.isActive === false ? 'translate-x-0' : 'translate-x-4'
+                              }`}
+                            ></span>
                           </button>
-                          <span className="text-[11px] text-emerald-600 font-bold">Đang hoạt động</span>
+                          <span
+                            className={`text-[11px] font-bold ${
+                              c.isActive === false ? 'text-gray-400' : 'text-emerald-600'
+                            }`}
+                          >
+                            {c.isActive === false ? 'Tạm ẩn' : 'Đang hoạt động'}
+                          </span>
                         </div>
                       </td>
                       <td className="py-3.5 px-3 text-right">
                         <button
-                          onClick={() => {}}
+                          onClick={() => handleOpenEditCategory(c)}
                           className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200"
                         >
                           <i className="fa-regular fa-pen-to-square"></i>
@@ -1884,14 +2354,25 @@ export const AdminDashboardPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-3.5 px-3 text-center">
-                        <span className="text-[11px] font-bold text-emerald-600 flex items-center justify-center gap-1">
-                          <i className="fa-solid fa-check-square text-blue-600"></i>
-                          <span>Đang hoạt động</span>
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleBrandStatus(b.id, b.isActive !== false)}
+                          className="text-[11px] font-bold text-emerald-600 flex items-center justify-center gap-1 mx-auto cursor-pointer"
+                          title="Bấm để bật/tắt hoạt động"
+                        >
+                          <i
+                            className={`fa-solid ${
+                              b.isActive === false ? 'fa-square text-gray-300' : 'fa-check-square text-blue-600'
+                            }`}
+                          ></i>
+                          <span className={b.isActive === false ? 'text-gray-400' : 'text-emerald-600'}>
+                            {b.isActive === false ? 'Tạm ẩn' : 'Đang hoạt động'}
+                          </span>
+                        </button>
                       </td>
                       <td className="py-3.5 px-3 text-right">
                         <button
-                          onClick={() => {}}
+                          onClick={() => handleOpenEditBrand(b)}
                           className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200"
                         >
                           <i className="fa-regular fa-pen-to-square"></i>
@@ -1908,7 +2389,17 @@ export const AdminDashboardPage: React.FC = () => {
 
         {/* TAB 6: INVENTORY LOGS */}
         {activeTab === 'inventory' && (
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <h3 className="font-extrabold text-lg text-gray-900">Lịch sử Nhập/Xuất kho</h3>
+              <button
+                onClick={() => setIsAdjustStockOpen(true)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-boxes-packing"></i>
+                <span>Điều chỉnh tồn kho</span>
+              </button>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
@@ -2022,10 +2513,11 @@ export const AdminDashboardPage: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-3 text-right">
                         <button
-                          onClick={() => showToast(`Chỉnh sửa voucher ${cp.code}`)}
+                          onClick={() => handleOpenEditCoupon(cp)}
                           className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1 shadow-sm"
                         >
-                          <span>📝 Sửa</span>
+                          <i className="fa-regular fa-pen-to-square"></i>
+                          <span>Sửa</span>
                         </button>
                       </td>
                     </tr>
@@ -2044,7 +2536,7 @@ export const AdminDashboardPage: React.FC = () => {
                 Chương trình Flash Sale
               </h3>
               <button
-                onClick={() => showToast('Mở tạo chiến dịch Flash Sale')}
+                onClick={() => setIsAddFlashSaleOpen(true)}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
               >
                 <i className="fa-solid fa-plus text-xs"></i>
@@ -2106,7 +2598,7 @@ export const AdminDashboardPage: React.FC = () => {
                             />
                           </label>
                           <button
-                            onClick={() => showToast(`Chỉnh sửa Flash Sale ${fs.name}`)}
+                            onClick={() => handleOpenEditFlashSale(fs)}
                             className="px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
                           >
                             <i className="fa-regular fa-pen-to-square"></i>
@@ -2196,7 +2688,7 @@ export const AdminDashboardPage: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-3 text-right">
                         <button
-                          onClick={() => showToast(`Chỉnh sửa banner ${bn.title}`)}
+                          onClick={() => handleOpenEditBanner(bn)}
                           className="px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
                         >
                           <i className="fa-regular fa-pen-to-square"></i>
@@ -2219,7 +2711,7 @@ export const AdminDashboardPage: React.FC = () => {
                 Danh sách tin tức &amp; bài viết
               </h3>
               <button
-                onClick={() => showToast('Mở trình soạn thảo bài viết mới')}
+                onClick={() => setIsAddPostOpen(true)}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
               >
                 <i className="fa-solid fa-pen-nib text-xs"></i>
@@ -2317,10 +2809,11 @@ export const AdminDashboardPage: React.FC = () => {
                       </td>
                       <td className="py-3.5 px-3 text-right">
                         <button
-                          onClick={() => showToast(`Chỉnh sửa bài viết ${post.title}`)}
+                          onClick={() => handleOpenEditPost(post)}
                           className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1 shadow-sm"
                         >
-                          <span>📝 Sửa</span>
+                          <i className="fa-regular fa-pen-to-square"></i>
+                          <span>Sửa</span>
                         </button>
                       </td>
                     </tr>
@@ -2647,21 +3140,47 @@ export const AdminDashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-gray-100 flex items-center justify-between bg-slate-50">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-gray-600">Trạng thái:</span>
-                  <select
-                    value={selectedOrder.orderStatus}
-                    onChange={(e) => handleUpdateOrderStatus(selectedOrder.id, e.target.value)}
-                    className="px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-bold bg-white text-gray-800"
-                  >
-                    <option value="PENDING">Chờ xử lý</option>
-                    <option value="CONFIRMED">Đã xác nhận</option>
-                    <option value="PROCESSING">Đang đóng gói</option>
-                    <option value="SHIPPING">Đang vận chuyển</option>
-                    <option value="DELIVERED">Đã giao hàng</option>
-                    <option value="CANCELLED">Hủy đơn</option>
-                  </select>
+              <div className="p-6 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-600">Đơn hàng:</span>
+                    <select
+                      value={selectedOrder.orderStatus}
+                      onChange={(e) =>
+                        handleUpdateOrderStatus(
+                          selectedOrder.id,
+                          e.target.value,
+                          selectedOrder.paymentStatus,
+                        )
+                      }
+                      className="px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-bold bg-white text-gray-800"
+                    >
+                      <option value="PENDING">Chờ xử lý</option>
+                      <option value="CONFIRMED">Đã xác nhận</option>
+                      <option value="PROCESSING">Đang đóng gói</option>
+                      <option value="SHIPPING">Đang vận chuyển</option>
+                      <option value="DELIVERED">Hoàn tất (Delivered)</option>
+                      <option value="CANCELLED">Hủy đơn</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-600">Thanh toán:</span>
+                    <select
+                      value={selectedOrder.paymentStatus}
+                      onChange={(e) =>
+                        handleUpdateOrderStatus(
+                          selectedOrder.id,
+                          selectedOrder.orderStatus,
+                          e.target.value,
+                        )
+                      }
+                      className="px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-bold bg-white text-gray-800"
+                    >
+                      <option value="PENDING">Chưa thanh toán (PENDING)</option>
+                      <option value="PAID">Đã thanh toán (PAID)</option>
+                      <option value="FAILED">Thất bại (FAILED)</option>
+                    </select>
+                  </div>
                 </div>
                 <button
                   onClick={() => setSelectedOrder(null)}
@@ -3028,6 +3547,769 @@ export const AdminDashboardPage: React.FC = () => {
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                   <button type="button" onClick={() => setIsAddBannerOpen(false)} className="px-4 py-2 text-gray-500 font-bold text-sm">Hủy</button>
                   <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold">Lưu Banner</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* EDIT PRODUCT MODAL */}
+        {editingProduct && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">
+                  Chỉnh Sửa Sản Phẩm #{editingProduct.id}
+                </h3>
+                <button
+                  onClick={() => setEditingProduct(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleUpdateProduct} className="p-6 space-y-4 overflow-y-auto flex-1">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Tên sản phẩm *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editProductName}
+                    onChange={(e) => setEditProductName(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Giá niêm yết (VND) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={editProductPrice}
+                      onChange={(e) => setEditProductPrice(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Giá khuyến mãi (VND)</label>
+                    <input
+                      type="number"
+                      value={editProductSalePrice}
+                      onChange={(e) => setEditProductSalePrice(e.target.value)}
+                      placeholder="Để trống nếu không sale"
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Tồn kho</label>
+                    <input
+                      type="number"
+                      required
+                      value={editProductStock}
+                      onChange={(e) => setEditProductStock(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Danh mục</label>
+                    <select
+                      value={editProductCategory}
+                      onChange={(e) => setEditProductCategory(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none bg-white"
+                    >
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Thương hiệu</label>
+                    <select
+                      value={editProductBrand}
+                      onChange={(e) => setEditProductBrand(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none bg-white"
+                    >
+                      <option value="">-- Chọn --</option>
+                      {brands.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Trạng thái kinh doanh</label>
+                  <select
+                    value={editProductStatus}
+                    onChange={(e) =>
+                      setEditProductStatus(e.target.value as 'ACTIVE' | 'INACTIVE')
+                    }
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none bg-white"
+                  >
+                    <option value="ACTIVE">Đang bán (ACTIVE)</option>
+                    <option value="INACTIVE">Ngừng bán (INACTIVE)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Mô tả ngắn</label>
+                  <textarea
+                    rows={3}
+                    value={editProductDesc}
+                    onChange={(e) => setEditProductDesc(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none"
+                  ></textarea>
+                </div>
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setEditingProduct(null)}
+                    className="px-5 py-2.5 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition-all"
+                  >
+                    Lưu cập nhật
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT CATEGORY MODAL */}
+        {editingCategory && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">
+                  Chỉnh Sửa Danh Mục #{editingCategory.id}
+                </h3>
+                <button
+                  onClick={() => setEditingCategory(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleUpdateCategory} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Tên danh mục *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editCategoryName}
+                    onChange={(e) => setEditCategoryName(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Slug</label>
+                    <input
+                      type="text"
+                      value={editCategorySlug}
+                      onChange={(e) => setEditCategorySlug(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Thứ tự</label>
+                    <input
+                      type="number"
+                      value={editCategorySort}
+                      onChange={(e) => setEditCategorySort(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Icon FontAwesome</label>
+                  <input
+                    type="text"
+                    value={editCategoryIcon}
+                    onChange={(e) => setEditCategoryIcon(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Mô tả</label>
+                  <textarea
+                    rows={2}
+                    value={editCategoryDesc}
+                    onChange={(e) => setEditCategoryDesc(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  ></textarea>
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setEditingCategory(null)}
+                    className="px-4 py-2 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
+                  >
+                    Lưu danh mục
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT BRAND MODAL */}
+        {editingBrand && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">
+                  Chỉnh Sửa Thương Hiệu #{editingBrand.id}
+                </h3>
+                <button
+                  onClick={() => setEditingBrand(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleUpdateBrand} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Tên thương hiệu *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editBrandName}
+                    onChange={(e) => setEditBrandName(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Slug</label>
+                  <input
+                    type="text"
+                    value={editBrandSlug}
+                    onChange={(e) => setEditBrandSlug(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Logo URL</label>
+                  <input
+                    type="text"
+                    value={editBrandLogo}
+                    onChange={(e) => setEditBrandLogo(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Mô tả</label>
+                  <input
+                    type="text"
+                    value={editBrandDesc}
+                    onChange={(e) => setEditBrandDesc(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setEditingBrand(null)}
+                    className="px-4 py-2 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
+                  >
+                    Lưu thương hiệu
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT COUPON MODAL */}
+        {editingCoupon && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">
+                  Chỉnh Sửa Mã Giảm Giá #{editingCoupon.id}
+                </h3>
+                <button
+                  onClick={() => setEditingCoupon(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleUpdateCoupon} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Mã Voucher (Code) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editCouponCode}
+                    onChange={(e) => setEditCouponCode(e.target.value.toUpperCase())}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono font-bold"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Loại giảm</label>
+                    <select
+                      value={editCouponType}
+                      onChange={(e) =>
+                        setEditCouponType(e.target.value as 'PERCENTAGE' | 'FIXED_AMOUNT')
+                      }
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm bg-white"
+                    >
+                      <option value="PERCENTAGE">Phần trăm (%)</option>
+                      <option value="FIXED_AMOUNT">Số tiền (VNĐ)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Mức giảm *</label>
+                    <input
+                      type="number"
+                      required
+                      value={editCouponDiscount}
+                      onChange={(e) => setEditCouponDiscount(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-bold"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Đơn tối thiểu (VNĐ)</label>
+                    <input
+                      type="number"
+                      value={editCouponMinOrder}
+                      onChange={(e) => setEditCouponMinOrder(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Giới hạn lượt dùng</label>
+                    <input
+                      type="number"
+                      value={editCouponUsageLimit}
+                      onChange={(e) => setEditCouponUsageLimit(e.target.value)}
+                      placeholder="Không giới hạn"
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setEditingCoupon(null)}
+                    className="px-4 py-2 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
+                  >
+                    Lưu mã giảm giá
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ADD FLASH SALE MODAL */}
+        {isAddFlashSaleOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">
+                  Tạo Chiến Dịch Flash Sale Mới
+                </h3>
+                <button
+                  onClick={() => setIsAddFlashSaleOpen(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleCreateFlashSale} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Tên chiến dịch *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newFsName}
+                    onChange={(e) => setNewFsName(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Thời gian bắt đầu *</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={newFsStart}
+                    onChange={(e) => setNewFsStart(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Thời gian kết thúc *</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={newFsEnd}
+                    onChange={(e) => setNewFsEnd(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                  <i className="fa-solid fa-bolt mr-1"></i>
+                  Chiến dịch sẽ tự động gắn 5 sản phẩm nổi bật với giá ưu đãi giảm 15%.
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddFlashSaleOpen(false)}
+                    className="px-4 py-2 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
+                  >
+                    Tạo chiến dịch
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT FLASH SALE MODAL */}
+        {editingFlashSale && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">
+                  Chỉnh Sửa Flash Sale #{editingFlashSale.id}
+                </h3>
+                <button
+                  onClick={() => setEditingFlashSale(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleUpdateFlashSale} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Tên chiến dịch *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editFsName}
+                    onChange={(e) => setEditFsName(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Thời gian bắt đầu *</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={editFsStart}
+                    onChange={(e) => setEditFsStart(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Thời gian kết thúc *</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={editFsEnd}
+                    onChange={(e) => setEditFsEnd(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setEditingFlashSale(null)}
+                    className="px-4 py-2 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
+                  >
+                    Lưu Flash Sale
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ADD POST MODAL */}
+        {isAddPostOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">Viết Bài Viết Mới</h3>
+                <button
+                  onClick={() => setIsAddPostOpen(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleCreatePost} className="p-6 space-y-4 overflow-y-auto flex-1">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Tiêu đề bài viết *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newPostTitle}
+                    onChange={(e) => setNewPostTitle(e.target.value)}
+                    placeholder="VD: Đánh giá chi tiết Intel Core Ultra 9 285K..."
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-bold"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Chuyên mục</label>
+                    <select
+                      value={newPostCategory}
+                      onChange={(e) => setNewPostCategory(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm bg-white"
+                    >
+                      <option value="Tin công nghệ">Tin công nghệ</option>
+                      <option value="Đánh giá phần cứng">Đánh giá phần cứng</option>
+                      <option value="Thủ thuật & Tư vấn">Thủ thuật & Tư vấn</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Ảnh đại diện (URL)</label>
+                    <input
+                      type="text"
+                      value={newPostThumb}
+                      onChange={(e) => setNewPostThumb(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Nội dung bài viết *</label>
+                  <textarea
+                    rows={6}
+                    required
+                    value={newPostContent}
+                    onChange={(e) => setNewPostContent(e.target.value)}
+                    placeholder="Nhập nội dung bài viết chi tiết tại đây..."
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  ></textarea>
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddPostOpen(false)}
+                    className="px-4 py-2 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-md"
+                  >
+                    Đăng bài viết
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT POST MODAL */}
+        {editingPost && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl animate-fade-in max-h-[90vh] flex flex-col">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">
+                  Chỉnh Sửa Bài Viết #{editingPost.id}
+                </h3>
+                <button
+                  onClick={() => setEditingPost(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleUpdatePost} className="p-6 space-y-4 overflow-y-auto flex-1">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Tiêu đề bài viết *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editPostTitle}
+                    onChange={(e) => setEditPostTitle(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-bold"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Chuyên mục</label>
+                    <select
+                      value={editPostCategory}
+                      onChange={(e) => setEditPostCategory(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm bg-white"
+                    >
+                      <option value="Tin công nghệ">Tin công nghệ</option>
+                      <option value="Đánh giá phần cứng">Đánh giá phần cứng</option>
+                      <option value="Thủ thuật & Tư vấn">Thủ thuật & Tư vấn</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Ảnh đại diện (URL)</label>
+                    <input
+                      type="text"
+                      value={editPostThumb}
+                      onChange={(e) => setEditPostThumb(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Nội dung bài viết *</label>
+                  <textarea
+                    rows={6}
+                    required
+                    value={editPostContent}
+                    onChange={(e) => setEditPostContent(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  ></textarea>
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setEditingPost(null)}
+                    className="px-4 py-2 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-md"
+                  >
+                    Lưu cập nhật
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT BANNER MODAL */}
+        {editingBanner && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <h3 className="font-extrabold text-lg text-gray-900">
+                  Chỉnh Sửa Banner #{editingBanner.id}
+                </h3>
+                <button
+                  onClick={() => setEditingBanner(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={handleUpdateBanner} className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Tiêu đề Banner *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editBannerTitle}
+                    onChange={(e) => setEditBannerTitle(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Đường dẫn ảnh (URL) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editBannerImage}
+                    onChange={(e) => setEditBannerImage(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm font-mono text-xs"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Vị trí (Placement)</label>
+                    <select
+                      value={editBannerPlacement}
+                      onChange={(e) => setEditBannerPlacement(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm bg-white"
+                    >
+                      <option value="hero">Hero Slider</option>
+                      <option value="sub-hero">Sub-hero Promos</option>
+                      <option value="mid-page">Mid-page RTX Banner</option>
+                      <option value="footer">Footer Banner</option>
+                      <option value="popup">Popup Quảng Cáo</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-600">Thứ tự sắp xếp</label>
+                    <input
+                      type="number"
+                      value={editBannerSort}
+                      onChange={(e) => setEditBannerSort(e.target.value)}
+                      className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600">Đường dẫn Link</label>
+                  <input
+                    type="text"
+                    value={editBannerLink}
+                    onChange={(e) => setEditBannerLink(e.target.value)}
+                    className="w-full mt-1 p-3 border border-gray-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => setEditingBanner(null)}
+                    className="px-4 py-2 text-gray-500 font-bold text-sm"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold"
+                  >
+                    Lưu Banner
+                  </button>
                 </div>
               </form>
             </div>

@@ -1089,15 +1089,15 @@ export const AiAssistantPage: React.FC = () => {
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px', color: '#1E293B' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
-                              <span><strong>Bảo hành 36 tháng</strong> (1 đổi 1 trong 30 ngày)</span>
+                              <span><strong>Bảo hành chính hãng</strong> (1 đổi 1 trong 7 ngày nếu lỗi)</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
-                              <span><strong>Giao siêu tốc 2h</strong> &amp; Miễn phí vận chuyển toàn quốc</span>
+                              <span><strong>Miễn phí vận chuyển</strong> cho đơn từ 500.000đ</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
-                              <span><strong>Tặng Voucher 500K</strong> + Cài đặt phần mềm trọn đời</span>
+                              <span><strong>Hỗ trợ kỹ thuật</strong> &amp; Hotline 1800 2097 miễn phí</span>
                             </div>
                           </div>
                         </div>

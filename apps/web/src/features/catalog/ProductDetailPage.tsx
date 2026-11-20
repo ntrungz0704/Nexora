@@ -642,7 +642,7 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
                 <div>
                   <i className="fa-solid fa-truck-fast" style={{ color: '#0A5BFF', marginRight: '6px' }}></i>
-                  Miễn phí vận chuyển toàn quốc
+                  Miễn phí vận chuyển cho đơn từ 500.000đ
                 </div>
                 <div>
                   <i className="fa-solid fa-phone" style={{ color: '#EF4444', marginRight: '6px' }}></i>

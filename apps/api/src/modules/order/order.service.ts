@@ -365,9 +365,10 @@ export class OrderService {
 
   async adminUpdateOrderStatus(
     orderId: bigint,
-    status: OrderStatus,
+    status?: OrderStatus,
     trackingNumber?: string,
     carrierName?: string,
+    paymentStatus?: string,
   ): Promise<OrderDto> {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
@@ -378,10 +379,17 @@ export class OrderService {
       throw new AppError(404, 'ORDER_NOT_FOUND', 'Không tìm thấy đơn hàng.');
     }
 
-    const updateData: Record<string, unknown> = { orderStatus: status };
+    const updateData: Record<string, unknown> = {};
+    if (status) updateData.orderStatus = status;
     if (trackingNumber) updateData.trackingNumber = trackingNumber;
     if (carrierName) updateData.carrierName = carrierName;
-    if (status === 'DELIVERED' && order.paymentMethod === 'COD') {
+    if (paymentStatus) {
+      updateData.paymentStatus = paymentStatus;
+      if (paymentStatus === 'PAID' && !order.paidAt) {
+        updateData.paidAt = new Date();
+      }
+    }
+    if (status === 'DELIVERED' && order.paymentMethod === 'COD' && !paymentStatus) {
       updateData.paymentStatus = 'PAID';
       updateData.paidAt = new Date();
     }

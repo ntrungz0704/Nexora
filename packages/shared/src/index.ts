@@ -380,3 +380,5 @@ export const AdminDashboardSummarySchema = z.object({
 });
 export type AdminDashboardSummaryDto = z.infer<typeof AdminDashboardSummarySchema>;
 
+export * from './personaScoring.js';
+

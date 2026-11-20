@@ -534,6 +534,28 @@ export class AdminService {
     return prisma.flashSale.delete({ where: { id } });
   }
 
+  async updateFlashSale(
+    id: number,
+    data: {
+      name?: string;
+      startTime?: Date | string;
+      endTime?: Date | string;
+      isActive?: boolean;
+    },
+  ) {
+    const fs = await prisma.flashSale.findUnique({ where: { id } });
+    if (!fs) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy flash sale.');
+    return prisma.flashSale.update({
+      where: { id },
+      data: {
+        ...(data.name && { name: data.name }),
+        ...(data.startTime && { startTime: new Date(data.startTime) }),
+        ...(data.endTime && { endTime: new Date(data.endTime) }),
+        ...(data.isActive !== undefined && { isActive: data.isActive }),
+      },
+    });
+  }
+
   // --- Banners CRUD ---
   async getBanners() {
     return prisma.banner.findMany({

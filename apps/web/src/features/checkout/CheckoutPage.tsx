@@ -38,7 +38,7 @@ export const CheckoutPage: React.FC = () => {
 
   const items = cart?.items || [];
   const rawTotal = cart?.subtotal ? Number(cart.subtotal) : 0;
-  const shippingFee = rawTotal > 300000 || rawTotal === 0 ? 0 : 30000;
+  const shippingFee = rawTotal >= 500000 || rawTotal === 0 ? 0 : 30000;
   const finalTotal = rawTotal + shippingFee;
 
   const formatPrice = (val: number) => {

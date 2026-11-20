@@ -44,6 +44,7 @@ export function createAdminRouter(): Router {
   // Flash Sales
   router.get('/flash-sales', controller.getFlashSales);
   router.post('/flash-sales', controller.createFlashSale);
+  router.put('/flash-sales/:id', controller.updateFlashSale);
   router.delete('/flash-sales/:id', controller.deleteFlashSale);
   router.patch('/flash-sales/:id/toggle', controller.toggleFlashSaleStatus);
 

@@ -140,15 +140,16 @@ export class AdminController {
   updateOrderStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = BigInt(req.params.id as string);
-      const { status, trackingNumber, carrierName } = req.body;
-      if (!status) {
-        throw new AppError(400, 'INVALID_STATUS', 'Trạng thái không được để trống.');
+      const { status, trackingNumber, carrierName, paymentStatus } = req.body;
+      if (!status && !paymentStatus) {
+        throw new AppError(400, 'INVALID_STATUS', 'Cần cung cấp trạng thái đơn hoặc trạng thái thanh toán.');
       }
       const order = await this.orderService.adminUpdateOrderStatus(
         id,
-        status as OrderStatus,
+        status ? (status as OrderStatus) : undefined,
         trackingNumber,
         carrierName,
+        paymentStatus,
       );
       sendSuccess(res, order);
     } catch (error) {
@@ -284,6 +285,16 @@ export class AdminController {
     try {
       const id = parseInt(req.params.id as string, 10);
       const result = await this.service.toggleFlashSaleStatus(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateFlashSale = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const result = await this.service.updateFlashSale(id, req.body);
       sendSuccess(res, result);
     } catch (error) {
       next(error);
