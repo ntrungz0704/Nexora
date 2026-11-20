@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { getPrismaClient } from '../../common/prisma.js';
 import { AppError } from '../../common/errors.js';
 import { getEnv } from '../../config/env.js';
+import { EmailService } from '../email/email.service.js';
 import type { LoginInput, RegisterInput, AuthUser, NexoraRole } from '@nexora/shared';
 import type { PrismaClient } from '@prisma/client';
 
@@ -12,7 +13,10 @@ export interface AuthResult {
 }
 
 export class AuthService {
-  constructor(private readonly prisma: PrismaClient = getPrismaClient()) {}
+  constructor(
+    private readonly prisma: PrismaClient = getPrismaClient(),
+    private readonly emailService: EmailService = new EmailService(),
+  ) {}
 
   private generateToken(user: { id: number; email: string; role: string }): string {
     const env = getEnv();
@@ -140,15 +144,46 @@ export class AuthService {
 
     const env = getEnv();
     const hashSig = user.passwordHash ? user.passwordHash.slice(-16) : 'init';
-    const _resetToken = jwt.sign(
+    const resetToken = jwt.sign(
       { sub: user.id, email: user.email, purpose: 'password_reset', hashSig },
       env.AUTH_SECRET,
       { expiresIn: '15m' },
     );
 
-    // If email provider is configured, send email out-of-band
-    if (process.env.SMTP_HOST || process.env.RESEND_API_KEY) {
-      // Dispatch reset email securely
+    const clientUrl = env.CLIENT_URL || 'http://localhost:5173';
+    const resetUrl = `${clientUrl}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
+
+    // Dispatch reset email out-of-band via EmailService
+    try {
+      await this.emailService.sendEmail({
+        to: user.email,
+        subject: '[Nexora] Hướng dẫn đặt lại mật khẩu tài khoản',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <h2 style="color: #0F172A; margin-top: 0;">Khôi phục mật khẩu Nexora</h2>
+            <p>Xin chào <strong>${user.fullName || user.email}</strong>,</p>
+            <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản Nexora của bạn.</p>
+            <div style="margin: 28px 0; text-align: center;">
+              <a href="${resetUrl}" style="background-color: #0A5BFF; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; display: inline-block;">
+                Đặt lại mật khẩu
+              </a>
+            </div>
+            <p style="font-size: 13px; color: #64748B;">Liên kết này có hiệu lực trong vòng <strong>15 phút</strong> và chỉ có thể sử dụng một lần duy nhất.</p>
+            <p style="font-size: 13px; color: #64748B;">Nếu bạn không yêu cầu, vui lòng bỏ qua thư này. Mật khẩu của bạn vẫn an toàn.</p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+            <p style="font-size: 11px; color: #94A3B8;">Nexora Hardware E-Commerce — Single-Vendor Store Management System</p>
+          </div>
+        `,
+        text: `Xin chào ${user.fullName || user.email},\n\nBạn vừa yêu cầu đặt lại mật khẩu tại Nexora. Vui lòng truy cập liên kết sau trong vòng 15 phút để đổi mật khẩu:\n${resetUrl}\n\nNếu bạn không yêu cầu, vui lòng bỏ qua thư này.`,
+      });
+    } catch (err: unknown) {
+      // NEVER log resetToken or resetUrl
+      console.error(`[AuthService] Không thể gửi email đặt lại mật khẩu tới user id=${user.id}:`, err instanceof Error ? err.message : err);
+      throw new AppError(
+        500,
+        'EMAIL_DELIVERY_FAILED',
+        'Không thể gửi email đặt lại mật khẩu do lỗi dịch vụ thư. Vui lòng thử lại sau.'
+      );
     }
 
     // NEVER return resetToken in HTTP response (prevents account takeover)
@@ -207,24 +242,35 @@ export class AuthService {
       throw new AppError(400, 'INVALID_TOKEN_PURPOSE', 'Token không dùng cho mục đích đặt lại mật khẩu.');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: Number(payload.sub) },
-    });
+    // Hash the new password before opening transaction to minimize lock holding duration
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
 
-    if (!user) {
-      throw new AppError(404, 'USER_NOT_FOUND', 'Không tìm thấy tài khoản người dùng.');
-    }
+    // Atomic transaction with exclusive row lock (SELECT ... FOR UPDATE)
+    // Guarantees strict atomicity under concurrent requests with the same token
+    await this.prisma.$transaction(async (tx) => {
+      const users = await tx.$queryRaw<Array<{ id: number; password_hash: string | null }>>`
+        SELECT id, password_hash FROM users WHERE id = ${Number(payload.sub)} FOR UPDATE
+      `;
 
-    // One-time use verification: hashSig must match user's current passwordHash signature
-    const currentHashSig = user.passwordHash ? user.passwordHash.slice(-16) : 'init';
-    if (!payload.hashSig || payload.hashSig !== currentHashSig) {
-      throw new AppError(400, 'TOKEN_ALREADY_USED', 'Mã đặt lại mật khẩu này đã được sử dụng hoặc không còn hiệu lực.');
-    }
+      const lockedUser = users && users.length > 0 ? users[0] : null;
+      if (!lockedUser) {
+        throw new AppError(404, 'USER_NOT_FOUND', 'Không tìm thấy tài khoản người dùng.');
+      }
 
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { passwordHash },
+      // One-time use verification: hashSig must match user's current passwordHash signature
+      const currentHashSig = lockedUser.password_hash ? lockedUser.password_hash.slice(-16) : 'init';
+      if (!payload.hashSig || payload.hashSig !== currentHashSig) {
+        throw new AppError(
+          400,
+          'TOKEN_ALREADY_USED',
+          'Mã đặt lại mật khẩu này đã được sử dụng hoặc không còn hiệu lực.'
+        );
+      }
+
+      await tx.user.update({
+        where: { id: Number(lockedUser.id) },
+        data: { passwordHash: newPasswordHash },
+      });
     });
 
     return { message: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.' };
