@@ -1249,7 +1249,7 @@ export const AdminDashboardPage: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-100 flex font-sans text-gray-800">
+    <div className="min-h-screen w-full bg-[#F4F6F9] dark:bg-[#0B132B] flex font-sans text-gray-800 dark:text-slate-100 admin-page-wrapper">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 font-bold text-sm">
@@ -1259,7 +1259,7 @@ export const AdminDashboardPage: React.FC = () => {
       )}
 
       {/* Sidebar Navigation */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-5 shrink-0 shadow-xl overflow-y-auto max-h-screen">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-5 shrink-0 shadow-2xl z-20 overflow-y-auto max-h-screen admin-sidebar">
         <div>
           {/* Brand */}
           <Link to="/" className="flex items-center gap-3 mb-6 px-1">
@@ -1318,7 +1318,7 @@ export const AdminDashboardPage: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-8 overflow-y-auto max-h-screen">
+      <main className="flex-1 min-w-0 p-6 lg:p-8 overflow-y-auto max-h-screen bg-[#F4F6F9] dark:bg-[#0B132B]">
         {/* Permission Banner */}
         {!isStaffOrAdmin && (
           <div className="mb-6 bg-amber-50 border border-amber-300 text-amber-900 px-6 py-4 rounded-2xl flex items-center justify-between shadow-sm">

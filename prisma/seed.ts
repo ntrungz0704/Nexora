@@ -279,44 +279,44 @@ async function main(): Promise<void> {
     catMap.set(c.slug, cat.id);
   }
 
-  // 5. Banners
+  // 5. Banners (Nexora Exclusive Concept Banners)
   const banners = [
     {
-      title: 'NVIDIA RTX 50 SERIES - Kỷ nguyên đồ họa thế hệ mới',
-      imageUrl: '/assets/images/banner-rtx-bg.jpg',
-      linkUrl: '/products/rtx-50-series',
+      title: 'Nexora — Công nghệ cho mọi giới hạn',
+      imageUrl: '/assets/banners/nexora-hero-desktop.webp',
+      linkUrl: '/search',
       placement: 'hero',
       sortOrder: 1,
       isActive: true,
     },
     {
-      title: 'ASUS ROG Zephyrus G16 - Sức mạnh vượt trội',
-      imageUrl: '/assets/images/rog-banner-bg.jpg',
-      linkUrl: '/products/asus-rog-zephyrus-g16',
+      title: 'Gaming Gear — Nâng cấp trải nghiệm chiến game',
+      imageUrl: '/assets/banners/gaming-gear-desktop.webp',
+      linkUrl: '/category/gaming-gear',
       placement: 'hero',
       sortOrder: 2,
       isActive: true,
     },
     {
-      title: 'MacBook Pro 16 M3 Max - Cực phẩm Apple',
-      imageUrl: '/assets/images/apple-banner-bg.jpg',
-      linkUrl: '/products/macbook-pro-16-m3-max',
+      title: 'Laptop hiệu năng cao — Học tập, làm việc và sáng tạo',
+      imageUrl: '/assets/banners/laptop-productivity-desktop.webp',
+      linkUrl: '/category/laptop',
       placement: 'hero',
       sortOrder: 3,
       isActive: true,
     },
     {
-      title: 'PC Gaming Ultra Max - Chiến thần hiệu năng',
-      imageUrl: '/assets/images/banner-1.jpg',
+      title: 'PC Gaming & Workstation — Sức mạnh vượt giới hạn',
+      imageUrl: '/assets/banners/pc-workstation-desktop.webp',
       linkUrl: '/build-pc',
       placement: 'hero',
       sortOrder: 4,
       isActive: true,
     },
     {
-      title: 'Samsung Odyssey OLED G9 - Trải nghiệm vô cực',
-      imageUrl: '/assets/images/banner-3.jpg',
-      linkUrl: '/products/samsung-odyssey-oled-g9',
+      title: 'Linh kiện & Phụ kiện máy tính đỉnh cao',
+      imageUrl: '/assets/banners/components-desktop.webp',
+      linkUrl: '/search?cat=components',
       placement: 'hero',
       sortOrder: 5,
       isActive: true,

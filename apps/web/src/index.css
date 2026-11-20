@@ -113,9 +113,40 @@ input:disabled,
 /* =======================================================
    ADMIN PANEL DARK MODE (TECHPILOT VISUAL PARITY)
    ======================================================= */
+html.dark-mode,
+html.dark-mode body,
+html.dark-mode #root {
+  background-color: #0B132B !important;
+  color: #F8FAFC !important;
+}
+
+.admin-card-surface {
+  width: 100% !important;
+}
+
+.admin-header-bar {
+  width: 100% !important;
+}
+
+.admin-table-head th {
+  white-space: nowrap !important;
+  font-size: 11px !important;
+  padding: 12px 14px !important;
+}
+
+.admin-table-row td {
+  padding: 12px 14px !important;
+}
+
 html.dark-mode .admin-page-wrapper {
   background-color: #0B132B !important;
   color: #F8FAFC !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+}
+
+html.dark-mode .admin-page-wrapper main {
+  background-color: #0B132B !important;
 }
 
 html.dark-mode .admin-sidebar {

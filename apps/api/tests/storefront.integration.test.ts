@@ -26,9 +26,9 @@ describe('Nexora Storefront & Catalog API (Live MySQL 8.4 Integration)', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.length).toBeGreaterThanOrEqual(5);
 
-    const rtxBanner = (res.body.data as BannerDto[]).find((b) => b.title.includes('RTX 50'));
-    expect(rtxBanner).toBeDefined();
-    expect(rtxBanner?.placement).toBe('hero');
+    const heroBanner = (res.body.data as BannerDto[]).find((b) => b.placement === 'hero');
+    expect(heroBanner).toBeDefined();
+    expect(heroBanner?.placement).toBe('hero');
   });
 
   it('GET /api/v1/catalog/products returns list of tech products with formatted decimal prices', async () => {

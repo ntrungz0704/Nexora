@@ -47,6 +47,7 @@ const BRAND_LOGOS = [
   { name: 'GIGABYTE', file: 'gigabyte.svg' },
   { name: 'INTEL', file: 'intel.svg' },
   { name: 'AMD', file: 'amd.svg' },
+  { name: 'NVIDIA', file: 'nvidia.svg' },
   { name: 'SAMSUNG', file: 'samsung.svg' },
   { name: 'CORSAIR', file: 'corsair.svg' },
   { name: 'ACER', file: 'acer.svg' },
@@ -57,6 +58,16 @@ const BRAND_LOGOS = [
   { name: 'LOGITECH', file: 'logitech.svg' },
   { name: 'RAZER', file: 'razer.svg' },
   { name: 'KINGSTON', file: 'kingston.svg' },
+  { name: 'ASROCK', file: 'asrock.svg' },
+  { name: 'ZOTAC', file: 'zotac.svg' },
+  { name: 'CRUCIAL', file: 'crucial.svg' },
+  { name: 'WESTERN DIGITAL', file: 'wd.svg' },
+  { name: 'G.SKILL', file: 'g-skill.svg' },
+  { name: 'COOLER MASTER', file: 'cooler-master.svg' },
+  { name: 'DEEPCOOL', file: 'deepcool.svg' },
+  { name: 'LIAN LI', file: 'lian-li.svg' },
+  { name: 'THERMALRIGHT', file: 'thermalright.svg' },
+  { name: 'NZXT', file: 'nzxt.svg' },
 ];
 
 const CUSTOMER_REVIEWS = [

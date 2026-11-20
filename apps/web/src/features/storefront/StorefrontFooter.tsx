@@ -58,9 +58,6 @@ export const StorefrontFooter: React.FC<{ hideFeatures?: boolean }> = ({ hideFea
           <Link to="/contact">Liên hệ hợp tác</Link>
           <Link to="/stores">Hệ thống cửa hàng</Link>
           <Link to="/privacy">Chính sách bảo mật</Link>
-          <Link to="/foundation" style={{ color: '#38BDF8', fontWeight: 600 }}>
-            Kiểm chứng kiến trúc hệ thống
-          </Link>
         </div>
 
         <div className="footer-col">

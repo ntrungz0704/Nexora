@@ -21,6 +21,11 @@ import { RegisterPage } from '../features/auth/RegisterPage';
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
 import { PolicyPage } from '../features/policy/PolicyPage';
+import { AboutPage } from '../features/info/AboutPage';
+import { CareersPage } from '../features/info/CareersPage';
+import { ContactPage } from '../features/info/ContactPage';
+import { GuidePage } from '../features/info/GuidePage';
+import { TechnicalSupportPage } from '../features/info/TechnicalSupportPage';
 import { AdminDashboardPage } from '../features/admin/AdminDashboardPage';
 import { FoundationDashboard } from '../features/system/FoundationDashboard';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
@@ -138,6 +143,14 @@ export function AppRoutes() {
         <Route path="/admin/stores" element={<AdminDashboardPage />} />
 
         {/* 9. Policy Pages (Dedicated Policy Views) */}
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/careers" element={<CareersPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PolicyPage />} />
+        <Route path="/guide" element={<GuidePage />} />
+        <Route path="/returns" element={<PolicyPage />} />
+        <Route path="/warranty" element={<PolicyPage />} />
+        <Route path="/support" element={<TechnicalSupportPage />} />
         <Route path="/policy/warranty" element={<PolicyPage />} />
         <Route path="/chinh-sach-bao-hanh" element={<PolicyPage />} />
         <Route path="/policy/shipping" element={<PolicyPage />} />
