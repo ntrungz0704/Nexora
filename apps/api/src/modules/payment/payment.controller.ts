@@ -8,7 +8,7 @@ export class PaymentController {
 
   createVnpayUrl = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { orderCode, orderInfo } = req.body;
+      const { orderCode, orderInfo, customerEmail, customerPhone } = req.body;
       if (!orderCode) {
         throw new AppError(400, 'INVALID_PAYMENT_DATA', 'Vui lòng cung cấp mã đơn hàng.');
       }
@@ -19,6 +19,9 @@ export class PaymentController {
         orderCode,
         orderInfo,
         ipAddr,
+        requester: req.user,
+        customerEmail,
+        customerPhone,
       });
 
       sendSuccess(res, { paymentUrl });

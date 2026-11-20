@@ -31,6 +31,9 @@ export class PaymentService {
     orderCode: string;
     orderInfo?: string;
     ipAddr?: string;
+    requester?: { sub: number; role: string; email?: string } | null;
+    customerEmail?: string;
+    customerPhone?: string;
   }): Promise<string> {
     const order = await prisma.order.findUnique({
       where: { orderCode: params.orderCode },
@@ -42,6 +45,45 @@ export class PaymentService {
 
     if (order.paymentStatus === 'PAID') {
       throw new AppError(400, 'ORDER_ALREADY_PAID', `Đơn hàng ${params.orderCode} đã được thanh toán trước đó.`);
+    }
+
+    // Xác thực quyền sở hữu đơn hàng (Ownership verification)
+    if (order.userId !== null) {
+      // Đơn hàng của người dùng đã đăng ký
+      if (!params.requester) {
+        throw new AppError(401, 'UNAUTHORIZED', 'Vui lòng đăng nhập để thanh toán cho đơn hàng này.');
+      }
+      const isPrivileged = params.requester.role === 'ADMIN' || params.requester.role === 'STAFF';
+      const isOwner = Number(params.requester.sub) === Number(order.userId);
+      if (!isPrivileged && !isOwner) {
+        throw new AppError(
+          403,
+          'FORBIDDEN',
+          'Bạn không có quyền thực hiện thanh toán cho đơn hàng của người dùng khác.'
+        );
+      }
+    } else {
+      // Đơn hàng của khách vãng lai (Guest)
+      const isPrivileged =
+        params.requester && (params.requester.role === 'ADMIN' || params.requester.role === 'STAFF');
+      if (!isPrivileged) {
+        const matchesUserEmail =
+          params.requester?.email &&
+          params.requester.email.toLowerCase() === order.customerEmail.toLowerCase();
+        const matchesProvidedEmail =
+          params.customerEmail &&
+          params.customerEmail.trim().toLowerCase() === order.customerEmail.toLowerCase();
+        const matchesProvidedPhone =
+          params.customerPhone && params.customerPhone.trim() === order.customerPhone.trim();
+
+        if (!matchesUserEmail && !matchesProvidedEmail && !matchesProvidedPhone) {
+          throw new AppError(
+            403,
+            'FORBIDDEN',
+            'Yêu cầu xác thực thông tin đơn hàng (email hoặc số điện thoại trùng khớp) để thanh toán.'
+          );
+        }
+      }
     }
 
     const serverAmount = Number(order.totalAmount);

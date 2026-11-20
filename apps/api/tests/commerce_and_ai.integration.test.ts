@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../src/app.js';
+import { AuthService } from '../src/modules/auth/auth.service.js';
 import type { Express } from 'express';
 
 describe('Commerce, Marketing and AI Integration Endpoints', () => {
@@ -238,19 +239,24 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
       .send({ productId: prodA });
   });
 
-  it('Verifies Auth Reset Password flow end-to-end', async () => {
-    // 1. Request forgot password
+  it('Verifies Auth Reset Password flow end-to-end without leaking token in HTTP response', async () => {
+    const authService = new AuthService();
+
+    // 1. Request forgot password via public HTTP endpoint
     const forgotRes = await request(app)
       .post('/api/v1/auth/forgot-password')
       .send({ email: 'customer@nexora.local' });
 
     expect(forgotRes.status).toBe(200);
     expect(forgotRes.body.success).toBe(true);
-    expect(forgotRes.body.data).toHaveProperty('resetToken');
+    // CRITICAL SECURITY ASSERTION: Response MUST NOT contain resetToken
+    expect(forgotRes.body.data.resetToken).toBeUndefined();
+    expect(forgotRes.body.data).toHaveProperty('message');
 
-    const resetToken = forgotRes.body.data.resetToken;
+    // 2. Obtain valid token via internal secure test method
+    const resetToken = await authService.generatePasswordResetTokenForTest('customer@nexora.local');
 
-    // 2. Reset password with new password
+    // 3. Reset password with new password
     const resetRes = await request(app)
       .post('/api/v1/auth/reset-password')
       .send({ token: resetToken, newPassword: 'newpassword123' });
@@ -258,7 +264,7 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
     expect(resetRes.status).toBe(200);
     expect(resetRes.body.success).toBe(true);
 
-    // 3. Login with new password
+    // 4. Login with new password
     const loginNew = await request(app)
       .post('/api/v1/auth/login')
       .send({ email: 'customer@nexora.local', password: 'newpassword123' });
@@ -266,12 +272,10 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
     expect(loginNew.status).toBe(200);
     expect(loginNew.body.success).toBe(true);
 
-    // 4. Revert back to original password
-    const revertForgot = await request(app)
-      .post('/api/v1/auth/forgot-password')
-      .send({ email: 'customer@nexora.local' });
+    // 5. Revert back to original password
+    const revertToken = await authService.generatePasswordResetTokenForTest('customer@nexora.local');
     await request(app)
       .post('/api/v1/auth/reset-password')
-      .send({ token: revertForgot.body.data.resetToken, newPassword: 'password123' });
+      .send({ token: revertToken, newPassword: 'password123' });
   });
 });

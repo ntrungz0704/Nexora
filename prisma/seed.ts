@@ -1,86 +1,111 @@
 import 'dotenv/config';
 import { PrismaClient, UserRole, UserStatus, ProductStatus } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// Pre-computed bcrypt hash for 'password123' (rounds = 10)
-const DEFAULT_PASSWORD_HASH = '$2b$10$BJs.vgkcjsVinzK0KVxgjez/H7WwawZeD5.22AOQW7DuExInaU2xW';
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Development/Test only hash for 'password123'
+const DEV_DEFAULT_PASSWORD_HASH = '$2b$10$BJs.vgkcjsVinzK0KVxgjez/H7WwawZeD5.22AOQW7DuExInaU2xW';
+
+async function getAdminInitialPasswordHash(): Promise<string> {
+  if (isProduction) {
+    if (process.env.ADMIN_INITIAL_PASSWORD_HASH) {
+      return process.env.ADMIN_INITIAL_PASSWORD_HASH;
+    }
+    if (process.env.ADMIN_INITIAL_PASSWORD) {
+      return bcrypt.hash(process.env.ADMIN_INITIAL_PASSWORD, 10);
+    }
+    throw new Error(
+      '[FATAL SEED ERROR] In production, ADMIN_INITIAL_PASSWORD or ADMIN_INITIAL_PASSWORD_HASH environment variable must be provided to bootstrap the initial admin account safely without default passwords.'
+    );
+  }
+  return DEV_DEFAULT_PASSWORD_HASH;
+}
 
 async function main(): Promise<void> {
-  console.log('Seeding Nexora database...');
+  console.log(`Seeding Nexora database (Environment: ${process.env.NODE_ENV || 'development'})...`);
 
-  // 1. Users
+  // 1. Initial Admin User Bootstrap
+  const adminPasswordHash = await getAdminInitialPasswordHash();
+  const adminEmail = process.env.ADMIN_INITIAL_EMAIL || 'admin@nexora.local';
+
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@nexora.local' },
+    where: { email: adminEmail },
     update: {
       fullName: 'Quản Trị Viên Nexora',
-      passwordHash: DEFAULT_PASSWORD_HASH,
+      // NOTE: passwordHash is deliberately omitted from update so password changes are NEVER overwritten on re-seed!
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
       phone: '0901234567',
     },
     create: {
-      email: 'admin@nexora.local',
+      email: adminEmail,
       fullName: 'Quản Trị Viên Nexora',
-      passwordHash: DEFAULT_PASSWORD_HASH,
+      passwordHash: adminPasswordHash,
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
       phone: '0901234567',
     },
   });
 
-  const _staffUser = await prisma.user.upsert({
-    where: { email: 'staff@nexora.local' },
-    update: {
-      fullName: 'Kỹ Thuật Viên Nexora',
-      passwordHash: DEFAULT_PASSWORD_HASH,
-      role: UserRole.STAFF,
-      status: UserStatus.ACTIVE,
-      phone: '0902345678',
-    },
-    create: {
-      email: 'staff@nexora.local',
-      fullName: 'Kỹ Thuật Viên Nexora',
-      passwordHash: DEFAULT_PASSWORD_HASH,
-      role: UserRole.STAFF,
-      status: UserStatus.ACTIVE,
-      phone: '0902345678',
-    },
-  });
+  // Non-production demo accounts
+  let customerUser: { id: number } | null = null;
+  if (!isProduction) {
+    await prisma.user.upsert({
+      where: { email: 'staff@nexora.local' },
+      update: {
+        fullName: 'Kỹ Thuật Viên Nexora',
+        // passwordHash omitted from update
+        role: UserRole.STAFF,
+        status: UserStatus.ACTIVE,
+        phone: '0902345678',
+      },
+      create: {
+        email: 'staff@nexora.local',
+        fullName: 'Kỹ Thuật Viên Nexora',
+        passwordHash: DEV_DEFAULT_PASSWORD_HASH,
+        role: UserRole.STAFF,
+        status: UserStatus.ACTIVE,
+        phone: '0902345678',
+      },
+    });
 
-  const customerUser = await prisma.user.upsert({
-    where: { email: 'customer@nexora.local' },
-    update: {
-      fullName: 'Nguyễn Văn An',
-      passwordHash: DEFAULT_PASSWORD_HASH,
-      role: UserRole.CUSTOMER,
-      status: UserStatus.ACTIVE,
-      phone: '0903456789',
-    },
-    create: {
-      email: 'customer@nexora.local',
-      fullName: 'Nguyễn Văn An',
-      passwordHash: DEFAULT_PASSWORD_HASH,
-      role: UserRole.CUSTOMER,
-      status: UserStatus.ACTIVE,
-      phone: '0903456789',
-    },
-  });
+    customerUser = await prisma.user.upsert({
+      where: { email: 'customer@nexora.local' },
+      update: {
+        fullName: 'Nguyễn Văn An',
+        // passwordHash omitted from update
+        role: UserRole.CUSTOMER,
+        status: UserStatus.ACTIVE,
+        phone: '0903456789',
+      },
+      create: {
+        email: 'customer@nexora.local',
+        fullName: 'Nguyễn Văn An',
+        passwordHash: DEV_DEFAULT_PASSWORD_HASH,
+        role: UserRole.CUSTOMER,
+        status: UserStatus.ACTIVE,
+        phone: '0903456789',
+      },
+    });
 
-  // Customer default address
-  await prisma.customerAddress.deleteMany({ where: { userId: customerUser.id } });
-  await prisma.customerAddress.create({
-    data: {
-      userId: customerUser.id,
-      recipientName: 'Nguyễn Văn An',
-      phone: '0903456789',
-      streetAddress: '123 Đường Nguyễn Huệ',
-      ward: 'Phường Bến Nghé',
-      district: 'Quận 1',
-      province: 'TP. Hồ Chí Minh',
-      isDefault: true,
-    },
-  });
+    // Customer default address
+    await prisma.customerAddress.deleteMany({ where: { userId: customerUser.id } });
+    await prisma.customerAddress.create({
+      data: {
+        userId: customerUser.id,
+        recipientName: 'Nguyễn Văn An',
+        phone: '0903456789',
+        streetAddress: '123 Đường Nguyễn Huệ',
+        ward: 'Phường Bến Nghé',
+        district: 'Quận 1',
+        province: 'TP. Hồ Chí Minh',
+        isDefault: true,
+      },
+    });
+  }
 
   // 2. Store Settings
   const defaultSettings = [
@@ -1119,49 +1144,44 @@ async function main(): Promise<void> {
     }
   }
 
-  // 7. Demo Cart for Customer
-  const firstProd = await prisma.product.findFirst({
-    where: { slug: 'ban-phim-logitech-g913-tkl' },
-  });
-  const secondProd = await prisma.product.findFirst({
-    where: { slug: 'chuot-logitech-g-pro-x-superlight-2' },
-  });
-
-  const customerCart = await prisma.cart.upsert({
-    where: { userId: customerUser.id },
-    update: {},
-    create: { userId: customerUser.id },
-  });
-
-  await prisma.cartItem.deleteMany({ where: { cartId: customerCart.id } });
-  if (firstProd) {
-    await prisma.cartItem.create({
-      data: {
-        cartId: customerCart.id,
-        productId: firstProd.id,
-        quantity: 1,
-      },
+  // 7. Demo Cart for Customer (Non-production only)
+  if (!isProduction && customerUser) {
+    const customerCart = await prisma.cart.upsert({
+      where: { userId: customerUser.id },
+      update: {},
+      create: { userId: customerUser.id },
     });
-  }
-  if (secondProd) {
-    await prisma.cartItem.create({
-      data: {
-        cartId: customerCart.id,
-        productId: secondProd.id,
-        quantity: 1,
-      },
-    });
-  }
 
-  // 8. Demo Wishlist
-  await prisma.wishlist.deleteMany({ where: { userId: customerUser.id } });
-  if (firstProd) {
-    await prisma.wishlist.create({
-      data: {
-        userId: customerUser.id,
-        productId: firstProd.id,
-      },
-    });
+    await prisma.cartItem.deleteMany({ where: { cartId: customerCart.id } });
+    if (firstProd) {
+      await prisma.cartItem.create({
+        data: {
+          cartId: customerCart.id,
+          productId: firstProd.id,
+          quantity: 1,
+        },
+      });
+    }
+    if (secondProd) {
+      await prisma.cartItem.create({
+        data: {
+          cartId: customerCart.id,
+          productId: secondProd.id,
+          quantity: 1,
+        },
+      });
+    }
+
+    // 8. Demo Wishlist
+    await prisma.wishlist.deleteMany({ where: { userId: customerUser.id } });
+    if (firstProd) {
+      await prisma.wishlist.create({
+        data: {
+          userId: customerUser.id,
+          productId: firstProd.id,
+        },
+      });
+    }
   }
 
   // 9. Coupons
@@ -1296,114 +1316,116 @@ async function main(): Promise<void> {
     });
   }
 
-  // 12. Demo Orders for Customer User
-  const existingOrder = await prisma.order.findUnique({
-    where: { orderCode: 'NX-2026-0001' },
-  });
-
-  if (!existingOrder && firstProd) {
-    const unitPrice = Number(firstProd.salePrice || firstProd.price);
-    await prisma.order.create({
-      data: {
-        orderCode: 'NX-2026-0001',
-        userId: customerUser.id,
-        customerName: 'Nguyễn Văn An',
-        customerEmail: 'customer@nexora.local',
-        customerPhone: '0903456789',
-        shippingAddress: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
-        province: 'TP. Hồ Chí Minh',
-        district: 'Quận 1',
-        ward: 'Phường Bến Nghé',
-        customerNotes: 'Giao hàng giờ hành chính',
-        subtotal: unitPrice,
-        shippingFee: 0,
-        discountAmount: 100000,
-        totalAmount: unitPrice - 100000 > 0 ? unitPrice - 100000 : unitPrice,
-        paymentMethod: 'COD',
-        paymentStatus: 'PAID',
-        orderStatus: 'DELIVERED',
-        couponCode: 'TECHPILOT100',
-        trackingNumber: 'VNPOST-88291039',
-        carrierName: 'VNPost Nhanh',
-        paidAt: new Date(Date.now() - 3 * 24 * 3600 * 1000),
-        items: {
-          create: [
-            {
-              productId: firstProd.id,
-              productName: firstProd.name,
-              productSku: firstProd.sku,
-              thumbnailUrl: firstProd.thumbnailUrl,
-              unitPrice: unitPrice,
-              quantity: 1,
-              discountAmount: 100000,
-              subtotal: unitPrice - 100000 > 0 ? unitPrice - 100000 : unitPrice,
-            },
-          ],
-        },
-      },
+  // 12. Demo Orders & Notifications for Customer User (Non-production only)
+  if (!isProduction && customerUser) {
+    const existingOrder = await prisma.order.findUnique({
+      where: { orderCode: 'NX-2026-0001' },
     });
 
-    await prisma.order.create({
-      data: {
-        orderCode: 'NX-2026-0002',
-        userId: customerUser.id,
-        customerName: 'Nguyễn Văn An',
-        customerEmail: 'customer@nexora.local',
-        customerPhone: '0903456789',
-        shippingAddress: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
-        province: 'TP. Hồ Chí Minh',
-        district: 'Quận 1',
-        ward: 'Phường Bến Nghé',
-        customerNotes: 'Gọi trước khi giao',
-        subtotal: 3890000,
-        shippingFee: 30000,
-        discountAmount: 0,
-        totalAmount: 3920000,
-        paymentMethod: 'VNPAY',
-        paymentStatus: 'PAID',
-        orderStatus: 'SHIPPING',
-        trackingNumber: 'GHTK-99120381',
-        carrierName: 'Giao Hàng Tiết Kiệm',
-        paidAt: new Date(Date.now() - 1 * 24 * 3600 * 1000),
-        items: {
-          create: [
-            {
-              productName: 'Bàn phím cơ không dây Logitech G913 TKL Lightspeed RGB',
-              productSku: 'LOGI-G913-TKL',
-              thumbnailUrl: '/assets/images/products/logitech-g913.png',
-              unitPrice: 3890000,
-              quantity: 1,
-              discountAmount: 0,
-              subtotal: 3890000,
-            },
-          ],
+    if (!existingOrder && firstProd) {
+      const unitPrice = Number(firstProd.salePrice || firstProd.price);
+      await prisma.order.create({
+        data: {
+          orderCode: 'NX-2026-0001',
+          userId: customerUser.id,
+          customerName: 'Nguyễn Văn An',
+          customerEmail: 'customer@nexora.local',
+          customerPhone: '0903456789',
+          shippingAddress: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+          province: 'TP. Hồ Chí Minh',
+          district: 'Quận 1',
+          ward: 'Phường Bến Nghé',
+          customerNotes: 'Giao hàng giờ hành chính',
+          subtotal: unitPrice,
+          shippingFee: 0,
+          discountAmount: 100000,
+          totalAmount: unitPrice - 100000 > 0 ? unitPrice - 100000 : unitPrice,
+          paymentMethod: 'COD',
+          paymentStatus: 'PAID',
+          orderStatus: 'DELIVERED',
+          couponCode: 'TECHPILOT100',
+          trackingNumber: 'VNPOST-88291039',
+          carrierName: 'VNPost Nhanh',
+          paidAt: new Date(Date.now() - 3 * 24 * 3600 * 1000),
+          items: {
+            create: [
+              {
+                productId: firstProd.id,
+                productName: firstProd.name,
+                productSku: firstProd.sku,
+                thumbnailUrl: firstProd.thumbnailUrl,
+                unitPrice: unitPrice,
+                quantity: 1,
+                discountAmount: 100000,
+                subtotal: unitPrice - 100000 > 0 ? unitPrice - 100000 : unitPrice,
+              },
+            ],
+          },
         },
-      },
+      });
+
+      await prisma.order.create({
+        data: {
+          orderCode: 'NX-2026-0002',
+          userId: customerUser.id,
+          customerName: 'Nguyễn Văn An',
+          customerEmail: 'customer@nexora.local',
+          customerPhone: '0903456789',
+          shippingAddress: '123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+          province: 'TP. Hồ Chí Minh',
+          district: 'Quận 1',
+          ward: 'Phường Bến Nghé',
+          customerNotes: 'Gọi trước khi giao',
+          subtotal: 3890000,
+          shippingFee: 30000,
+          discountAmount: 0,
+          totalAmount: 3920000,
+          paymentMethod: 'VNPAY',
+          paymentStatus: 'PAID',
+          orderStatus: 'SHIPPING',
+          trackingNumber: 'GHTK-99120381',
+          carrierName: 'Giao Hàng Tiết Kiệm',
+          paidAt: new Date(Date.now() - 1 * 24 * 3600 * 1000),
+          items: {
+            create: [
+              {
+                productName: 'Bàn phím cơ không dây Logitech G913 TKL Lightspeed RGB',
+                productSku: 'LOGI-G913-TKL',
+                thumbnailUrl: '/assets/images/products/logitech-g913.png',
+                unitPrice: 3890000,
+                quantity: 1,
+                discountAmount: 0,
+                subtotal: 3890000,
+              },
+            ],
+          },
+        },
+      });
+    }
+
+    // 13. Notifications
+    await prisma.notification.deleteMany({ where: { userId: customerUser.id } });
+    await prisma.notification.createMany({
+      data: [
+        {
+          userId: customerUser.id,
+          title: 'Đơn hàng NX-2026-0002 đang được giao',
+          message: 'Bưu tá GHTK đang trên đường giao kiện hàng tới địa chỉ của bạn.',
+          type: 'ORDER',
+          linkUrl: '/order-tracking?code=NX-2026-0002',
+          isRead: false,
+        },
+        {
+          userId: customerUser.id,
+          title: 'Chào mừng bạn đến với Nexora!',
+          message: 'Nhận ngay mã giảm giá NEXORA10 giảm 10% cho đơn hàng đầu tiên.',
+          type: 'PROMO',
+          linkUrl: '/coupons',
+          isRead: true,
+        },
+      ],
     });
   }
-
-  // 13. Notifications
-  await prisma.notification.deleteMany({ where: { userId: customerUser.id } });
-  await prisma.notification.createMany({
-    data: [
-      {
-        userId: customerUser.id,
-        title: 'Đơn hàng NX-2026-0002 đang được giao',
-        message: 'Bưu tá GHTK đang trên đường giao kiện hàng tới địa chỉ của bạn.',
-        type: 'ORDER',
-        linkUrl: '/order-tracking?code=NX-2026-0002',
-        isRead: false,
-      },
-      {
-        userId: customerUser.id,
-        title: 'Chào mừng bạn đến với Nexora!',
-        message: 'Nhận ngay mã giảm giá NEXORA10 giảm 10% cho đơn hàng đầu tiên.',
-        type: 'PROMO',
-        linkUrl: '/coupons',
-        isRead: true,
-      },
-    ],
-  });
 
   // 14. Audit Log
   await prisma.auditLog.create({
