@@ -309,30 +309,41 @@ export const ComparePage: React.FC = () => {
         </div>
 
         {/* STEP 1: Category Bar Container */}
-        <div className="cat-bar-container">
-          <span style={{ fontSize: '13px', fontWeight: 800, color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px', width: '100%', marginBottom: '6px' }}>
-            <i className="fa-solid fa-filter"></i> BƯỚC 1: CHỌN LOẠI SẢN PHẨM MUỐN SO SÁNH:
+        <div className="cat-bar-container flex flex-wrap gap-2 mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="w-full flex items-center justify-between mb-2">
+            <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <i className="fa-solid fa-filter text-blue-600"></i> BƯỚC 1: CHỌN LOẠI SẢN PHẨM MUỐN SO SÁNH:
+            </span>
             {isCategoryLocked && (
-              <span style={{ marginLeft: 'auto', color: '#10B981', fontSize: '12px', background: 'rgba(16, 185, 129, 0.1)', padding: '4px 10px', borderRadius: '12px', fontWeight: 700 }}>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full flex items-center gap-1">
                 🔒 Đã khóa danh mục theo sản phẩm đã chọn
               </span>
             )}
-          </span>
+          </div>
 
-          {COMPARE_CATEGORIES.map((cat) => {
-            const isActive = cat.key === activeCategoryKey;
-            return (
-              <button
-                key={cat.key}
-                type="button"
-                onClick={() => handleSelectCategory(cat.key)}
-                className={`cat-tab-btn ${isActive ? 'active' : ''} ${isCategoryLocked && !isActive ? 'locked' : ''}`}
-                title={isCategoryLocked && !isActive ? 'Đã khóa danh mục theo sản phẩm so sánh' : cat.label}
-              >
-                <i className={`fa-solid ${cat.icon}`}></i> {cat.label}
-              </button>
-            );
-          })}
+          <div className="flex flex-wrap gap-2 w-full">
+            {COMPARE_CATEGORIES.map((cat) => {
+              const isActive = cat.key === activeCategoryKey;
+              return (
+                <button
+                  key={cat.key}
+                  type="button"
+                  onClick={() => handleSelectCategory(cat.key)}
+                  className={`cat-tab-btn px-4 py-2 rounded-full text-xs font-bold inline-flex items-center gap-1.5 transition-all border cursor-pointer ${
+                    isActive
+                      ? 'active bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
+                      : isCategoryLocked
+                      ? 'locked bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300 hover:-translate-y-0.5'
+                  }`}
+                  title={isCategoryLocked && !isActive ? 'Đã khóa danh mục theo sản phẩm so sánh' : cat.label}
+                >
+                  <i className={`fa-solid ${cat.icon}`}></i>
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Search & Add Product Box */}
@@ -533,7 +544,7 @@ export const ComparePage: React.FC = () => {
         ) : (
           <>
             {/* STEP 2: Persona Selection Box */}
-            <div className="persona-box">
+            <div className="persona-box bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
               <h4 style={{ margin: '0 0 8px 0', fontWeight: 800, color: 'var(--text-primary, #0F172A)', fontSize: '15px' }}>
                 🎯 Chọn Persona / Nhu cầu sử dụng thực tế của bạn:
               </h4>
@@ -541,14 +552,18 @@ export const ComparePage: React.FC = () => {
                 Hệ thống sẽ thay đổi ma trận trọng số chấm điểm 100 điểm để tìm sản phẩm phù hợp nhất cho đối tượng này.
               </p>
 
-              <div className="persona-pills">
+              <div className="persona-pills flex flex-wrap gap-2.5 mt-2">
                 {currentPersonas.map((p) => {
                   const isActive = p.code === selectedPersonaCode;
                   return (
                     <button
                       key={p.code}
                       type="button"
-                      className={`persona-pill ${isActive ? 'active' : ''}`}
+                      className={`persona-pill px-4 py-2 rounded-full text-xs font-bold transition-all border cursor-pointer ${
+                        isActive
+                          ? 'active border-blue-600 bg-blue-50 text-blue-600 shadow-sm'
+                          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                      }`}
                       onClick={() => {
                         setSelectedPersonaCode(p.code);
                         setAiWinnerId(null);

@@ -39,11 +39,6 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleQuickLogin = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('password123');
-  };
-
   return (
     <div className="home-page-wrapper">
       <StorefrontHeader
@@ -62,7 +57,7 @@ export const LoginPage: React.FC = () => {
             {/* Head */}
             <div className="auth-card__head">
               <h1 className="auth-card__title">Đăng nhập</h1>
-              <p className="auth-card__subtitle">Chào mừng bạn quay trở lại với TechPilot</p>
+              <p className="auth-card__subtitle">Chào mừng bạn quay trở lại với Nexora</p>
             </div>
 
             {/* Error alert */}
@@ -145,7 +140,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="button"
               className="auth-btn-google"
-              onClick={() => handleQuickLogin('customer@nexora.vn')}
+              onClick={() => setErrorMsg('Đăng nhập qua Google hiện đang được nâng cấp bảo mật SSO.')}
             >
               <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -167,70 +162,6 @@ export const LoginPage: React.FC = () => {
               </svg>
               Tiếp tục với Google
             </button>
-
-            {/* Quick Demo Helper */}
-            <div
-              style={{
-                marginTop: '16px',
-                padding: '10px 12px',
-                borderRadius: '10px',
-                backgroundColor: 'var(--surface-muted, #F8FAFC)',
-                border: '1px solid var(--border, #E2E8F0)',
-                fontSize: '11px',
-                textAlign: 'center',
-              }}
-            >
-              <span style={{ color: 'var(--text-secondary, #64748B)', fontWeight: 600 }}>
-                Tài khoản mẫu:
-              </span>{' '}
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('customer@nexora.vn')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#0A5BFF',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  padding: '0 4px',
-                }}
-              >
-                Khách hàng
-              </button>
-              {' | '}
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('staff@nexora.vn')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#F59E0B',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  padding: '0 4px',
-                }}
-              >
-                Nhân viên
-              </button>
-              {' | '}
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('admin@nexora.vn')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#EF4444',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  padding: '0 4px',
-                }}
-              >
-                Quản trị
-              </button>
-            </div>
 
             {/* Register link */}
             <p className="auth-footer-text">

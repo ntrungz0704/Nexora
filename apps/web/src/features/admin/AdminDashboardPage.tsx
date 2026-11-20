@@ -763,15 +763,14 @@ export const AdminDashboardPage: React.FC = () => {
         <div>
           {/* Brand */}
           <Link to="/" className="flex items-center gap-3 mb-6 px-1">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white text-lg shadow-md">
-              <i className="fa-solid fa-plane-up"></i>
-            </div>
-            <div>
-              <div className="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
-                TechPilot <span className="text-[10px] bg-blue-600/30 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/30 font-bold uppercase">Admin</span>
-              </div>
-              <div className="text-[10px] text-slate-400 font-medium">Hệ thống quản trị cửa hàng</div>
-            </div>
+            <img
+              src="/assets/images/nexora-logo-white.png"
+              alt="Nexora Admin"
+              className="h-8 object-contain"
+            />
+            <span className="text-[10px] bg-blue-600/30 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/30 font-bold uppercase">
+              Admin
+            </span>
           </Link>
 
           {/* Navigation Items */}

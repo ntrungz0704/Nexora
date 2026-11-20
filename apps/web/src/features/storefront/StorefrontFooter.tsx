@@ -21,21 +21,18 @@ export const StorefrontFooter: React.FC<{ hideFeatures?: boolean }> = ({ hideFea
             }}
           >
             <img
-              src="/assets/images/logo.png"
-              alt="TechPilot Logo"
-              style={{ height: '40px', objectFit: 'contain', display: 'block' }}
+              src="/assets/images/nexora-logo-white.png"
+              alt="Nexora Logo"
+              style={{ height: '38px', objectFit: 'contain', display: 'block' }}
             />
             <div className="logo-brand-info">
-              <span className="logo-brand-title">
-                Tech<span>Pilot</span>
-              </span>
-              <span className="logo-brand-tagline" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                Technology • Trust • Future
+              <span className="logo-brand-tagline" style={{ color: 'rgba(255,255,255,0.65)', fontSize: '11px', letterSpacing: '0.05em' }}>
+                TECHNOLOGY FOR A BETTER TOMORROW
               </span>
             </div>
           </Link>
           <p>
-            TechPilot - Chuỗi siêu thị máy tính, laptop và gaming gear hàng đầu Việt Nam. Cam kết
+            Nexora - Hệ thống bán lẻ máy tính, laptop và gaming gear chính hãng hàng đầu Việt Nam. Cam kết
             chất lượng, bảo hành vượt trội, giá tốt nhất.
           </p>
           <div className="footer-social">
@@ -94,7 +91,7 @@ export const StorefrontFooter: React.FC<{ hideFeatures?: boolean }> = ({ hideFea
 
       <div className="footer-bottom">
         <div className="container footer-bottom__inner">
-          <span>© 2026 TechPilot. Bản quyền thuộc về đội ngũ phát triển TechPilot.</span>
+          <span>© 2026 Nexora. Bản quyền thuộc về đội ngũ phát triển Nexora.</span>
           <span>Kết nối công nghệ – Kiến tạo tương lai</span>
         </div>
       </div>

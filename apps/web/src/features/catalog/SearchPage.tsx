@@ -99,6 +99,49 @@ function removeVietnameseTones(str: string): string {
     .trim();
 }
 
+// Virtual category mapping to physical DB slugs
+const VIRTUAL_GROUPS: Record<string, string[]> = {
+  'pc-linh-kien': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+  'linh-kien-pc': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+  'linh-kien': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
+  'main-cpu-vga': ['mainboard', 'cpu', 'vga'],
+  'case-nguon-tan': ['case', 'cooling', 'psu'],
+  'o-cung': ['storage'],
+  'o-cung-ssd-hdd': ['storage'],
+  'storage': ['storage'],
+  'gaming-gear': ['keyboard', 'mouse', 'chair', 'headset', 'speaker', 'console'],
+  'ban-phim': ['keyboard'],
+  'keyboard': ['keyboard'],
+  'chuot': ['mouse'],
+  'chuot-lot-chuot': ['mouse'],
+  'mouse': ['mouse'],
+  'tai-nghe': ['headset'],
+  'headset': ['headset'],
+  'ghe-ban': ['chair'],
+  'ghe-ban-gaming': ['chair'],
+  'chair': ['chair'],
+  'loa-micro-webcam': ['speaker'],
+  'speaker': ['speaker'],
+  'loa': ['speaker'],
+  'phan-mem-mang': ['networking'],
+  'networking': ['networking'],
+  'phu-kien': ['accessories'],
+  'accessories': ['accessories'],
+  'office-gear': ['office-equipment', 'power-bank'],
+  'thiet-bi-van-phong': ['office-equipment'],
+  'thiet bi van phong': ['office-equipment'],
+  'office-equipment': ['office-equipment'],
+  'sac-du-phong': ['power-bank'],
+  'power-bank': ['power-bank'],
+  'pc': ['pc'],
+  'pc-nexora': ['pc'],
+  'pc-techpilot': ['pc'],
+  'laptop': ['laptop'],
+  'laptop-gaming': ['laptop'],
+  'man-hinh': ['monitor'],
+  'monitor': ['monitor'],
+};
+
 export const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { slug } = useParams<{ slug?: string }>();
@@ -182,10 +225,15 @@ export const SearchPage: React.FC = () => {
     if (!queryCat || queryCat === 'all') return null;
     const clean = queryCat.toLowerCase().replace(/\s+/g, '-');
     const norm = removeVietnameseTones(queryCat.replace(/-/g, ' '));
-    return categories.find((c) => {
+    let found = categories.find((c) => {
       const cNorm = removeVietnameseTones(c.name);
       return c.slug === clean || c.slug === queryCat || cNorm === norm;
     });
+    if (!found && VIRTUAL_GROUPS[clean]) {
+      const targetSlug = VIRTUAL_GROUPS[clean][0];
+      found = categories.find((c) => c.slug === targetSlug);
+    }
+    return found;
   }, [categories, queryCat]);
 
   // Subgroups list for this category
@@ -196,26 +244,12 @@ export const SearchPage: React.FC = () => {
     if (catSlug.includes('laptop')) return CATEGORY_SUBGROUPS['laptop']!;
     if (catSlug.includes('pc')) return CATEGORY_SUBGROUPS['pc']!;
     if (catSlug.includes('van-phong') || catSlug.includes('office') || catSlug.includes('thiet-bi')) return CATEGORY_SUBGROUPS['office-gear']!;
-    if (catSlug.includes('gear') || catSlug.includes('phim') || catSlug.includes('chuot')) return CATEGORY_SUBGROUPS['gaming-gear']!;
-    return CATEGORY_SUBGROUPS['pc-linh-kien']!;
+    if (catSlug.includes('gear') || catSlug.includes('phim') || catSlug.includes('chuot') || catSlug.includes('tai-nghe')) return CATEGORY_SUBGROUPS['gaming-gear']!;
+    return [];
   }, [queryCat]);
 
   // Filter products logic
   const filteredProducts = useMemo(() => {
-    const VIRTUAL_GROUPS: Record<string, string[]> = {
-      'pc-linh-kien': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
-      'linh-kien-pc': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
-      'main-cpu-vga': ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu'],
-      'gaming-gear': ['keyboard', 'mouse', 'chair', 'headset', 'speaker', 'console'],
-      'office-gear': ['office-equipment', 'power-bank'],
-      'thiet-bi-van-phong': ['office-equipment', 'power-bank'],
-      'thiet bi van phong': ['office-equipment', 'power-bank'],
-      'pc': ['pc'],
-      'laptop': ['laptop'],
-      'man-hinh': ['monitor'],
-      'monitor': ['monitor'],
-    };
-
     return allProducts.filter((product) => {
       // 1. Category filter
       if (queryCat && queryCat !== 'all') {
@@ -348,13 +382,23 @@ export const SearchPage: React.FC = () => {
       return queryQ ? `Tìm kiếm: "${queryQ}"` : 'Tất cả sản phẩm';
     }
     const clean = queryCat.toLowerCase().replace(/\s+/g, '-');
-    if (clean === 'pc-linh-kien' || clean === 'linh-kien-pc') return 'Linh kiện PC';
+    if (clean === 'pc-linh-kien' || clean === 'linh-kien-pc' || clean === 'main-cpu-vga') return 'Linh kiện PC';
+    if (clean === 'case-nguon-tan') return 'Case, Nguồn & Tản nhiệt';
     if (clean === 'gaming-gear') return 'Gaming Gear';
+    if (clean === 'chuot' || clean === 'chuot-lot-chuot' || clean === 'mouse') return 'Chuột & Lót chuột';
+    if (clean === 'ban-phim' || clean === 'keyboard') return 'Bàn phím';
+    if (clean === 'tai-nghe' || clean === 'headset') return 'Tai nghe Gaming';
+    if (clean === 'ghe-ban' || clean === 'chair') return 'Ghế & Bàn Gaming';
+    if (clean === 'o-cung' || clean === 'storage') return 'Ổ cứng SSD & HDD';
+    if (clean === 'loa-micro-webcam' || clean === 'speaker') return 'Loa, Micro & Webcam';
+    if (clean === 'phan-mem-mang' || clean === 'networking') return 'Phần mềm & Thiết bị mạng';
+    if (clean === 'phu-kien' || clean === 'accessories') return 'Phụ kiện';
     if (clean === 'office-gear' || clean === 'thiet-bi-van-phong') return 'Thiết bị văn phòng';
+    if (clean === 'sac-du-phong' || clean === 'power-bank') return 'Sạc dự phòng';
     if (clean === 'pc' || clean === 'pc-techpilot' || clean === 'pc-nexora') return 'PC & Build PC';
-    if (clean === 'laptop') return 'Laptop';
-    if (clean === 'man-hinh' || clean === 'monitor') return 'Màn hình';
-    return activeCategory?.name || queryCat;
+    if (clean === 'laptop' || clean === 'laptop-gaming') return 'Laptop & Laptop Gaming';
+    if (clean === 'man-hinh' || clean === 'monitor') return 'Màn hình máy tính';
+    return activeCategory?.name || queryCat.replace(/-/g, ' ');
   }, [activeCategory, queryCat, queryPromo, queryQ]);
 
   const activePriceLabel = useMemo(() => {

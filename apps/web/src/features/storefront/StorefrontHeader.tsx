@@ -207,18 +207,14 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             <Link
               to="/"
               className="logo"
-              style={{ display: 'flex', alignItems: 'center', gap: '1px', textDecoration: 'none' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
+              title="Nexora — Hệ Thống Bán Lẻ Máy Tính & Linh Kiện Chính Hãng"
             >
               <img
-                src="/assets/images/logo.png"
-                alt="TechPilot Logo"
-                style={{ height: '40px', objectFit: 'contain', display: 'block' }}
+                src="/assets/images/nexora-logo.png"
+                alt="Nexora Logo"
+                style={{ height: '38px', objectFit: 'contain', display: 'block' }}
               />
-              <div className="logo-brand-info">
-                <span className="logo-brand-title">
-                  Tech<span>Pilot</span>
-                </span>
-              </div>
             </Link>
 
             <button
