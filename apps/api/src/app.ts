@@ -10,6 +10,17 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import type { SystemRepository } from './modules/system/system.repository.js';
 import { createV1Router } from './routes/index.js';
 
+// Global BigInt JSON serialization support
+if (!('toJSON' in BigInt.prototype)) {
+  Object.defineProperty(BigInt.prototype, 'toJSON', {
+    value: function () {
+      return Number(this);
+    },
+    writable: true,
+    configurable: true,
+  });
+}
+
 export interface CreateAppOptions {
   env?: AppEnv;
   systemRepository?: SystemRepository;

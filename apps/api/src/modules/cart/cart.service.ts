@@ -8,15 +8,21 @@ export class CartService {
 
   private async getOrCreateCart(userId?: number, guestSessionId?: string) {
     if (userId) {
-      let cart = await this.prisma.cart.findUnique({
-        where: { userId },
+      const userExists = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
       });
-      if (!cart) {
-        cart = await this.prisma.cart.create({
-          data: { userId },
+      if (userExists) {
+        let cart = await this.prisma.cart.findUnique({
+          where: { userId },
         });
+        if (!cart) {
+          cart = await this.prisma.cart.create({
+            data: { userId },
+          });
+        }
+        return cart;
       }
-      return cart;
     }
 
     if (guestSessionId) {
@@ -39,6 +45,14 @@ export class CartService {
   }
 
   async getCartSummary(userId?: number, guestSessionId?: string): Promise<CartSummaryDto> {
+    if (!userId && !guestSessionId) {
+      return {
+        items: [],
+        totalItems: 0,
+        subtotal: '0',
+      };
+    }
+
     const cart = await this.getOrCreateCart(userId, guestSessionId);
 
     const items = await this.prisma.cartItem.findMany({

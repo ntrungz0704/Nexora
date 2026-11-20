@@ -321,7 +321,7 @@ export class AdminService {
 
   // --- Inventory Management ---
   async getInventoryLogs(productId?: number, limit = 50) {
-    return prisma.inventoryLog.findMany({
+    const logs = await prisma.inventoryLog.findMany({
       where: productId ? { productId } : undefined,
       include: {
         product: { select: { id: true, name: true, sku: true } },
@@ -330,6 +330,10 @@ export class AdminService {
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
+    return logs.map((log) => ({
+      ...log,
+      id: Number(log.id),
+    }));
   }
 
   async adjustStock(productId: number, quantity: number, reason: string, actorId: number) {
