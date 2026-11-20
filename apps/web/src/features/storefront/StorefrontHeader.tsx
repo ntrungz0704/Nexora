@@ -230,9 +230,9 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               title="Nexora — Hệ Thống Bán Lẻ Máy Tính & Linh Kiện Chính Hãng"
             >
               <img
-                src={isDarkMode ? '/assets/images/nexora-logo-white.png' : '/assets/images/nexora-logo.png'}
+                src="/assets/images/logo.png"
                 alt="Nexora Logo"
-                style={{ height: '38px', objectFit: 'contain', display: 'block' }}
+                style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
               />
             </Link>
 

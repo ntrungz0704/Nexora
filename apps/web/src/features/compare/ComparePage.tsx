@@ -242,7 +242,7 @@ export const ComparePage: React.FC = () => {
         setAiWinnerId(winner.id);
         const personaObj = currentPersonas.find((p) => p.code === selectedPersonaCode) || currentPersonas[0];
         setAiVerdict(
-          `Dựa trên thuật toán TechPilot 4.0 đối chiếu Persona "${personaObj?.label}": "${winner.name}" đạt điểm tối ưu cao nhất (94/100) nhờ mức giá cạnh tranh, cấu hình hài hòa và hiệu năng bền bỉ.`
+          `Dựa trên thuật toán Nexora AI đối chiếu Persona "${personaObj?.label}": "${winner.name}" đạt điểm tối ưu cao nhất (94/100) nhờ mức giá cạnh tranh, cấu hình hài hòa và hiệu năng bền bỉ.`
         );
       }
       setIsAiAnalyzing(false);
@@ -289,10 +289,10 @@ export const ComparePage: React.FC = () => {
         </div>
       )}
 
-      <main className="container section" style={{ marginTop: '30px', minHeight: '65vh', paddingBottom: '60px' }}>
-        {/* Breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748B', marginBottom: '16px' }}>
-          <Link to="/" style={{ color: '#64748B', textDecoration: 'none' }}>Trang chủ</Link>
+      <main className="container" style={{ marginTop: '24px', minHeight: '65vh', paddingBottom: '60px' }}>
+        {/* Breadcrumb - Exactly aligned with container and navigation */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748B', marginBottom: '20px' }}>
+          <Link to="/" style={{ color: '#64748B', textDecoration: 'none' }} className="hover:text-blue-600 transition-colors">Trang chủ</Link>
           <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px' }}></i>
           <span style={{ color: '#0A5BFF', fontWeight: 600 }}>So sánh sản phẩm</span>
         </div>
@@ -301,16 +301,16 @@ export const ComparePage: React.FC = () => {
         <div style={{ marginBottom: '24px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0F172A)', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 6px 0' }}>
             <i className="fa-solid fa-code-compare" style={{ color: '#0A5BFF' }}></i>
-            So sánh sản phẩm theo Persona (Nexora 4.0)
+            So sánh sản phẩm theo Persona (Nexora AI)
           </h2>
           <p style={{ color: '#64748B', fontSize: '14.5px', margin: 0 }}>
             Chọn danh mục trước, thêm 2-4 sản phẩm và chọn đối tượng (Persona) để hệ thống phân tích người chiến thắng.
           </p>
         </div>
 
-        {/* STEP 1: Category Bar Container */}
-        <div className="cat-bar-container flex flex-wrap gap-2 mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-          <div className="w-full flex items-center justify-between mb-2">
+        {/* STEP 1: Category Bar Container with Underline Tabs */}
+        <div className="cat-bar-container mb-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="w-full flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
             <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
               <i className="fa-solid fa-filter text-blue-600"></i> BƯỚC 1: CHỌN LOẠI SẢN PHẨM MUỐN SO SÁNH:
             </span>
@@ -321,7 +321,7 @@ export const ComparePage: React.FC = () => {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 w-full">
+          <div className="flex flex-wrap items-center gap-1 w-full border-b border-slate-200">
             {COMPARE_CATEGORIES.map((cat) => {
               const isActive = cat.key === activeCategoryKey;
               return (
@@ -332,19 +332,21 @@ export const ComparePage: React.FC = () => {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    borderRadius: '20px',
+                    gap: '7px',
+                    padding: '10px 16px',
                     fontSize: '13px',
-                    fontWeight: 700,
+                    fontWeight: isActive ? 800 : 600,
                     cursor: isCategoryLocked && !isActive ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'all 0.15s ease',
                     textDecoration: 'none',
-                    backgroundColor: isActive ? '#0A5BFF' : isCategoryLocked ? '#F1F5F9' : '#FFFFFF',
-                    color: isActive ? '#FFFFFF' : isCategoryLocked ? '#94A3B8' : '#1E293B',
-                    border: `1.5px solid ${isActive ? '#0A5BFF' : '#E2E8F0'}`,
-                    boxShadow: isActive ? '0 4px 12px rgba(10, 91, 255, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
-                    opacity: isCategoryLocked && !isActive ? 0.6 : 1,
+                    backgroundColor: isActive ? 'rgba(10, 91, 255, 0.06)' : 'transparent',
+                    color: isActive ? '#0A5BFF' : isCategoryLocked ? '#94A3B8' : '#475569',
+                    border: 'none',
+                    borderBottom: isActive ? '3px solid #0A5BFF' : '3px solid transparent',
+                    borderTopLeftRadius: '8px',
+                    borderTopRightRadius: '8px',
+                    marginBottom: '-1px',
+                    opacity: isCategoryLocked && !isActive ? 0.5 : 1,
                   }}
                   className={`cat-tab-btn ${isActive ? 'active' : ''}`}
                   title={isCategoryLocked && !isActive ? 'Đã khóa danh mục theo sản phẩm so sánh' : cat.label}
@@ -642,7 +644,7 @@ export const ComparePage: React.FC = () => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38BDF8', fontWeight: 800, fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  <i className="fa-solid fa-robot"></i> Kết quả phân tích AI TechPilot 4.0
+                  <i className="fa-solid fa-robot"></i> Kết quả phân tích Nexora AI
                 </div>
                 <div style={{ fontSize: '14.5px', lineHeight: 1.6, color: '#E2E8F0' }}>
                   {aiVerdict}

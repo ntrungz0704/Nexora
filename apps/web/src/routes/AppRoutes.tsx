@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { StorefrontHome } from '../features/storefront/StorefrontHome';
 import { SearchPage } from '../features/catalog/SearchPage';
 import { ProductDetailPage } from '../features/catalog/ProductDetailPage';
@@ -40,9 +41,20 @@ function ArchitectureInfoPage() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  }, [pathname, search]);
+
+  return null;
+}
+
 export function AppRoutes() {
   return (
     <>
+      <ScrollToTop />
       <Routes>
         {/* 1. Main Customer Storefront & Catalog */}
         <Route path="/" element={<StorefrontHome />} />

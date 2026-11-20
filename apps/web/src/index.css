@@ -75,3 +75,37 @@
     height: 52px;
   }
 }
+
+/* =======================================================
+   UNIVERSAL CLICKABLE CURSOR POINTER RULE (NEXORA STANDARD)
+   ======================================================= */
+button,
+a,
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"],
+input[type="button"],
+[role="button"],
+.cursor-pointer,
+.news-card,
+.news-card-hover,
+.news-horizontal-card,
+.news-horizontal-card__img,
+.product-card,
+.cat-tab-btn,
+.category-sidebar__item,
+.main-nav__links a,
+.header-actions__item,
+.theme-toggle,
+.dropdown__menu a,
+.dropdown__menu button {
+  cursor: pointer !important;
+}
+
+button:disabled,
+input:disabled,
+.cursor-not-allowed,
+.product-card--out-of-stock .product-card__add--disabled {
+  cursor: not-allowed !important;
+}

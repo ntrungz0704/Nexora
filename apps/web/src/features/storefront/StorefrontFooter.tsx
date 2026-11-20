@@ -21,7 +21,7 @@ export const StorefrontFooter: React.FC<{ hideFeatures?: boolean }> = ({ hideFea
             }}
           >
             <img
-              src="/assets/images/nexora-logo-white.png"
+              src="/assets/images/logo.png"
               alt="Nexora Logo"
               style={{ height: '38px', objectFit: 'contain', display: 'block' }}
             />

@@ -27,10 +27,10 @@ export const LoginPage: React.FC = () => {
     try {
       const session = await authService.login({ email, password });
       const redirect = searchParams.get('redirect');
-      if (redirect) {
+      if (session.user.role === 'ADMIN' || session.user.role === 'STAFF') {
+        navigate(redirect && redirect.startsWith('/admin') ? redirect : '/admin');
+      } else if (redirect && !redirect.startsWith('/auth')) {
         navigate(redirect);
-      } else if (session.user.role === 'ADMIN' || session.user.role === 'STAFF') {
-        navigate('/admin');
       } else {
         navigate('/');
       }

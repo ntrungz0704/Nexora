@@ -113,7 +113,7 @@ export const FloatingChatbot: React.FC = () => {
           onClick={() => setIsOpen(true)}
           className="tp-chatbot-launcher"
           id="tpChatbotLauncher"
-          aria-label="Mở chat TechPilot AI"
+          aria-label="Mở chat Nexora AI"
           title="Tư vấn AI thông minh"
         >
           <img

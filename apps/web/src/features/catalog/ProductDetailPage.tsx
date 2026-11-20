@@ -9,7 +9,7 @@ import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import { getProductImage } from '../../lib/productImage';
-import type { AuthUser } from '@nexora/shared';
+import type { AuthUser, ProductDto } from '@nexora/shared';
 
 interface FormattedSpec {
   label: string;
@@ -56,40 +56,100 @@ const SPEC_LABEL_MAP: Record<string, string> = {
   case: 'Vỏ thùng máy (Case)',
 };
 
-const IGNORED_SPEC_KEYS = new Set(['schema_version', 'category_slug', 'use_cases', 'model']);
+const IGNORED_SPEC_KEYS = new Set([
+  'schema_version',
+  'schemaversion',
+  'category_slug',
+  'categoryslug',
+  'use_cases',
+  'usecases',
+  'model',
+  'model_code',
+  'modelcode',
+  'specs',
+  'raw',
+  'id',
+  'sku',
+  'createdat',
+  'updatedat',
+  'slug',
+  'expansion',
+]);
 
-function parseSpecs(rawSpecs: unknown): FormattedSpec[] {
-  if (!rawSpecs || typeof rawSpecs !== 'object') return [];
-  const results: FormattedSpec[] = [];
-
-  const traverse = (obj: Record<string, unknown>) => {
-    for (const [key, val] of Object.entries(obj)) {
-      if (IGNORED_SPEC_KEYS.has(key)) continue;
-      if (val === null || val === undefined || val === '') continue;
-
-      if (typeof val === 'object' && !Array.isArray(val)) {
-        traverse(val as Record<string, unknown>);
-      } else {
-        const label = SPEC_LABEL_MAP[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-        let valStr = String(val);
-
-        if (key === 'ram_gb' && !valStr.toLowerCase().includes('gb')) valStr += ' GB';
-        if (key === 'storage_gb' && !valStr.toLowerCase().includes('gb')) {
-          const num = Number(val);
-          valStr = !isNaN(num) && num >= 1024 ? `${num / 1024} TB` : `${valStr} GB`;
-        }
-        if (key === 'weight_kg' && !valStr.toLowerCase().includes('kg')) valStr += ' kg';
-        if (key === 'refresh_rate' && !valStr.toLowerCase().includes('hz')) valStr += ' Hz';
-        if (key === 'battery_wh' && !valStr.toLowerCase().includes('wh')) valStr += ' Wh';
-        if (key === 'warranty_months' && !valStr.toLowerCase().includes('tháng')) valStr += ' tháng';
-        if (key === 'power_watts' && !valStr.toLowerCase().includes('w')) valStr += ' W';
-
-        results.push({ label, value: valStr });
-      }
+function parseSpecs(rawSpecs: unknown, product?: ProductDto): FormattedSpec[] {
+  let parsed: Record<string, unknown> | null = null;
+  if (typeof rawSpecs === 'string') {
+    try {
+      parsed = JSON.parse(rawSpecs);
+    } catch {
+      parsed = null;
     }
+  } else if (rawSpecs && typeof rawSpecs === 'object') {
+    parsed = rawSpecs as Record<string, unknown>;
+  }
+
+  const results: FormattedSpec[] = [];
+  const seenLabels = new Set<string>();
+
+  const addSpec = (label: string, value: string) => {
+    if (!label || !value || value === '[object Object]' || seenLabels.has(label)) return;
+    seenLabels.add(label);
+    results.push({ label, value });
   };
 
-  traverse(rawSpecs as Record<string, unknown>);
+  if (parsed) {
+    const traverse = (obj: Record<string, unknown>) => {
+      for (const [key, val] of Object.entries(obj)) {
+        const lowerKey = key.toLowerCase();
+        if (IGNORED_SPEC_KEYS.has(key) || IGNORED_SPEC_KEYS.has(lowerKey)) continue;
+        if (val === null || val === undefined || val === '') continue;
+
+        if (typeof val === 'object' && !Array.isArray(val)) {
+          traverse(val as Record<string, unknown>);
+        } else if (Array.isArray(val)) {
+          const strItems = val
+            .filter((item) => typeof item === 'string' || typeof item === 'number')
+            .map((item) => String(item).trim())
+            .filter(Boolean);
+          if (strItems.length > 0 && !IGNORED_SPEC_KEYS.has(lowerKey)) {
+            const label = SPEC_LABEL_MAP[lowerKey] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+            addSpec(label, strItems.join(', '));
+          }
+        } else {
+          let valStr = String(val).trim();
+          if (valStr === '[object Object]' || valStr === 'undefined' || valStr === 'null') continue;
+
+          const label = SPEC_LABEL_MAP[lowerKey] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+          if (lowerKey === 'ram_gb' && !valStr.toLowerCase().includes('gb')) valStr += ' GB';
+          if (lowerKey === 'storage_gb' && !valStr.toLowerCase().includes('gb')) {
+            const num = Number(valStr);
+            valStr = !isNaN(num) && num >= 1024 ? `${num / 1024} TB` : `${valStr} GB`;
+          }
+          if (lowerKey === 'weight_kg' && !valStr.toLowerCase().includes('kg')) valStr += ' kg';
+          if (lowerKey === 'refresh_rate' && !valStr.toLowerCase().includes('hz')) valStr += ' Hz';
+          if (lowerKey === 'battery_wh' && !valStr.toLowerCase().includes('wh')) valStr += ' Wh';
+          if (lowerKey === 'warranty_months' && !valStr.toLowerCase().includes('tháng')) valStr += ' tháng';
+          if (lowerKey === 'power_watts' && !valStr.toLowerCase().includes('w')) valStr += ' W';
+
+          addSpec(label, valStr);
+        }
+      }
+    };
+    traverse(parsed);
+  }
+
+  // Add customer-centric commercial specifications that users care about
+  if (product) {
+    if (product.brand?.name) addSpec('Thương hiệu', product.brand.name);
+    if (product.category?.name) addSpec('Dòng sản phẩm', product.category.name);
+    addSpec('Tình trạng', 'Mới 100% nguyên hộp, chính hãng (Full Box)');
+    addSpec('Bảo hành', '24 tháng chính hãng (1 đổi 1 trong 30 ngày nếu lỗi NSX)');
+    addSpec('Hóa đơn & VAT', 'Đã bao gồm thuế giá trị gia tăng (VAT 10%)');
+    addSpec('Hỗ trợ kỹ thuật', 'Cài đặt phần mềm, vệ sinh máy miễn phí trọn đời tại Nexora');
+    addSpec('Vận chuyển', 'Giao hỏa tốc trong 2h nội thành, miễn phí giao hàng toàn quốc');
+  }
+
   return results;
 }
 
@@ -205,8 +265,8 @@ export const ProductDetailPage: React.FC = () => {
     return val.toLocaleString('vi-VN') + 'đ';
   };
 
-  const specsList = parseSpecs(product.specs);
-  const isOutOfStock = product.stockQuantity <= 0;
+  const specsList = parseSpecs(product.specs, product);
+  const isOutOfStock = Number(product.stockQuantity ?? 0) <= 0;
   const relatedProducts = allProducts.filter((item) => item.id !== product.id).slice(0, 4);
 
   return (
@@ -249,8 +309,8 @@ export const ProductDetailPage: React.FC = () => {
       />
 
       <main style={{ minHeight: '600px', paddingBottom: '80px' }}>
-        {/* Breadcrumb */}
-        <div className="container" style={{ padding: '16px 0' }}>
+        {/* Breadcrumb - Perfectly aligned with navigation container */}
+        <div className="container" style={{ paddingTop: '16px', paddingBottom: '16px' }}>
           <nav
             style={{
               fontSize: '13px',

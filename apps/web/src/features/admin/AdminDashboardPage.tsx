@@ -325,6 +325,7 @@ export const AdminDashboardPage: React.FC = () => {
   const [productBrandFilter, setProductBrandFilter] = useState('');
   const [productStatusFilter, setProductStatusFilter] = useState('');
   const [productLowStockOnly, setProductLowStockOnly] = useState(false);
+  const [productZeroStockOnly, setProductZeroStockOnly] = useState(false);
   const [productPage, setProductPage] = useState(1);
 
   const [orderSearch, setOrderSearch] = useState('');
@@ -725,6 +726,7 @@ export const AdminDashboardPage: React.FC = () => {
     if (productBrandFilter && p.brand?.name !== productBrandFilter) return false;
     if (productStatusFilter && p.status !== productStatusFilter) return false;
     if (productLowStockOnly && p.stockQuantity >= 10) return false;
+    if (productZeroStockOnly && p.stockQuantity > 0) return false;
     return true;
   });
   const paginatedProducts = filteredProducts.slice((productPage - 1) * 10, productPage * 10);
@@ -777,7 +779,7 @@ export const AdminDashboardPage: React.FC = () => {
           {/* Brand */}
           <Link to="/" className="flex items-center gap-3 mb-6 px-1">
             <img
-              src="/assets/images/nexora-logo-white.png"
+              src="/assets/images/logo.png"
               alt="Nexora Admin"
               className="h-8 object-contain"
             />
@@ -1009,7 +1011,8 @@ export const AdminDashboardPage: React.FC = () => {
               {/* Card 5: Hết hàng */}
               <div
                 onClick={() => {
-                  setProductStatusFilter('INACTIVE');
+                  setProductZeroStockOnly(true);
+                  setProductLowStockOnly(false);
                   handleTabChange('products');
                 }}
                 className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
@@ -1020,7 +1023,7 @@ export const AdminDashboardPage: React.FC = () => {
                     <i className="fa-solid fa-circle-info text-[11px] text-gray-400"></i>
                   </div>
                   <div className="text-xl font-extrabold text-red-500 mt-1">
-                    {adminData?.summary?.outOfStockCount ?? 0}
+                    {adminData?.summary?.outOfStockCount ?? (products.filter((p) => p.stockQuantity <= 0).length || 0)}
                   </div>
                   <div className="text-[11px] text-red-500 font-semibold mt-1">
                     Cần nhập thêm hàng
@@ -1533,11 +1536,32 @@ export const AdminDashboardPage: React.FC = () => {
                   type="checkbox"
                   id="low_stock_filter"
                   checked={productLowStockOnly}
-                  onChange={(e) => { setProductLowStockOnly(e.target.checked); setProductPage(1); }}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
+                  onChange={(e) => {
+                    setProductLowStockOnly(e.target.checked);
+                    if (e.target.checked) setProductZeroStockOnly(false);
+                    setProductPage(1);
+                  }}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300 cursor-pointer"
                 />
                 <label htmlFor="low_stock_filter" className="text-gray-700 font-medium cursor-pointer">
                   Tồn kho thấp (&lt;10)
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2 pt-4">
+                <input
+                  type="checkbox"
+                  id="zero_stock_filter"
+                  checked={productZeroStockOnly}
+                  onChange={(e) => {
+                    setProductZeroStockOnly(e.target.checked);
+                    if (e.target.checked) setProductLowStockOnly(false);
+                    setProductPage(1);
+                  }}
+                  className="w-4 h-4 rounded text-red-600 focus:ring-red-500 border-gray-300 cursor-pointer"
+                />
+                <label htmlFor="zero_stock_filter" className="text-gray-700 font-medium cursor-pointer">
+                  Hết hàng (0)
                 </label>
               </div>
 

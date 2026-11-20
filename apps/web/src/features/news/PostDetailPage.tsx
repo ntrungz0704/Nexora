@@ -140,7 +140,7 @@ export const PostDetailPage: React.FC = () => {
                   1. Mở đầu: Cuộc đối đầu đỉnh cao giữa hai gã khổng lồ
                 </h2>
                 <p>
-                  Trong phân khúc CPU cao cấp dành cho game thủ và chuyên gia phần cứng năm 2026, câu hỏi &quot;Nên chọn Intel Core i9 hay AMD Ryzen 7 3D V-Cache?&quot; luôn là chủ đề tranh luận nóng bỏng nhất. Đội ngũ kỹ thuật TechPilot đã thực hiện bài kiểm nghiệm thực tế trên cùng một hệ thống card đồ họa RTX 4090 và RAM DDR5 6000MHz để đưa ra câu trả lời chuẩn xác.
+                  Trong phân khúc CPU cao cấp dành cho game thủ và chuyên gia phần cứng năm 2026, câu hỏi &quot;Nên chọn Intel Core i9 hay AMD Ryzen 7 3D V-Cache?&quot; luôn là chủ đề tranh luận nóng bỏng nhất. Đội ngũ kỹ thuật Nexora đã thực hiện bài kiểm nghiệm thực tế trên cùng một hệ thống card đồ họa RTX 4090 và RAM DDR5 6000MHz để đưa ra câu trả lời chuẩn xác.
                 </p>
 
                 <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '28px 0 12px 0' }}>
