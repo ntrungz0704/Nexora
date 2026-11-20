@@ -12,6 +12,15 @@ export interface AuthResult {
   token: string;
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export class AuthService {
   constructor(
     private readonly prisma: PrismaClient = getPrismaClient(),
@@ -161,7 +170,7 @@ export class AuthService {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px;">
             <h2 style="color: #0F172A; margin-top: 0;">Khôi phục mật khẩu Nexora</h2>
-            <p>Xin chào <strong>${user.fullName || user.email}</strong>,</p>
+            <p>Xin chào <strong>${escapeHtml(user.fullName || user.email)}</strong>,</p>
             <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản Nexora của bạn.</p>
             <div style="margin: 28px 0; text-align: center;">
               <a href="${resetUrl}" style="background-color: #0A5BFF; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; display: inline-block;">
