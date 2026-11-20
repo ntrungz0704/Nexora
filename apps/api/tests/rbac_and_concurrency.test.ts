@@ -120,4 +120,47 @@ describe('RBAC & Concurrency Security Test Suite', () => {
     expect(order2.body.success).toBe(false);
     expect(order2.body.error.message).toContain('không đủ số lượng trong kho');
   });
+
+  describe('P1 Auth Security Regression Tests', () => {
+    it('AUTH-P1-1: Plaintext fallback "TechPilotAdmin2026!" is strictly rejected with 401', async () => {
+      const res = await request(app)
+        .post('/api/v1/auth/login')
+        .send({ email: 'admin@nexora.local', password: 'TechPilotAdmin2026!' });
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
+    });
+
+    it('AUTH-P1-2: Plaintext fallback "admin123" is strictly rejected with 401', async () => {
+      const res = await request(app)
+        .post('/api/v1/auth/login')
+        .send({ email: 'admin@nexora.local', password: 'admin123' });
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
+    });
+
+    it('AUTH-P1-3: Plaintext fallback "dev123" is strictly rejected with 401', async () => {
+      const res = await request(app)
+        .post('/api/v1/auth/login')
+        .send({ email: 'customer@nexora.local', password: 'dev123' });
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
+    });
+
+    it('AUTH-P1-4: Legitimate bcrypt hashed credentials succeed with 200', async () => {
+      const res = await request(app)
+        .post('/api/v1/auth/login')
+        .send({ email: 'admin@nexora.local', password: 'password123' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('token');
+      expect(res.body.data.user.email).toBe('admin@nexora.local');
+    });
+  });
 });

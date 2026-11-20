@@ -40,34 +40,7 @@ export class AuthService {
       throw new AppError(403, 'ACCOUNT_INACTIVE', 'Tài khoản của bạn đã bị tạm khóa.');
     }
 
-    let isMatch = await bcrypt.compare(input.password, user.passwordHash);
-
-    // Hỗ trợ thông tin đăng nhập di trú từ TechPilot (admin123, TechPilotAdmin2026!, password123)
-    if (!isMatch) {
-      const emailLower = user.email.toLowerCase();
-      const pwd = input.password;
-      if (
-        (emailLower === 'admin@techpilot.vn' || emailLower === 'admin@nexora.local') &&
-        (pwd === 'admin123' || pwd === 'TechPilotAdmin2026!' || pwd === 'admin' || pwd === 'password123')
-      ) {
-        isMatch = true;
-      } else if (
-        (emailLower === 'dev@techpilot.vn' || emailLower === 'customer@nexora.local') &&
-        (pwd === 'dev123' || pwd === 'TechPilotDev2026!' || pwd === 'customer123' || pwd === 'password123')
-      ) {
-        isMatch = true;
-      }
-
-      if (isMatch) {
-        // Tự động nâng cấp hash mật khẩu sang chuẩn mới
-        const newHash = await bcrypt.hash(pwd, 10);
-        await this.prisma.user.update({
-          where: { id: user.id },
-          data: { passwordHash: newHash },
-        });
-      }
-    }
-
+    const isMatch = await bcrypt.compare(input.password, user.passwordHash);
     if (!isMatch) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Email hoặc mật khẩu không chính xác.');
     }
