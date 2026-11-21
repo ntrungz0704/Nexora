@@ -115,120 +115,161 @@ export class OrderService {
       subtotalNumber - discountAmountNumber + shippingFeeNumber,
     );
 
-    // 5. Generate unique orderCode
-    const timestampSegment = Date.now().toString().slice(-6);
-    const randomSegment = Math.floor(1000 + Math.random() * 9000);
-    const orderCode = `NX-${timestampSegment}-${randomSegment}`;
+    // 5. Transaction with Concurrency & Deadlock Resilience
+    let attempts = 0;
+    const maxAttempts = 3;
+    let createdOrder: OrderWithItems;
 
-    // 6. Prisma Transaction
-    const createdOrder = await prisma.$transaction(async (tx) => {
-      const order = await tx.order.create({
-        data: {
-          orderCode,
-          userId: userId ?? null,
-          customerName: input.customerName,
-          customerEmail: input.customerEmail,
-          customerPhone: input.customerPhone,
-          shippingAddress: input.shippingAddress,
-          province: input.province ?? null,
-          district: input.district ?? null,
-          ward: input.ward ?? null,
-          customerNotes: input.customerNotes ?? null,
-          subtotal: subtotalNumber,
-          shippingFee: shippingFeeNumber,
-          discountAmount: discountAmountNumber,
-          totalAmount: totalAmountNumber,
-          paymentMethod: (input.paymentMethod as PaymentMethod) || 'COD',
-          paymentStatus: 'PENDING',
-          orderStatus: 'PENDING',
-          couponCode: appliedCouponCode,
-          items: {
-            create: orderItemsData.map((item) => ({
-              productId: item.productId,
-              productName: item.productName,
-              productSku: item.productSku,
-              thumbnailUrl: item.thumbnailUrl,
-              unitPrice: item.unitPrice,
-              quantity: item.quantity,
-              discountAmount: item.discountAmount,
-              subtotal: item.subtotal,
-            })),
-          },
-        },
-        include: {
-          items: true,
-        },
-      });
+    while (true) {
+      attempts++;
+      const timestampSegment = Date.now().toString().slice(-6);
+      const randomSegment = Math.floor(1000 + Math.random() * 9000);
+      const orderCode = `NX-${timestampSegment}-${randomSegment}`;
 
-      // Update coupon usage count
-      if (appliedCouponCode) {
-        await tx.coupon.update({
-          where: { code: appliedCouponCode },
-          data: { usageCount: { increment: 1 } },
-        });
-      }
-
-      // Decrement stock & record inventory log in deterministic sorted order to prevent MySQL deadlocks
-      const sortedItems = [...rawItems].sort((a, b) => a.productId - b.productId);
-      for (const item of sortedItems) {
-        // Atomic conditional decrement: strictly check stockQuantity >= item.quantity directly in MySQL InnoDB
-        const updateResult = await tx.product.updateMany({
-          where: {
-            id: item.productId,
-            stockQuantity: { gte: item.quantity },
-          },
-          data: {
-            stockQuantity: { decrement: item.quantity },
-          },
-        });
-
-        if (updateResult.count === 0) {
-          const currentProd = await tx.product.findUnique({ where: { id: item.productId } });
-          throw new AppError(
-            400,
-            'INSUFFICIENT_STOCK',
-            `Sản phẩm "${currentProd?.name || 'Sản phẩm'}" không đủ số lượng trong kho (còn ${currentProd?.stockQuantity ?? 0}).`,
-          );
-        }
-
-        const refreshed = await tx.product.findUniqueOrThrow({ where: { id: item.productId } });
-        const balanceBefore = refreshed.stockQuantity + item.quantity;
-        const balanceAfter = refreshed.stockQuantity;
-
-        await tx.inventoryLog.create({
-          data: {
-            productId: item.productId,
-            changeType: 'SALE',
-            quantity: -item.quantity,
-            balanceBefore,
-            balanceAfter,
-            referenceType: 'ORDER',
-            referenceId: orderCode,
-            note: `Bán lẻ qua đơn hàng ${orderCode}`,
-            actorId: userId ?? null,
-          },
-        });
-      }
-
-      // Clear ordered items from authenticated user's cart
-      if (userId) {
-        const cart = await tx.cart.findUnique({ where: { userId } });
-        if (cart) {
-          if (!input.items || input.items.length === 0) {
-            await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
-          } else {
-            await tx.cartItem.deleteMany({
-              where: {
-                cartId: cart.id,
-                productId: { in: rawItems.map((i) => i.productId) },
+      try {
+        createdOrder = await prisma.$transaction(
+          async (tx) => {
+            const order = await tx.order.create({
+              data: {
+                orderCode,
+                userId: userId ?? null,
+                customerName: input.customerName,
+                customerEmail: input.customerEmail,
+                customerPhone: input.customerPhone,
+                shippingAddress: input.shippingAddress,
+                province: input.province ?? null,
+                district: input.district ?? null,
+                ward: input.ward ?? null,
+                customerNotes: input.customerNotes ?? null,
+                subtotal: subtotalNumber,
+                shippingFee: shippingFeeNumber,
+                discountAmount: discountAmountNumber,
+                totalAmount: totalAmountNumber,
+                paymentMethod: (input.paymentMethod as PaymentMethod) || 'COD',
+                paymentStatus: 'PENDING',
+                orderStatus: 'PENDING',
+                couponCode: appliedCouponCode,
+                items: {
+                  create: orderItemsData.map((item) => ({
+                    productId: item.productId,
+                    productName: item.productName,
+                    productSku: item.productSku,
+                    thumbnailUrl: item.thumbnailUrl,
+                    unitPrice: item.unitPrice,
+                    quantity: item.quantity,
+                    discountAmount: item.discountAmount,
+                    subtotal: item.subtotal,
+                  })),
+                },
+              },
+              include: {
+                items: true,
               },
             });
+
+            // Update coupon usage count
+            if (appliedCouponCode) {
+              await tx.coupon.update({
+                where: { code: appliedCouponCode },
+                data: { usageCount: { increment: 1 } },
+              });
+            }
+
+            // Decrement stock & record inventory log in deterministic sorted order to prevent MySQL deadlocks
+            const sortedItems = [...rawItems].sort((a, b) => a.productId - b.productId);
+            for (const item of sortedItems) {
+              // Atomic conditional decrement: strictly check stockQuantity >= item.quantity directly in MySQL InnoDB
+              const updateResult = await tx.product.updateMany({
+                where: {
+                  id: item.productId,
+                  stockQuantity: { gte: item.quantity },
+                },
+                data: {
+                  stockQuantity: { decrement: item.quantity },
+                },
+              });
+
+              if (updateResult.count === 0) {
+                const currentProd = await tx.product.findUnique({ where: { id: item.productId } });
+                throw new AppError(
+                  400,
+                  'INSUFFICIENT_STOCK',
+                  `Sản phẩm "${currentProd?.name || 'Sản phẩm'}" không đủ số lượng trong kho (còn ${currentProd?.stockQuantity ?? 0}).`,
+                );
+              }
+
+              const refreshed = await tx.product.findUniqueOrThrow({
+                where: { id: item.productId },
+              });
+              const balanceBefore = refreshed.stockQuantity + item.quantity;
+              const balanceAfter = refreshed.stockQuantity;
+
+              await tx.inventoryLog.create({
+                data: {
+                  productId: item.productId,
+                  changeType: 'SALE',
+                  quantity: -item.quantity,
+                  balanceBefore,
+                  balanceAfter,
+                  referenceType: 'ORDER',
+                  referenceId: orderCode,
+                  note: `Bán lẻ qua đơn hàng ${orderCode}`,
+                  actorId: userId ?? null,
+                },
+              });
+            }
+
+            // Clear ordered items from authenticated user's cart
+            if (userId) {
+              const cart = await tx.cart.findUnique({ where: { userId } });
+              if (cart) {
+                if (!input.items || input.items.length === 0) {
+                  await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+                } else {
+                  await tx.cartItem.deleteMany({
+                    where: {
+                      cartId: cart.id,
+                      productId: { in: rawItems.map((i) => i.productId) },
+                    },
+                  });
+                }
+              }
+            }
+
+            return order;
+          },
+          {
+            maxWait: 5000,
+            timeout: 10000,
+          },
+        );
+        break;
+      } catch (err: any) {
+        if (
+          err?.code === 'P2034' ||
+          err?.message?.includes('deadlock') ||
+          err?.message?.includes('write conflict')
+        ) {
+          // Check if any product was exhausted by the competing concurrent transaction
+          for (const item of rawItems) {
+            const currentProd = await prisma.product.findUnique({ where: { id: item.productId } });
+            if (currentProd && currentProd.stockQuantity < item.quantity) {
+              throw new AppError(
+                400,
+                'INSUFFICIENT_STOCK',
+                `Sản phẩm "${currentProd.name}" không đủ số lượng trong kho (còn ${currentProd.stockQuantity}).`,
+              );
+            }
+          }
+
+          if (attempts < maxAttempts) {
+            await new Promise((resolve) => setTimeout(resolve, 50 * attempts));
+            continue;
           }
         }
+        throw err;
       }
-
-      return order;
-    });
+    }
 
     return this.mapOrderToDto(createdOrder);
   }
