@@ -244,11 +244,12 @@ export class OrderService {
           },
         );
         break;
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorRecord = err as { code?: string; message?: string };
         if (
-          err?.code === 'P2034' ||
-          err?.message?.includes('deadlock') ||
-          err?.message?.includes('write conflict')
+          errorRecord?.code === 'P2034' ||
+          errorRecord?.message?.includes('deadlock') ||
+          errorRecord?.message?.includes('write conflict')
         ) {
           // Check if any product was exhausted by the competing concurrent transaction
           for (const item of rawItems) {
