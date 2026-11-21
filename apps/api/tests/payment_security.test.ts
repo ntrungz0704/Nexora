@@ -1,9 +1,12 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import crypto from 'node:crypto';
 import request from 'supertest';
+import { PrismaClient } from '@prisma/client';
 import { createApp } from '../src/app.js';
 import { PaymentService } from '../src/modules/payment/payment.service.js';
 import type { Express } from 'express';
+
+const prisma = new PrismaClient();
 
 describe('Payment Security & VNPay Verification Test Suite', () => {
   let app: Express;
@@ -12,10 +15,61 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
   let guestOrderAmount: number;
   let userOrderCode: string;
   let _userOrderAmount: number;
+  let testProductId: number;
+  let registeredCust2Email: string;
 
   let customer1Token: string;
   let customer2Token: string;
   let adminToken: string;
+
+  afterAll(async () => {
+    try {
+      const orderCodes = [guestOrderCode, userOrderCode].filter(Boolean);
+      if (orderCodes.length > 0) {
+        const orders = await prisma.order.findMany({
+          where: { orderCode: { in: orderCodes } },
+          select: { id: true, orderCode: true },
+        });
+        const orderIds = orders.map((o) => o.id);
+        const foundCodes = orders.map((o) => o.orderCode);
+        if (orderIds.length > 0) {
+          await prisma.inventoryLog.deleteMany({
+            where: { referenceType: 'ORDER', referenceId: { in: foundCodes } },
+          });
+          await prisma.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
+          await prisma.order.deleteMany({ where: { id: { in: orderIds } } });
+        }
+      }
+      if (testProductId) {
+        // Restore 2 units of stock deducted for guest & user orders
+        await prisma.product.update({
+          where: { id: testProductId },
+          data: { stockQuantity: { increment: 2 } },
+        });
+      }
+      if (registeredCust2Email) {
+        const u = await prisma.user.findUnique({
+          where: { email: registeredCust2Email },
+          select: { id: true },
+        });
+        if (u) {
+          const userCarts = await prisma.cart.findMany({
+            where: { userId: u.id },
+            select: { id: true },
+          });
+          const cartIds = userCarts.map((c) => c.id);
+          if (cartIds.length > 0) {
+            await prisma.cartItem.deleteMany({ where: { cartId: { in: cartIds } } });
+            await prisma.cart.deleteMany({ where: { id: { in: cartIds } } });
+          }
+          await prisma.wishlist.deleteMany({ where: { userId: u.id } });
+          await prisma.user.delete({ where: { id: u.id } });
+        }
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
 
   beforeAll(async () => {
     app = createApp();
@@ -31,6 +85,7 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
     // 2. Register/Login Customer 2
     const randomSuffix = Math.floor(Math.random() * 100000);
     const cust2Email = `customer2_${randomSuffix}@nexora.local`;
+    registeredCust2Email = cust2Email;
     const cust2Res = await request(app)
       .post('/api/v1/auth/register')
       .send({
@@ -49,9 +104,11 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
     expect(adminRes.status).toBe(200);
     adminToken = adminRes.body.data.token;
 
-    // 4. Get a product with available stock
-    const catalogRes = await request(app).get('/api/v1/catalog/products?inStock=true&limit=1');
-    const product = catalogRes.body.data.products[0];
+    // 4. Get a product with plenty of available stock
+    const product = await prisma.product.findFirstOrThrow({
+      where: { stockQuantity: { gte: 10 } },
+    });
+    testProductId = product.id;
 
     // 5. Create a Guest Order
     const guestOrderRes = await request(app)

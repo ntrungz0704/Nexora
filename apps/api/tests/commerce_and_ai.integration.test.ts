@@ -1,14 +1,45 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
+import { PrismaClient } from '@prisma/client';
 import { createApp } from '../src/app.js';
 import { EmailService } from '../src/modules/email/email.service.js';
 import type { Express } from 'express';
 
+const prisma = new PrismaClient();
+
 describe('Commerce, Marketing and AI Integration Endpoints', () => {
   let app: Express;
+  let testOrderCode: string | null = null;
+  let testProductId: number | null = null;
 
   beforeAll(() => {
     app = createApp();
+  });
+
+  afterAll(async () => {
+    try {
+      if (testOrderCode) {
+        const order = await prisma.order.findUnique({
+          where: { orderCode: testOrderCode },
+          select: { id: true, orderCode: true },
+        });
+        if (order) {
+          await prisma.inventoryLog.deleteMany({
+            where: { referenceType: 'ORDER', referenceId: order.orderCode },
+          });
+          await prisma.orderItem.deleteMany({ where: { orderId: order.id } });
+          await prisma.order.delete({ where: { id: order.id } });
+        }
+      }
+      if (testProductId) {
+        await prisma.product.update({
+          where: { id: testProductId },
+          data: { stockQuantity: { increment: 1 } },
+        });
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
   });
 
   it('GET /api/v1/marketing/coupons returns active coupons', async () => {
@@ -33,11 +64,11 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
   });
 
   it('POST /api/v1/orders creates order with snapshot items and inventory reduction', async () => {
-    // 1. Get a product ID from catalog that has available stock
-    const catalogRes = await request(app).get('/api/v1/catalog/products?inStock=true&limit=1');
-    expect(catalogRes.status).toBe(200);
-    const product = catalogRes.body.data.products[0];
-    expect(product).toBeDefined();
+    // 1. Get a product ID that has plenty of available stock
+    const product = await prisma.product.findFirstOrThrow({
+      where: { stockQuantity: { gte: 5 } },
+    });
+    testProductId = product.id;
 
     // 2. Place order
     const orderRes = await request(app)
@@ -57,6 +88,7 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
     expect(orderRes.status).toBe(201);
     expect(orderRes.body.success).toBe(true);
     const order = orderRes.body.data;
+    testOrderCode = order.orderCode;
     expect(order.orderCode).toMatch(/^NX-/);
     expect(order.customerName).toBe('Trần Văn Test');
     expect(order.items.length).toBe(1);

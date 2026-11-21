@@ -81,6 +81,12 @@ describe('Nexora Storefront & Catalog API (Live MySQL 8.4 Integration)', () => {
       .send({ email: 'customer@nexora.local', password: 'password123' });
     const token = loginRes.body.data.token;
 
+    // Ensure cart has at least 1 item for testing summary
+    await request(app)
+      .post('/api/v1/cart/items')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId: 1, quantity: 1 });
+
     const res = await request(app).get('/api/v1/cart').set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
