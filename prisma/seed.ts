@@ -1153,6 +1153,20 @@ async function main(): Promise<void> {
   }
 
   // 7. Demo Cart for Customer (Non-production only)
+  const firstProd =
+    (await prisma.product.findFirst({
+      where: { slug: 'ban-phim-logitech-g913-tkl' },
+    })) || (await prisma.product.findFirst({ orderBy: { id: 'asc' } }));
+
+  const secondProd =
+    (await prisma.product.findFirst({
+      where: { slug: 'chuot-logitech-g-pro-x-superlight' },
+    })) ||
+    (await prisma.product.findFirst({
+      where: firstProd ? { id: { not: firstProd.id } } : undefined,
+      orderBy: { id: 'asc' },
+    }));
+
   if (!isProduction && customerUser) {
     const customerCart = await prisma.cart.upsert({
       where: { userId: customerUser.id },
