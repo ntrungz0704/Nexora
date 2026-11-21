@@ -49,7 +49,7 @@ export const GuidePage: React.FC = () => {
     {
       num: '04',
       title: 'Nhập Địa Chỉ & Áp Dụng Mã Giảm Giá',
-      desc: 'Tại trang Thanh toán (Checkout), điền chính xác họ tên, số điện thoại và địa chỉ nhận hàng. Nhập mã voucher hoặc coupon ưu đãi (ví dụ: TECHPILOT100, GIAM5PHANTRAM) để được chiết khấu trực tiếp vào tổng hóa đơn.',
+      desc: 'Tại trang Thanh toán (Checkout), điền chính xác họ tên, số điện thoại và địa chỉ nhận hàng. Nhập mã voucher hoặc coupon ưu đãi (ví dụ: NEXORA100, GIAM5PHANTRAM) để được chiết khấu trực tiếp vào tổng hóa đơn.',
       icon: 'fa-ticket',
     },
     {

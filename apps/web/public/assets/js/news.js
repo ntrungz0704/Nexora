@@ -1,5 +1,5 @@
 /**
- * TechPilot News Module – news.js v2.1
+ * Nexora News Module – news.js v2.1
  * Chỉ chạy khi có .news-page trong DOM.
  * Không dùng alert(), không làm nhảy layout.
  */
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     } catch (err) {
                         if (err.name === 'AbortError') return; // User cancelled – silent
-                        console.warn('[TechPilot] navigator.share error:', err);
+                        console.warn('[Nexora] navigator.share error:', err);
                     }
                 }
 
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 2500);
 
                 } catch (err) {
-                    console.warn('[TechPilot] Copy failed:', err);
+                    console.warn('[Nexora] Copy failed:', err);
                     showToast('Không thể sao chép – vui lòng copy link thủ công.');
                 }
             });

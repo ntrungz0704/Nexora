@@ -1,5 +1,5 @@
 /**
- * TechPilot — Search Filter Chips Controller
+ * Nexora — Search Filter Chips Controller
  * Manages horizontal filter chips on the search/category page.
  */
 (function() {
@@ -184,8 +184,8 @@
         });
     }
 
-    // Expose for external use
-    window.TechPilotFilters = {
+    // Expose for external use (support both NexoraFilters and TechPilotFilters)
+    window.NexoraFilters = window.TechPilotFilters = {
         applyFilter,
         applyPriceRange,
         toggleMultiFilter,

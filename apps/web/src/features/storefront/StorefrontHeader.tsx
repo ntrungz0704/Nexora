@@ -148,49 +148,49 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
 
   return (
     <>
-      {/* 1. TechPilot Top Bar (Static marquee, outside sticky header stack) */}
-      <div className="techpilot-topbar">
-        <div className="container techpilot-topbar__container">
-          <div className="techpilot-topbar__viewport">
-            <div className="techpilot-topbar__track">
+      {/* 1. Nexora Top Bar (Static marquee, outside sticky header stack) */}
+      <div className="nexora-topbar techpilot-topbar">
+        <div className="container nexora-topbar__container techpilot-topbar__container">
+          <div className="nexora-topbar__viewport techpilot-topbar__viewport">
+            <div className="nexora-topbar__track techpilot-topbar__track">
               {/* Group 1 */}
-              <div className="techpilot-topbar__group">
-                <Link to="/search" className="techpilot-topbar__message">
+              <div className="nexora-topbar__group techpilot-topbar__group">
+                <Link to="/search" className="nexora-topbar__message techpilot-topbar__message">
                   <i className="fa-solid fa-shield" aria-hidden="true"></i>
-                  <span className="techpilot-topbar__text">
+                  <span className="nexora-topbar__text techpilot-topbar__text">
                     Sản phẩm chính hãng – Xuất VAT đầy đủ
                   </span>
                 </Link>
-                <Link to="/search?promo=1" className="techpilot-topbar__message">
+                <Link to="/search?promo=1" className="nexora-topbar__message techpilot-topbar__message">
                   <i className="fa-solid fa-truck-fast" aria-hidden="true"></i>
-                  <span className="techpilot-topbar__text">
+                  <span className="nexora-topbar__text techpilot-topbar__text">
                     Giao nhanh – Miễn phí cho đơn từ 300K
                   </span>
                 </Link>
-                <Link to="/thu-cu-doi-moi" className="techpilot-topbar__message">
+                <Link to="/thu-cu-doi-moi" className="nexora-topbar__message techpilot-topbar__message">
                   <i className="fa-solid fa-rotate" aria-hidden="true"></i>
-                  <span className="techpilot-topbar__text">
+                  <span className="nexora-topbar__text techpilot-topbar__text">
                     Thu cũ giá tốt – Lên đời tiết kiệm
                   </span>
                 </Link>
               </div>
               {/* Group 2 (Clone for infinite marquee) */}
-              <div className="techpilot-topbar__group" aria-hidden="true">
-                <Link to="/search" className="techpilot-topbar__message" tabIndex={-1}>
+              <div className="nexora-topbar__group techpilot-topbar__group" aria-hidden="true">
+                <Link to="/search" className="nexora-topbar__message techpilot-topbar__message" tabIndex={-1}>
                   <i className="fa-solid fa-shield" aria-hidden="true"></i>
-                  <span className="techpilot-topbar__text">
+                  <span className="nexora-topbar__text techpilot-topbar__text">
                     Sản phẩm chính hãng – Xuất VAT đầy đủ
                   </span>
                 </Link>
-                <Link to="/search?promo=1" className="techpilot-topbar__message" tabIndex={-1}>
+                <Link to="/search?promo=1" className="nexora-topbar__message techpilot-topbar__message" tabIndex={-1}>
                   <i className="fa-solid fa-truck-fast" aria-hidden="true"></i>
-                  <span className="techpilot-topbar__text">
+                  <span className="nexora-topbar__text techpilot-topbar__text">
                     Giao nhanh – Miễn phí cho đơn từ 300K
                   </span>
                 </Link>
-                <Link to="/thu-cu-doi-moi" className="techpilot-topbar__message" tabIndex={-1}>
+                <Link to="/thu-cu-doi-moi" className="nexora-topbar__message techpilot-topbar__message" tabIndex={-1}>
                   <i className="fa-solid fa-rotate" aria-hidden="true"></i>
-                  <span className="techpilot-topbar__text">
+                  <span className="nexora-topbar__text techpilot-topbar__text">
                     Thu cũ giá tốt – Lên đời tiết kiệm
                   </span>
                 </Link>
@@ -198,16 +198,16 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             </div>
           </div>
 
-          <div className="techpilot-topbar__actions">
-            <Link to="/stores" className="techpilot-topbar__action">
+          <div className="nexora-topbar__actions techpilot-topbar__actions">
+            <Link to="/stores" className="nexora-topbar__action techpilot-topbar__action">
               <i className="fa-solid fa-store" aria-hidden="true"></i>
-              <span className="techpilot-topbar__action-text">Cửa hàng gần bạn</span>
+              <span className="nexora-topbar__action-text techpilot-topbar__action-text">Cửa hàng gần bạn</span>
             </Link>
-            <Link to="/order-tracking" className="techpilot-topbar__action">
+            <Link to="/order-tracking" className="nexora-topbar__action techpilot-topbar__action">
               <i className="fa-solid fa-file-invoice" aria-hidden="true"></i>
-              <span className="techpilot-topbar__action-text">Tra cứu đơn hàng</span>
+              <span className="nexora-topbar__action-text techpilot-topbar__action-text">Tra cứu đơn hàng</span>
             </Link>
-            <a href="tel:18002097" className="techpilot-topbar__action techpilot-topbar__action--hotline">
+            <a href="tel:18002097" className="nexora-topbar__action techpilot-topbar__action nexora-topbar__action--hotline techpilot-topbar__action--hotline">
               <i className="fa-solid fa-phone" aria-hidden="true"></i>
               <span>1800 2097</span>
             </a>

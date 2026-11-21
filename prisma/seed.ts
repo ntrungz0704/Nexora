@@ -1210,11 +1210,42 @@ async function main(): Promise<void> {
   });
 
   await prisma.coupon.upsert({
+    where: { code: 'NEXORA100' },
+    update: {},
+    create: {
+      code: 'NEXORA100',
+      description: 'Mã ưu đãi Nexora giảm trực tiếp 100.000đ cho mọi đơn từ 500.000đ',
+      discountType: 'FIXED',
+      discountValue: 100000,
+      minOrderValue: 500000,
+      maxDiscount: 100000,
+      usageLimit: 1000,
+      isActive: true,
+      expiresAt: new Date(Date.now() + 60 * 24 * 3600 * 1000),
+    },
+  });
+
+  await prisma.coupon.upsert({
+    where: { code: 'NEXORA999' },
+    update: {},
+    create: {
+      code: 'NEXORA999',
+      description: 'Đặc quyền Nexora giảm ngay 999.999đ cho đơn từ 20.000.000đ',
+      discountType: 'FIXED',
+      discountValue: 999999,
+      minOrderValue: 20000000,
+      maxDiscount: 999999,
+      isActive: true,
+      expiresAt: new Date(Date.now() + 60 * 24 * 3600 * 1000),
+    },
+  });
+
+  await prisma.coupon.upsert({
     where: { code: 'TECHPILOT100' },
     update: {},
     create: {
       code: 'TECHPILOT100',
-      description: 'Mã tri ân TechPilot giảm trực tiếp 100.000đ cho mọi đơn từ 500.000đ',
+      description: 'Mã tri ân chuyển tiếp giảm trực tiếp 100.000đ cho mọi đơn từ 500.000đ',
       discountType: 'FIXED',
       discountValue: 100000,
       minOrderValue: 500000,

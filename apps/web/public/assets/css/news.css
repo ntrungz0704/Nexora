@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TechPilot Editorial CSS (news.css) v1.1
+   Nexora Editorial CSS (news.css) v1.1
    Sử dụng BEM và kế thừa các biến CSS từ design token tổng (style.css).
    Chỉ load ở /post và /post/detail/{slug}.
    ========================================================================== */
@@ -8,7 +8,7 @@
 .news-page {
     --news-primary:    var(--primary, #146EF5);
     --news-cyan:       #00C8FF;
-    --news-ai-accent:  var(--techpilot-violet, #5B5BFF);
+    --news-ai-accent:  var(--nexora-violet, var(--techpilot-violet, #5B5BFF));
     --news-text-main:  var(--text-primary, #111827);
     --news-text-light: var(--text-secondary, #6B7280);
     --news-border:     var(--border, #E5E7EB);

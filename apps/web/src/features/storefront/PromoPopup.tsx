@@ -24,7 +24,7 @@ export const PromoPopup: React.FC = () => {
 
     const timer = setTimeout(() => {
       setIsVisible(true);
-      document.body.classList.add('tp-popup-locked');
+      document.body.classList.add('nx-popup-locked', 'tp-popup-locked');
     }, 600);
 
     return () => clearTimeout(timer);
@@ -37,7 +37,7 @@ export const PromoPopup: React.FC = () => {
       localStorage.setItem('techpilot_hide_popup_date', todayVN);
     }
     setIsVisible(false);
-    document.body.classList.remove('tp-popup-locked');
+    document.body.classList.remove('nx-popup-locked', 'tp-popup-locked');
   }, [dontShowAgain]);
 
   useEffect(() => {

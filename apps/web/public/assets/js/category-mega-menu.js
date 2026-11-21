@@ -1,5 +1,5 @@
 /**
- * TechPilot Category Mega Menu & Navigation Controller (V4 Final)
+ * Nexora Category Mega Menu & Navigation Controller (V4 Final)
  */
 document.addEventListener('DOMContentLoaded', () => {
 

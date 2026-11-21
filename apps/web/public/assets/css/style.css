@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TechPilot - Figma Premium Design System
+   Nexora - Premium Hardware E-Commerce Design System
    Primary Color: #0A5BFF (Tech Blue) | Font: Inter
    Grid: 12 Columns | Container: 1440px | Radius: 16px (Card), 12px (Btn/Input)
    ========================================================================== */
@@ -147,24 +147,33 @@ button {
     }
 }
 
-/* ===== TECHPILOT TOP BAR ===== */
+/* ===== NEXORA TOP BAR ===== */
 :root {
-    --techpilot-blue: #146EF5;
-    --techpilot-cyan: #00C8FF;
-    --techpilot-violet: #5B5BFF;
-    --techpilot-graphite: #0E1320;
-    --techpilot-white: #F6F8FC;
+    --nexora-blue: #146EF5;
+    --nexora-cyan: #00C8FF;
+    --nexora-violet: #5B5BFF;
+    --nexora-graphite: #0E1320;
+    --nexora-white: #F6F8FC;
+
+    /* Legacy design token aliases */
+    --techpilot-blue: var(--nexora-blue);
+    --techpilot-cyan: var(--nexora-cyan);
+    --techpilot-violet: var(--nexora-violet);
+    --techpilot-graphite: var(--nexora-graphite);
+    --techpilot-white: var(--nexora-white);
 }
 
+.nexora-topbar,
 .techpilot-topbar {
-    background-color: var(--techpilot-graphite);
-    color: var(--techpilot-white);
+    background-color: var(--nexora-graphite);
+    color: var(--nexora-white);
     font-size: 13px;
     font-weight: 500;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     overflow: hidden;
 }
 
+.nexora-topbar__container,
 .techpilot-topbar__container {
     display: flex;
     justify-content: center;
@@ -172,25 +181,30 @@ button {
     height: 36px;
 }
 
+.nexora-topbar__viewport,
 .techpilot-topbar__viewport {
     flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
 }
 
+.nexora-topbar__track,
 .techpilot-topbar__track {
     display: flex;
     flex: none;
     width: max-content;
-    animation: techpilot-topbar-scroll 20s linear infinite;
+    animation: nexora-topbar-scroll 20s linear infinite;
     will-change: transform;
 }
 
+.nexora-topbar__viewport:hover .nexora-topbar__track,
+.nexora-topbar__viewport:focus-within .nexora-topbar__track,
 .techpilot-topbar__viewport:hover .techpilot-topbar__track,
 .techpilot-topbar__viewport:focus-within .techpilot-topbar__track {
     animation-play-state: paused;
 }
 
+.nexora-topbar__group,
 .techpilot-topbar__group {
     display: flex;
     flex: none;
@@ -200,6 +214,7 @@ button {
     padding-right: 24px;
 }
 
+.nexora-topbar__message,
 .techpilot-topbar__message {
     position: relative;
     display: flex;
@@ -208,20 +223,24 @@ button {
     width: max-content;
     gap: 4px;
     white-space: nowrap;
-    color: var(--techpilot-white);
+    color: var(--nexora-white);
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
+.nexora-topbar__message:hover,
+.nexora-topbar__message:focus,
 .techpilot-topbar__message:hover,
 .techpilot-topbar__message:focus {
-    color: var(--techpilot-blue);
+    color: var(--nexora-blue);
 }
 
+.nexora-topbar__message i,
 .techpilot-topbar__message i {
-    color: var(--techpilot-cyan);
+    color: var(--nexora-cyan);
 }
 
+.nexora-topbar__message::before,
 .techpilot-topbar__message::before {
     content: "";
     position: absolute;
@@ -230,12 +249,23 @@ button {
     width: 5px;
     height: 5px;
     border-radius: 999px;
-    background: var(--techpilot-cyan);
+    background: var(--nexora-cyan);
     transform: translateY(-50%);
 }
 
+.nexora-topbar__message:first-child::before,
 .techpilot-topbar__message:first-child::before {
     display: none;
+}
+
+@keyframes nexora-topbar-scroll {
+    from {
+        transform: translate3d(-50%, 0, 0);
+    }
+
+    to {
+        transform: translate3d(0, 0, 0);
+    }
 }
 
 @keyframes techpilot-topbar-scroll {
@@ -248,6 +278,7 @@ button {
     }
 }
 
+.nexora-topbar__actions,
 .techpilot-topbar__actions {
     display: flex;
     flex: 0 0 auto;
@@ -257,25 +288,30 @@ button {
     padding-left: 24px;
 }
 
+.nexora-topbar__action,
 .techpilot-topbar__action {
     position: relative;
     display: flex;
     align-items: center;
     gap: 6px;
-    color: var(--techpilot-white);
+    color: var(--nexora-white);
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
+.nexora-topbar__action i,
 .techpilot-topbar__action i {
-    color: var(--techpilot-cyan);
+    color: var(--nexora-cyan);
 }
 
+.nexora-topbar__action:hover,
+.nexora-topbar__action:focus,
 .techpilot-topbar__action:hover,
 .techpilot-topbar__action:focus {
-    color: var(--techpilot-blue);
+    color: var(--nexora-blue);
 }
 
+.nexora-topbar__action::before,
 .techpilot-topbar__action::before {
     content: "";
     position: absolute;
@@ -287,28 +323,34 @@ button {
     transform: translateY(-50%);
 }
 
+.nexora-topbar__action:first-child::before,
 .techpilot-topbar__action:first-child::before {
     display: none;
 }
 
 /* Responsive: Tablet */
 @media (max-width: 1023px) {
+    .nexora-topbar,
     .techpilot-topbar {
         font-size: 12px;
     }
 
+    .nexora-topbar__container,
     .techpilot-topbar__container {
         height: 32px;
     }
 
+    .nexora-topbar__action-text,
     .techpilot-topbar__action-text {
         display: none;
     }
 
+    .nexora-topbar__actions,
     .techpilot-topbar__actions {
         gap: 16px;
     }
 
+    .nexora-topbar__action::before,
     .techpilot-topbar__action::before {
         left: -8px;
     }
@@ -316,11 +358,13 @@ button {
 
 /* Responsive: Mobile */
 @media (max-width: 767px) {
+    .nexora-topbar__container,
     .techpilot-topbar__container {
         height: 28px;
         padding: 0;
     }
 
+    .nexora-topbar__actions,
     .techpilot-topbar__actions {
         display: none;
     }
@@ -328,11 +372,13 @@ button {
 
 /* Accessibility: Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
+    .nexora-topbar__track,
     .techpilot-topbar__track {
         animation: none;
         transform: none;
     }
 
+    .nexora-topbar__group[aria-hidden="true"],
     .techpilot-topbar__group[aria-hidden="true"] {
         display: none;
     }
@@ -348,10 +394,12 @@ button {
 
 /* Mobile + Reduced Motion */
 @media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+    .nexora-topbar__message:not(:first-child),
     .techpilot-topbar__message:not(:first-child) {
         display: none;
     }
 
+    .nexora-topbar__message::before,
     .techpilot-topbar__message::before {
         display: none;
     }
@@ -4262,7 +4310,7 @@ body {
         width: 100% !important;
     }
 
-    /* 1. techpilot-topbar: Không ẩn toàn bộ trên mobile, chỉ ẩn actions qua CSS bên trên */
+    /* 1. nexora-topbar: Không ẩn toàn bộ trên mobile, chỉ ẩn actions qua CSS bên trên */
 
     /* 2. Main Header - Mobile */
     .site-header {

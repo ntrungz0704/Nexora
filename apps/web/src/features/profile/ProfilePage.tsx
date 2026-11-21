@@ -424,7 +424,7 @@ export const ProfilePage: React.FC = () => {
                     {
                       id: 2,
                       title: 'Ưu đãi thành viên: Giảm 200.000đ cho đơn hàng linh kiện',
-                      content: 'Mã coupon TECHPILOT200 đã được thêm vào ví ưu đãi của bạn. Hạn sử dụng đến hết 30/11/2026.',
+                      content: 'Mã coupon NEXORA200 đã được thêm vào ví ưu đãi của bạn. Hạn sử dụng đến hết 30/11/2026.',
                       time: '15/11/2026 09:15',
                       isRead: true,
                     },

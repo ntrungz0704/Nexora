@@ -1,5 +1,5 @@
 /**
- * TechPilot Vietnam Administrative Divisions & Phone Validation Module
+ * Nexora Vietnam Administrative Divisions & Phone Validation Module
  * Hỗ trợ 63 Tỉnh/Thành phố, Quận/Huyện, Phường/Xã và chuẩn hóa Số điện thoại +84 (10-11 số)
  */
 
@@ -631,8 +631,8 @@
         });
     }
 
-    // Export module ra window
-    window.TechPilotAddress = {
+    // Export module ra window (support both NexoraAddress and TechPilotAddress)
+    window.NexoraAddress = window.TechPilotAddress = {
         DATA: VIETNAM_ADDRESS_DATA,
         validatePhone: validateVietnamesePhone,
         initSelector: initVietnamAddressSelector,

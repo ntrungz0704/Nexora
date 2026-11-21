@@ -7,8 +7,31 @@ html {
 }
 
 /* =======================================================
-   TECHPILOT MASCOT FLOATING AI CHATBOT LAUNCHER
+   NEXORA MASCOT FLOATING AI CHATBOT LAUNCHER
    ======================================================= */
+@keyframes nxPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes nxMascotFloat {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+}
+
 @keyframes tpPulse {
   0% {
     transform: scale(1);
@@ -117,7 +140,7 @@ input:disabled,
 }
 
 /* =======================================================
-   ADMIN PANEL DESIGN TOKENS & DARK MODE (TECHPILOT PARITY)
+   ADMIN PANEL DESIGN TOKENS & DARK MODE (NEXORA DESIGN SYSTEM)
    ======================================================= */
 html.dark-mode,
 html.dark,

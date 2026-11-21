@@ -1,5 +1,5 @@
 /**
- * TechPilot Live Instant Search (Universal Autocomplete)
+ * Nexora Live Instant Search (Universal Autocomplete)
  * Gõ chữ tới đâu hiển thị gợi ý sản phẩm ngay lập tức tới đó trên toàn hệ thống
  */
 document.addEventListener('DOMContentLoaded', function () {

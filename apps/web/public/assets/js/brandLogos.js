@@ -1,7 +1,7 @@
 /**
  * brandLogos.js
  * -------------------------------------------------------------
- * Fallback 3 lớp lấy logo CHÍNH CHỦ cho TechPilot (HTML5 / Vanilla JS):
+ * Fallback 3 lớp lấy logo CHÍNH CHỦ cho Nexora (HTML5 / Vanilla JS):
  *   1) Local SVG asset (ưu tiên hàng đầu)
  *   2) Wikipedia pageimages API -> lấy đúng logo trong infobox trang Wikipedia chính thức của hãng
  *   3) Fallback cuối: Text logo badge chuẩn thương hiệu khi cả 2 fail
