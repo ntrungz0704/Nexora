@@ -119,7 +119,9 @@ export class MarketingService {
       startTime: flashSale.startTime.toISOString(),
       endTime: flashSale.endTime.toISOString(),
       isActive: flashSale.isActive,
-      items: flashSale.items.map((item) => ({
+      items: flashSale.items
+        .filter((item) => item.product && item.product.status === 'ACTIVE')
+        .map((item) => ({
         id: item.id,
         productId: item.productId,
         flashSalePrice: item.flashSalePrice.toString(),
@@ -194,5 +196,26 @@ export class MarketingService {
       views: post.views + 1,
       publishedAt: post.publishedAt ? post.publishedAt.toISOString() : post.createdAt.toISOString(),
     };
+  }
+
+  async getPublicReviews(limit = 8) {
+    const reviews = await prisma.review.findMany({
+      where: { rating: { gte: 4 } },
+      include: {
+        user: { select: { id: true, fullName: true, avatarUrl: true } },
+        product: { select: { id: true, name: true, slug: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+
+    return reviews.map((r) => ({
+      id: r.id,
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt.toISOString(),
+      user: r.user,
+      product: r.product,
+    }));
   }
 }

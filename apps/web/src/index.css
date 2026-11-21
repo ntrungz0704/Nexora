@@ -113,7 +113,7 @@ input:disabled,
 }
 
 /* =======================================================
-   ADMIN PANEL DARK MODE (TECHPILOT VISUAL PARITY)
+   ADMIN PANEL DESIGN TOKENS & DARK MODE (TECHPILOT PARITY)
    ======================================================= */
 html.dark-mode,
 html.dark,
@@ -121,12 +121,13 @@ html.dark-mode body,
 html.dark body,
 html.dark-mode #root,
 html.dark #root {
-  background-color: #0B132B !important;
-  color: #F8FAFC !important;
+  background-color: #0B0F19 !important;
+  color: #F9FAFB !important;
 }
 
 .admin-card-surface {
   width: 100% !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .admin-header-bar {
@@ -135,86 +136,159 @@ html.dark #root {
 
 .admin-table-head th {
   white-space: nowrap !important;
-  font-size: 11px !important;
-  padding: 12px 14px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 12px 16px !important;
 }
 
 .admin-table-row td {
-  padding: 12px 14px !important;
+  padding: 14px 16px !important;
 }
 
-html.dark-mode .admin-page-wrapper {
-  background-color: #0B132B !important;
-  color: #F8FAFC !important;
+html.dark-mode .admin-page-wrapper,
+html.dark .admin-page-wrapper {
+  background-color: #0B0F19 !important;
+  color: #F9FAFB !important;
   width: 100% !important;
   min-height: 100vh !important;
 }
 
-html.dark-mode .admin-page-wrapper main {
-  background-color: #0B132B !important;
+html.dark-mode .admin-page-wrapper main,
+html.dark .admin-page-wrapper main {
+  background-color: #0B0F19 !important;
 }
 
-html.dark-mode .admin-sidebar {
-  background-color: #080D1A !important;
+html.dark-mode .admin-sidebar,
+html.dark .admin-sidebar {
+  background-color: #091830 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+html.dark-mode .admin-header-bar,
+html.dark .admin-header-bar {
+  background-color: #111827 !important;
   border-color: #1E293B !important;
+  color: #F9FAFB !important;
 }
 
-html.dark-mode .admin-header-bar {
+html.dark-mode .admin-card-surface,
+html.dark .admin-card-surface {
+  background-color: #111827 !important;
+  border-color: #1E293B !important;
+  color: #F9FAFB !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark-mode .admin-filter-surface,
+html.dark .admin-filter-surface {
+  background-color: #0F172A !important;
+  border-color: #1E293B !important;
+  color: #F9FAFB !important;
+}
+
+html.dark-mode .admin-input-control,
+html.dark .admin-input-control {
   background-color: #1E293B !important;
   border-color: #334155 !important;
   color: #F8FAFC !important;
 }
 
-html.dark-mode .admin-card-surface {
+html.dark-mode .admin-input-control:focus,
+html.dark .admin-input-control:focus {
+  border-color: #0A5BFF !important;
+}
+
+html.dark-mode .admin-input-control::placeholder,
+html.dark .admin-input-control::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.dark-mode .admin-table-head,
+html.dark .admin-table-head {
   background-color: #1E293B !important;
-  border-color: #334155 !important;
-  color: #F8FAFC !important;
-}
-
-html.dark-mode .admin-filter-surface {
-  background-color: #0F172A !important;
-  border-color: #334155 !important;
-  color: #F8FAFC !important;
-}
-
-html.dark-mode .admin-input-control {
-  background-color: #0F172A !important;
-  border-color: #334155 !important;
-  color: #F8FAFC !important;
-}
-
-html.dark-mode .admin-input-control:focus {
-  border-color: #3B82F6 !important;
-}
-
-html.dark-mode .admin-input-control::placeholder {
-  color: #64748B !important;
-}
-
-html.dark-mode .admin-table-head {
-  background-color: #0F172A !important;
   border-color: #334155 !important;
   color: #94A3B8 !important;
 }
 
-html.dark-mode .admin-table-row {
-  border-color: #334155 !important;
+html.dark-mode .admin-table-row,
+html.dark .admin-table-row {
+  border-color: #1E293B !important;
   color: #E2E8F0 !important;
 }
 
-html.dark-mode .admin-table-row:hover {
-  background-color: rgba(51, 65, 85, 0.4) !important;
+html.dark-mode .admin-table-row:hover,
+html.dark .admin-table-row:hover {
+  background-color: rgba(30, 41, 59, 0.65) !important;
 }
 
-html.dark-mode .admin-text-title {
-  color: #F8FAFC !important;
+html.dark-mode .admin-text-title,
+html.dark .admin-text-title {
+  color: #F9FAFB !important;
 }
 
-html.dark-mode .admin-text-muted {
+html.dark-mode .admin-text-muted,
+html.dark .admin-text-muted {
   color: #94A3B8 !important;
 }
 
-html.dark-mode .admin-stat-card {
+html.dark-mode .admin-stat-card,
+html.dark .admin-stat-card {
+  background-color: #111827 !important;
+  border-color: #1E293B !important;
+  color: #F9FAFB !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Universal Dark Mode safety net inside Admin Portal so NO inner card, modal, table, or input ever leaks bright white */
+html.dark-mode .admin-page-wrapper .admin-modal-surface,
+html.dark .admin-page-wrapper .admin-modal-surface {
+  background-color: #111827 !important;
+  border: 1px solid #1E293B !important;
+  color: #F9FAFB !important;
+}
+
+html.dark-mode .admin-page-wrapper .admin-btn-outline,
+html.dark .admin-page-wrapper .admin-btn-outline {
+  background-color: transparent !important;
+  border-color: #334155 !important;
+  color: #CBD5E1 !important;
+}
+
+html.dark-mode .admin-page-wrapper .admin-btn-outline:hover,
+html.dark .admin-page-wrapper .admin-btn-outline:hover {
+  background-color: #1E293B !important;
+  color: #FFFFFF !important;
+}
+
+html.dark-mode .admin-page-wrapper table thead tr,
+html.dark .admin-page-wrapper table thead tr {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+
+html.dark-mode .admin-page-wrapper table tbody,
+html.dark .admin-page-wrapper table tbody {
+  border-color: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+html.dark-mode .admin-page-wrapper table tbody tr,
+html.dark .admin-page-wrapper table tbody tr {
+  border-color: #1E293B !important;
+}
+
+html.dark-mode .admin-page-wrapper table tbody tr:hover,
+html.dark .admin-page-wrapper table tbody tr:hover {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+}
+
+html.dark-mode .admin-page-wrapper input:not([type='checkbox']):not([type='radio']),
+html.dark .admin-page-wrapper input:not([type='checkbox']):not([type='radio']),
+html.dark-mode .admin-page-wrapper select,
+html.dark .admin-page-wrapper select,
+html.dark-mode .admin-page-wrapper textarea,
+html.dark .admin-page-wrapper textarea {
   background-color: #1E293B !important;
   border-color: #334155 !important;
   color: #F8FAFC !important;

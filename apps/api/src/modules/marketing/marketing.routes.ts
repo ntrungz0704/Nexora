@@ -10,6 +10,7 @@ export function createMarketingRouter(): Router {
   router.get('/flash-sales/active', controller.getActiveFlashSale);
   router.get('/posts', controller.getPosts);
   router.get('/posts/:slug', controller.getPostBySlug);
+  router.get('/reviews', controller.getPublicReviews);
 
   return router;
 }

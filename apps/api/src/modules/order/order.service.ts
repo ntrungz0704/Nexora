@@ -207,11 +207,20 @@ export class OrderService {
         });
       }
 
-      // If cart was used, clear cart items
-      if (userId && (!input.items || input.items.length === 0)) {
+      // Clear ordered items from authenticated user's cart
+      if (userId) {
         const cart = await tx.cart.findUnique({ where: { userId } });
         if (cart) {
-          await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+          if (!input.items || input.items.length === 0) {
+            await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+          } else {
+            await tx.cartItem.deleteMany({
+              where: {
+                cartId: cart.id,
+                productId: { in: rawItems.map((i) => i.productId) },
+              },
+            });
+          }
         }
       }
 
@@ -369,6 +378,7 @@ export class OrderService {
     trackingNumber?: string,
     carrierName?: string,
     paymentStatus?: string,
+    actorId?: number,
   ): Promise<OrderDto> {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
@@ -377,6 +387,20 @@ export class OrderService {
 
     if (!order) {
       throw new AppError(404, 'ORDER_NOT_FOUND', 'Không tìm thấy đơn hàng.');
+    }
+
+    const effectivePaymentStatus = paymentStatus || order.paymentStatus;
+    if (
+      order.paymentMethod === 'VNPAY' &&
+      status &&
+      ['CONFIRMED', 'PROCESSING', 'SHIPPING', 'DELIVERED'].includes(status) &&
+      effectivePaymentStatus !== 'PAID'
+    ) {
+      throw new AppError(
+        400,
+        'VNPAY_UNPAID_ORDER',
+        'Đơn VNPay phải thanh toán thành công (PAID) mới được xác nhận hoặc giao hàng.',
+      );
     }
 
     const updateData: Record<string, unknown> = {};
@@ -393,11 +417,52 @@ export class OrderService {
       updateData.paymentStatus = 'PAID';
       updateData.paidAt = new Date();
     }
+    if (status === 'CANCELLED' && order.orderStatus !== 'CANCELLED') {
+      updateData.cancelledAt = new Date();
+      updateData.cancellationReason = 'admin_cancelled';
+    }
 
-    const updated = await prisma.order.update({
-      where: { id: orderId },
-      data: updateData,
-      include: { items: true },
+    const isNewlyCancelled = status === 'CANCELLED' && order.orderStatus !== 'CANCELLED';
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const saved = await tx.order.update({
+        where: { id: orderId },
+        data: updateData,
+        include: { items: true },
+      });
+
+      // Restore stock & write immutable inventory audit log when Admin cancels an order
+      if (isNewlyCancelled) {
+        for (const item of order.items) {
+          if (!item.productId) continue;
+          const prod = await tx.product.findUnique({ where: { id: item.productId } });
+          if (prod) {
+            const newBalance = prod.stockQuantity + item.quantity;
+            await tx.product.update({
+              where: { id: prod.id },
+              data: {
+                stockQuantity: newBalance,
+                ...(prod.status === 'OUT_OF_STOCK' && newBalance > 0 ? { status: 'ACTIVE' } : {}),
+              },
+            });
+            await tx.inventoryLog.create({
+              data: {
+                productId: prod.id,
+                changeType: 'RETURN',
+                quantity: item.quantity,
+                balanceBefore: prod.stockQuantity,
+                balanceAfter: newBalance,
+                referenceType: 'ADMIN_CANCEL',
+                referenceId: order.orderCode,
+                note: `Hoàn tồn kho từ đơn hàng ${order.orderCode} (Lý do: admin_cancelled)`,
+                actorId: actorId ?? null,
+              },
+            });
+          }
+        }
+      }
+
+      return saved;
     });
 
     return this.mapOrderToDto(updated);

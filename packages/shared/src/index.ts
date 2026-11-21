@@ -367,14 +367,36 @@ export const AiProductChatInputSchema = z.object({
 export type AiProductChatInput = z.infer<typeof AiProductChatInputSchema>;
 
 // --- Admin Schemas ---
+export const AdminRevenueDaySchema = z.object({
+  date: z.string(),
+  isoDate: z.string(),
+  revenue: z.number(),
+  orders: z.number(),
+});
+export type AdminRevenueDayDto = z.infer<typeof AdminRevenueDaySchema>;
+
+export const AdminOrderStatusBreakdownSchema = z.object({
+  pending: z.number(),
+  shipping: z.number(),
+  completed: z.number(),
+  cancelled: z.number(),
+  total: z.number(),
+});
+export type AdminOrderStatusBreakdownDto = z.infer<typeof AdminOrderStatusBreakdownSchema>;
+
 export const AdminDashboardSummarySchema = z.object({
   totalRevenue: z.string(),
   ordersCount: z.number(),
   customersCount: z.number(),
   productsCount: z.number(),
+  activeProductsCount: z.number().optional(),
   lowStockCount: z.number(),
   outOfStockCount: z.number().optional(),
   totalUnitsInStock: z.number().optional(),
+  totalUnitsSold: z.number().optional(),
+  pendingOrdersCount: z.number().optional(),
+  revenueLast7Days: z.array(AdminRevenueDaySchema).optional(),
+  orderStatusBreakdown: AdminOrderStatusBreakdownSchema.optional(),
   lowStockProducts: z.array(ProductSchema).optional(),
   recentOrders: z.array(OrderDtoSchema),
 });

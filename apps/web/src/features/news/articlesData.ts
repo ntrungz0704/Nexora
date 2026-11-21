@@ -3,7 +3,9 @@ export interface ArticleItem {
   slug: string;
   title: string;
   excerpt: string;
+  content?: string;
   category: string;
+  categoryKey?: string;
   author: string;
   date: string;
   views: number;

@@ -150,6 +150,7 @@ export class AdminController {
         trackingNumber,
         carrierName,
         paymentStatus,
+        req.user?.sub,
       );
       sendSuccess(res, order);
     } catch (error) {
@@ -195,7 +196,7 @@ export class AdminController {
   // Order Detail
   getOrderDetail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const id = parseInt(req.params.id as string, 10);
+      const id = BigInt(req.params.id as string);
       const order = await this.service.getOrderDetail(id);
       sendSuccess(res, order);
     } catch (error) {
@@ -452,7 +453,7 @@ export class AdminController {
   toggleUserStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
-      const result = await this.service.toggleUserStatus(id);
+      const result = await this.service.toggleUserStatus(id, req.user?.sub);
       sendSuccess(res, result);
     } catch (error) {
       next(error);

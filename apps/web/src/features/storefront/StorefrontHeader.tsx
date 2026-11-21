@@ -131,6 +131,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
     const nextDark = !isDarkMode;
     setIsDarkMode(nextDark);
     document.documentElement.classList.toggle('dark-mode', nextDark);
+    document.documentElement.classList.toggle('dark', nextDark);
     localStorage.setItem('techpilot-theme', nextDark ? 'dark' : 'light');
     localStorage.setItem('nexora-theme', nextDark ? 'dark' : 'light');
   };
@@ -230,7 +231,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               title="Nexora — Hệ Thống Bán Lẻ Máy Tính & Linh Kiện Chính Hãng"
             >
               <img
-                src="/assets/images/logo.png"
+                src={isDarkMode ? '/assets/images/nexora-logo-white.png' : '/assets/images/logo.png'}
                 alt="Nexora Logo"
                 style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
               />

@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { ProductDto } from '@nexora/shared';
+import type { BrandDto, CategoryDto, PostDto, ProductDto } from '@nexora/shared';
+import type { PublicReviewDto } from '../../services/storefrontService';
 import { ProductCard } from './ProductCard';
 
 interface ProductCatalogSectionProps {
   products: ProductDto[];
+  categories?: CategoryDto[];
+  brands?: BrandDto[];
+  posts?: PostDto[];
+  reviews?: PublicReviewDto[];
   onAddToCart: (product: ProductDto) => void;
   onToggleWishlist?: (productId: number | string) => void;
 }
@@ -95,10 +100,36 @@ const CUSTOMER_REVIEWS = [
 
 export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
   products,
+  categories = [],
+  brands = [],
+  posts = [],
+  reviews = [],
   onAddToCart,
   onToggleWishlist,
 }) => {
   const [activeTab, setActiveTab] = useState('all');
+
+  const categoryItems =
+    categories.length > 0
+      ? categories.map((c) => ({ name: c.name, slug: c.slug, cat: c.slug, icon: c.icon }))
+      : POPULAR_CATEGORIES.map((c) => ({ ...c, icon: null as string | null }));
+
+  const brandItems =
+    brands.length > 0
+      ? brands.map((b) => ({
+          name: b.name,
+          slug: b.slug,
+          logoUrl: b.logoUrl
+            ? b.logoUrl.startsWith('/') || b.logoUrl.startsWith('http')
+              ? b.logoUrl
+              : `/${b.logoUrl}`
+            : `/assets/images/brands/${b.slug}.svg`,
+        }))
+      : BRAND_LOGOS.map((b) => ({
+          name: b.name,
+          slug: b.name.toLowerCase(),
+          logoUrl: `/assets/images/brands/${b.file}`,
+        }));
 
   // Filter products for Best Sellers tab
   const getFilteredBestSellers = () => {
@@ -180,14 +211,14 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
           </Link>
         </div>
         <div className="category-strip">
-          {POPULAR_CATEGORIES.map((item, idx) => (
-            <Link key={idx} to={`/search?cat=${item.slug}`} className="category-strip__item">
+          {categoryItems.map((item, idx) => (
+            <Link key={item.slug || idx} to={`/search?cat=${item.slug}`} className="category-strip__item">
               <div className="category-strip__icon">
                 <img
                   src={`/assets/images/categories/category-${item.cat}.png`}
                   alt={item.name}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).outerHTML = `<i class="fa-solid fa-tag" style="font-size: 24px; color: var(--primary);"></i>`;
+                    (e.target as HTMLImageElement).outerHTML = `<i class="${item.icon || 'fa-solid fa-tag'}" style="font-size: 24px; color: var(--primary);"></i>`;
                   }}
                 />
               </div>
@@ -276,8 +307,8 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                   fontWeight: 700,
                   cursor: 'pointer',
                   border: activeTab === tab.id ? 'none' : '1px solid var(--border)',
-                  backgroundColor: activeTab === tab.id ? '#0A5BFF' : '#FFFFFF',
-                  color: activeTab === tab.id ? '#FFFFFF' : '#64748B',
+                  backgroundColor: activeTab === tab.id ? '#0A5BFF' : 'var(--surface-card)',
+                  color: activeTab === tab.id ? '#FFFFFF' : 'var(--text-secondary)',
                   transition: 'all 0.2s ease',
                 }}
               >
@@ -538,38 +569,30 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               <Link to="/news" className="section__more">Xem thêm <i className="fa-solid fa-chevron-right"></i></Link>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-              {[
-                {
-                  slug: 'nvidia-rtx-50-series-blackwell-review',
-                  title: 'Đánh giá chi tiết NVIDIA RTX 50 Series: Kiến trúc Blackwell',
-                  img: '/assets/images/news/news-rtx-50.jpg',
-                  date: '18/11/2026',
-                  desc: 'Tìm hiểu sức mạnh thực tế của dòng card RTX 5090 và RTX 5080 với GDDR7...',
-                },
-                {
-                  slug: 'intel-i9-14900k-vs-amd-ryzen-7-7800x3d',
-                  title: 'So sánh Intel Core Ultra 9 vs AMD Ryzen 9 9950X',
-                  img: '/assets/images/news/news-intel-ultra.jpg',
-                  date: '17/11/2026',
-                  desc: 'Kiểm nghiệm hiệu năng render Cinebench 2026 và Blender giữa 2 con chip đầu bảng...',
-                },
-                {
-                  slug: 'top-ban-phim-co-gaming-khong-day-2026',
-                  title: 'Top 5 bàn phím cơ không dây độ trễ siêu thấp cho eSports',
-                  img: '/assets/images/news/news-mouse-gaming.jpg',
-                  date: '15/11/2026',
-                  desc: 'Tổng hợp các bàn phím Switch cơ học bấm mượt mà, kết nối 2.4GHz không giật lag...',
-                },
-                {
-                  slug: '10-meo-toi-uu-windows-11-gaming-2026',
-                  title: 'Hướng dẫn cân chỉnh màu màn hình Gaming OLED cao cấp',
-                  img: '/assets/images/news/news-build-pc.jpg',
-                  date: '12/11/2026',
-                  desc: 'Bí quyết giúp người dùng khai thác tối đa dải màu DCI-P3 99% và bảo vệ màn hình...',
-                },
-              ].map((news, idx) => (
+              {(posts.length > 0
+                ? posts.slice(0, 4).map((p) => ({
+                    slug: p.slug,
+                    title: p.title,
+                    img: p.thumbnailUrl
+                      ? p.thumbnailUrl.startsWith('/') || p.thumbnailUrl.startsWith('http')
+                        ? p.thumbnailUrl
+                        : `/${p.thumbnailUrl}`
+                      : '/assets/images/posts/tin-tuc-1.jpg',
+                    date: p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('vi-VN') : '',
+                    desc: p.excerpt || p.content.slice(0, 110) + '...',
+                  }))
+                : [
+                    {
+                      slug: 'nvidia-rtx-50-series-chinh-thuc-lo-dien',
+                      title: 'NVIDIA RTX 50 Series chính thức lộ diện: Bước nhảy vọt về AI và Ray Tracing',
+                      img: '/assets/images/posts/tin-tuc-3.jpg',
+                      date: '18/11/2026',
+                      desc: 'Tìm hiểu sức mạnh thực tế của dòng card RTX 5090 và RTX 5080 với GDDR7...',
+                    },
+                  ]
+              ).map((news, idx) => (
                 <Link
-                  key={idx}
+                  key={news.slug || idx}
                   to={`/post/${news.slug}`}
                   className="news-card news-card-hover"
                   style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column' }}
@@ -579,6 +602,9 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                       src={news.img}
                       alt={news.title}
                       loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/assets/images/posts/tin-tuc-1.jpg';
+                      }}
                     />
                   </div>
                   <div className="news-card__body">
@@ -705,10 +731,16 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
         </div>
         <div className="brand-slider">
           <div className="brand-slider__track">
-            {[...BRAND_LOGOS, ...BRAND_LOGOS].map((b, idx) => (
-              <div key={idx} className="brand-logo-card" title={b.name}>
+            {[...brandItems, ...brandItems].map((b, idx) => (
+              <Link
+                key={`${b.slug}-${idx}`}
+                to={`/search?brand=${b.slug}`}
+                className="brand-logo-card"
+                title={b.name}
+                style={{ textDecoration: 'none' }}
+              >
                 <img
-                  src={`/assets/images/brands/${b.file}`}
+                  src={b.logoUrl}
                   alt={b.name}
                   loading="lazy"
                   onError={(e) => {
@@ -722,7 +754,7 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                 <span className="brand-logo-text-fallback" style={{ display: 'none' }}>
                   {b.name}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -734,12 +766,20 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
           <h2>Khách hàng nói gì về Nexora</h2>
         </div>
         <div className="review-strip" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-          {CUSTOMER_REVIEWS.map((rev, idx) => (
+          {(reviews.length > 0
+            ? reviews.slice(0, 4).map((r) => ({
+                name: r.user?.fullName || 'Khách hàng Nexora',
+                role: r.product?.name ? `Mua ${r.product.name}` : 'Khách hàng đã mua hàng',
+                rating: r.rating || 5,
+                comment: r.comment || 'Sản phẩm chính hãng, chất lượng xuất sắc!',
+              }))
+            : CUSTOMER_REVIEWS.map((r) => ({ ...r, rating: 5 }))
+          ).map((rev, idx) => (
             <div
               key={idx}
               className="review-card"
               style={{
-                backgroundColor: '#FFFFFF',
+                backgroundColor: 'var(--surface-card)',
                 border: '1px solid var(--border)',
                 borderRadius: '14px',
                 padding: '20px',
@@ -751,22 +791,23 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
             >
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#0A5BFF', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}>
-                    {rev.name.slice(0, 1)}
+                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#0A5BFF', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px', flexShrink: 0 }}>
+                    {rev.name.slice(0, 1).toUpperCase()}
                   </div>
-                  <div>
-                    <strong style={{ fontSize: '13.5px', color: '#0F172A', display: 'block' }}>{rev.name}</strong>
-                    <span style={{ fontSize: '11px', color: '#64748B' }}>{rev.role}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <strong style={{ fontSize: '13.5px', color: 'var(--text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rev.name}</strong>
+                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rev.role}</span>
                   </div>
                 </div>
                 <div style={{ color: '#F59E0B', fontSize: '12px', marginBottom: '10px' }}>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
+                  {Array.from({ length: 5 }).map((_, starIdx) => (
+                    <i
+                      key={starIdx}
+                      className={starIdx < rev.rating ? 'fa-solid fa-star' : 'fa-regular fa-star'}
+                    ></i>
+                  ))}
                 </div>
-                <p style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.5, margin: 0, fontStyle: 'italic' }}>
+                <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0, fontStyle: 'italic' }}>
                   "{rev.comment}"
                 </p>
               </div>

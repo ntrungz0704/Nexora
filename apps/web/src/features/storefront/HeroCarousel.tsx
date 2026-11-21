@@ -1,153 +1,169 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { storefrontService } from '../../services/storefrontService';
+import type { BannerDto } from '@nexora/shared';
 
-interface Slide {
-  bg: string;
-  tag: string;
+interface SlideItem {
+  id: number;
+  imageUrl: string;
   title: string;
-  desc: string;
-  specs: string[];
-  priceHtml: string;
-  link: string;
-  btnText: string;
-  btnIcon: string;
+  linkUrl: string;
 }
 
-const slides: Slide[] = [
+const FALLBACK_SLIDES: SlideItem[] = [
   {
-    bg: '/assets/images/rog-banner-bg.jpg',
-    tag: 'Sức mạnh vượt trội',
-    title: 'ROG ZEPHYRUS G16',
-    desc: 'Hiệu năng đỉnh cao cho game thủ & creator',
-    specs: [
-      'Intel® Core™ Ultra 9',
-      'NVIDIA® GeForce RTX™ 4070',
-      'Màn hình OLED 2.5K 240Hz',
-      'RAM LPDDR5X 32GB',
-    ],
-    priceHtml: 'Chỉ từ <strong>39.990.000đ</strong>',
-    link: '/category/laptop',
-    btnText: 'Mua ngay',
-    btnIcon: 'fa-solid fa-arrow-right',
-  },
-  {
-    bg: '/assets/images/apple-banner-bg.jpg',
-    tag: 'Cực phẩm Apple',
-    title: 'MacBook Pro 16 M3 Max',
-    desc: 'Quái vật hiệu năng dành cho dân chuyên nghiệp',
-    specs: [
-      'Chip Apple M3 Max 14-core',
-      'GPU 30-core cực mạnh',
-      'Màn hình Liquid Retina XDR',
-      '36GB Unified Memory, 1TB SSD',
-    ],
-    priceHtml: 'Chỉ từ <strong>89.990.000đ</strong>',
-    link: '/category/laptop',
-    btnText: 'Mua ngay',
-    btnIcon: 'fa-solid fa-arrow-right',
-  },
-  {
-    bg: '/assets/images/banner-1.jpg',
-    tag: 'Chiến thần hiệu năng',
-    title: 'PC Gaming Ultra Max',
-    desc: 'Cỗ máy hủy diệt mọi tựa game AAA ở thiết lập cao nhất',
-    specs: [
-      'CPU Intel Core i9-14900K',
-      'VGA NVIDIA RTX 4090 24GB',
-      'RAM 64GB DDR5 6000MHz',
-      'Tản nhiệt nước Custom',
-    ],
-    priceHtml: 'Chỉ từ <strong>125.000.000đ</strong>',
-    link: '/build-pc',
-    btnText: 'Build ngay',
-    btnIcon: 'fa-solid fa-arrow-right',
-  },
-  {
-    bg: '/assets/images/banner-3.jpg',
-    tag: 'Trải nghiệm vô cực',
-    title: 'Odyssey OLED G9',
-    desc: 'Màn hình cong 49 inch chuẩn điện ảnh cho đắm chìm tuyệt đối',
-    specs: [
-      'Tấm nền QD-OLED siêu nét',
-      'Tần số quét 240Hz',
-      'Tốc độ phản hồi 0.03ms',
-      'Tỷ lệ siêu rộng 32:9',
-    ],
-    priceHtml: 'Chỉ từ <strong>34.500.000đ</strong>',
-    link: '/category/man-hinh',
-    btnText: 'Khám phá',
-    btnIcon: 'fa-solid fa-arrow-right',
-  },
-  {
-    bg: '/assets/images/banner-rtx-bg.jpg',
-    tag: 'SẮP RA MẮT',
-    title: 'NVIDIA RTX 50 SERIES',
-    desc: 'Sẵn sàng cho kỷ nguyên đồ họa thế hệ mới',
-    specs: [
-      'Kiến trúc Blackwell 4nm',
-      'Bộ nhớ GDDR7 siêu tốc',
-      'Tăng tốc AI gấp 2 lần',
-      'DLSS 4 tối ưu hóa hiệu năng',
-    ],
-    priceHtml: 'Nhận thông tin sớm nhất',
-    link: '/auth/register',
-    btnText: 'Đăng ký ngay',
-    btnIcon: 'fa-solid fa-envelope',
+    id: 1,
+    imageUrl: '/assets/banners/nexora-hero-desktop.webp',
+    title: 'Nexora — Công nghệ cho mọi giới hạn',
+    linkUrl: '/search',
   },
 ];
 
-export const HeroCarousel: React.FC = () => {
+export const HeroCarousel: React.FC<{ banners?: BannerDto[] }> = ({ banners: propBanners }) => {
+  const { data: fetchedBanners = [] } = useQuery({
+    queryKey: ['banners', 'hero'],
+    queryFn: () => storefrontService.getBanners('hero'),
+    enabled: !propBanners,
+  });
+
+  const activeBanners = (propBanners ?? fetchedBanners).filter(
+    (b) => b.isActive && b.placement === 'hero',
+  );
+
+  const slides: SlideItem[] =
+    activeBanners.length > 0
+      ? activeBanners.map((b) => ({
+          id: b.id,
+          imageUrl: b.imageUrl.startsWith('/') || b.imageUrl.startsWith('http') ? b.imageUrl : `/${b.imageUrl}`,
+          title: b.title,
+          linkUrl: b.linkUrl || '/search',
+        }))
+      : FALLBACK_SLIDES;
+
   const [currentIdx, setCurrentIdx] = useState(0);
+  const safeIdx = currentIdx >= slides.length ? 0 : currentIdx;
 
   useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIdx((prev) => (prev + 1) % slides.length);
-    }, 6000);
+    }, 5500);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
+
+  const goPrev = () => setCurrentIdx((prev) => (prev - 1 + slides.length) % slides.length);
+  const goNext = () => setCurrentIdx((prev) => (prev + 1) % slides.length);
 
   return (
-    <div className="hero-section__center" id="heroCarousel">
+    <div className="hero-section__center" id="heroCarousel" style={{ position: 'relative' }}>
       {slides.map((slide, idx) => {
-        const isActive = idx === currentIdx;
+        const isActive = idx === safeIdx;
         return (
-          <div
-            key={idx}
+          <Link
+            key={slide.id}
+            to={slide.linkUrl}
             className={`carousel-slide ${isActive ? 'is-active' : ''}`}
             style={{
-              backgroundImage: `linear-gradient(90deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%), url('${slide.bg}')`,
+              backgroundImage: `linear-gradient(90deg, rgba(8, 19, 37, 0.72) 0%, rgba(8, 19, 37, 0.28) 48%, rgba(8, 19, 37, 0.05) 100%), url('${slide.imageUrl}')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
               opacity: isActive ? 1 : 0,
               pointerEvents: isActive ? 'auto' : 'none',
+              textDecoration: 'none',
             }}
           >
-            <div className="carousel-slide__content">
-              <span className="carousel-slide__tag">{slide.tag}</span>
-              <h2>{slide.title}</h2>
-              <p>{slide.desc}</p>
-              <ul className="carousel-slide__specs">
-                {slide.specs.map((spec, specIdx) => (
-                  <li key={specIdx}>
-                    <i className="fa-solid fa-circle-check"></i> {spec}
-                  </li>
-                ))}
-              </ul>
-              <div
-                className="carousel-slide__price"
-                dangerouslySetInnerHTML={{ __html: slide.priceHtml }}
-              />
-              <Link to={slide.link} className="btn btn--light" style={{ alignSelf: 'flex-start' }}>
-                {slide.btnText} <i className={slide.btnIcon}></i>
-              </Link>
+            <div className="carousel-slide__content" style={{ maxWidth: '520px' }}>
+              <span className="carousel-slide__tag">NEXORA OFFICIAL</span>
+              <h2 style={{ color: '#FFFFFF', textShadow: '0 2px 12px rgba(0,0,0,0.45)' }}>
+                {slide.title}
+              </h2>
+              <p style={{ color: '#E2E8F0', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
+                Sản phẩm phần cứng chính hãng — Bảo hành tiêu chuẩn nhà sản xuất, giao nhanh toàn quốc.
+              </p>
+              <span
+                className="btn btn--light"
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: '12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                Khám phá ngay <i className="fa-solid fa-arrow-right"></i>
+              </span>
             </div>
-          </div>
+          </Link>
         );
       })}
 
+      {slides.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              goPrev();
+            }}
+            aria-label="Banner trước"
+            style={{
+              position: 'absolute',
+              left: '14px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 5,
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(15, 23, 42, 0.55)',
+              color: '#FFFFFF',
+              border: '1px solid rgba(255,255,255,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              backdropFilter: 'blur(4px)',
+            }}
+          >
+            <i className="fa-solid fa-chevron-left" style={{ fontSize: '13px' }}></i>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              goNext();
+            }}
+            aria-label="Banner tiếp theo"
+            style={{
+              position: 'absolute',
+              right: '14px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 5,
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(15, 23, 42, 0.55)',
+              color: '#FFFFFF',
+              border: '1px solid rgba(255,255,255,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              backdropFilter: 'blur(4px)',
+            }}
+          >
+            <i className="fa-solid fa-chevron-right" style={{ fontSize: '13px' }}></i>
+          </button>
+        </>
+      )}
+
       <div className="carousel-controls">
-        {slides.map((_, idx) => (
+        {slides.map((slide, idx) => (
           <div
-            key={idx}
-            className={`carousel-dot ${idx === currentIdx ? 'is-active' : ''}`}
+            key={slide.id}
+            className={`carousel-dot ${idx === safeIdx ? 'is-active' : ''}`}
             onClick={() => setCurrentIdx(idx)}
             role="button"
             tabIndex={0}

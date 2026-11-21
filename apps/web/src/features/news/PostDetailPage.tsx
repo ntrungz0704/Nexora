@@ -15,8 +15,63 @@ export const PostDetailPage: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const article = (ARTICLES_SEED.find((a) => a.slug === slug || a.id === slug) || ARTICLES_SEED[2] || ARTICLES_SEED[0]) as ArticleItem;
-  const relatedArticles = ARTICLES_SEED.filter((a) => a.id !== article.id).slice(0, 4);
+  const { data: dbPost } = useQuery({
+    queryKey: ['post-detail', slug],
+    queryFn: () => storefrontService.getPostBySlug(slug || ''),
+    enabled: !!slug,
+    retry: false,
+  });
+
+  const { data: dbPosts = [] } = useQuery({
+    queryKey: ['posts', 'related'],
+    queryFn: () => storefrontService.getPosts(6),
+  });
+
+  const article: ArticleItem = dbPost
+    ? {
+        id: String(dbPost.id),
+        slug: dbPost.slug,
+        title: dbPost.title,
+        excerpt: dbPost.excerpt || '',
+        content: dbPost.content,
+        category: dbPost.category || 'Tin công nghệ',
+        categoryKey: dbPost.category || 'all',
+        image: dbPost.thumbnailUrl
+          ? dbPost.thumbnailUrl.startsWith('/') || dbPost.thumbnailUrl.startsWith('http')
+            ? dbPost.thumbnailUrl
+            : `/${dbPost.thumbnailUrl}`
+          : '/assets/images/posts/tin-tuc-1.jpg',
+        date: dbPost.publishedAt ? new Date(dbPost.publishedAt).toLocaleDateString('vi-VN') : 'Hôm nay',
+        author: 'Nexora Editorial',
+        readTime: '5 phút đọc',
+        views: dbPost.views || 0,
+      }
+    : ((ARTICLES_SEED.find((a) => a.slug === slug || a.id === slug) || ARTICLES_SEED[2] || ARTICLES_SEED[0]) as ArticleItem);
+
+  const relatedArticles: ArticleItem[] =
+    dbPosts.length > 0
+      ? dbPosts
+          .filter((p) => p.slug !== article.slug)
+          .slice(0, 4)
+          .map((p) => ({
+            id: String(p.id),
+            slug: p.slug,
+            title: p.title,
+            excerpt: p.excerpt || '',
+            content: p.content,
+            category: p.category || 'Tin công nghệ',
+            categoryKey: p.category || 'all',
+            image: p.thumbnailUrl
+              ? p.thumbnailUrl.startsWith('/') || p.thumbnailUrl.startsWith('http')
+                ? p.thumbnailUrl
+                : `/${p.thumbnailUrl}`
+              : '/assets/images/posts/tin-tuc-1.jpg',
+            date: p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('vi-VN') : 'Hôm nay',
+            author: 'Nexora Editorial',
+            readTime: '5 phút đọc',
+            views: p.views || 0,
+          }))
+      : ARTICLES_SEED.filter((a) => a.id !== article.id).slice(0, 4);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -124,88 +179,53 @@ export const PostDetailPage: React.FC = () => {
                 />
               </div>
 
-              {/* Quick Summary Callout */}
-              <div style={{ backgroundColor: '#EFF6FF', border: '1.5px solid #BFDBFE', borderRadius: '12px', padding: '18px 22px', marginBottom: '28px' }}>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E40AF', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <i className="fa-solid fa-circle-info"></i> Tóm tắt nhanh:
+              {/* Article Summary Callout */}
+              {article.excerpt && (
+                <div
+                  style={{
+                    backgroundColor: 'rgba(10, 91, 255, 0.06)',
+                    borderLeft: '4px solid #0A5BFF',
+                    borderRadius: '0 10px 10px 0',
+                    padding: '16px 20px',
+                    marginBottom: '24px',
+                  }}
+                >
+                  <div style={{ fontWeight: 700, color: '#0A5BFF', fontSize: '13px', marginBottom: '6px' }}>
+                    <i className="fa-solid fa-circle-info"></i> Tóm tắt nhanh:
+                  </div>
+                  <p style={{ margin: 0, fontSize: '13.5px', color: 'var(--text-primary)', lineHeight: '1.6' }}>
+                    {article.excerpt}
+                  </p>
                 </div>
-                <p style={{ margin: 0, fontSize: '13.5px', color: '#1E293B', lineHeight: '1.6' }}>
-                  Nếu bạn ưu tiên hiệu năng chơi game eSports và các tựa game AAA đỉnh cao với mức tiêu thụ điện thấp, AMD Ryzen 7 7800X3D là lựa chọn tối thượng. Ngược lại, Intel Core i9-14900K áp đảo toàn diện ở các tác vụ render đồ họa 3D, dựng phim và tính toán đa nhiệm.
-                </p>
-              </div>
+              )}
 
-              {/* Article Sections */}
-              <div className="news-detail-content" style={{ fontSize: '15px', lineHeight: '1.8', color: '#334155' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '24px 0 12px 0' }}>
-                  1. Mở đầu: Cuộc đối đầu đỉnh cao giữa hai gã khổng lồ
-                </h2>
-                <p>
-                  Trong phân khúc CPU cao cấp dành cho game thủ và chuyên gia phần cứng năm 2026, câu hỏi &quot;Nên chọn Intel Core i9 hay AMD Ryzen 7 3D V-Cache?&quot; luôn là chủ đề tranh luận nóng bỏng nhất. Đội ngũ kỹ thuật Nexora đã thực hiện bài kiểm nghiệm thực tế trên cùng một hệ thống card đồ họa RTX 4090 và RAM DDR5 6000MHz để đưa ra câu trả lời chuẩn xác.
-                </p>
+              {/* Article Sections — Live DB Content when available */}
+              <div className="news-detail-content" style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--text-primary)' }}>
+                {article.content ? (
+                  <div style={{ whiteSpace: 'pre-line', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    {article.content.split(/\n{2,}/).map((para, idx) => (
+                      <p key={idx} style={{ margin: 0 }}>
+                        {para.trim()}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', margin: '24px 0 12px 0' }}>
+                      1. Mở đầu: Cuộc đối đầu đỉnh cao giữa hai gã khổng lồ
+                    </h2>
+                    <p>
+                      Trong phân khúc CPU cao cấp dành cho game thủ và chuyên gia phần cứng năm 2026, câu hỏi &quot;Nên chọn Intel Core i9 hay AMD Ryzen 7 3D V-Cache?&quot; luôn là chủ đề tranh luận nóng bỏng nhất. Đội ngũ kỹ thuật Nexora đã thực hiện bài kiểm nghiệm thực tế trên cùng một hệ thống card đồ họa RTX 4090 và RAM DDR5 6000MHz để đưa ra câu trả lời chuẩn xác.
+                    </p>
 
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '28px 0 12px 0' }}>
-                  2. Thông số kỹ thuật chi tiết
-                </h2>
-
-                <div style={{ overflowX: 'auto', margin: '16px 0 24px 0' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px' }}>
-                    <thead>
-                      <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '2px solid #E2E8F0' }}>
-                        <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 700 }}>Thông số</th>
-                        <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 700, color: '#0A5BFF' }}>Intel Core i9-14900K</th>
-                        <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 700, color: '#DC2626' }}>AMD Ryzen 7 7800X3D</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>Số nhân / Số luồng</td>
-                        <td style={{ padding: '10px 14px' }}>24 Nhân (8P + 16E) / 32 Luồng</td>
-                        <td style={{ padding: '10px 14px' }}>8 Nhân / 16 Luồng</td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: '#F8FAFC' }}>
-                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>Xung nhịp tối đa</td>
-                        <td style={{ padding: '10px 14px' }}>Lên tới 6.0 GHz</td>
-                        <td style={{ padding: '10px 14px' }}>Lên tới 5.0 GHz</td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>Bộ nhớ đệm (L3 Cache)</td>
-                        <td style={{ padding: '10px 14px' }}>36 MB</td>
-                        <td style={{ padding: '10px 14px', fontWeight: 700, color: '#DC2626' }}>96 MB (3D V-Cache)</td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #E2E8F0', backgroundColor: '#F8FAFC' }}>
-                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>Tiêu thụ điện (TDP)</td>
-                        <td style={{ padding: '10px 14px' }}>125W (Peak 253W)</td>
-                        <td style={{ padding: '10px 14px' }}>120W (Peak ~85W khi gaming)</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>Socket hỗ trợ</td>
-                        <td style={{ padding: '10px 14px' }}>LGA1700</td>
-                        <td style={{ padding: '10px 14px' }}>AM5</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '28px 0 12px 0' }}>
-                  3. Hiệu năng chơi game thực tế (Gaming Benchmark)
-                </h2>
-                <p>
-                  Nhờ công nghệ bộ nhớ đệm 3D V-Cache dung lượng khổng lồ 96MB, Ryzen 7 7800X3D chiếm ưu thế từ 8% đến 16% trong các tựa game như Cyberpunk 2077, Shadow of the Tomb Raider và CS2 ở độ phân giải Full HD & 2K.
-                </p>
-
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '28px 0 12px 0' }}>
-                  4. Hiệu năng làm việc đa nhiệm và đồ họa (Workload)
-                </h2>
-                <p>
-                  Ở các tác vụ Cinebench R24 đa nhân, Blender và Premiere Pro render 4K, Core i9-14900K vượt trội hơn 45% nhờ sở hữu tới 24 nhân 32 luồng xử lý đồng thời.
-                </p>
-
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', margin: '28px 0 12px 0' }}>
-                  5. Nhiệt độ và điện năng tiêu thụ
-                </h2>
-                <p>
-                  Ryzen 7 7800X3D chỉ tiêu thụ trung bình 55W - 75W khi chơi game, rất mát mẻ với tản nhiệt khí thông thường. Trong khi đó, Core i9-14900K yêu cầu tản nhiệt nước AIO 360mm cao cấp để tránh hiện tượng thermal throttling khi ép tải 100%.
-                </p>
+                    <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', margin: '28px 0 12px 0' }}>
+                      2. Hiệu năng thực tế &amp; đánh giá chi tiết
+                    </h2>
+                    <p>
+                      Nhờ công nghệ bộ nhớ đệm 3D V-Cache dung lượng lớn, Ryzen 7 7800X3D tối ưu cho trải nghiệm game eSports &amp; AAA, trong khi Intel Core i9-14900K vượt trội ở các tác vụ đồ họa đa nhân và dựng phim chuyên nghiệp.
+                    </p>
+                  </>
+                )}
 
                 {/* Commercial Callout Banner matching Image 5 */}
                 <div style={{ backgroundColor: '#EFF6FF', border: '1.5px solid #BFDBFE', borderRadius: '16px', padding: '24px', margin: '32px 0' }}>

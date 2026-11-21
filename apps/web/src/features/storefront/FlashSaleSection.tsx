@@ -4,29 +4,42 @@ import type { ProductDto } from '@nexora/shared';
 import { ProductCard } from './ProductCard';
 
 interface FlashSaleSectionProps {
+  campaignName?: string;
+  endTime?: string;
   products: ProductDto[];
   onAddToCart: (product: ProductDto) => void;
   onToggleWishlist?: (productId: number | string) => void;
 }
 
+function calcRemaining(endTimeIso: string | undefined, nowMs: number): { hours: number; minutes: number; seconds: number } {
+  if (!endTimeIso) return { hours: 0, minutes: 0, seconds: 0 };
+  const diffMs = Math.max(0, new Date(endTimeIso).getTime() - nowMs);
+  const totalSeconds = Math.floor(diffMs / 1000);
+  return {
+    hours: Math.floor(totalSeconds / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
+  };
+}
+
 export const FlashSaleSection: React.FC<FlashSaleSectionProps> = ({
+  campaignName,
+  endTime,
   products,
   onAddToCart,
   onToggleWishlist,
 }) => {
-  const [timeLeft, setTimeLeft] = useState({ hours: 5, minutes: 28, seconds: 45 });
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   useEffect(() => {
+    if (!endTime) return;
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        return { hours: 0, minutes: 0, seconds: 0 };
-      });
+      setNowMs(Date.now());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [endTime]);
+
+  const timeLeft = calcRemaining(endTime, nowMs);
 
   if (!products || products.length === 0) return null;
 
@@ -38,37 +51,41 @@ export const FlashSaleSection: React.FC<FlashSaleSectionProps> = ({
             <span className="flash-sale-icon" aria-hidden="true">
               ⚡
             </span>
-            FLASH SALE
+            {campaignName || 'FLASH SALE'}
           </h2>
 
-          <span className="flash-sale-ending-text" id="flashEndingText">
-            Kết thúc sau
-          </span>
+          {endTime && (
+            <>
+              <span className="flash-sale-ending-text" id="flashEndingText">
+                Kết thúc sau
+              </span>
 
-          <div
-            className="flash-sale-countdown countdown"
-            id="flashCountdown"
-            aria-label="Thời gian Flash Sale còn lại"
-          >
-            <div className="countdown-unit">
-              <strong>{String(timeLeft.hours).padStart(2, '0')}</strong>
-              <span>GIỜ</span>
-            </div>
+              <div
+                className="flash-sale-countdown countdown"
+                id="flashCountdown"
+                aria-label="Thời gian Flash Sale còn lại"
+              >
+                <div className="countdown-unit">
+                  <strong>{String(timeLeft.hours).padStart(2, '0')}</strong>
+                  <span>GIỜ</span>
+                </div>
 
-            <span className="countdown-separator">:</span>
+                <span className="countdown-separator">:</span>
 
-            <div className="countdown-unit">
-              <strong>{String(timeLeft.minutes).padStart(2, '0')}</strong>
-              <span>PHÚT</span>
-            </div>
+                <div className="countdown-unit">
+                  <strong>{String(timeLeft.minutes).padStart(2, '0')}</strong>
+                  <span>PHÚT</span>
+                </div>
 
-            <span className="countdown-separator">:</span>
+                <span className="countdown-separator">:</span>
 
-            <div className="countdown-unit">
-              <strong>{String(timeLeft.seconds).padStart(2, '0')}</strong>
-              <span>GIÂY</span>
-            </div>
-          </div>
+                <div className="countdown-unit">
+                  <strong>{String(timeLeft.seconds).padStart(2, '0')}</strong>
+                  <span>GIÂY</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         <Link className="flash-sale-view-all" to="/search?flash=1">

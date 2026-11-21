@@ -1,13 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { storefrontService } from '../../services/storefrontService';
 
 export const PromoPopup: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
+  const { data: popupBanners = [] } = useQuery({
+    queryKey: ['banners', 'popup'],
+    queryFn: () => storefrontService.getBanners('popup'),
+  });
+
+  const activePopup = popupBanners.find((b) => b.isActive);
+
   useEffect(() => {
+    if (!activePopup) return;
     const todayVN = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
-    const hiddenDate = localStorage.getItem('techpilot_hide_popup_date');
+    const hiddenDate = localStorage.getItem('nexora_hide_popup_date') || localStorage.getItem('techpilot_hide_popup_date');
     if (hiddenDate === todayVN) {
       return;
     }
@@ -15,14 +25,15 @@ export const PromoPopup: React.FC = () => {
     const timer = setTimeout(() => {
       setIsVisible(true);
       document.body.classList.add('tp-popup-locked');
-    }, 500);
+    }, 600);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [activePopup]);
 
   const handleClose = useCallback(() => {
     if (dontShowAgain) {
       const todayVN = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+      localStorage.setItem('nexora_hide_popup_date', todayVN);
       localStorage.setItem('techpilot_hide_popup_date', todayVN);
     }
     setIsVisible(false);
@@ -39,7 +50,12 @@ export const PromoPopup: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isVisible, handleClose]);
 
-  if (!isVisible) return null;
+  if (!isVisible || !activePopup) return null;
+
+  const imgSrc =
+    activePopup.imageUrl.startsWith('/') || activePopup.imageUrl.startsWith('http')
+      ? activePopup.imageUrl
+      : `/${activePopup.imageUrl}`;
 
   return (
     <div
@@ -47,7 +63,7 @@ export const PromoPopup: React.FC = () => {
       className="tp-popup-overlay tp-popup-active"
       role="dialog"
       aria-modal="true"
-      aria-label="Quảng cáo khuyến mãi"
+      aria-label={activePopup.title}
       onClick={(e) => {
         if (e.target === e.currentTarget) handleClose();
       }}
@@ -71,7 +87,7 @@ export const PromoPopup: React.FC = () => {
           position: 'relative',
           width: '90vw',
           maxWidth: '820px',
-          background: '#ffffff',
+          background: 'var(--surface-card, #ffffff)',
           borderRadius: '20px',
           overflow: 'hidden',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.15)',
@@ -79,7 +95,6 @@ export const PromoPopup: React.FC = () => {
           flexDirection: 'column',
         }}
       >
-        {/* Nút đóng X góc phải trên cùng Shopee Style */}
         <button
           type="button"
           id="tpClosePopupBtn"
@@ -110,12 +125,11 @@ export const PromoPopup: React.FC = () => {
           <i className="fa-solid fa-xmark"></i>
         </button>
 
-        {/* Hình ảnh Banner Quảng Cáo (Clickable) */}
         <Link
-          to="/product/detail/asus-rog-zephyrus-g16"
+          to={activePopup.linkUrl || '/search'}
           onClick={handleClose}
           className="tp-popup-link"
-          title="ROG Zephyrus G16"
+          title={activePopup.title}
           style={{
             display: 'block',
             width: '100%',
@@ -125,8 +139,8 @@ export const PromoPopup: React.FC = () => {
           }}
         >
           <img
-            src="/assets/images/review/unlinked/rog-zephyrus.jpg"
-            alt="ROG Zephyrus G16 Khuyến Mãi Khủng"
+            src={imgSrc}
+            alt={activePopup.title}
             className="tp-popup-img"
             style={{
               width: '100%',
@@ -142,13 +156,12 @@ export const PromoPopup: React.FC = () => {
           />
         </Link>
 
-        {/* Thanh tùy chọn bên dưới Popup */}
         <div
           className="tp-popup-footer"
           style={{
             padding: '14px 22px',
-            background: '#f8fafc',
-            borderTop: '1px solid #e2e8f0',
+            background: 'var(--surface-card, #f8fafc)',
+            borderTop: '1px solid var(--border, #e2e8f0)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -161,7 +174,7 @@ export const PromoPopup: React.FC = () => {
               alignItems: 'center',
               gap: '10px',
               fontSize: '14px',
-              color: '#475569',
+              color: 'var(--text-secondary, #475569)',
               fontWeight: 500,
               cursor: 'pointer',
               userSelect: 'none',

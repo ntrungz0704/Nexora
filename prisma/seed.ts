@@ -149,25 +149,25 @@ async function main(): Promise<void> {
     {
       name: 'ASUS',
       slug: 'asus',
-      logoUrl: '/assets/images/brands/asus.png',
+      logoUrl: '/assets/images/brands/asus.svg',
       description: 'Thương hiệu công nghệ hàng đầu thế giới với dòng ROG Gaming danh tiếng.',
     },
     {
       name: 'ACER',
       slug: 'acer',
-      logoUrl: '/assets/images/brands/acer.png',
+      logoUrl: '/assets/images/brands/acer.svg',
       description: 'Nhà sản xuất máy tính xách tay và màn hình nổi tiếng với dòng Nitro, Predator.',
     },
     {
       name: 'MSI',
       slug: 'msi',
-      logoUrl: '/assets/images/brands/msi.png',
+      logoUrl: '/assets/images/brands/msi.svg',
       description: 'Chuyên gia linh kiện, bo mạch chủ và laptop gaming hiệu năng cao.',
     },
     {
       name: 'Lenovo',
       slug: 'lenovo',
-      logoUrl: '/assets/images/brands/lenovo.png',
+      logoUrl: '/assets/images/brands/lenovo.svg',
       description: 'Hãng máy tính toàn cầu với dòng ThinkPad và Legion Gaming bền bỉ.',
     },
     {
@@ -179,37 +179,37 @@ async function main(): Promise<void> {
     {
       name: 'Dell',
       slug: 'dell',
-      logoUrl: '/assets/images/brands/dell.png',
+      logoUrl: '/assets/images/brands/dell.svg',
       description: 'Máy trạm, laptop doanh nhân và Alienware chuyên dụng cho game thủ.',
     },
     {
       name: 'Gigabyte',
       slug: 'gigabyte',
-      logoUrl: '/assets/images/brands/gigabyte.png',
+      logoUrl: '/assets/images/brands/gigabyte.svg',
       description: 'Linh kiện VGA, Mainboard AORUS đỉnh cao cho ép xung.',
     },
     {
       name: 'Samsung',
       slug: 'samsung',
-      logoUrl: '/assets/images/brands/samsung.png',
+      logoUrl: '/assets/images/brands/samsung.svg',
       description: 'Dẫn đầu màn hình Odyssey OLED và ổ cứng SSD 990 Pro tốc độ cao.',
     },
     {
       name: 'LG',
       slug: 'lg',
-      logoUrl: '/assets/images/brands/lg.png',
+      logoUrl: '/assets/images/brands/lg.svg',
       description: 'Màn hình UltraGear, TV OLED và dòng Laptop LG Gram siêu nhẹ.',
     },
     {
       name: 'Corsair',
       slug: 'corsair',
-      logoUrl: '/assets/images/brands/corsair.png',
+      logoUrl: '/assets/images/brands/corsair.svg',
       description: 'Nguồn, tản nhiệt, RAM DDR5 và phụ kiện gaming gear đẳng cấp.',
     },
     {
       name: 'Logitech',
       slug: 'logitech',
-      logoUrl: '/assets/images/brands/logitech.png',
+      logoUrl: '/assets/images/brands/logitech.svg',
       description: 'Chuột, bàn phím cơ không dây Lightspeed hàng đầu cho eSports.',
     },
   ];
@@ -343,6 +343,14 @@ async function main(): Promise<void> {
       linkUrl: '/thu-cu-doi-moi',
       placement: 'sidebar',
       sortOrder: 3,
+      isActive: true,
+    },
+    {
+      title: 'Ưu Đãi Độc Quyền Nexora 2026 — Flash Sale Giảm Tới 20%',
+      imageUrl: '/assets/banners/nexora-hero-desktop.webp',
+      linkUrl: '/search',
+      placement: 'popup',
+      sortOrder: 1,
       isActive: true,
     },
   ];
@@ -1236,17 +1244,19 @@ async function main(): Promise<void> {
   // 10. Flash Sale & Flash Sale Items
   const now = new Date();
   const existingFlashSale = await prisma.flashSale.findFirst({
-    where: { name: 'Flash Sale Cuối Tuần' },
+    where: { name: 'Flash Sale Bùng Nổ Nexora' },
   });
 
-  const flashSale = existingFlashSale || (await prisma.flashSale.create({
-    data: {
-      name: 'Flash Sale Cuối Tuần',
-      startTime: new Date(now.getTime() - 2 * 3600 * 1000),
-      endTime: new Date(now.getTime() + 24 * 3600 * 1000),
-      isActive: true,
-    },
-  }));
+  const flashSale =
+    existingFlashSale ||
+    (await prisma.flashSale.create({
+      data: {
+        name: 'Flash Sale Bùng Nổ Nexora',
+        startTime: new Date(now.getTime() - 2 * 3600 * 1000),
+        endTime: new Date(now.getTime() + 7 * 24 * 3600 * 1000),
+        isActive: true,
+      },
+    }));
 
   if (firstProd) {
     await prisma.flashSaleItem.upsert({

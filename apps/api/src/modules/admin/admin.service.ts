@@ -65,32 +65,49 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
 
 export class AdminService {
   async getDashboardSummary(): Promise<AdminDashboardSummaryDto> {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
     const [
-      orders,
+      ordersCount,
       paidOrdersAggregate,
       customersCount,
       productsCount,
+      activeProductsCount,
       lowStockCount,
       outOfStockCount,
       stockUnitsAggregate,
+      soldUnitsAggregate,
       lowStockProducts,
       recentOrders,
+      allOrderStatuses,
+      last7DaysOrders,
     ] = await Promise.all([
       prisma.order.count(),
       prisma.order.aggregate({
-        where: { paymentStatus: 'PAID' },
+        where: {
+          orderStatus: { not: 'CANCELLED' },
+          OR: [{ paymentStatus: 'PAID' }, { orderStatus: 'DELIVERED' }],
+        },
         _sum: { totalAmount: true },
       }),
       prisma.user.count({ where: { role: 'CUSTOMER' } }),
       prisma.product.count(),
+      prisma.product.count({ where: { status: 'ACTIVE' } }),
       prisma.product.count({ where: { stockQuantity: { gt: 0, lte: 9 } } }),
       prisma.product.count({ where: { stockQuantity: { lte: 0 } } }),
       prisma.product.aggregate({
         _sum: { stockQuantity: true },
       }),
+      prisma.orderItem.aggregate({
+        where: { order: { orderStatus: { not: 'CANCELLED' } } },
+        _sum: { quantity: true },
+      }),
       prisma.product.findMany({
-        where: { stockQuantity: { lte: 9 } },
-        take: 5,
+        where: { stockQuantity: { gt: 0, lte: 9 } },
+        take: 6,
         orderBy: { stockQuantity: 'asc' },
         include: {
           category: { select: { id: true, name: true, slug: true } },
@@ -98,9 +115,17 @@ export class AdminService {
         },
       }),
       prisma.order.findMany({
-        take: 5,
+        take: 6,
         orderBy: { createdAt: 'desc' },
         include: { items: true },
+      }),
+      prisma.order.groupBy({
+        by: ['orderStatus'],
+        _count: { _all: true },
+      }),
+      prisma.order.findMany({
+        where: { createdAt: { gte: sevenDaysAgo } },
+        select: { createdAt: true, totalAmount: true, orderStatus: true, paymentStatus: true },
       }),
     ]);
 
@@ -108,14 +133,61 @@ export class AdminService {
       ? paidOrdersAggregate._sum.totalAmount.toString()
       : '0';
 
+    // Order status breakdown
+    let pending = 0;
+    let shipping = 0;
+    let completed = 0;
+    let cancelled = 0;
+    for (const row of allOrderStatuses) {
+      const count = row._count._all;
+      if (row.orderStatus === 'PENDING') pending += count;
+      else if (row.orderStatus === 'CONFIRMED' || row.orderStatus === 'PROCESSING' || row.orderStatus === 'SHIPPING') {
+        shipping += count;
+      } else if (row.orderStatus === 'DELIVERED') completed += count;
+      else if (row.orderStatus === 'CANCELLED' || row.orderStatus === 'RETURNED') cancelled += count;
+    }
+
+    // Build 7-day realtime revenue + orders series (inclusive of today)
+    const dayMap = new Map<string, { date: string; isoDate: string; revenue: number; orders: number }>();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - i);
+      const isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const label = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+      dayMap.set(isoDate, { date: label, isoDate, revenue: 0, orders: 0 });
+    }
+    for (const ord of last7DaysOrders) {
+      const d = new Date(ord.createdAt);
+      const isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const bucket = dayMap.get(isoDate);
+      if (bucket) {
+        bucket.orders += 1;
+        if (ord.orderStatus !== 'CANCELLED' && (ord.paymentStatus === 'PAID' || ord.orderStatus === 'DELIVERED')) {
+          bucket.revenue += Number(ord.totalAmount);
+        }
+      }
+    }
+
     return {
       totalRevenue,
-      ordersCount: orders,
+      ordersCount,
       customersCount,
       productsCount,
+      activeProductsCount,
       lowStockCount,
       outOfStockCount,
       totalUnitsInStock: stockUnitsAggregate._sum.stockQuantity ?? 0,
+      totalUnitsSold: soldUnitsAggregate._sum.quantity ?? 0,
+      pendingOrdersCount: pending,
+      revenueLast7Days: Array.from(dayMap.values()),
+      orderStatusBreakdown: {
+        pending,
+        shipping,
+        completed,
+        cancelled,
+        total: ordersCount,
+      },
       lowStockProducts: lowStockProducts.map((p) => this.mapProductToDto(p)),
       recentOrders: recentOrders.map((o) => ({
         id: o.id.toString(),
@@ -140,6 +212,17 @@ export class AdminService {
         carrierName: o.carrierName,
         paidAt: o.paidAt ? o.paidAt.toISOString() : null,
         createdAt: o.createdAt.toISOString(),
+        items: o.items.map((item) => ({
+          id: item.id.toString(),
+          productId: item.productId,
+          productName: item.productName,
+          productSku: item.productSku,
+          thumbnailUrl: item.thumbnailUrl,
+          unitPrice: item.unitPrice.toString(),
+          quantity: item.quantity,
+          discountAmount: item.discountAmount.toString(),
+          subtotal: item.subtotal.toString(),
+        })),
       })),
     };
   }
@@ -270,9 +353,19 @@ export class AdminService {
 
   // --- Category CRUD + AI Generation ---
   async getCategories() {
-    return prisma.category.findMany({
+    const categories = await prisma.category.findMany({
       orderBy: { sortOrder: 'asc' },
+      include: {
+        products: {
+          select: { stockQuantity: true },
+        },
+      },
     });
+    return categories.map(({ products, ...cat }) => ({
+      ...cat,
+      productsCount: products.length,
+      totalStock: products.reduce((sum, p) => sum + p.stockQuantity, 0),
+    }));
   }
 
   async createCategory(data: CreateCategoryInput) {
@@ -347,16 +440,23 @@ export class AdminService {
       throw new AppError(400, 'NEGATIVE_STOCK', 'Số lượng tồn kho không thể âm.');
     }
 
+    const nextStatus =
+      newBalance === 0 && product.status === 'ACTIVE'
+        ? 'OUT_OF_STOCK'
+        : newBalance > 0 && product.status === 'OUT_OF_STOCK'
+          ? 'ACTIVE'
+          : product.status;
+
     return prisma.$transaction(async (tx) => {
       const updated = await tx.product.update({
         where: { id: productId },
-        data: { stockQuantity: newBalance },
+        data: { stockQuantity: newBalance, status: nextStatus },
       });
 
       await tx.inventoryLog.create({
         data: {
           productId,
-          changeType: quantity > 0 ? 'IMPORT' : 'ADJUSTMENT',
+          changeType: quantity > 0 ? 'IMPORT' : 'EXPORT',
           quantity,
           balanceBefore: product.stockQuantity,
           balanceAfter: newBalance,
@@ -371,9 +471,9 @@ export class AdminService {
   }
 
   // --- Order Detail ---
-  async getOrderDetail(id: number) {
+  async getOrderDetail(id: bigint | number) {
     const order = await prisma.order.findUnique({
-      where: { id },
+      where: { id: BigInt(id) },
       include: {
         user: { select: { id: true, fullName: true, email: true, phone: true } },
         items: {
@@ -384,7 +484,24 @@ export class AdminService {
       },
     });
     if (!order) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy đơn hàng.');
-    return order;
+    return {
+      ...order,
+      id: order.id.toString(),
+      subtotal: order.subtotal.toString(),
+      shippingFee: order.shippingFee.toString(),
+      discountAmount: order.discountAmount.toString(),
+      totalAmount: order.totalAmount.toString(),
+      paidAt: order.paidAt ? order.paidAt.toISOString() : null,
+      createdAt: order.createdAt.toISOString(),
+      items: order.items.map((it) => ({
+        ...it,
+        id: it.id.toString(),
+        orderId: it.orderId.toString(),
+        unitPrice: it.unitPrice.toString(),
+        discountAmount: it.discountAmount.toString(),
+        subtotal: it.subtotal.toString(),
+      })),
+    };
   }
 
   // --- Coupons CRUD ---
@@ -394,28 +511,38 @@ export class AdminService {
     });
   }
 
+  private normalizeCouponType(type?: string): 'PERCENTAGE' | 'FIXED' {
+    if (type === 'FIXED' || type === 'FIXED_AMOUNT') return 'FIXED';
+    return 'PERCENTAGE';
+  }
+
   async createCoupon(data: {
     code: string;
     description?: string;
-    discountType?: 'PERCENTAGE' | 'FIXED';
+    discountType?: 'PERCENTAGE' | 'FIXED' | 'FIXED_AMOUNT';
     discountValue: number | string;
     minOrderValue?: number | string;
-    maxDiscount?: number | string;
-    usageLimit?: number;
+    maxDiscount?: number | string | null;
+    usageLimit?: number | null;
     startsAt?: Date | string;
     expiresAt?: Date | string;
     isActive?: boolean;
   }) {
-    const existing = await prisma.coupon.findUnique({ where: { code: data.code.toUpperCase() } });
+    const existing = await prisma.coupon.findUnique({ where: { code: data.code.toUpperCase().trim() } });
     if (existing) {
       throw new AppError(409, 'COUPON_EXISTS', 'Mã giảm giá này đã tồn tại.');
     }
+    const normalizedType = this.normalizeCouponType(data.discountType);
+    const val = Number(data.discountValue);
+    if (normalizedType === 'PERCENTAGE' && (val <= 0 || val > 20)) {
+      throw new AppError(400, 'COUPON_DISCOUNT_LIMIT', 'Theo chính sách Nexora, mã giảm phần trăm chỉ được tối đa 20%.');
+    }
     return prisma.coupon.create({
       data: {
-        code: data.code.toUpperCase(),
+        code: data.code.toUpperCase().trim(),
         description: data.description,
-        discountType: data.discountType || 'PERCENTAGE',
-        discountValue: Number(data.discountValue),
+        discountType: normalizedType,
+        discountValue: val,
         minOrderValue: data.minOrderValue ? Number(data.minOrderValue) : 0,
         maxDiscount: data.maxDiscount ? Number(data.maxDiscount) : null,
         usageLimit: data.usageLimit ? Number(data.usageLimit) : null,
@@ -429,25 +556,29 @@ export class AdminService {
   async updateCoupon(id: number, data: {
     code?: string;
     description?: string;
-    discountType?: 'PERCENTAGE' | 'FIXED';
+    discountType?: 'PERCENTAGE' | 'FIXED' | 'FIXED_AMOUNT';
     discountValue?: number | string;
     minOrderValue?: number | string;
-    maxDiscount?: number | string;
-    usageLimit?: number;
+    maxDiscount?: number | string | null;
+    usageLimit?: number | null;
     startsAt?: Date | string;
     expiresAt?: Date | string;
     isActive?: boolean;
   }) {
+    const normalizedType = data.discountType ? this.normalizeCouponType(data.discountType) : undefined;
+    if (normalizedType === 'PERCENTAGE' && data.discountValue !== undefined && Number(data.discountValue) > 20) {
+      throw new AppError(400, 'COUPON_DISCOUNT_LIMIT', 'Theo chính sách Nexora, mã giảm phần trăm chỉ được tối đa 20%.');
+    }
     return prisma.coupon.update({
       where: { id },
       data: {
-        ...(data.code ? { code: data.code.toUpperCase() } : {}),
+        ...(data.code ? { code: data.code.toUpperCase().trim() } : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
-        ...(data.discountType ? { discountType: data.discountType } : {}),
+        ...(normalizedType ? { discountType: normalizedType } : {}),
         ...(data.discountValue !== undefined ? { discountValue: Number(data.discountValue) } : {}),
         ...(data.minOrderValue !== undefined ? { minOrderValue: Number(data.minOrderValue) } : {}),
-        ...(data.maxDiscount !== undefined ? { maxDiscount: Number(data.maxDiscount) } : {}),
-        ...(data.usageLimit !== undefined ? { usageLimit: Number(data.usageLimit) } : {}),
+        ...(data.maxDiscount !== undefined ? { maxDiscount: data.maxDiscount ? Number(data.maxDiscount) : null } : {}),
+        ...(data.usageLimit !== undefined ? { usageLimit: data.usageLimit ? Number(data.usageLimit) : null } : {}),
         ...(data.startsAt ? { startsAt: new Date(data.startsAt) } : {}),
         ...(data.expiresAt ? { expiresAt: new Date(data.expiresAt) } : {}),
         ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
@@ -506,7 +637,7 @@ export class AdminService {
           const prod = await prisma.product.findUnique({ where: { id: pId } });
           if (prod) {
             const discount = data.discountPercents?.[i] || 15;
-            const promotionalPrice = Number(prod.price) * (1 - discount / 100);
+            const promotionalPrice = Math.round(Number(prod.price) * (1 - discount / 100));
             await prisma.flashSaleItem.create({
               data: {
                 flashSaleId: flashSale.id,
@@ -545,18 +676,69 @@ export class AdminService {
       startTime?: Date | string;
       endTime?: Date | string;
       isActive?: boolean;
+      productIds?: number[];
+      items?: Array<{ productId: number; flashSalePrice: number; quantityLimit: number }>;
     },
   ) {
     const fs = await prisma.flashSale.findUnique({ where: { id } });
     if (!fs) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy flash sale.');
-    return prisma.flashSale.update({
-      where: { id },
-      data: {
-        ...(data.name && { name: data.name }),
-        ...(data.startTime && { startTime: new Date(data.startTime) }),
-        ...(data.endTime && { endTime: new Date(data.endTime) }),
-        ...(data.isActive !== undefined && { isActive: data.isActive }),
-      },
+
+    return prisma.$transaction(async (tx) => {
+      const updated = await tx.flashSale.update({
+        where: { id },
+        data: {
+          ...(data.name && { name: data.name }),
+          ...(data.startTime && { startTime: new Date(data.startTime) }),
+          ...(data.endTime && { endTime: new Date(data.endTime) }),
+          ...(data.isActive !== undefined && { isActive: data.isActive }),
+        },
+      });
+
+      if (data.items && Array.isArray(data.items)) {
+        await tx.flashSaleItem.deleteMany({ where: { flashSaleId: id } });
+        for (const it of data.items) {
+          await tx.flashSaleItem.create({
+            data: {
+              flashSaleId: id,
+              productId: it.productId,
+              flashSalePrice: it.flashSalePrice,
+              quantityLimit: it.quantityLimit || 10,
+            },
+          });
+        }
+      } else if (data.productIds && Array.isArray(data.productIds)) {
+        const existingItems = await tx.flashSaleItem.findMany({ where: { flashSaleId: id } });
+        const existingMap = new Map(existingItems.map((e) => [e.productId, e]));
+        await tx.flashSaleItem.deleteMany({ where: { flashSaleId: id } });
+        for (const pId of data.productIds) {
+          const prev = existingMap.get(pId);
+          if (prev) {
+            await tx.flashSaleItem.create({
+              data: {
+                flashSaleId: id,
+                productId: pId,
+                flashSalePrice: prev.flashSalePrice,
+                quantityLimit: prev.quantityLimit,
+                quantitySold: prev.quantitySold,
+              },
+            });
+          } else {
+            const prod = await tx.product.findUnique({ where: { id: pId } });
+            if (prod) {
+              await tx.flashSaleItem.create({
+                data: {
+                  flashSaleId: id,
+                  productId: pId,
+                  flashSalePrice: Math.round(Number(prod.price) * 0.85),
+                  quantityLimit: 10,
+                },
+              });
+            }
+          }
+        }
+      }
+
+      return updated;
     });
   }
 
@@ -742,7 +924,13 @@ export class AdminService {
     });
   }
 
-  async toggleUserStatus(id: number) {
+  async toggleUserStatus(id: number, actorId?: number) {
+    if (id === 1) {
+      throw new AppError(403, 'PROTECTED_ADMIN', 'Không thể khóa tài khoản Quản trị tối cao.');
+    }
+    if (actorId && id === actorId) {
+      throw new AppError(400, 'SELF_LOCK_FORBIDDEN', 'Bạn không thể tự khóa tài khoản đang đăng nhập.');
+    }
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy người dùng.');
     const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
@@ -754,6 +942,9 @@ export class AdminService {
   }
 
   async changeUserRole(id: number, role: 'CUSTOMER' | 'STAFF' | 'ADMIN') {
+    if (id === 1) {
+      throw new AppError(403, 'PROTECTED_ADMIN', 'Không thể thay đổi vai trò Quản trị tối cao.');
+    }
     return prisma.user.update({
       where: { id },
       data: { role },

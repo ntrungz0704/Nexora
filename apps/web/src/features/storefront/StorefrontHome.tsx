@@ -40,10 +40,28 @@ export const StorefrontHome: React.FC = () => {
   });
   const products = productsData?.products || [];
 
-  // 3. Fetch Flash Sale Products
-  const { data: flashSaleProducts = [] } = useQuery({
-    queryKey: ['flash-sale'],
-    queryFn: () => storefrontService.getFlashSale(),
+  // 3. Fetch Active Flash Sale Campaign (synced from Admin /admin/flash-sales)
+  const { data: activeFlashSale } = useQuery({
+    queryKey: ['active-flash-sale'],
+    queryFn: () => storefrontService.getActiveFlashSale(),
+  });
+
+  const flashSaleProducts: ProductDto[] = activeFlashSale?.items?.map((item) => item.product) || [];
+
+  // 3b. Fetch Active Brands, Published Posts & Customer Reviews from DB
+  const { data: brands = [] } = useQuery({
+    queryKey: ['brands'],
+    queryFn: () => storefrontService.getBrands(),
+  });
+
+  const { data: posts = [] } = useQuery({
+    queryKey: ['posts', 'home'],
+    queryFn: () => storefrontService.getPosts(4),
+  });
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['reviews', 'home'],
+    queryFn: () => storefrontService.getPublicReviews(4),
   });
 
   // 4. Fetch Cart
@@ -138,15 +156,23 @@ export const StorefrontHome: React.FC = () => {
         {/* 5. SERVICE FEATURES */}
         <ServicePolicyBar />
 
-        {/* 6. FLASH SALE */}
-        <FlashSaleSection
-          products={flashSaleProducts.length > 0 ? flashSaleProducts : products.slice(0, 5)}
-          onAddToCart={(p) => addToCartMutation.mutate(p)}
-        />
+        {/* 6. FLASH SALE (Live DB sync with Admin /admin/flash-sales) */}
+        {activeFlashSale && flashSaleProducts.length > 0 && (
+          <FlashSaleSection
+            campaignName={activeFlashSale.name}
+            endTime={activeFlashSale.endTime}
+            products={flashSaleProducts}
+            onAddToCart={(p) => addToCartMutation.mutate(p)}
+          />
+        )}
 
         {/* 7. MAIN PRODUCTS CATALOG */}
         <ProductCatalogSection
           products={products}
+          categories={categories}
+          brands={brands}
+          posts={posts}
+          reviews={reviews}
           onAddToCart={(p) => addToCartMutation.mutate(p)}
         />
       </main>

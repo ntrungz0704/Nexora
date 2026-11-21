@@ -43,12 +43,39 @@ export const NewsPage: React.FC = () => {
     enabled: !!currentUser,
   });
 
-  const filteredArticles = ARTICLES_SEED.filter((a) => {
+  const { data: dbPosts = [] } = useQuery({
+    queryKey: ['posts', 'all'],
+    queryFn: () => storefrontService.getPosts(50),
+  });
+
+  const allArticles: ArticleItem[] =
+    dbPosts.length > 0
+      ? dbPosts.map((p) => ({
+          id: String(p.id),
+          slug: p.slug,
+          title: p.title,
+          excerpt: p.excerpt || p.content.slice(0, 140) + '...',
+          content: p.content,
+          category: p.category || 'Tin công nghệ',
+          categoryKey: p.category || 'all',
+          image: p.thumbnailUrl
+            ? p.thumbnailUrl.startsWith('/') || p.thumbnailUrl.startsWith('http')
+              ? p.thumbnailUrl
+              : `/${p.thumbnailUrl}`
+            : '/assets/images/posts/tin-tuc-1.jpg',
+          date: p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('vi-VN') : 'Hôm nay',
+          author: 'Nexora Editorial',
+          readTime: '5 phút đọc',
+          views: p.views || 0,
+        }))
+      : ARTICLES_SEED;
+
+  const filteredArticles = allArticles.filter((a) => {
     if (activeCategory === 'ai' && !a.category.includes('AI') && !a.title.includes('AI')) return false;
-    if (activeCategory === 'review' && !a.category.includes('Đánh giá')) return false;
-    if (activeCategory === 'guide' && !a.category.includes('Tư vấn')) return false;
-    if (activeCategory === 'howto' && !a.category.includes('Thủ thuật') && !a.category.includes('Mẹo')) return false;
-    if (activeCategory === 'comparison' && !a.category.includes('So sánh')) return false;
+    if (activeCategory === 'review' && !a.category.includes('Đánh giá') && !a.title.includes('Đánh giá')) return false;
+    if (activeCategory === 'guide' && !a.category.includes('Tư vấn') && !a.title.includes('Hướng dẫn')) return false;
+    if (activeCategory === 'howto' && !a.category.includes('Thủ thuật') && !a.category.includes('Mẹo') && !a.title.includes('mẹo')) return false;
+    if (activeCategory === 'comparison' && !a.category.includes('So sánh') && !a.title.includes('So sánh')) return false;
     if (queryQ.trim()) {
       const q = queryQ.toLowerCase().trim();
       const matchTitle = a.title.toLowerCase().includes(q);
@@ -58,10 +85,10 @@ export const NewsPage: React.FC = () => {
     return true;
   });
 
-  const featured = ARTICLES_SEED[0] as ArticleItem;
-  const heroPopular = ARTICLES_SEED.slice(1, 4);
-  const mainArticles = activeCategory === 'all' && !queryQ ? ARTICLES_SEED.slice(1) : filteredArticles;
-  const popularArticles = ARTICLES_SEED.slice(0, 3);
+  const featured = (allArticles[0] || ARTICLES_SEED[0]) as ArticleItem;
+  const heroPopular = allArticles.slice(1, 4);
+  const mainArticles = activeCategory === 'all' && !queryQ ? allArticles.slice(1) : filteredArticles;
+  const popularArticles = allArticles.slice(0, 3);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

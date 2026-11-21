@@ -59,4 +59,14 @@ export class MarketingController {
       next(error);
     }
   };
+
+  getPublicReviews = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 8;
+      const reviews = await this.service.getPublicReviews(limit);
+      sendSuccess(res, reviews);
+    } catch (error) {
+      next(error);
+    }
+  };
 }

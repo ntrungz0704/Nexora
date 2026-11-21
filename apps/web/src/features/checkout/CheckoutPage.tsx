@@ -23,6 +23,10 @@ export const CheckoutPage: React.FC = () => {
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'VNPAY' | 'VIETQR'>('COD');
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [couponMessage, setCouponMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [isCheckingCoupon, setIsCheckingCoupon] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -39,7 +43,32 @@ export const CheckoutPage: React.FC = () => {
   const items = cart?.items || [];
   const rawTotal = cart?.subtotal ? Number(cart.subtotal) : 0;
   const shippingFee = rawTotal >= 500000 || rawTotal === 0 ? 0 : 30000;
-  const finalTotal = rawTotal + shippingFee;
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const finalTotal = Math.max(0, rawTotal - discountAmount + shippingFee);
+
+  const handleApplyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    setIsCheckingCoupon(true);
+    setCouponMessage(null);
+    try {
+      const result = await storefrontService.validateCoupon(code, rawTotal);
+      setAppliedCoupon({ code: result.coupon.code, discountAmount: result.discountAmount });
+      setCouponMessage({
+        type: 'ok',
+        text: `Đã áp dụng mã ${result.coupon.code} (-${result.discountAmount.toLocaleString('vi-VN')}đ)`,
+      });
+    } catch (err: unknown) {
+      const errorResponse = err as { response?: { data?: { error?: { message?: string } } } };
+      setAppliedCoupon(null);
+      setCouponMessage({
+        type: 'err',
+        text: errorResponse.response?.data?.error?.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn.',
+      });
+    } finally {
+      setIsCheckingCoupon(false);
+    }
+  };
 
   const formatPrice = (val: number) => {
     return val.toLocaleString('vi-VN') + 'đ';
@@ -79,6 +108,7 @@ export const CheckoutPage: React.FC = () => {
           district: district,
           customerNotes: notes || undefined,
           paymentMethod,
+          couponCode: appliedCoupon?.code || undefined,
           items: items.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
         }),
       });
@@ -91,8 +121,10 @@ export const CheckoutPage: React.FC = () => {
       const json = await res.json();
       const order = json.data;
 
-      // 2. Clear cart
+      // 2. Sync Cart, Catalog Stock & Admin Dashboard
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-data'] });
 
       // Save order info for success page
       sessionStorage.setItem(
@@ -341,7 +373,7 @@ export const CheckoutPage: React.FC = () => {
                           paymentMethod === 'COD'
                             ? '2px solid #0A5BFF'
                             : '1px solid var(--border, #E5E7EB)',
-                        backgroundColor: paymentMethod === 'COD' ? '#EFF6FF' : 'transparent',
+                        backgroundColor: paymentMethod === 'COD' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
                         cursor: 'pointer',
                       }}
                     >
@@ -375,7 +407,7 @@ export const CheckoutPage: React.FC = () => {
                           paymentMethod === 'VNPAY'
                             ? '2px solid #0A5BFF'
                             : '1px solid var(--border, #E5E7EB)',
-                        backgroundColor: paymentMethod === 'VNPAY' ? '#EFF6FF' : 'transparent',
+                        backgroundColor: paymentMethod === 'VNPAY' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
                         cursor: 'pointer',
                       }}
                     >
@@ -409,7 +441,7 @@ export const CheckoutPage: React.FC = () => {
                           paymentMethod === 'VIETQR'
                             ? '2px solid #0A5BFF'
                             : '1px solid var(--border, #E5E7EB)',
-                        backgroundColor: paymentMethod === 'VIETQR' ? '#EFF6FF' : 'transparent',
+                        backgroundColor: paymentMethod === 'VIETQR' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
                         cursor: 'pointer',
                       }}
                     >
@@ -508,10 +540,77 @@ export const CheckoutPage: React.FC = () => {
                   })}
                 </div>
 
+                {/* Coupon Code Input (Live DB Sync with Admin Coupons) */}
+                <div style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      className="auth-input"
+                      placeholder="Nhập mã giảm giá..."
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      style={{ flex: 1, height: '40px', fontSize: '13px', fontFamily: 'monospace', fontWeight: 700 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={isCheckingCoupon || !couponInput.trim()}
+                      style={{
+                        padding: '0 16px',
+                        height: '40px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        backgroundColor: '#0A5BFF',
+                        color: '#FFFFFF',
+                        fontWeight: 700,
+                        fontSize: '12.5px',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {isCheckingCoupon ? 'Đang kiểm tra...' : 'Áp dụng'}
+                    </button>
+                  </div>
+                  {couponMessage && (
+                    <div
+                      style={{
+                        marginTop: '8px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: couponMessage.type === 'ok' ? '#16A34A' : '#EF4444',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>{couponMessage.text}</span>
+                      {appliedCoupon && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAppliedCoupon(null);
+                            setCouponInput('');
+                            setCouponMessage(null);
+                          }}
+                          style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '11px', fontWeight: 700 }}
+                        >
+                          Bỏ mã
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
                   <span style={{ color: 'var(--text-secondary)' }}>Tạm tính:</span>
                   <span style={{ fontWeight: 600 }}>{formatPrice(rawTotal)}</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                    <span style={{ color: '#16A34A', fontWeight: 600 }}>Giảm giá ({appliedCoupon?.code}):</span>
+                    <span style={{ fontWeight: 700, color: '#16A34A' }}>-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px', fontSize: '13px' }}>
                   <span style={{ color: 'var(--text-secondary)' }}>Phí vận chuyển:</span>
                   <span style={{ fontWeight: 600, color: shippingFee === 0 ? '#16A34A' : 'var(--text-primary)' }}>
