@@ -1,12 +1,14 @@
 # KIẾN TRÚC FRONTEND REACTJS, VITE & HỆ THỐNG GIAO DIỆN
+
 **Tài liệu:** `04_FRONTEND_REACT_VITE_TAILWIND.md`  
-**Dự án:** Nexora  
+**Dự án:** Nexora
 
 ---
 
 ## 1. Cấu Trúc Mã Nguồn Frontend `apps/web`
 
 Frontend của Nexora được xây dựng hoàn toàn bằng **React 18** và bundler siêu tốc **Vite 8**:
+
 - `src/features/storefront/`: Các khối giao diện trang chủ, Hero Banner Carousel, Danh mục ngành hàng, Flash Sale đếm ngược, Đối tác chiến lược 26 logo SVG và Chân trang chuẩn mực 11 link.
 - `src/features/catalog/`: Trang danh sách sản phẩm, bộ lọc linh kiện động đa tiêu chí, sắp xếp theo giá và độ phổ biến.
 - `src/features/product/`: Trang chi tiết sản phẩm, thư viện ảnh gallery, bảng thông số kỹ thuật động, đánh giá khách hàng.

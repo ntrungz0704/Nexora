@@ -110,7 +110,10 @@ export class OrderService {
 
     // 4. Shipping fee calculation (Free ship if subtotal >= 500,000)
     const shippingFeeNumber = subtotalNumber >= 500000 ? 0 : 30000;
-    const totalAmountNumber = Math.max(0, subtotalNumber - discountAmountNumber + shippingFeeNumber);
+    const totalAmountNumber = Math.max(
+      0,
+      subtotalNumber - discountAmountNumber + shippingFeeNumber,
+    );
 
     // 5. Generate unique orderCode
     const timestampSegment = Date.now().toString().slice(-6);
@@ -230,18 +233,76 @@ export class OrderService {
     return this.mapOrderToDto(createdOrder);
   }
 
-  async getOrderByCode(orderCode: string): Promise<OrderDto> {
+  async getOrderByCode(
+    orderCode: string,
+    context: {
+      requester?: { sub: number; role: string; email?: string };
+      phone?: string;
+      email?: string;
+    } = {},
+  ): Promise<OrderDto> {
+    const normalizedCode = orderCode.trim().toUpperCase();
+    const providedPhone = context.phone?.trim() || '';
+    const providedEmail = context.email?.trim().toLowerCase() || '';
+
+    // Reject completely unauthenticated requests with no guest verification BEFORE querying DB
+    if (!context.requester && !providedPhone && !providedEmail) {
+      throw new AppError(
+        401,
+        'UNAUTHORIZED',
+        'Vui lòng đăng nhập hoặc cung cấp số điện thoại/email đặt hàng để xem chi tiết đơn hàng.',
+      );
+    }
+
+    // Uniform 404 prevents attackers from distinguishing non-existent codes vs unauthorized orders
+    const uniformNotFound = () =>
+      new AppError(404, 'ORDER_NOT_FOUND', 'Không tìm thấy thông tin đơn hàng phù hợp.');
+
     const order = await prisma.order.findUnique({
-      where: { orderCode },
+      where: { orderCode: normalizedCode },
       include: { items: true },
     });
+
     if (!order) {
-      throw new AppError(404, 'ORDER_NOT_FOUND', `Không tìm thấy đơn hàng ${orderCode}.`);
+      throw uniformNotFound();
     }
-    return this.mapOrderToDto(order);
+
+    // 1. Privileged internal roles (ADMIN / STAFF) follow explicit RBAC
+    const isPrivileged = context.requester?.role === 'ADMIN' || context.requester?.role === 'STAFF';
+    if (isPrivileged) {
+      return this.mapOrderToDto(order);
+    }
+
+    // 2. Authenticated customer accessing their own order
+    if (
+      context.requester &&
+      order.userId !== null &&
+      Number(order.userId) === Number(context.requester.sub)
+    ) {
+      return this.mapOrderToDto(order);
+    }
+
+    // 3. Guest-order verification policy:
+    //    Only orders without an owning account (userId === null) may be looked up via matching phone or email.
+    //    Registered customer orders require authenticated owner (or ADMIN/STAFF) access.
+    if (order.userId === null && (providedPhone || providedEmail)) {
+      const phoneMatches = providedPhone.length > 0 && providedPhone === order.customerPhone.trim();
+      const emailMatches =
+        providedEmail.length > 0 && providedEmail === order.customerEmail.trim().toLowerCase();
+
+      if (phoneMatches || emailMatches) {
+        return this.mapOrderToSanitizedGuestDto(order);
+      }
+    }
+
+    throw uniformNotFound();
   }
 
-  async trackOrder(orderCode: string, phone: string): Promise<OrderDto> {
+  async trackOrder(
+    orderCode: string,
+    phone: string,
+    requester?: { sub: number; role: string; email?: string },
+  ): Promise<OrderDto> {
     const order = await prisma.order.findFirst({
       where: {
         orderCode: orderCode.trim().toUpperCase(),
@@ -250,13 +311,18 @@ export class OrderService {
       include: { items: true },
     });
     if (!order) {
-      throw new AppError(
-        404,
-        'ORDER_NOT_FOUND',
-        'Không tìm thấy đơn hàng khớp với mã đơn và số điện thoại đã nhập.',
-      );
+      throw new AppError(404, 'ORDER_NOT_FOUND', 'Không tìm thấy thông tin đơn hàng phù hợp.');
     }
-    return this.mapOrderToDto(order);
+
+    const isPrivileged = requester?.role === 'ADMIN' || requester?.role === 'STAFF';
+    const isOwner =
+      requester && order.userId !== null && Number(order.userId) === Number(requester.sub);
+    if (isPrivileged || isOwner) {
+      return this.mapOrderToDto(order);
+    }
+
+    // Minimize PII exposure for unauthenticated order tracking responses
+    return this.mapOrderToSanitizedGuestDto(order);
   }
 
   async getUserOrders(userId: number): Promise<OrderDto[]> {
@@ -466,6 +532,40 @@ export class OrderService {
     });
 
     return this.mapOrderToDto(updated);
+  }
+
+  private maskPhone(phone: string): string {
+    const clean = phone.trim();
+    if (clean.length <= 6) return '***';
+    return `${clean.slice(0, 3)}****${clean.slice(-3)}`;
+  }
+
+  private maskEmail(email: string): string {
+    const clean = email.trim();
+    const [local, domain] = clean.split('@');
+    if (!local || !domain) return '***';
+    const prefix = local.slice(0, Math.min(2, local.length));
+    return `${prefix}***@${domain}`;
+  }
+
+  private maskAddress(address: string): string {
+    const parts = address
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length <= 1) return '*** (địa chỉ đã được ẩn để bảo mật)';
+    return `***, ${parts.slice(-2).join(', ')}`;
+  }
+
+  private mapOrderToSanitizedGuestDto(order: OrderWithItems): OrderDto {
+    const dto = this.mapOrderToDto(order);
+    return {
+      ...dto,
+      customerEmail: this.maskEmail(dto.customerEmail),
+      customerPhone: this.maskPhone(dto.customerPhone),
+      shippingAddress: this.maskAddress(dto.shippingAddress),
+      customerNotes: null,
+    };
   }
 
   private mapOrderToDto(order: OrderWithItems): OrderDto {

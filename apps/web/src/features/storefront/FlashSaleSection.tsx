@@ -11,7 +11,10 @@ interface FlashSaleSectionProps {
   onToggleWishlist?: (productId: number | string) => void;
 }
 
-function calcRemaining(endTimeIso: string | undefined, nowMs: number): { hours: number; minutes: number; seconds: number } {
+function calcRemaining(
+  endTimeIso: string | undefined,
+  nowMs: number,
+): { hours: number; minutes: number; seconds: number } {
   if (!endTimeIso) return { hours: 0, minutes: 0, seconds: 0 };
   const diffMs = Math.max(0, new Date(endTimeIso).getTime() - nowMs);
   const totalSeconds = Math.floor(diffMs / 1000);

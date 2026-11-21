@@ -32,7 +32,9 @@ export const wishlistService = {
     return json.data || [];
   },
 
-  async toggleWishlist(productId: number | string): Promise<{ inWishlist: boolean; count: number; message: string }> {
+  async toggleWishlist(
+    productId: number | string,
+  ): Promise<{ inWishlist: boolean; count: number; message: string }> {
     const token = authService.getToken();
     if (!token) {
       throw new Error('UNAUTHORIZED');

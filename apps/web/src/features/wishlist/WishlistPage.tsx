@@ -174,7 +174,8 @@ export const WishlistPage: React.FC = () => {
                   Sản phẩm yêu thích
                 </h1>
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>
-                  Quản lý và lưu lại các sản phẩm bạn đang quan tâm ({wishlistProducts.length} sản phẩm)
+                  Quản lý và lưu lại các sản phẩm bạn đang quan tâm ({wishlistProducts.length} sản
+                  phẩm)
                 </p>
               </div>
             </div>
@@ -201,7 +202,10 @@ export const WishlistPage: React.FC = () => {
 
           {isLoading ? (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <i className="fa-solid fa-circle-notch fa-spin" style={{ fontSize: '32px', color: '#0A5BFF' }}></i>
+              <i
+                className="fa-solid fa-circle-notch fa-spin"
+                style={{ fontSize: '32px', color: '#0A5BFF' }}
+              ></i>
               <p style={{ marginTop: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>
                 Đang tải danh sách yêu thích...
               </p>
@@ -264,8 +268,8 @@ export const WishlistPage: React.FC = () => {
                   lineHeight: '1.5',
                 }}
               >
-                Hãy khám phá các sản phẩm công nghệ tuyệt vời tại Nexora và nhấn vào biểu tượng
-                trái tim để lưu lại những món đồ bạn yêu thích!
+                Hãy khám phá các sản phẩm công nghệ tuyệt vời tại Nexora và nhấn vào biểu tượng trái
+                tim để lưu lại những món đồ bạn yêu thích!
               </p>
               <Link
                 to="/search"

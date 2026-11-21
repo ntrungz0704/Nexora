@@ -49,7 +49,11 @@ function extractProductPills(product: ProductDto): SpecPill[] {
   if (s.storage_gb) {
     const gb = Number(s.storage_gb);
     const sizeStr = gb >= 1000 ? `${(gb / 1000).toFixed(gb % 1000 === 0 ? 0 : 1)}TB` : `${gb}GB`;
-    const typeStr = String(s.storage_type || '').toLowerCase().includes('hdd') ? 'HDD' : 'SSD';
+    const typeStr = String(s.storage_type || '')
+      .toLowerCase()
+      .includes('hdd')
+      ? 'HDD'
+      : 'SSD';
     pills.push({ icon: 'fa-solid fa-hard-drive', label: `${sizeStr} ${typeStr}` });
   }
 
@@ -147,7 +151,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const isOutOfStock = (product.stockQuantity ?? 1) <= 0;
 
   return (
-    <div className={`product-card ${isOutOfStock ? 'product-card--out-of-stock' : ''}`} data-full-title={product.name} title={product.name}>
+    <div
+      className={`product-card ${isOutOfStock ? 'product-card--out-of-stock' : ''}`}
+      data-full-title={product.name}
+      title={product.name}
+    >
       {isOutOfStock ? (
         <span
           className="product-card__badge"
@@ -162,7 +170,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <i className="fa-solid fa-circle-xmark"></i> Hết hàng
         </span>
       ) : (
-        hasDiscount && discountPercent > 0 && (
+        hasDiscount &&
+        discountPercent > 0 && (
           <span
             className={`product-card__badge ${
               isFlashSale ? 'product-card__badge--flash' : 'product-card__badge--promo'
@@ -324,7 +333,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           type="button"
           disabled={isOutOfStock}
           className={`product-card__add ${isOutOfStock ? 'product-card__add--disabled' : ''}`}
-          style={isOutOfStock ? { backgroundColor: '#94A3B8', borderColor: '#94A3B8', cursor: 'not-allowed', color: '#FFFFFF' } : undefined}
+          style={
+            isOutOfStock
+              ? {
+                  backgroundColor: '#94A3B8',
+                  borderColor: '#94A3B8',
+                  cursor: 'not-allowed',
+                  color: '#FFFFFF',
+                }
+              : undefined
+          }
           onClick={(e) => {
             e.preventDefault();
             if (!isOutOfStock) {
@@ -332,7 +350,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             }
           }}
         >
-          <i className={isOutOfStock ? "fa-solid fa-ban" : "fa-solid fa-cart-plus"}></i> {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
+          <i className={isOutOfStock ? 'fa-solid fa-ban' : 'fa-solid fa-cart-plus'}></i>{' '}
+          {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
         </button>
       </div>
     </div>

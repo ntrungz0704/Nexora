@@ -1,6 +1,7 @@
 # THIẾT KẾ CƠ SỞ DỮ LIỆU MYSQL 8.4 & LƯỢC ĐỒ PRISMA ORM
+
 **Tài liệu:** `03_DATABASE_PRISMA_MYSQL_SCHEMA.md`  
-**Dự án:** Nexora  
+**Dự án:** Nexora
 
 ---
 

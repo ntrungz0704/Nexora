@@ -77,7 +77,9 @@ export const CartPage: React.FC = () => {
       setCouponApplied(true);
       setAppliedDiscount(result.discountAmount);
       setCouponError(null);
-      showToast(`Áp dụng mã ${result.coupon.code} thành công! Giảm ${result.discountAmount.toLocaleString('vi-VN')}đ`);
+      showToast(
+        `Áp dụng mã ${result.coupon.code} thành công! Giảm ${result.discountAmount.toLocaleString('vi-VN')}đ`,
+      );
     } catch (err: unknown) {
       const errorResponse = err as { response?: { data?: { error?: { message?: string } } } };
       setCouponApplied(false);
@@ -107,7 +109,9 @@ export const CartPage: React.FC = () => {
       setCouponApplied(true);
       setAppliedDiscount(result.discountAmount);
       setCouponError(null);
-      showToast(`Áp dụng mã ${result.coupon.code} thành công! Giảm ${result.discountAmount.toLocaleString('vi-VN')}đ`);
+      showToast(
+        `Áp dụng mã ${result.coupon.code} thành công! Giảm ${result.discountAmount.toLocaleString('vi-VN')}đ`,
+      );
     } catch (err: unknown) {
       const errorResponse = err as { response?: { data?: { error?: { message?: string } } } };
       setCouponApplied(false);
@@ -291,7 +295,8 @@ export const CartPage: React.FC = () => {
                             {item.product.name}
                           </Link>
                           <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                            Đơn giá: {formatPrice(Number(item.product.salePrice || item.product.price))}
+                            Đơn giá:{' '}
+                            {formatPrice(Number(item.product.salePrice || item.product.price))}
                           </span>
                         </div>
 
@@ -365,7 +370,9 @@ export const CartPage: React.FC = () => {
                               color: 'var(--primary, #0A5BFF)',
                             }}
                           >
-                            {formatPrice(Number(item.product.salePrice || item.product.price) * item.quantity)}
+                            {formatPrice(
+                              Number(item.product.salePrice || item.product.price) * item.quantity,
+                            )}
                           </span>
                         </div>
 
@@ -395,7 +402,9 @@ export const CartPage: React.FC = () => {
                 </div>
 
                 {/* Back to shopping link */}
-                <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between' }}>
+                <div
+                  style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between' }}
+                >
                   <Link
                     to="/"
                     style={{
@@ -426,7 +435,10 @@ export const CartPage: React.FC = () => {
                   }}
                 >
                   <h4 style={{ fontSize: '14px', fontWeight: 700, margin: '0 0 12px 0' }}>
-                    <i className="fa-solid fa-ticket" style={{ color: '#0A5BFF', marginRight: '6px' }}></i>
+                    <i
+                      className="fa-solid fa-ticket"
+                      style={{ color: '#0A5BFF', marginRight: '6px' }}
+                    ></i>
                     Mã ưu đãi / Voucher
                   </h4>
                   <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: '8px' }}>
@@ -495,7 +507,8 @@ export const CartPage: React.FC = () => {
                       }}
                     >
                       <span>
-                        <i className="fa-solid fa-check"></i> Đã áp dụng mã {couponCode} (-{formatPrice(appliedDiscount)})
+                        <i className="fa-solid fa-check"></i> Đã áp dụng mã {couponCode} (-
+                        {formatPrice(appliedDiscount)})
                       </span>
                       <button
                         type="button"
@@ -522,7 +535,14 @@ export const CartPage: React.FC = () => {
 
                   {/* Selectable Voucher List */}
                   {availableCoupons.length > 0 && (
-                    <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div
+                      style={{
+                        marginTop: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
                       <div
                         style={{
                           fontSize: '11.5px',
@@ -572,16 +592,40 @@ export const CartPage: React.FC = () => {
                             >
                               <div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '13px', color: '#0A5BFF' }}>
+                                  <span
+                                    style={{
+                                      fontFamily: 'monospace',
+                                      fontWeight: 800,
+                                      fontSize: '13px',
+                                      color: '#0A5BFF',
+                                    }}
+                                  >
                                     {cp.code}
                                   </span>
-                                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #1F2937)' }}>
+                                  <span
+                                    style={{
+                                      fontSize: '12px',
+                                      fontWeight: 700,
+                                      color: 'var(--text-primary, #1F2937)',
+                                    }}
+                                  >
                                     {cp.discountType === 'PERCENTAGE'
                                       ? `Giảm ${cp.discountValue}%`
                                       : `Giảm ${Number(cp.discountValue).toLocaleString('vi-VN')}đ`}
                                   </span>
                                 </div>
-                                <div style={{ fontSize: '11px', color: isEligible ? 'var(--text-secondary, #6B7280)' : '#EF4444', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <div
+                                  style={{
+                                    fontSize: '11px',
+                                    color: isEligible
+                                      ? 'var(--text-secondary, #6B7280)'
+                                      : '#EF4444',
+                                    marginTop: '2px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                  }}
+                                >
                                   <span>
                                     {Number(cp.minOrderValue) > 0
                                       ? `Đơn tối thiểu ${Number(cp.minOrderValue).toLocaleString('vi-VN')}đ`
@@ -594,11 +638,31 @@ export const CartPage: React.FC = () => {
                               </div>
                               <div>
                                 {isCurrentActive ? (
-                                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#16A34A', backgroundColor: '#DCFCE7', padding: '3px 8px', borderRadius: '6px' }}>
+                                  <span
+                                    style={{
+                                      fontSize: '11px',
+                                      fontWeight: 800,
+                                      color: '#16A34A',
+                                      backgroundColor: '#DCFCE7',
+                                      padding: '3px 8px',
+                                      borderRadius: '6px',
+                                    }}
+                                  >
                                     ✓ Đang dùng
                                   </span>
                                 ) : (
-                                  <span style={{ fontSize: '11px', fontWeight: 700, color: isEligible ? '#0A5BFF' : '#9CA3AF', backgroundColor: isEligible ? 'rgba(10, 91, 255, 0.08)' : '#F3F4F6', padding: '3px 8px', borderRadius: '6px' }}>
+                                  <span
+                                    style={{
+                                      fontSize: '11px',
+                                      fontWeight: 700,
+                                      color: isEligible ? '#0A5BFF' : '#9CA3AF',
+                                      backgroundColor: isEligible
+                                        ? 'rgba(10, 91, 255, 0.08)'
+                                        : '#F3F4F6',
+                                      padding: '3px 8px',
+                                      borderRadius: '6px',
+                                    }}
+                                  >
                                     Áp dụng
                                   </span>
                                 )}
@@ -625,21 +689,48 @@ export const CartPage: React.FC = () => {
                     Tóm tắt đơn hàng
                   </h3>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '10px',
+                      fontSize: '13px',
+                    }}
+                  >
                     <span style={{ color: 'var(--text-secondary)' }}>Tạm tính:</span>
                     <span style={{ fontWeight: 600 }}>{formatPrice(rawTotal)}</span>
                   </div>
 
                   {couponApplied && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13px', color: '#16A34A' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        marginBottom: '10px',
+                        fontSize: '13px',
+                        color: '#16A34A',
+                      }}
+                    >
                       <span>Giảm giá (10%):</span>
                       <span style={{ fontWeight: 600 }}>-{formatPrice(discountAmount)}</span>
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px', fontSize: '13px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '14px',
+                      fontSize: '13px',
+                    }}
+                  >
                     <span style={{ color: 'var(--text-secondary)' }}>Phí vận chuyển:</span>
-                    <span style={{ fontWeight: 600, color: shippingFee === 0 ? '#16A34A' : 'var(--text-primary)' }}>
+                    <span
+                      style={{
+                        fontWeight: 600,
+                        color: shippingFee === 0 ? '#16A34A' : 'var(--text-primary)',
+                      }}
+                    >
                       {shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}
                     </span>
                   </div>
@@ -655,7 +746,13 @@ export const CartPage: React.FC = () => {
                     }}
                   >
                     <span style={{ fontSize: '15px', fontWeight: 800 }}>Tổng thanh toán:</span>
-                    <span style={{ fontSize: '20px', fontWeight: 900, color: 'var(--primary, #0A5BFF)' }}>
+                    <span
+                      style={{
+                        fontSize: '20px',
+                        fontWeight: 900,
+                        color: 'var(--primary, #0A5BFF)',
+                      }}
+                    >
                       {formatPrice(finalTotal)}
                     </span>
                   </div>
@@ -686,11 +783,17 @@ export const CartPage: React.FC = () => {
                     }}
                   >
                     <div>
-                      <i className="fa-solid fa-shield-check" style={{ color: '#22C55E', marginRight: '6px' }}></i>
+                      <i
+                        className="fa-solid fa-shield-check"
+                        style={{ color: '#22C55E', marginRight: '6px' }}
+                      ></i>
                       Bảo mật thanh toán 100%
                     </div>
                     <div>
-                      <i className="fa-solid fa-truck" style={{ color: '#0A5BFF', marginRight: '6px' }}></i>
+                      <i
+                        className="fa-solid fa-truck"
+                        style={{ color: '#0A5BFF', marginRight: '6px' }}
+                      ></i>
                       Giao hàng nhanh toàn quốc
                     </div>
                   </div>
@@ -727,8 +830,16 @@ export const CartPage: React.FC = () => {
               <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>
                 Giỏ hàng của bạn đang trống
               </h3>
-              <p style={{ fontSize: '14px', color: '#6B7280', maxWidth: '400px', margin: '0 auto 24px auto' }}>
-                Không có sản phẩm nào trong giỏ. Hãy chọn những sản phẩm công nghệ tuyệt vời cho góc máy của bạn!
+              <p
+                style={{
+                  fontSize: '14px',
+                  color: '#6B7280',
+                  maxWidth: '400px',
+                  margin: '0 auto 24px auto',
+                }}
+              >
+                Không có sản phẩm nào trong giỏ. Hãy chọn những sản phẩm công nghệ tuyệt vời cho góc
+                máy của bạn!
               </p>
               <Link
                 to="/"

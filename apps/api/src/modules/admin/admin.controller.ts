@@ -24,7 +24,9 @@ export class AdminController {
   getProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const search = req.query.search as string | undefined;
-      const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string, 10) : undefined;
+      const categoryId = req.query.categoryId
+        ? parseInt(req.query.categoryId as string, 10)
+        : undefined;
       const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
       const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
       const data = await this.service.getProducts({ search, categoryId, limit, offset });
@@ -142,7 +144,11 @@ export class AdminController {
       const id = BigInt(req.params.id as string);
       const { status, trackingNumber, carrierName, paymentStatus } = req.body;
       if (!status && !paymentStatus) {
-        throw new AppError(400, 'INVALID_STATUS', 'Cần cung cấp trạng thái đơn hoặc trạng thái thanh toán.');
+        throw new AppError(
+          400,
+          'INVALID_STATUS',
+          'Cần cung cấp trạng thái đơn hoặc trạng thái thanh toán.',
+        );
       }
       const order = await this.orderService.adminUpdateOrderStatus(
         id,
@@ -282,7 +288,11 @@ export class AdminController {
     }
   };
 
-  toggleFlashSaleStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  toggleFlashSaleStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
       const result = await this.service.toggleFlashSaleStatus(id);
@@ -453,7 +463,10 @@ export class AdminController {
   toggleUserStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
-      const result = await this.service.toggleUserStatus(id, req.user?.sub);
+      if (!Number.isFinite(id) || id <= 0) {
+        throw new AppError(400, 'INVALID_USER_ID', 'ID người dùng không hợp lệ.');
+      }
+      const result = await this.service.toggleUserStatus(id, req.user?.sub, req.user?.role);
       sendSuccess(res, result);
     } catch (error) {
       next(error);
@@ -463,11 +476,14 @@ export class AdminController {
   changeUserRole = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
+      if (!Number.isFinite(id) || id <= 0) {
+        throw new AppError(400, 'INVALID_USER_ID', 'ID người dùng không hợp lệ.');
+      }
       const { role } = req.body;
       if (!role || !['CUSTOMER', 'STAFF', 'ADMIN'].includes(role)) {
         throw new AppError(400, 'INVALID_ROLE', 'Vai trò không hợp lệ.');
       }
-      const result = await this.service.changeUserRole(id, role);
+      const result = await this.service.changeUserRole(id, role, req.user?.sub, req.user?.role);
       sendSuccess(res, result);
     } catch (error) {
       next(error);

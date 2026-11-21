@@ -2,7 +2,7 @@
 
 - **Dự án:** Nexora (Single-Vendor Hardware E-Commerce & Store Management System)
 - **Kho chứa:** `d:\Nexora`
-- **Tệp kiểm thử:** 
+- **Tệp kiểm thử:**
   - `apps/api/tests/auth_password_reset_security.test.ts`
   - `apps/api/tests/seed_and_auth_credentials.test.ts`
   - `apps/api/tests/rbac_and_concurrency.test.ts`
@@ -15,6 +15,7 @@
 ## 1. MỤC TIÊU VÀ PHẠM VI KIỂM THỬ
 
 Báo cáo này chứng minh bằng kết quả kiểm thử thực tế về việc giải quyết triệt để các yêu cầu của Hội đồng Thẩm định:
+
 1. **Gửi email khôi phục mật khẩu thực tế:** Kiểm thử quy trình out-of-band qua `EmailService`, xác nhận email được tạo đúng cấu trúc, chứa link reset với token 15 phút, và response không lộ token.
 2. **Chống dò quét tài khoản (Anti-enumeration):** Email không tồn tại trả về thông điệp giống hệt và không dispatch email.
 3. **Xử lý an toàn khi dịch vụ email lỗi:** Giả lập lỗi provider, chứng minh API trả lỗi `500 EMAIL_DELIVERY_FAILED` chứ không báo thành công giả.
@@ -28,6 +29,7 @@ Báo cáo này chứng minh bằng kết quả kiểm thử thực tế về vi�
 ## 2. KẾT QUẢ BỘ KIỂM THỬ PASSWORD RESET & CONCURRENCY (`auth_password_reset_security.test.ts`)
 
 Lệnh thực thi:
+
 ```bash
 npm test -- apps/api/tests/auth_password_reset_security.test.ts
 ```
@@ -48,6 +50,7 @@ Kết quả: **8/8 tests passed (100%)**
 ```
 
 ### Chi tiết các ca kiểm thử:
+
 - **SEC-RESET-1:**
   - Gọi `POST /api/v1/auth/forgot-password` với `{ email: 'customer@nexora.local' }`.
   - Phản hồi HTTP trả về `200 OK` với thông báo an toàn.
@@ -90,11 +93,13 @@ Kết quả: **8/8 tests passed (100%)**
 ## 3. KẾT QUẢ BỘ KIỂM THỬ SEED CREDENTIALS & RE-SEED (`seed_and_auth_credentials.test.ts`)
 
 Lệnh thực thi:
+
 ```bash
 npm test -- apps/api/tests/seed_and_auth_credentials.test.ts
 ```
 
 Kết quả: **2/2 tests passed (100%)**
+
 - **SEED-1:** Đổi mật khẩu Admin, chạy lại toàn bộ quy trình `prisma/seed.ts`, đăng nhập bằng mật khẩu mới thành công, mật khẩu cũ bị từ chối. Mật khẩu Admin được bảo toàn 100%.
 - **SEED-2:** Khi `NODE_ENV === 'production'` mà thiếu `ADMIN_INITIAL_PASSWORD`, seed dừng khẩn cấp với lỗi `[FATAL SEED ERROR]`.
 

@@ -10,7 +10,19 @@ import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser, ProductDto } from '@nexora/shared';
 
-const BRANDS = ['ASUS', 'ACER', 'MSI', 'LENOVO', 'LG', 'SAMSUNG', 'INTEL', 'AMD', 'LOGITECH', 'CORSAIR', 'GIGABYTE'];
+const BRANDS = [
+  'ASUS',
+  'ACER',
+  'MSI',
+  'LENOVO',
+  'LG',
+  'SAMSUNG',
+  'INTEL',
+  'AMD',
+  'LOGITECH',
+  'CORSAIR',
+  'GIGABYTE',
+];
 
 const PRICE_RANGES = [
   { id: 'all', label: 'Tất cả mức giá', min: 0, max: 0 },
@@ -56,12 +68,12 @@ const CATEGORY_SUBGROUPS: Record<string, SubcategoryDef[]> = {
     { key: 'cooling', name: 'TẢN NHIỆT', query: 'cooling' },
     { key: 'psu', name: 'NGUỒN', query: 'psu' },
   ],
-  'laptop': [
+  laptop: [
     { key: 'gaming', name: 'LAPTOP GAMING', query: 'gaming' },
     { key: 'office', name: 'LAPTOP VĂN PHÒNG', query: 'van-phong' },
     { key: 'macbook', name: 'MACBOOK', query: 'apple' },
   ],
-  'pc': [
+  pc: [
     { key: 'gaming', name: 'PC GAMING', query: 'gaming' },
     { key: 'creator', name: 'PC ĐỒ HỌA', query: 'creator' },
     { key: 'office', name: 'PC VĂN PHÒNG', query: 'van-phong' },
@@ -108,38 +120,38 @@ const VIRTUAL_GROUPS: Record<string, string[]> = {
   'case-nguon-tan': ['case', 'cooling', 'psu'],
   'o-cung': ['storage'],
   'o-cung-ssd-hdd': ['storage'],
-  'storage': ['storage'],
+  storage: ['storage'],
   'gaming-gear': ['keyboard', 'mouse', 'chair', 'headset', 'speaker', 'console'],
   'ban-phim': ['keyboard'],
-  'keyboard': ['keyboard'],
-  'chuot': ['mouse'],
+  keyboard: ['keyboard'],
+  chuot: ['mouse'],
   'chuot-lot-chuot': ['mouse'],
-  'mouse': ['mouse'],
+  mouse: ['mouse'],
   'tai-nghe': ['headset'],
-  'headset': ['headset'],
+  headset: ['headset'],
   'ghe-ban': ['chair'],
   'ghe-ban-gaming': ['chair'],
-  'chair': ['chair'],
+  chair: ['chair'],
   'loa-micro-webcam': ['speaker'],
-  'speaker': ['speaker'],
-  'loa': ['speaker'],
+  speaker: ['speaker'],
+  loa: ['speaker'],
   'phan-mem-mang': ['networking'],
-  'networking': ['networking'],
+  networking: ['networking'],
   'phu-kien': ['accessories'],
-  'accessories': ['accessories'],
+  accessories: ['accessories'],
   'office-gear': ['office-equipment', 'power-bank'],
   'thiet-bi-van-phong': ['office-equipment'],
   'thiet bi van phong': ['office-equipment'],
   'office-equipment': ['office-equipment'],
   'sac-du-phong': ['power-bank'],
   'power-bank': ['power-bank'],
-  'pc': ['pc'],
+  pc: ['pc'],
   'pc-nexora': ['pc'],
   'pc-techpilot': ['pc'],
-  'laptop': ['laptop'],
+  laptop: ['laptop'],
   'laptop-gaming': ['laptop'],
   'man-hinh': ['monitor'],
-  'monitor': ['monitor'],
+  monitor: ['monitor'],
 };
 
 export const SearchPage: React.FC = () => {
@@ -184,7 +196,9 @@ export const SearchPage: React.FC = () => {
 
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc' | 'title-asc' | 'title-desc'>('newest');
+  const [sortBy, setSortBy] = useState<
+    'newest' | 'price-asc' | 'price-desc' | 'title-asc' | 'title-desc'
+  >('newest');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [userPromoOnly, setUserPromoOnly] = useState<boolean | null>(null);
   const promoOnly = userPromoOnly !== null ? userPromoOnly : queryPromo;
@@ -196,7 +210,9 @@ export const SearchPage: React.FC = () => {
   const priceDropdownRef = useRef<HTMLDivElement>(null);
   const brandDropdownRef = useRef<HTMLDivElement>(null);
 
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Close filter dropdowns on click outside
@@ -268,130 +284,154 @@ export const SearchPage: React.FC = () => {
   const subcategoryList: SubcategoryDef[] = useMemo(() => {
     const catSlug = queryCat.toLowerCase().replace(/\s+/g, '-');
     if (CATEGORY_SUBGROUPS[catSlug]) return CATEGORY_SUBGROUPS[catSlug]!;
-    if (catSlug.includes('linh-kien') || catSlug.includes('main')) return CATEGORY_SUBGROUPS['pc-linh-kien']!;
+    if (catSlug.includes('linh-kien') || catSlug.includes('main'))
+      return CATEGORY_SUBGROUPS['pc-linh-kien']!;
     if (catSlug.includes('laptop')) return CATEGORY_SUBGROUPS['laptop']!;
     if (catSlug.includes('pc')) return CATEGORY_SUBGROUPS['pc']!;
-    if (catSlug.includes('van-phong') || catSlug.includes('office') || catSlug.includes('thiet-bi')) return CATEGORY_SUBGROUPS['office-gear']!;
-    if (catSlug.includes('gear') || catSlug.includes('phim') || catSlug.includes('chuot') || catSlug.includes('tai-nghe')) return CATEGORY_SUBGROUPS['gaming-gear']!;
+    if (catSlug.includes('van-phong') || catSlug.includes('office') || catSlug.includes('thiet-bi'))
+      return CATEGORY_SUBGROUPS['office-gear']!;
+    if (
+      catSlug.includes('gear') ||
+      catSlug.includes('phim') ||
+      catSlug.includes('chuot') ||
+      catSlug.includes('tai-nghe')
+    )
+      return CATEGORY_SUBGROUPS['gaming-gear']!;
     return [];
   }, [queryCat]);
 
   // Filter products logic
   const filteredProducts = useMemo(() => {
-    return allProducts.filter((product) => {
-      // 1. Category filter
-      if (queryCat && queryCat !== 'all') {
-        const catSlug = (product.category?.slug || '').toLowerCase();
-        const catName = (product.category?.name || '').toLowerCase();
-        const pName = product.name.toLowerCase();
-        const cleanQueryCat = queryCat.toLowerCase().replace(/\s+/g, '-');
-        const queryNorm = removeVietnameseTones(queryCat.replace(/-/g, ' '));
-        const catNorm = removeVietnameseTones(catName);
-        const pNameNorm = removeVietnameseTones(pName);
+    return allProducts
+      .filter((product) => {
+        // 1. Category filter
+        if (queryCat && queryCat !== 'all') {
+          const catSlug = (product.category?.slug || '').toLowerCase();
+          const catName = (product.category?.name || '').toLowerCase();
+          const pName = product.name.toLowerCase();
+          const cleanQueryCat = queryCat.toLowerCase().replace(/\s+/g, '-');
+          const queryNorm = removeVietnameseTones(queryCat.replace(/-/g, ' '));
+          const catNorm = removeVietnameseTones(catName);
+          const pNameNorm = removeVietnameseTones(pName);
 
-        if (VIRTUAL_GROUPS[cleanQueryCat]) {
-          const allowedSlugs = VIRTUAL_GROUPS[cleanQueryCat];
-          if (!allowedSlugs.includes(catSlug)) {
-            return false;
+          if (VIRTUAL_GROUPS[cleanQueryCat]) {
+            const allowedSlugs = VIRTUAL_GROUPS[cleanQueryCat];
+            if (!allowedSlugs.includes(catSlug)) {
+              return false;
+            }
+          } else {
+            const matchesDirect =
+              catSlug === cleanQueryCat ||
+              catSlug.includes(cleanQueryCat) ||
+              cleanQueryCat.includes(catSlug) ||
+              catNorm.includes(queryNorm) ||
+              queryNorm.includes(catNorm) ||
+              pNameNorm.includes(queryNorm);
+            if (!matchesDirect) return false;
           }
-        } else {
-          const matchesDirect =
-            catSlug === cleanQueryCat ||
-            catSlug.includes(cleanQueryCat) ||
-            cleanQueryCat.includes(catSlug) ||
-            catNorm.includes(queryNorm) ||
-            queryNorm.includes(catNorm) ||
-            pNameNorm.includes(queryNorm);
-          if (!matchesDirect) return false;
         }
-      }
 
-      // 2. Subcategory filter
-      if (activeSubgroup) {
-        const subDef = subcategoryList.find((s) => s.key === activeSubgroup);
-        if (subDef) {
-          const qSub = subDef.query.toLowerCase();
+        // 2. Subcategory filter
+        if (activeSubgroup) {
+          const subDef = subcategoryList.find((s) => s.key === activeSubgroup);
+          if (subDef) {
+            const qSub = subDef.query.toLowerCase();
+            const pNameLower = product.name.toLowerCase();
+            const pCatSlug = (product.category?.slug || '').toLowerCase();
+            const matchesSub =
+              pCatSlug === qSub || pCatSlug.includes(qSub) || pNameLower.includes(qSub);
+            if (!matchesSub) return false;
+          }
+        }
+
+        // 3. Spec & custom query filters (e.g. ?ram=ddr5, ?cpu=i7)
+        for (const [specKey, specVal] of Object.entries(specParams)) {
+          if (!specVal) continue;
           const pNameLower = product.name.toLowerCase();
-          const pCatSlug = (product.category?.slug || '').toLowerCase();
-          const matchesSub = pCatSlug === qSub || pCatSlug.includes(qSub) || pNameLower.includes(qSub);
-          if (!matchesSub) return false;
-        }
-      }
+          const pDescLower = (product.shortDescription || '').toLowerCase();
+          const pSpecs = (product.specs || {}) as Record<string, unknown>;
 
-      // 3. Spec & custom query filters (e.g. ?ram=ddr5, ?cpu=i7)
-      for (const [specKey, specVal] of Object.entries(specParams)) {
-        if (!specVal) continue;
-        const pNameLower = product.name.toLowerCase();
-        const pDescLower = (product.shortDescription || '').toLowerCase();
-        const pSpecs = (product.specs || {}) as Record<string, unknown>;
-
-        let found = false;
-        // Check in specs object
-        for (const [k, v] of Object.entries(pSpecs)) {
-          const kLower = k.toLowerCase();
-          const vStr = String(v).toLowerCase();
-          if (kLower.includes(specKey) && vStr.includes(specVal)) {
-            found = true;
-            break;
+          let found = false;
+          // Check in specs object
+          for (const [k, v] of Object.entries(pSpecs)) {
+            const kLower = k.toLowerCase();
+            const vStr = String(v).toLowerCase();
+            if (kLower.includes(specKey) && vStr.includes(specVal)) {
+              found = true;
+              break;
+            }
+            if (vStr.includes(specVal)) {
+              found = true;
+              break;
+            }
           }
-          if (vStr.includes(specVal)) {
+          // Also check product name & description
+          if (!found && (pNameLower.includes(specVal) || pDescLower.includes(specVal))) {
             found = true;
-            break;
           }
+          if (!found) return false;
         }
-        // Also check product name & description
-        if (!found && (pNameLower.includes(specVal) || pDescLower.includes(specVal))) {
-          found = true;
+
+        // 4. Real-time Live Query text filter (instant matching as you type)
+        const searchNeedle = (userKeyword !== null ? userKeyword : queryQ).toLowerCase().trim();
+        if (searchNeedle) {
+          const matchesName = product.name.toLowerCase().includes(searchNeedle);
+          const matchesCat = (product.category?.name || '').toLowerCase().includes(searchNeedle);
+          const matchesBrand = (product.brand?.name || '').toLowerCase().includes(searchNeedle);
+          if (!matchesName && !matchesCat && !matchesBrand) return false;
         }
-        if (!found) return false;
-      }
 
-      // 4. Real-time Live Query text filter (instant matching as you type)
-      const searchNeedle = (userKeyword !== null ? userKeyword : queryQ).toLowerCase().trim();
-      if (searchNeedle) {
-        const matchesName = product.name.toLowerCase().includes(searchNeedle);
-        const matchesCat = (product.category?.name || '').toLowerCase().includes(searchNeedle);
-        const matchesBrand = (product.brand?.name || '').toLowerCase().includes(searchNeedle);
-        if (!matchesName && !matchesCat && !matchesBrand) return false;
-      }
+        // 4. Promo filter
+        if (promoOnly) {
+          const p = Number(product.price);
+          const sp = product.salePrice ? Number(product.salePrice) : null;
+          if (!sp || sp >= p) return false;
+        }
 
-      // 4. Promo filter
-      if (promoOnly) {
-        const p = Number(product.price);
-        const sp = product.salePrice ? Number(product.salePrice) : null;
-        if (!sp || sp >= p) return false;
-      }
+        // 5. In stock filter
+        if (inStockOnly && product.stockQuantity <= 0) {
+          return false;
+        }
 
-      // 5. In stock filter
-      if (inStockOnly && product.stockQuantity <= 0) {
-        return false;
-      }
+        // 6. Brand filter
+        if (selectedBrands.length > 0) {
+          const pName = product.name.toUpperCase();
+          const bName = (product.brand?.name || '').toUpperCase();
+          const matchesBrand = selectedBrands.some((b) => pName.includes(b) || bName.includes(b));
+          if (!matchesBrand) return false;
+        }
 
-      // 6. Brand filter
-      if (selectedBrands.length > 0) {
-        const pName = product.name.toUpperCase();
-        const bName = (product.brand?.name || '').toUpperCase();
-        const matchesBrand = selectedBrands.some((b) => pName.includes(b) || bName.includes(b));
-        if (!matchesBrand) return false;
-      }
+        // 7. Price range filter
+        const curPrice = product.salePrice ? Number(product.salePrice) : Number(product.price);
+        if (priceRange === 'under-15m' && curPrice >= 15000000) return false;
+        if (priceRange === '15-25m' && (curPrice < 15000000 || curPrice > 25000000)) return false;
+        if (priceRange === 'over-25m' && curPrice <= 25000000) return false;
 
-      // 7. Price range filter
-      const curPrice = product.salePrice ? Number(product.salePrice) : Number(product.price);
-      if (priceRange === 'under-15m' && curPrice >= 15000000) return false;
-      if (priceRange === '15-25m' && (curPrice < 15000000 || curPrice > 25000000)) return false;
-      if (priceRange === 'over-25m' && curPrice <= 25000000) return false;
-
-      return true;
-    }).sort((a, b) => {
-      const pA = a.salePrice ? Number(a.salePrice) : Number(a.price);
-      const pB = b.salePrice ? Number(b.salePrice) : Number(b.price);
-      if (sortBy === 'price-asc') return pA - pB;
-      if (sortBy === 'price-desc') return pB - pA;
-      if (sortBy === 'title-asc') return a.name.localeCompare(b.name, 'vi');
-      if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
-      return b.id - a.id; // newest
-    });
-  }, [allProducts, queryCat, activeSubgroup, subcategoryList, queryQ, userKeyword, promoOnly, inStockOnly, selectedBrands, priceRange, sortBy, specParams]);
+        return true;
+      })
+      .sort((a, b) => {
+        const pA = a.salePrice ? Number(a.salePrice) : Number(a.price);
+        const pB = b.salePrice ? Number(b.salePrice) : Number(b.price);
+        if (sortBy === 'price-asc') return pA - pB;
+        if (sortBy === 'price-desc') return pB - pA;
+        if (sortBy === 'title-asc') return a.name.localeCompare(b.name, 'vi');
+        if (sortBy === 'title-desc') return b.name.localeCompare(a.name, 'vi');
+        return b.id - a.id; // newest
+      });
+  }, [
+    allProducts,
+    queryCat,
+    activeSubgroup,
+    subcategoryList,
+    queryQ,
+    userKeyword,
+    promoOnly,
+    inStockOnly,
+    selectedBrands,
+    priceRange,
+    sortBy,
+    specParams,
+  ]);
 
   // Subgroup counts map
   const subgroupCounts = useMemo(() => {
@@ -445,10 +485,12 @@ export const SearchPage: React.FC = () => {
       return queryQ ? `Tìm kiếm: "${queryQ}"` : 'Tất cả sản phẩm';
     }
     const clean = queryCat.toLowerCase().replace(/\s+/g, '-');
-    if (clean === 'pc-linh-kien' || clean === 'linh-kien-pc' || clean === 'main-cpu-vga') return 'Linh kiện PC';
+    if (clean === 'pc-linh-kien' || clean === 'linh-kien-pc' || clean === 'main-cpu-vga')
+      return 'Linh kiện PC';
     if (clean === 'case-nguon-tan') return 'Case, Nguồn & Tản nhiệt';
     if (clean === 'gaming-gear') return 'Gaming Gear';
-    if (clean === 'chuot' || clean === 'chuot-lot-chuot' || clean === 'mouse') return 'Chuột & Lót chuột';
+    if (clean === 'chuot' || clean === 'chuot-lot-chuot' || clean === 'mouse')
+      return 'Chuột & Lót chuột';
     if (clean === 'ban-phim' || clean === 'keyboard') return 'Bàn phím';
     if (clean === 'tai-nghe' || clean === 'headset') return 'Tai nghe Gaming';
     if (clean === 'ghe-ban' || clean === 'chair') return 'Ghế & Bàn Gaming';
@@ -548,17 +590,45 @@ export const SearchPage: React.FC = () => {
       <main style={{ minHeight: '600px', paddingBottom: '80px' }}>
         {/* Breadcrumb */}
         <section className="container">
-          <div className="breadcrumb" style={{ paddingTop: '16px', paddingBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-            <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>Trang chủ</Link>
-            <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: '#94A3B8' }}></i>
-            <span style={{ fontWeight: 600, color: 'var(--text-primary, #0F172A)' }}>{activeCategoryName}</span>
+          <div
+            className="breadcrumb"
+            style={{
+              paddingTop: '16px',
+              paddingBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '13px',
+            }}
+          >
+            <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>
+              Trang chủ
+            </Link>
+            <i
+              className="fa-solid fa-chevron-right"
+              style={{ fontSize: '10px', color: '#94A3B8' }}
+            ></i>
+            <span style={{ fontWeight: 600, color: 'var(--text-primary, #0F172A)' }}>
+              {activeCategoryName}
+            </span>
           </div>
         </section>
 
         {/* 2-Column Search Layout */}
-        <section className="container search-page" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '28px', alignItems: 'start' }}>
+        <section
+          className="container search-page"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '260px 1fr',
+            gap: '28px',
+            alignItems: 'start',
+          }}
+        >
           {/* Sidebar */}
-          <aside className="search-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <aside
+            className="search-sidebar"
+            style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+          >
             {/* Widget 1: Bộ lọc tìm kiếm */}
             <div
               className="search-widget"
@@ -570,10 +640,21 @@ export const SearchPage: React.FC = () => {
                 boxShadow: 'var(--shadow-card, 0 4px 20px rgba(0,0,0,0.04))',
               }}
             >
-              <h3 style={{ fontSize: '15px', fontWeight: 800, margin: '0 0 14px 0', color: 'var(--text-primary, #0F172A)' }}>
+              <h3
+                style={{
+                  fontSize: '15px',
+                  fontWeight: 800,
+                  margin: '0 0 14px 0',
+                  color: 'var(--text-primary, #0F172A)',
+                }}
+              >
                 Bộ lọc tìm kiếm
               </h3>
-              <form onSubmit={handleSidebarSearch} className="search-widget__form" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <form
+                onSubmit={handleSidebarSearch}
+                className="search-widget__form"
+                style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+              >
                 <input
                   type="text"
                   placeholder="Nhập từ khóa tìm kiếm..."
@@ -630,8 +711,8 @@ export const SearchPage: React.FC = () => {
                   const cleanCurrent = (queryCat || '').toLowerCase().replace(/\s+/g, '-');
                   const isActive = Boolean(
                     cleanCurrent &&
-                      (cleanCurrent === cleanCat ||
-                        (VIRTUAL_GROUPS[cleanCurrent]?.includes(cleanCat) ?? false))
+                    (cleanCurrent === cleanCat ||
+                      (VIRTUAL_GROUPS[cleanCurrent]?.includes(cleanCat) ?? false)),
                   );
                   return (
                     <Link
@@ -663,16 +744,35 @@ export const SearchPage: React.FC = () => {
               }}
             >
               <div>
-                <h1 style={{ fontSize: '26px', fontWeight: 800, margin: '0 0 6px 0', color: 'var(--text-primary, #0F172A)' }}>
+                <h1
+                  style={{
+                    fontSize: '26px',
+                    fontWeight: 800,
+                    margin: '0 0 6px 0',
+                    color: 'var(--text-primary, #0F172A)',
+                  }}
+                >
                   {activeCategoryName}
                 </h1>
-                <p className="results-count" style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary, #64748B)' }}>
-                  Tìm thấy <strong>{filteredProducts.length}</strong> mẫu sản phẩm {queryPromo ? 'đang giảm giá' : 'phù hợp'}
+                <p
+                  className="results-count"
+                  style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary, #64748B)' }}
+                >
+                  Tìm thấy <strong>{filteredProducts.length}</strong> mẫu sản phẩm{' '}
+                  {queryPromo ? 'đang giảm giá' : 'phù hợp'}
                 </p>
               </div>
 
-              <div className="sort-options" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <label htmlFor="sortBy" style={{ fontSize: '13px', color: 'var(--text-secondary, #64748B)' }}>Xếp theo:</label>
+              <div
+                className="sort-options"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <label
+                  htmlFor="sortBy"
+                  style={{ fontSize: '13px', color: 'var(--text-secondary, #64748B)' }}
+                >
+                  Xếp theo:
+                </label>
                 <select
                   id="sortBy"
                   className="sort-select"
@@ -718,7 +818,16 @@ export const SearchPage: React.FC = () => {
             )}
 
             {!queryPromo && subcategoryList && subcategoryList.length > 0 && (
-              <div className="subcategory-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '10px 0', marginBottom: '8px' }}>
+              <div
+                className="subcategory-bar"
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                  padding: '10px 0',
+                  marginBottom: '8px',
+                }}
+              >
                 <button
                   type="button"
                   className={`subcategory-chip ${activeSubgroup === '' ? 'is-active' : ''}`}
@@ -735,7 +844,10 @@ export const SearchPage: React.FC = () => {
                       className={`subcategory-chip ${activeSubgroup === sub.key ? 'is-active' : ''}`}
                       onClick={() => setActiveSubgroup(activeSubgroup === sub.key ? '' : sub.key)}
                     >
-                      {sub.name} <span style={{ fontWeight: 400, opacity: 0.7, marginLeft: '4px' }}>({count})</span>
+                      {sub.name}{' '}
+                      <span style={{ fontWeight: 400, opacity: 0.7, marginLeft: '4px' }}>
+                        ({count})
+                      </span>
                     </button>
                   );
                 })}
@@ -743,7 +855,18 @@ export const SearchPage: React.FC = () => {
             )}
 
             {/* Filter Chips Bar */}
-            <div className="filter-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '12px 0', marginBottom: '16px', borderBottom: '1px solid var(--border, #E2E8F0)', alignItems: 'center' }}>
+            <div
+              className="filter-bar"
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                padding: '12px 0',
+                marginBottom: '16px',
+                borderBottom: '1px solid var(--border, #E2E8F0)',
+                alignItems: 'center',
+              }}
+            >
               {/* Quick Toggle: Sẵn hàng */}
               <span
                 className={`filter-chip ${inStockOnly ? 'is-active' : ''}`}
@@ -814,7 +937,14 @@ export const SearchPage: React.FC = () => {
                 {isBrandDropdownOpen && (
                   <div
                     className="filter-chip__dropdown is-open"
-                    style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100, maxHeight: '280px', overflowY: 'auto' }}
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 6px)',
+                      left: 0,
+                      zIndex: 100,
+                      maxHeight: '280px',
+                      overflowY: 'auto',
+                    }}
                   >
                     <div
                       className={`filter-chip__dropdown-item ${selectedBrands.length === 0 ? 'is-selected' : ''}`}
@@ -846,12 +976,12 @@ export const SearchPage: React.FC = () => {
               </div>
 
               {/* Clear filters shortcut */}
-              {(selectedBrands.length > 0 || priceRange !== 'all' || inStockOnly || promoOnly || activeSubgroup) && (
-                <button
-                  type="button"
-                  className="clear-all-filters"
-                  onClick={handleClearAllFilters}
-                >
+              {(selectedBrands.length > 0 ||
+                priceRange !== 'all' ||
+                inStockOnly ||
+                promoOnly ||
+                activeSubgroup) && (
+                <button type="button" className="clear-all-filters" onClick={handleClearAllFilters}>
                   <i className="fa-solid fa-xmark"></i> Xóa tất cả lọc
                 </button>
               )}
@@ -964,7 +1094,10 @@ export const SearchPage: React.FC = () => {
                     margin: '0 auto 16px auto',
                   }}
                 >
-                  <i className="fa-solid fa-magnifying-glass" style={{ fontSize: '24px', color: '#9CA3AF' }}></i>
+                  <i
+                    className="fa-solid fa-magnifying-glass"
+                    style={{ fontSize: '24px', color: '#9CA3AF' }}
+                  ></i>
                 </div>
                 <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '6px' }}>
                   Không tìm thấy sản phẩm phù hợp
@@ -976,7 +1109,13 @@ export const SearchPage: React.FC = () => {
                   type="button"
                   onClick={handleClearAllFilters}
                   className="auth-btn-primary"
-                  style={{ display: 'inline-block', width: 'auto', padding: '0 24px', height: '42px', fontSize: '13px' }}
+                  style={{
+                    display: 'inline-block',
+                    width: 'auto',
+                    padding: '0 24px',
+                    height: '42px',
+                    fontSize: '13px',
+                  }}
                 >
                   Xóa tất cả bộ lọc
                 </button>

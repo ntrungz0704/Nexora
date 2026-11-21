@@ -11,6 +11,7 @@
 ## 1. KẾT QUẢ KIỂM CHỨNG TRỰC TIẾP TRÊN MYSQL 8.4 ENGINE
 
 ### 1.1. Trạng Thái Container & Cổng Kết Nối
+
 - **Kiểm tra Docker Container:**
   ```text
   CONTAINER ID   IMAGE        STATUS                    PORTS
@@ -25,12 +26,14 @@
 Để chứng minh khả năng di trú từ đầu mà không gặp lỗi (Zero Migration Drift), Hội đồng kiểm toán đã tạo một CSDL hoàn toàn mới mang tên `nexora_test_audit` và thực thi lệnh triển khai migration:
 
 ### 2.1. Lệnh thực thi:
+
 ```powershell
 $env:DATABASE_URL="mysql://nexora:3d9eef3a2d869ac45207e99e8d9c64cc@127.0.0.1:3306/nexora_test_audit"
 npx prisma migrate deploy
 ```
 
 ### 2.2. Kết quả thực thi trực tiếp từ Prisma:
+
 ```text
 Prisma schema loaded from prisma\schema.prisma
 Datasource "db": MySQL database "nexora_test_audit" at "127.0.0.1:3306"
@@ -51,32 +54,32 @@ All migrations have been successfully applied.
 
 Truy vấn trực tiếp MySQL container trên database `nexora_test_audit`:
 
-| STT | Tên bảng MySQL | Trách nhiệm dữ liệu trong hệ thống |
-| :---: | :--- | :--- |
-| 1 | `users` | Tài khoản người dùng (Khách hàng, Nhân viên, Quản trị viên) |
-| 2 | `categories` | Cây danh mục sản phẩm phần cứng đa tầng |
-| 3 | `brands` | Thương hiệu nhà sản xuất (Asus, Dell, MSI, Lenovo, Acer...) |
-| 4 | `products` | Sản phẩm công nghệ, thông số, tồn kho, giá bán |
-| 5 | `product_images` | Bộ sưu tập hình ảnh chi tiết của sản phẩm |
-| 6 | `product_ai_chat_histories` | Lịch sử tương tác AI tư vấn chuyên sâu theo sản phẩm |
-| 7 | `carts` | Giỏ hàng lưu trữ (hỗ trợ cả tài khoản và phiên khách vãng lai) |
-| 8 | `cart_items` | Chi tiết sản phẩm trong giỏ hàng |
-| 9 | `wishlists` | Danh sách sản phẩm yêu thích của khách hàng |
-| 10 | `orders` | Đơn hàng, snapshot thông tin giao hàng, tổng tiền |
-| 11 | `order_items` | Chi tiết từng món trong đơn, snapshot giá bán & COGS |
-| 12 | `inventory_logs` | Sổ cái nhật ký biến động kho hàng (Nhập, Bán, Hoàn) |
-| 13 | `coupons` | Mã giảm giá, điều kiện áp dụng, hạn dùng |
-| 14 | `flash_sales` | Khung giờ khuyến mãi giảm giá sốc |
-| 15 | `flash_sale_items` | Danh sách sản phẩm tham gia Flash Sale |
-| 16 | `reviews` | Đánh giá số sao và nhận xét của khách hàng |
-| 17 | `return_requests` | Yêu cầu đổi trả hàng / bảo hành |
-| 18 | `customer_addresses` | Sổ địa chỉ giao hàng của khách hàng |
-| 19 | `notifications` | Thông báo đơn hàng và ưu đãi cho người dùng |
-| 20 | `posts` | Bài viết tin tức công nghệ và thủ thuật |
-| 21 | `banners` | Banner quảng cáo hiển thị trên trang chủ |
-| 22 | `store_settings` | Cấu hình tham số hệ thống dạng key-value |
-| 23 | `audit_logs` | Nhật ký kiểm toán thao tác quản trị viên |
-| 24 | `ai_assistant_logs` | Lịch sử khảo sát và khuyến nghị của trợ lý AI |
+| STT | Tên bảng MySQL              | Trách nhiệm dữ liệu trong hệ thống                             |
+| :-: | :-------------------------- | :------------------------------------------------------------- |
+|  1  | `users`                     | Tài khoản người dùng (Khách hàng, Nhân viên, Quản trị viên)    |
+|  2  | `categories`                | Cây danh mục sản phẩm phần cứng đa tầng                        |
+|  3  | `brands`                    | Thương hiệu nhà sản xuất (Asus, Dell, MSI, Lenovo, Acer...)    |
+|  4  | `products`                  | Sản phẩm công nghệ, thông số, tồn kho, giá bán                 |
+|  5  | `product_images`            | Bộ sưu tập hình ảnh chi tiết của sản phẩm                      |
+|  6  | `product_ai_chat_histories` | Lịch sử tương tác AI tư vấn chuyên sâu theo sản phẩm           |
+|  7  | `carts`                     | Giỏ hàng lưu trữ (hỗ trợ cả tài khoản và phiên khách vãng lai) |
+|  8  | `cart_items`                | Chi tiết sản phẩm trong giỏ hàng                               |
+|  9  | `wishlists`                 | Danh sách sản phẩm yêu thích của khách hàng                    |
+| 10  | `orders`                    | Đơn hàng, snapshot thông tin giao hàng, tổng tiền              |
+| 11  | `order_items`               | Chi tiết từng món trong đơn, snapshot giá bán & COGS           |
+| 12  | `inventory_logs`            | Sổ cái nhật ký biến động kho hàng (Nhập, Bán, Hoàn)            |
+| 13  | `coupons`                   | Mã giảm giá, điều kiện áp dụng, hạn dùng                       |
+| 14  | `flash_sales`               | Khung giờ khuyến mãi giảm giá sốc                              |
+| 15  | `flash_sale_items`          | Danh sách sản phẩm tham gia Flash Sale                         |
+| 16  | `reviews`                   | Đánh giá số sao và nhận xét của khách hàng                     |
+| 17  | `return_requests`           | Yêu cầu đổi trả hàng / bảo hành                                |
+| 18  | `customer_addresses`        | Sổ địa chỉ giao hàng của khách hàng                            |
+| 19  | `notifications`             | Thông báo đơn hàng và ưu đãi cho người dùng                    |
+| 20  | `posts`                     | Bài viết tin tức công nghệ và thủ thuật                        |
+| 21  | `banners`                   | Banner quảng cáo hiển thị trên trang chủ                       |
+| 22  | `store_settings`            | Cấu hình tham số hệ thống dạng key-value                       |
+| 23  | `audit_logs`                | Nhật ký kiểm toán thao tác quản trị viên                       |
+| 24  | `ai_assistant_logs`         | Lịch sử khảo sát và khuyến nghị của trợ lý AI                  |
 
 ---
 

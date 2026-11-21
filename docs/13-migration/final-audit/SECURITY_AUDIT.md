@@ -10,6 +10,7 @@
 ## 1. MỤC TIÊU & PHƯƠNG PHÁP KIỂM TOÁN AN NINH
 
 Đợt kiểm toán này rà soát toàn bộ bề mặt tấn công của hệ thống Nexora bao gồm:
+
 1. Cơ chế mã hóa mật khẩu, quản lý phiên và xác thực (Authentication).
 2. Kiểm soát truy cập và phân quyền đa tầng (RBAC & Authorization).
 3. Phòng chống tấn công tham chiếu trực tiếp đối tượng không an toàn (IDOR).
@@ -22,11 +23,13 @@
 ## 2. KẾT QUẢ ĐÁNH GIÁ CÁC TIÊU CHUẨN BẢO MẬT
 
 ### 2.1. Mã Hóa Mật Khẩu & Xác Thực
+
 - **Thư viện sử dụng:** `bcryptjs` với hệ số độ phức tạp muối (Salt Rounds) = 10.
 - **Xác thực phiên:** JWT (JSON Web Token) ký bằng thuật toán đối xứng HMAC-SHA256 với khóa bí mật lưu trong biến môi trường `JWT_SECRET`.
 - **Đánh giá:** Đáp ứng tiêu chuẩn lưu trữ an toàn thông tin định danh người dùng.
 
 ### 2.2. Kiểm Soát Phân Quyền (RBAC) & Chống IDOR
+
 - **Middleware phân quyền:** `apps/api/src/middleware/auth.middleware.ts`
   - Cung cấp hàm `requireAuth` và `requireRole(['ADMIN', 'STAFF'])`.
   - Kiểm tra vai trò trực tiếp từ cơ sở dữ liệu hoặc thông tin trong Token được giải mã.
@@ -41,6 +44,7 @@
   - Khách hàng không thể thay đổi `orderId` trên thanh địa chỉ để xem đơn hàng của người khác.
 
 ### 2.3. An Ninh Thanh Toán Cổng VNPay (Payment Gateway Security)
+
 - **Tính toán và kiểm tra chữ ký số:** `apps/api/src/modules/payment/payment.service.ts`
   - Sử dụng thuật toán mã hóa một chiều **HMAC-SHA512** theo đúng tiêu chuẩn kỹ thuật của cổng VNPay.
   - Sắp xếp thứ tự các tham số theo bảng chữ cái trước khi ký số.
@@ -53,11 +57,13 @@
   - Đảm bảo môi trường thực tế không thể bị lợi dụng để thanh toán khống.
 
 ### 2.4. Bảo Vệ Mạng & HTTP Headers
+
 - **Helmet:** Kích hoạt tại `server.ts` giúp bật các HTTP headers bảo vệ: `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Strict-Transport-Security`.
 - **CORS Allowlist:** Giới hạn nguồn gốc truy cập theo biến môi trường `CORS_ORIGIN`, ngăn chặn tấn công Cross-Origin từ các trang web độc hại.
 - **Rate Limiting:** Sử dụng `express-rate-limit` để giới hạn 100 requests / 15 phút trên API chung và giới hạn chặt chẽ 10 requests / 15 phút trên các API đăng nhập/đăng ký nhằm chống tấn công vét cạn (Brute-force).
 
 ### 2.5. Kiểm Tra Rò Rỉ Bí Mật (Secrets Leak Audit)
+
 - Quét lịch sử Git và các file cấu hình:
   - File `.env` chứa mật khẩu thật được loại trừ nghiêm ngặt trong `.gitignore`.
   - Chỉ commit `.env.example` chứa các chuỗi giữ chỗ (placeholders).
@@ -68,6 +74,7 @@
 ## 3. PHÁT HIỆN BẢO MẬT & RỦI RO (SECURITY VULNERABILITY FINDING)
 
 ### 🔴 PHÁT HIỆN P1: Khối Mã Fallback Kiểm Tra Mật Khẩu Dạng Plaintext Trong AuthService
+
 - **Mức độ nghiêm trọng:** **P1 (High)**
 - **Vị trí tệp:** `apps/api/src/modules/auth/auth.service.ts` (dòng 46-69)
 - **Đoạn mã phát hiện:**

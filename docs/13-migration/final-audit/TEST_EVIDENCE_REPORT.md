@@ -16,6 +16,7 @@ Báo cáo này tập hợp toàn bộ bằng chứng thực nghiệm thu thập 
 ## 2. KẾT QUẢ THỰC NGHIỆM CHI TIẾT THEO TỪNG CỔNG CHẤT LƯỢNG
 
 ### 2.1. Cổng Kiểm Tra Kiểu Dữ Liệu Tĩnh (TypeScript Typecheck)
+
 - **Lệnh thực thi:** `npm run typecheck`
 - **Phạm vi:** Toàn bộ npm workspaces (`@nexora/shared`, `@nexora/config`, `@nexora/api`, `@nexora/web`).
 - **Mã thoát (Exit Code):** `0`
@@ -41,6 +42,7 @@ Báo cáo này tập hợp toàn bộ bằng chứng thực nghiệm thu thập 
 ---
 
 ### 2.2. Cổng Kiểm Tra Quy Chuẩn Mã Nguồn (ESLint Linter)
+
 - **Lệnh thực thi:** `npm run lint`
 - **Mã thoát (Exit Code):** `0`
 - **Kết quả:** **0 cảnh báo nghiêm trọng, 0 lỗi cú pháp (PASS).**
@@ -48,6 +50,7 @@ Báo cáo này tập hợp toàn bộ bằng chứng thực nghiệm thu thập 
 ---
 
 ### 2.3. Cổng Kiểm Thử Tích Hợp & Đơn Vị (Vitest & Supertest)
+
 - **Lệnh thực thi:** `npx vitest run` (chạy tại thư mục `apps/api`)
 - **Mã thoát (Exit Code):** `0`
 - **Bằng chứng thực thi chi tiết:**
@@ -113,6 +116,7 @@ Báo cáo này tập hợp toàn bộ bằng chứng thực nghiệm thu thập 
 ---
 
 ### 2.4. Cổng Kiểm Tra Biên Dịch Sản Xuất (Production Build)
+
 - **Lệnh thực thi:** `npm run build`
 - **Mã thoát (Exit Code):** `0`
 - **Bằng chứng thực thi:**
@@ -147,6 +151,7 @@ Báo cáo này tập hợp toàn bộ bằng chứng thực nghiệm thu thập 
 ---
 
 ### 2.5. Trạng Thái Kiểm Thử Giao Diện Đầu-Cuối (E2E Testing with Playwright)
+
 - **Tệp hiện có:** `tests/e2e/foundation.spec.ts`
 - **Đánh giá:** Bộ kiểm thử nền tảng đã được cấu hình với Playwright. Tuy nhiên, để đạt độ phủ 100% cho 34 luồng hành trình người dùng phức tạp (User Journeys) cần bổ sung thêm các kịch bản tương tác sâu.
 - **Trạng thái:** **PARTIAL** (Đã ghi nhận vào Kế hoạch khắc phục P2).

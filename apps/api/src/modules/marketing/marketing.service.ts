@@ -41,7 +41,11 @@ export class MarketingService {
     });
 
     if (!coupon || !coupon.isActive) {
-      throw new AppError(404, 'COUPON_NOT_FOUND', 'Mã giảm giá không tồn tại hoặc đã hết hiệu lực.');
+      throw new AppError(
+        404,
+        'COUPON_NOT_FOUND',
+        'Mã giảm giá không tồn tại hoặc đã hết hiệu lực.',
+      );
     }
 
     if (coupon.expiresAt && new Date(coupon.expiresAt) <= new Date()) {
@@ -122,31 +126,31 @@ export class MarketingService {
       items: flashSale.items
         .filter((item) => item.product && item.product.status === 'ACTIVE')
         .map((item) => ({
-        id: item.id,
-        productId: item.productId,
-        flashSalePrice: item.flashSalePrice.toString(),
-        quantityLimit: item.quantityLimit,
-        quantitySold: item.quantitySold,
-        product: {
-          id: item.product.id,
-          categoryId: item.product.categoryId,
-          brandId: item.product.brandId,
-          name: item.product.name,
-          slug: item.product.slug,
-          sku: item.product.sku,
-          price: item.product.price.toString(),
-          salePrice: item.flashSalePrice.toString(),
-          stockQuantity: item.product.stockQuantity,
-          thumbnailUrl: item.product.thumbnailUrl,
-          shortDescription: item.product.shortDescription,
-          specs: item.product.specs as Record<string, unknown> | null,
-          isFeatured: item.product.isFeatured,
-          isHot: item.product.isHot,
-          status: item.product.status,
-          category: item.product.category,
-          brand: item.product.brand,
-        },
-      })),
+          id: item.id,
+          productId: item.productId,
+          flashSalePrice: item.flashSalePrice.toString(),
+          quantityLimit: item.quantityLimit,
+          quantitySold: item.quantitySold,
+          product: {
+            id: item.product.id,
+            categoryId: item.product.categoryId,
+            brandId: item.product.brandId,
+            name: item.product.name,
+            slug: item.product.slug,
+            sku: item.product.sku,
+            price: item.product.price.toString(),
+            salePrice: item.flashSalePrice.toString(),
+            stockQuantity: item.product.stockQuantity,
+            thumbnailUrl: item.product.thumbnailUrl,
+            shortDescription: item.product.shortDescription,
+            specs: item.product.specs as Record<string, unknown> | null,
+            isFeatured: item.product.isFeatured,
+            isHot: item.product.isHot,
+            status: item.product.status,
+            category: item.product.category,
+            brand: item.product.brand,
+          },
+        })),
     };
   }
 

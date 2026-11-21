@@ -25,6 +25,7 @@
 Toàn bộ các tệp và thư mục sau đây đã được kiểm định chất lượng và sẽ được đóng gói vào repository mới:
 
 ### 2.1. Cấu hình gốc Monorepo:
+
 - `package.json` & `package-lock.json` (npm workspaces quản lý `@nexora/web`, `@nexora/api`, `@nexora/shared`, `@nexora/config`).
 - `tsconfig.json` (Cấu hình TypeScript base chuẩn).
 - `docker-compose.yml` (Đóng gói MySQL 8.4, API và Web).
@@ -33,6 +34,7 @@ Toàn bộ các tệp và thư mục sau đây đã được kiểm định ch�
 - `README.md` (Tài liệu giới thiệu dự án và hướng dẫn chạy).
 
 ### 2.2. Các Gói Mã Nguồn (Workspaces):
+
 - `apps/web/`: Toàn bộ ứng dụng Frontend React 19, Vite, Tailwind CSS 4, React Router, TanStack Query.
 - `apps/api/`: Toàn bộ Backend Node.js 20+, Express.js 5, Modular Monolith (10 Routers, Services, Repositories).
 - `packages/shared/`: Hợp đồng kiểu dữ liệu, Zod DTOs và Enums dùng chung giữa FE và BE.
@@ -46,14 +48,18 @@ Toàn bộ các tệp và thư mục sau đây đã được kiểm định ch�
 ## 3. QUY TRÌNH THỰC HIỆN KHỞI TẠO REPOSITORY MỚI (STEP-BY-STEP)
 
 ### Bước 1: Chuẩn bị thư mục sạch (Staging Clean Directory)
+
 Tạo một thư mục mới độc lập bên ngoài (ví dụ: `D:\Nexora-Release`), sao chép toàn bộ mã nguồn sạch của Nexora sang, đảm bảo:
+
 - Không copy thư mục `.git/` cũ.
 - Không copy thư mục `TechPilot/`.
 - Không copy thư mục `audit-output/`.
 - Không copy các thư mục `node_modules/`, `dist/`, `.env`.
 
 ### Bước 2: Khởi tạo Git mới với duy nhất 1 Commit ban đầu
+
 Tại thư mục mã nguồn sạch:
+
 ```bash
 # 1. Khởi tạo Git repo mới với nhánh mặc định là main
 git init -b main
@@ -66,8 +72,10 @@ git commit -m "feat: khoi tao ma nguon he thong thuong mai dien tu nexora phien 
 ```
 
 ### Bước 3: Tạo Repository mới trên GitHub & Đẩy mã nguồn
+
 1. Đăng nhập GitHub, tạo repository mới (ví dụ: `https://github.com/ntrungz0704/nexora-store`).
 2. Liên kết remote và đẩy commit duy nhất lên:
+
 ```bash
 # 4. Gắn remote mới
 git remote add origin https://github.com/ntrungz0704/nexora-store.git
@@ -77,6 +85,7 @@ git push -u origin main
 ```
 
 ### Bước 4: Kiểm chứng môi trường sạch độc lập (Clean-Room Verification)
+
 1. Trên một máy tính khác hoặc một thư mục độc lập (`D:\Test-Clean-Nexora`):
    ```bash
    git clone https://github.com/ntrungz0704/nexora-store.git .

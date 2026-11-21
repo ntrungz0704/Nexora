@@ -13,24 +13,26 @@
 
 Theo yêu cầu nghiêm ngặt từ Hội đồng Thẩm định Kỹ thuật độc lập trước khi phê duyệt đóng gói và tạo repository mới, toàn bộ các điểm nghẽn bảo mật (Blockers A, B, C) đã được giải quyết tận gốc và chứng minh qua các bộ kiểm thử tự động chuyên sâu:
 
-| Mã điểm nghẽn | Phân hệ ảnh hưởng | Mức độ rủi ro | Trạng thái trước | Trạng thái hiện tại | Bằng chứng kiểm chứng |
-| :---: | :--- | :---: | :---: | :---: | :--- |
-| **BLOCKER A** | Auth Password Reset Token & Real Email Dispatch | `P1 - CRITICAL` | `FAIL` (Lộ token, chưa gửi email thực tế, lỗi purpose) | **VERIFIED PASS** | `apps/api/tests/auth_password_reset_security.test.ts` (8/8 tests PASS) |
-| **BLOCKER B** | Atomic One-Time Token under Concurrency | `P1 - HIGH` | `FAIL` (Nguy cơ race condition khi 2 request đồng thời) | **VERIFIED PASS** | `apps/api/tests/auth_password_reset_security.test.ts` (Test SEC-RESET-7 PASS) |
-| **BLOCKER C** | Default Seed Credentials & Re-seed Reset | `P1 - HIGH` | `FAIL` (Ghi đè mật khẩu Admin khi re-seed, mật khẩu mặc định yếu) | **VERIFIED PASS** | `apps/api/tests/seed_and_auth_credentials.test.ts` (2/2 tests PASS) |
-| **BLOCKER D** | Payment URL Ownership & Tampering Protection | `P1 - HIGH` | `FAIL` (Thiếu kiểm tra quyền sở hữu order, nguy cơ IDOR) | **VERIFIED PASS** | `apps/api/tests/payment_security.test.ts` (13/13 tests PASS) |
+| Mã điểm nghẽn | Phân hệ ảnh hưởng                               |  Mức độ rủi ro  |                         Trạng thái trước                          | Trạng thái hiện tại | Bằng chứng kiểm chứng                                                         |
+| :-----------: | :---------------------------------------------- | :-------------: | :---------------------------------------------------------------: | :-----------------: | :---------------------------------------------------------------------------- |
+| **BLOCKER A** | Auth Password Reset Token & Real Email Dispatch | `P1 - CRITICAL` |      `FAIL` (Lộ token, chưa gửi email thực tế, lỗi purpose)       |  **VERIFIED PASS**  | `apps/api/tests/auth_password_reset_security.test.ts` (8/8 tests PASS)        |
+| **BLOCKER B** | Atomic One-Time Token under Concurrency         |   `P1 - HIGH`   |      `FAIL` (Nguy cơ race condition khi 2 request đồng thời)      |  **VERIFIED PASS**  | `apps/api/tests/auth_password_reset_security.test.ts` (Test SEC-RESET-7 PASS) |
+| **BLOCKER C** | Default Seed Credentials & Re-seed Reset        |   `P1 - HIGH`   | `FAIL` (Ghi đè mật khẩu Admin khi re-seed, mật khẩu mặc định yếu) |  **VERIFIED PASS**  | `apps/api/tests/seed_and_auth_credentials.test.ts` (2/2 tests PASS)           |
+| **BLOCKER D** | Payment URL Ownership & Tampering Protection    |   `P1 - HIGH`   |     `FAIL` (Thiếu kiểm tra quyền sở hữu order, nguy cơ IDOR)      |  **VERIFIED PASS**  | `apps/api/tests/payment_security.test.ts` (13/13 tests PASS)                  |
 
 ---
 
 ## 2. CHI TIẾT KHẮC PHỤC BLOCKER A: PASSWORD RESET EMAIL DELIVERY & TOKEN SECURITY
 
 ### 2.1. Hiện trạng nguy cơ trước khắc phục
+
 1. **Thiếu cơ chế gửi email thực tế:** Trong phiên bản trước, `forgotPassword()` chỉ có ghi chú comment `// Dispatch reset email securely` mà chưa gọi dịch vụ gửi thư thực sự. API trả thông báo thành công chung nhưng email không bao giờ được gửi đi.
 2. **Lộ Token Reset Mật Khẩu qua HTTP Response:** Trước đây `res.body.data.resetToken` bị lộ trong phản hồi API.
 3. **Lỗi logic kiểm tra Token Purpose:** Toán tử logic cũ `if (payload.purpose !== 'password_reset' && !payload.sub)` sử dụng sai toán tử `&&`.
 4. **Báo thành công giả mạo khi dịch vụ gửi thư gặp lỗi:** Nếu email provider bị sập hoặc cấu hình sai, hệ thống vẫn báo thành công khiến người dùng không biết rằng yêu cầu bị thất bại.
 
 ### 2.2. Mã nguồn sau khắc phục (`apps/api/src/modules/email/email.service.ts` & `auth.service.ts`)
+
 1. **Triển khai Dịch vụ Email hoàn chỉnh (`EmailService`):**
    - Hỗ trợ đa nhà cung cấp: **SMTP** chuẩn (Gmail, Mailgun, Amazon SES...), **Resend HTTP API** (gọi API không cần SDK phụ thuộc), và **In-Memory Stream Transporter** trong môi trường kiểm thử tự động.
    - Cấu hình linh hoạt qua biến môi trường (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `RESEND_API_KEY`). Không hardcode bất kỳ credential nào.
@@ -49,13 +51,17 @@ Theo yêu cầu nghiêm ngặt từ Hội đồng Thẩm định Kỹ thuật đ
 ## 3. CHI TIẾT KHẮC PHỤC BLOCKER B: TÍNH NGUYÊN TỬ CỦA TOKEN DƯỚI TẢI ĐỒNG THỜI (CONCURRENCY ATOMICITY)
 
 ### 3.1. Hiện trạng nguy cơ trước khắc phục
+
 Cơ chế kiểm tra `hashSig` cũ sử dụng phương thức `prisma.user.findUnique` theo sau bởi `prisma.user.update`. Dưới điều kiện hai request đặt lại mật khẩu gửi đồng thời với cùng một token (Race condition / TOCTOU):
+
 - Cả hai request cùng đọc được giá trị `password_hash` cũ.
 - Cả hai request cùng vượt qua bước kiểm tra `payload.hashSig === currentHashSig`.
 - Cả hai request cùng thực hiện cập nhật mật khẩu, vi phạm nguyên tắc sử dụng token duy nhất một lần.
 
 ### 3.2. Mã nguồn sau khắc phục (`apps/api/src/modules/auth/auth.service.ts`)
+
 Áp dụng cơ chế **Khóa bi quan độc quyền trên dòng (Pessimistic Row Locking)** bằng câu lệnh `SELECT ... FOR UPDATE` bên trong transaction tương tác của Prisma:
+
 ```typescript
 await this.prisma.$transaction(async (tx) => {
   const users = await tx.$queryRaw<Array<{ id: number; password_hash: string | null }>>`
@@ -72,7 +78,7 @@ await this.prisma.$transaction(async (tx) => {
     throw new AppError(
       400,
       'TOKEN_ALREADY_USED',
-      'Mã đặt lại mật khẩu này đã được sử dụng hoặc không còn hiệu lực.'
+      'Mã đặt lại mật khẩu này đã được sử dụng hoặc không còn hiệu lực.',
     );
   }
 
@@ -84,6 +90,7 @@ await this.prisma.$transaction(async (tx) => {
 ```
 
 ### 3.3. Cơ chế hoạt động đảm bảo tính nguyên tử trong MySQL 8.4 InnoDB
+
 1. Request 1 đi vào transaction, gọi `SELECT ... FOR UPDATE`, InnoDB cấp quyền khóa độc quyền (Exclusive X-Lock) trên bản ghi `users.id = ?`.
 2. Request 2 đi vào transaction, cố gắng đọc cùng dòng với `FOR UPDATE` -> InnoDB lập tức **chặn Request 2 và đưa vào hàng đợi chờ**.
 3. Request 1 kiểm tra `currentHashSig === payload.hashSig` -> Hợp lệ.
@@ -116,6 +123,7 @@ await this.prisma.$transaction(async (tx) => {
 ## 6. TỔNG KẾT BẰNG CHỨNG THỰC NGHIỆM
 
 Toàn bộ các giải pháp trên đã được kiểm chứng tự động:
+
 - **`npm test -- apps/api/tests/auth_password_reset_security.test.ts`**: **8/8 tests passed**.
 - **`npm test -- apps/api/tests/seed_and_auth_credentials.test.ts`**: **2/2 tests passed**.
 - **`npm test -- apps/api/tests/payment_security.test.ts`**: **13/13 tests passed**.

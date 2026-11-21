@@ -10,11 +10,13 @@
 ## 1. BÁO CÁO XỬ LÝ LỖ HỔNG BẢO MẬT P1 (AUTH SERVICE)
 
 ### 1.1. Chi tiết lỗ hổng ban đầu
+
 - **Vị trí:** `apps/api/src/modules/auth/auth.service.ts` (dòng 45-69 trước đây).
 - **Vấn đề:** Khối mã fallback cho phép đăng nhập bằng các mật khẩu plaintext cũ (`TechPilotAdmin2026!`, `admin123`, `dev123`, `password123`) phục vụ quá trình chuyển giao tài khoản mẫu.
 - **Mức độ rủi ro:** P1 (High) — Nguy cơ chiếm quyền tài khoản nếu mật khẩu mặc định bị khai thác.
 
 ### 1.2. Biện pháp kỹ thuật đã thực hiện
+
 Đã loại bỏ hoàn toàn khối mã fallback trong `auth.service.ts`. Phương thức `login()` hiện tại chỉ sử dụng một quy trình kiểm tra mật khẩu duy nhất và tuyệt đối:
 
 ```typescript
@@ -26,6 +28,7 @@ if (!isMatch) {
 ```
 
 ### 1.3. Bằng chứng kiểm thử hồi quy (Regression Test Evidence)
+
 Đã bổ sung bộ kiểm thử chuyên biệt trong [`apps/api/tests/rbac_and_concurrency.test.ts`](file:///d:/Nexora/apps/api/tests/rbac_and_concurrency.test.ts):
 
 ```typescript
@@ -78,17 +81,17 @@ describe('P1 Auth Security Regression Tests', () => {
 
 ## 2. TỔNG HỢP TRẠNG THÁI AN NINH HỆ THỐNG HIỆN TẠI
 
-| Tiêu chuẩn an ninh | Cơ chế bảo vệ | Tệp triển khai | Trạng thái |
-| :--- | :--- | :--- | :---: |
-| **Password Hashing** | Bcrypt với salt rounds 10, không backdoor | `auth.service.ts` | **PASS** |
-| **Token Authentication** | JWT HMAC-SHA256, thời hạn 7 ngày, kiểm tra bí mật | `auth.service.ts` | **PASS** |
-| **RBAC Authorization** | Middleware `requireAuth`, `requireRole(['ADMIN', 'STAFF'])` | `auth.middleware.ts` | **PASS** |
-| **Chống IDOR** | Kiểm tra quyền sở hữu đơn hàng dựa trên `user_id` từ token | `order.service.ts` | **PASS** |
-| **Chống Giả Mạo VNPay** | Chữ ký HMAC-SHA512 + so khớp số tiền thực tế CSDL | `payment.service.ts` | **PASS** |
-| **Bảo Vệ Endpoint Simulate** | Khóa kép chặn môi trường Production ở Router & Service | `payment.routes.ts`, `payment.service.ts` | **PASS** |
-| **Bảo Vệ Mạng & Headers** | Helmet Security Headers + CORS strict allowlist | `server.ts` | **PASS** |
-| **Chống Brute-force** | Rate Limit (100 req/15min chung, 10 req/15min auth) | `server.ts` | **PASS** |
-| **Quét Rò Rỉ Bí Mật** | Không có khóa bí mật hoặc file `.env` thật trong Git | `.gitignore` | **PASS** |
+| Tiêu chuẩn an ninh           | Cơ chế bảo vệ                                               | Tệp triển khai                            | Trạng thái |
+| :--------------------------- | :---------------------------------------------------------- | :---------------------------------------- | :--------: |
+| **Password Hashing**         | Bcrypt với salt rounds 10, không backdoor                   | `auth.service.ts`                         |  **PASS**  |
+| **Token Authentication**     | JWT HMAC-SHA256, thời hạn 7 ngày, kiểm tra bí mật           | `auth.service.ts`                         |  **PASS**  |
+| **RBAC Authorization**       | Middleware `requireAuth`, `requireRole(['ADMIN', 'STAFF'])` | `auth.middleware.ts`                      |  **PASS**  |
+| **Chống IDOR**               | Kiểm tra quyền sở hữu đơn hàng dựa trên `user_id` từ token  | `order.service.ts`                        |  **PASS**  |
+| **Chống Giả Mạo VNPay**      | Chữ ký HMAC-SHA512 + so khớp số tiền thực tế CSDL           | `payment.service.ts`                      |  **PASS**  |
+| **Bảo Vệ Endpoint Simulate** | Khóa kép chặn môi trường Production ở Router & Service      | `payment.routes.ts`, `payment.service.ts` |  **PASS**  |
+| **Bảo Vệ Mạng & Headers**    | Helmet Security Headers + CORS strict allowlist             | `server.ts`                               |  **PASS**  |
+| **Chống Brute-force**        | Rate Limit (100 req/15min chung, 10 req/15min auth)         | `server.ts`                               |  **PASS**  |
+| **Quét Rò Rỉ Bí Mật**        | Không có khóa bí mật hoặc file `.env` thật trong Git        | `.gitignore`                              |  **PASS**  |
 
 ---
 

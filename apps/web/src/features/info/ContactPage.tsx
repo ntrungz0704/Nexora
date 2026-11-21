@@ -84,8 +84,13 @@ export const ContactPage: React.FC = () => {
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Trang chủ</Link>
+        <nav
+          className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6"
+          aria-label="Breadcrumb"
+        >
+          <Link to="/" className="hover:text-blue-600 transition-colors">
+            Trang chủ
+          </Link>
           <i className="fa-solid fa-chevron-right text-[10px]"></i>
           <span className="text-slate-800 dark:text-slate-200 font-semibold">Liên hệ hợp tác</span>
         </nav>
@@ -99,7 +104,8 @@ export const ContactPage: React.FC = () => {
             Liên Hệ Với Nexora
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-            Chúng tôi luôn sẵn sàng lắng nghe, hỗ trợ giải đáp thắc mắc và kết nối hợp tác kinh doanh cùng quý đối tác, khách hàng.
+            Chúng tôi luôn sẵn sàng lắng nghe, hỗ trợ giải đáp thắc mắc và kết nối hợp tác kinh
+            doanh cùng quý đối tác, khách hàng.
           </p>
         </div>
 
@@ -116,7 +122,9 @@ export const ContactPage: React.FC = () => {
                   <i className="fa-solid fa-location-dot"></i>
                 </div>
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">Trụ Sở Flagship</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">
+                    Trụ Sở Flagship
+                  </h3>
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-relaxed">
                     Số 123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh
                   </p>
@@ -128,9 +136,14 @@ export const ContactPage: React.FC = () => {
                   <i className="fa-solid fa-phone"></i>
                 </div>
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">Tổng Đài Hỗ Trợ</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">
+                    Tổng Đài Hỗ Trợ
+                  </h3>
                   <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                    1900 8888 <span className="text-xs font-normal text-slate-500">(08:00 - 21:30 hàng ngày)</span>
+                    1900 8888{' '}
+                    <span className="text-xs font-normal text-slate-500">
+                      (08:00 - 21:30 hàng ngày)
+                    </span>
                   </p>
                 </div>
               </div>
@@ -140,7 +153,9 @@ export const ContactPage: React.FC = () => {
                   <i className="fa-solid fa-envelope"></i>
                 </div>
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">Email Tiếp Nhận</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">
+                    Email Tiếp Nhận
+                  </h3>
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                     contact@nexora.local / hotro@nexora.local
                   </p>
@@ -166,7 +181,8 @@ export const ContactPage: React.FC = () => {
                 Gửi Tin Nhắn Cho Chúng Tôi
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
-                Để lại thông tin và nhu cầu của bạn, đội ngũ chuyên viên Nexora sẽ phản hồi trong vòng 2 giờ làm việc.
+                Để lại thông tin và nhu cầu của bạn, đội ngũ chuyên viên Nexora sẽ phản hồi trong
+                vòng 2 giờ làm việc.
               </p>
 
               {isSent ? (
@@ -178,7 +194,8 @@ export const ContactPage: React.FC = () => {
                     Gửi Tin Nhắn Thành Công!
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-md mx-auto">
-                    Cảm ơn bạn đã liên hệ với Nexora. Bộ phận chăm sóc khách hàng đã tiếp nhận thông tin và sẽ liên hệ lại qua email hoặc số điện thoại của bạn.
+                    Cảm ơn bạn đã liên hệ với Nexora. Bộ phận chăm sóc khách hàng đã tiếp nhận thông
+                    tin và sẽ liên hệ lại qua email hoặc số điện thoại của bạn.
                   </p>
                   <button
                     onClick={() => {

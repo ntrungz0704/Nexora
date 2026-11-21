@@ -1,12 +1,14 @@
 # CHIẾN LƯỢC KIỂM THỬ TỰ ĐỘNG & ĐẢM BẢO CHẤT LƯỢNG (QA)
+
 **Tài liệu:** `12_TESTING_AND_QUALITY_ASSURANCE.md`  
-**Dự án:** Nexora  
+**Dự án:** Nexora
 
 ---
 
 ## 1. Cơ Cấu Bộ Kiểm Thử Tự Động (Vitest & Supertest)
 
 Hệ thống sở hữu bộ kiểm thử tự động 100% chạy trên cơ sở dữ liệu MySQL 8.4 thực tế:
+
 - **`apps/api/tests/commerce_and_ai.integration.test.ts` (11 tests):** Đặt hàng, snapshot tồn kho, wishlist cô lập khách hàng, reset password không lộ token.
 - **`apps/api/tests/rbac_and_concurrency.test.ts` (10 tests):** Phân quyền vai trò, kiểm thử tranh chấp 2 request mua cùng 1 sản phẩm cuối cùng đồng thời.
 - **`apps/api/tests/payment_security.test.ts` (13 tests):** Xác thực chữ ký VNPay, kiểm tra quyền sở hữu đơn hàng, bảo vệ IPN callback.

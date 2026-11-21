@@ -44,7 +44,8 @@ export const PromoCards: React.FC = () => {
           id: b.id,
           title: b.title,
           subtitle:
-            DEFAULT_SIDEBAR_CARDS[idx]?.subtitle || 'Ưu đãi chính hãng dành riêng cho bạn tại Nexora',
+            DEFAULT_SIDEBAR_CARDS[idx]?.subtitle ||
+            'Ưu đãi chính hãng dành riêng cho bạn tại Nexora',
           imageUrl:
             b.imageUrl.startsWith('/') || b.imageUrl.startsWith('http')
               ? b.imageUrl

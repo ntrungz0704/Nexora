@@ -73,7 +73,9 @@ export class EmailService {
     const isTest = process.env.NODE_ENV === 'test' || process.env.EMAIL_PROVIDER === 'test';
 
     if (!this.isConfigured()) {
-      throw new Error('EMAIL_SERVICE_NOT_CONFIGURED: Không có nhà cung cấp dịch vụ email (SMTP hoặc Resend) nào được cấu hình.');
+      throw new Error(
+        'EMAIL_SERVICE_NOT_CONFIGURED: Không có nhà cung cấp dịch vụ email (SMTP hoặc Resend) nào được cấu hình.',
+      );
     }
 
     // If Resend API key is configured and not in test mode
@@ -109,7 +111,9 @@ export class EmailService {
     return { success: true, messageId };
   }
 
-  private async sendViaResend(options: SendEmailOptions): Promise<{ success: boolean; messageId: string }> {
+  private async sendViaResend(
+    options: SendEmailOptions,
+  ): Promise<{ success: boolean; messageId: string }> {
     const from = process.env.SMTP_FROM || 'Nexora Support <no-reply@nexora.local>';
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

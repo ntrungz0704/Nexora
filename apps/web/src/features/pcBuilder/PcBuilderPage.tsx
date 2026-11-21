@@ -19,11 +19,35 @@ interface BuilderPartCategory {
 }
 
 const BUILDER_PARTS: BuilderPartCategory[] = [
-  { key: 'cpu', name: 'Bộ vi xử lý (CPU)', icon: 'fa-solid fa-microchip', wattage: 125, isCore: true },
-  { key: 'mainboard', name: 'Bo mạch chủ (Mainboard)', icon: 'fa-solid fa-clone', wattage: 50, isCore: true },
+  {
+    key: 'cpu',
+    name: 'Bộ vi xử lý (CPU)',
+    icon: 'fa-solid fa-microchip',
+    wattage: 125,
+    isCore: true,
+  },
+  {
+    key: 'mainboard',
+    name: 'Bo mạch chủ (Mainboard)',
+    icon: 'fa-solid fa-clone',
+    wattage: 50,
+    isCore: true,
+  },
   { key: 'ram', name: 'Bộ nhớ trong (RAM)', icon: 'fa-solid fa-server', wattage: 15, isCore: true },
-  { key: 'vga', name: 'Card màn hình (VGA)', icon: 'fa-solid fa-sd-card', wattage: 250, isCore: false },
-  { key: 'storage', name: 'Ổ cứng (SSD/HDD)', icon: 'fa-solid fa-database', wattage: 10, isCore: true },
+  {
+    key: 'vga',
+    name: 'Card màn hình (VGA)',
+    icon: 'fa-solid fa-sd-card',
+    wattage: 250,
+    isCore: false,
+  },
+  {
+    key: 'storage',
+    name: 'Ổ cứng (SSD/HDD)',
+    icon: 'fa-solid fa-database',
+    wattage: 10,
+    isCore: true,
+  },
   { key: 'psu', name: 'Nguồn máy tính (PSU)', icon: 'fa-solid fa-plug', wattage: 0, isCore: true },
   { key: 'case', name: 'Vỏ máy tính (Case)', icon: 'fa-solid fa-box', wattage: 0, isCore: true },
   { key: 'cooler', name: 'Tản nhiệt PC', icon: 'fa-solid fa-fan', wattage: 25, isCore: false },
@@ -61,7 +85,9 @@ interface SelectedPartInfo {
 export const PcBuilderPage: React.FC = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Flow mode: 'build_full' | 'upgrade' | 'prebuilt'
@@ -265,7 +291,14 @@ export const PcBuilderPage: React.FC = () => {
       if (missing.length > 0) {
         alerts.push({
           type: 'warning',
-          message: `Thiếu linh kiện cốt lõi: ${missing.map((k) => BUILDER_PARTS.find((p) => p.key === k)?.name.toUpperCase().split(' ')[0]).join(', ')}`,
+          message: `Thiếu linh kiện cốt lõi: ${missing
+            .map(
+              (k) =>
+                BUILDER_PARTS.find((p) => p.key === k)
+                  ?.name.toUpperCase()
+                  .split(' ')[0],
+            )
+            .join(', ')}`,
         });
       }
     }
@@ -403,21 +436,44 @@ export const PcBuilderPage: React.FC = () => {
       // Fallback keyword matching
       switch (catKey) {
         case 'cpu':
-          return nameLower.includes('cpu') || nameLower.includes('intel core') || nameLower.includes('ryzen');
+          return (
+            nameLower.includes('cpu') ||
+            nameLower.includes('intel core') ||
+            nameLower.includes('ryzen')
+          );
         case 'mainboard':
-          return nameLower.includes('mainboard') || nameLower.includes('bo mạch') || nameLower.includes('b760') || nameLower.includes('z790') || nameLower.includes('b650');
+          return (
+            nameLower.includes('mainboard') ||
+            nameLower.includes('bo mạch') ||
+            nameLower.includes('b760') ||
+            nameLower.includes('z790') ||
+            nameLower.includes('b650')
+          );
         case 'ram':
-          return nameLower.includes('ram') || nameLower.includes('ddr4') || nameLower.includes('ddr5');
+          return (
+            nameLower.includes('ram') || nameLower.includes('ddr4') || nameLower.includes('ddr5')
+          );
         case 'vga':
-          return nameLower.includes('vga') || nameLower.includes('rtx') || nameLower.includes('card màn hình') || nameLower.includes('radeon');
+          return (
+            nameLower.includes('vga') ||
+            nameLower.includes('rtx') ||
+            nameLower.includes('card màn hình') ||
+            nameLower.includes('radeon')
+          );
         case 'storage':
-          return nameLower.includes('ssd') || nameLower.includes('ổ cứng') || nameLower.includes('nvme');
+          return (
+            nameLower.includes('ssd') || nameLower.includes('ổ cứng') || nameLower.includes('nvme')
+          );
         case 'psu':
           return nameLower.includes('psu') || nameLower.includes('nguồn');
         case 'case':
           return nameLower.includes('case') || nameLower.includes('vỏ');
         case 'cooler':
-          return nameLower.includes('tản nhiệt') || nameLower.includes('cooler') || nameLower.includes('aio');
+          return (
+            nameLower.includes('tản nhiệt') ||
+            nameLower.includes('cooler') ||
+            nameLower.includes('aio')
+          );
         case 'monitor':
           return nameLower.includes('màn hình');
         case 'mouse':
@@ -446,7 +502,10 @@ export const PcBuilderPage: React.FC = () => {
   }, [allProducts]);
 
   return (
-    <div className="pc-builder-page-wrapper" style={{ backgroundColor: 'var(--bg-main, #F8FAFC)', minHeight: '100vh' }}>
+    <div
+      className="pc-builder-page-wrapper"
+      style={{ backgroundColor: 'var(--bg-main, #F8FAFC)', minHeight: '100vh' }}
+    >
       {toastMessage && (
         <div
           style={{
@@ -485,10 +544,27 @@ export const PcBuilderPage: React.FC = () => {
 
       {/* Breadcrumb */}
       <section className="container">
-        <div className="breadcrumb" style={{ paddingTop: '16px', paddingBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-          <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>Trang chủ</Link>
-          <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px', color: '#94A3B8' }}></i>
-          <span style={{ fontWeight: 600, color: 'var(--text-primary, #0F172A)' }}>Xây dựng cấu hình PC</span>
+        <div
+          className="breadcrumb"
+          style={{
+            paddingTop: '16px',
+            paddingBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '13px',
+          }}
+        >
+          <Link to="/" style={{ color: 'var(--primary, #0A5BFF)', textDecoration: 'none' }}>
+            Trang chủ
+          </Link>
+          <i
+            className="fa-solid fa-chevron-right"
+            style={{ fontSize: '10px', color: '#94A3B8' }}
+          ></i>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary, #0F172A)' }}>
+            Xây dựng cấu hình PC
+          </span>
         </div>
       </section>
 
@@ -499,12 +575,17 @@ export const PcBuilderPage: React.FC = () => {
             <i className="fa-solid fa-sliders" style={{ marginRight: '8px' }}></i>
             Xây Dựng Cấu Hình PC & Tự Chọn Linh Kiện
           </h1>
-          <p>Hệ thống tự động kiểm tra tương thích Socket, RAM, Kích thước Case & Ước tính Nguồn (PSU) chính xác 100%</p>
+          <p>
+            Hệ thống tự động kiểm tra tương thích Socket, RAM, Kích thước Case & Ước tính Nguồn
+            (PSU) chính xác 100%
+          </p>
         </div>
 
         {/* 3 Flow Selector Banner */}
         <div className="tp-flow-banner">
-          <div style={{ fontWeight: 700, color: '#1E293B', marginBottom: '10px', fontSize: '14.5px' }}>
+          <div
+            style={{ fontWeight: 700, color: '#1E293B', marginBottom: '10px', fontSize: '14.5px' }}
+          >
             <i className="fa-solid fa-route" style={{ color: '#0B63E5', marginRight: '6px' }}></i>
             Bạn đang muốn xây dựng cấu hình thế nào?
           </div>
@@ -546,9 +627,7 @@ export const PcBuilderPage: React.FC = () => {
                       <i className={part.icon}></i>
                     </div>
 
-                    <div className="pc-builder-part-name">
-                      {part.name}
-                    </div>
+                    <div className="pc-builder-part-name">{part.name}</div>
 
                     <div className="pc-builder-selected-info">
                       {selected ? (
@@ -641,14 +720,25 @@ export const PcBuilderPage: React.FC = () => {
               <div className="pc-builder-summary-card">
                 <div className="pc-builder-summary-title">
                   <span>
-                    <i className="fa-solid fa-bolt" style={{ color: '#EAB308', marginRight: '6px' }}></i>
+                    <i
+                      className="fa-solid fa-bolt"
+                      style={{ color: '#EAB308', marginRight: '6px' }}
+                    ></i>
                     Ước tính công suất Nguồn
                   </span>
                 </div>
 
                 {!hasCpu && !hasGpu ? (
-                  <div style={{ fontSize: '13px', color: 'var(--text-secondary, #64748B)', textAlign: 'center', padding: '16px 0' }}>
-                    Vui lòng chọn CPU hoặc VGA để hệ thống bắt đầu tính toán công suất nguồn phù hợp.
+                  <div
+                    style={{
+                      fontSize: '13px',
+                      color: 'var(--text-secondary, #64748B)',
+                      textAlign: 'center',
+                      padding: '16px 0',
+                    }}
+                  >
+                    Vui lòng chọn CPU hoặc VGA để hệ thống bắt đầu tính toán công suất nguồn phù
+                    hợp.
                   </div>
                 ) : (
                   <div>
@@ -658,14 +748,22 @@ export const PcBuilderPage: React.FC = () => {
                     </div>
                     <div className="pc-builder-summary-row">
                       <span>Tối thiểu do VGA đề xuất:</span>
-                      <strong>{gpuMinimumWattage > 0 ? `${gpuMinimumWattage}W` : '(Chưa chọn VGA)'}</strong>
+                      <strong>
+                        {gpuMinimumWattage > 0 ? `${gpuMinimumWattage}W` : '(Chưa chọn VGA)'}
+                      </strong>
                     </div>
                     <div
                       className="pc-builder-summary-row"
-                      style={{ marginTop: '8px', borderTop: '1px dashed #E2E8F0', paddingTop: '8px' }}
+                      style={{
+                        marginTop: '8px',
+                        borderTop: '1px dashed #E2E8F0',
+                        paddingTop: '8px',
+                      }}
                     >
                       <span style={{ fontWeight: 600 }}>Nguồn khuyến nghị:</span>
-                      <strong style={{ color: '#EF4444', fontSize: '16px' }}>{recommendedPsuWattage}W</strong>
+                      <strong style={{ color: '#EF4444', fontSize: '16px' }}>
+                        {recommendedPsuWattage}W
+                      </strong>
                     </div>
                     <div className="pc-builder-summary-row" style={{ marginTop: '6px' }}>
                       <span>Trạng thái nguồn:</span>
@@ -682,7 +780,15 @@ export const PcBuilderPage: React.FC = () => {
                         {config['psu'] ? 'Đã trang bị nguồn' : 'Chưa chọn Nguồn'}
                       </span>
                     </div>
-                    <div style={{ fontSize: '11px', color: '#94A3B8', fontStyle: 'italic', marginTop: '8px', textAlign: 'right' }}>
+                    <div
+                      style={{
+                        fontSize: '11px',
+                        color: '#94A3B8',
+                        fontStyle: 'italic',
+                        marginTop: '8px',
+                        textAlign: 'right',
+                      }}
+                    >
                       * Đã bao gồm 30% dự phòng công suất an toàn.
                     </div>
                   </div>
@@ -712,7 +818,13 @@ export const PcBuilderPage: React.FC = () => {
                 {/* Compatibility Alerts */}
                 {buildAlerts.length > 0 && (
                   <div style={{ marginTop: '14px', fontSize: '12px' }}>
-                    <div style={{ fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary, #0F172A)' }}>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        marginBottom: '6px',
+                        color: 'var(--text-primary, #0F172A)',
+                      }}
+                    >
                       Kiểm tra tương thích:
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -740,14 +852,20 @@ export const PcBuilderPage: React.FC = () => {
                   </div>
                 )}
 
-                <div style={{ borderTop: '1px solid var(--border, #E2E8F0)', margin: '16px 0' }}></div>
+                <div
+                  style={{ borderTop: '1px solid var(--border, #E2E8F0)', margin: '16px 0' }}
+                ></div>
 
-                <div style={{ fontSize: '13px', color: 'var(--text-secondary, #64748B)', textAlign: 'right' }}>
+                <div
+                  style={{
+                    fontSize: '13px',
+                    color: 'var(--text-secondary, #64748B)',
+                    textAlign: 'right',
+                  }}
+                >
                   Tổng giá tiền cần thanh toán:
                 </div>
-                <div className="pc-builder-total-price">
-                  {totalPrice.toLocaleString('vi-VN')}đ
-                </div>
+                <div className="pc-builder-total-price">{totalPrice.toLocaleString('vi-VN')}đ</div>
 
                 <button
                   type="button"
@@ -758,12 +876,9 @@ export const PcBuilderPage: React.FC = () => {
                   <i className="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
                 </button>
 
-                <button
-                  type="button"
-                  className="btn-reset-config"
-                  onClick={handleResetConfig}
-                >
-                  <i className="fa-solid fa-trash-can" style={{ marginRight: '4px' }}></i> Xóa hết cấu hình
+                <button type="button" className="btn-reset-config" onClick={handleResetConfig}>
+                  <i className="fa-solid fa-trash-can" style={{ marginRight: '4px' }}></i> Xóa hết
+                  cấu hình
                 </button>
               </div>
             </aside>
@@ -772,11 +887,19 @@ export const PcBuilderPage: React.FC = () => {
           /* TAB 3: Pre-built PCs Grid */
           <div>
             <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary, #0F172A)', margin: '0 0 6px 0' }}>
+              <h3
+                style={{
+                  fontSize: '20px',
+                  fontWeight: 800,
+                  color: 'var(--text-primary, #0F172A)',
+                  margin: '0 0 6px 0',
+                }}
+              >
                 📦 Danh Sách Bộ PC Lắp Sẵn Tối Ưu Bởi Nexora
               </h3>
               <p style={{ color: 'var(--text-secondary, #64748B)', fontSize: '14.5px', margin: 0 }}>
-                Đã được các chuyên gia Nexora lắp ráp và test độ ổn định. Mua nguyên bộ hoặc tùy chỉnh theo ý bạn!
+                Đã được các chuyên gia Nexora lắp ráp và test độ ổn định. Mua nguyên bộ hoặc tùy
+                chỉnh theo ý bạn!
               </p>
             </div>
 
@@ -796,17 +919,42 @@ export const PcBuilderPage: React.FC = () => {
                           t.src = '/assets/images/placeholder.webp';
                         }}
                       />
-                      <h4 style={{ fontSize: '15px', fontWeight: 700, margin: '0 0 8px 0', color: 'var(--text-primary, #0F172A)' }}>
+                      <h4
+                        style={{
+                          fontSize: '15px',
+                          fontWeight: 700,
+                          margin: '0 0 8px 0',
+                          color: 'var(--text-primary, #0F172A)',
+                        }}
+                      >
                         {pc.name}
                       </h4>
                       {pc.specs ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px',
+                            fontSize: '12px',
+                            color: '#64748B',
+                            marginBottom: '12px',
+                          }}
+                        >
                           {(() => {
-                            const rawSpecs = ((pc.specs as Record<string, unknown>)?.specs as Record<string, unknown>) || (pc.specs as Record<string, unknown>);
+                            const rawSpecs =
+                              ((pc.specs as Record<string, unknown>)?.specs as Record<
+                                string,
+                                unknown
+                              >) || (pc.specs as Record<string, unknown>);
                             const cpu = rawSpecs.cpu_model || rawSpecs.cpu || rawSpecs.CPU;
-                            const gpu = rawSpecs.gpu_model || rawSpecs.gpu || rawSpecs.VGA || rawSpecs.vga;
-                            const ram = rawSpecs.ram_gb ? `${rawSpecs.ram_gb}GB RAM` : rawSpecs.ram || rawSpecs.RAM;
-                            const storage = rawSpecs.storage_gb ? `${rawSpecs.storage_gb}GB SSD` : rawSpecs.storage || rawSpecs.ssd;
+                            const gpu =
+                              rawSpecs.gpu_model || rawSpecs.gpu || rawSpecs.VGA || rawSpecs.vga;
+                            const ram = rawSpecs.ram_gb
+                              ? `${rawSpecs.ram_gb}GB RAM`
+                              : rawSpecs.ram || rawSpecs.RAM;
+                            const storage = rawSpecs.storage_gb
+                              ? `${rawSpecs.storage_gb}GB SSD`
+                              : rawSpecs.storage || rawSpecs.ssd;
 
                             const items = [
                               cpu ? `⚡ CPU: ${cpu}` : null,
@@ -830,13 +978,31 @@ export const PcBuilderPage: React.FC = () => {
                           })()}
                         </div>
                       ) : null}
-                      <div style={{ fontSize: '11px', color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
-                        <i className="fa-solid fa-shield-halved"></i> Bảo hành 36 tháng • 1 đổi 1 30 ngày
+                      <div
+                        style={{
+                          fontSize: '11px',
+                          color: '#059669',
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        <i className="fa-solid fa-shield-halved"></i> Bảo hành 36 tháng • 1 đổi 1 30
+                        ngày
                       </div>
                     </div>
 
                     <div>
-                      <div style={{ fontSize: '18px', fontWeight: 800, color: '#EF4444', marginBottom: '12px' }}>
+                      <div
+                        style={{
+                          fontSize: '18px',
+                          fontWeight: 800,
+                          color: '#EF4444',
+                          marginBottom: '12px',
+                        }}
+                      >
                         {price.toLocaleString('vi-VN')}đ
                       </div>
                       <button
@@ -861,14 +1027,8 @@ export const PcBuilderPage: React.FC = () => {
         <div className="pc-modal-backdrop" onClick={() => setActivePart(null)}>
           <div className="pc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="pc-modal-header">
-              <h4 className="pc-modal-title">
-                Chọn {activePart.name}
-              </h4>
-              <button
-                type="button"
-                className="pc-modal-close"
-                onClick={() => setActivePart(null)}
-              >
+              <h4 className="pc-modal-title">Chọn {activePart.name}</h4>
+              <button type="button" className="pc-modal-close" onClick={() => setActivePart(null)}>
                 &times;
               </button>
             </div>
@@ -906,9 +1066,21 @@ export const PcBuilderPage: React.FC = () => {
               <div className="pc-modal-products-list">
                 {filteredModalProducts.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748B' }}>
-                    <i className="fa-solid fa-box-open" style={{ fontSize: '36px', color: '#CBD5E1', marginBottom: '10px', display: 'block' }}></i>
-                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Không tìm thấy linh kiện phù hợp</p>
-                    <span style={{ fontSize: '12px', color: '#94A3B8' }}>Thử xóa từ khóa tìm kiếm để xem tất cả linh kiện</span>
+                    <i
+                      className="fa-solid fa-box-open"
+                      style={{
+                        fontSize: '36px',
+                        color: '#CBD5E1',
+                        marginBottom: '10px',
+                        display: 'block',
+                      }}
+                    ></i>
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>
+                      Không tìm thấy linh kiện phù hợp
+                    </p>
+                    <span style={{ fontSize: '12px', color: '#94A3B8' }}>
+                      Thử xóa từ khóa tìm kiếm để xem tất cả linh kiện
+                    </span>
                   </div>
                 ) : (
                   filteredModalProducts.map((p) => {
@@ -945,9 +1117,7 @@ export const PcBuilderPage: React.FC = () => {
                             </span>
                           )}
                         </div>
-                        <div className="pc-modal-item-price">
-                          {price.toLocaleString('vi-VN')}đ
-                        </div>
+                        <div className="pc-modal-item-price">{price.toLocaleString('vi-VN')}đ</div>
                         <div>
                           {compat.compatible ? (
                             <button

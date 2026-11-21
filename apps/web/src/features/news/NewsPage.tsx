@@ -21,7 +21,9 @@ const FILTER_PILLS = [
 
 export const NewsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
   const [searchKeyword, setSearchKeyword] = useState('');
 
   const activeCategory = searchParams.get('category') || 'all';
@@ -71,11 +73,33 @@ export const NewsPage: React.FC = () => {
       : ARTICLES_SEED;
 
   const filteredArticles = allArticles.filter((a) => {
-    if (activeCategory === 'ai' && !a.category.includes('AI') && !a.title.includes('AI')) return false;
-    if (activeCategory === 'review' && !a.category.includes('Đánh giá') && !a.title.includes('Đánh giá')) return false;
-    if (activeCategory === 'guide' && !a.category.includes('Tư vấn') && !a.title.includes('Hướng dẫn')) return false;
-    if (activeCategory === 'howto' && !a.category.includes('Thủ thuật') && !a.category.includes('Mẹo') && !a.title.includes('mẹo')) return false;
-    if (activeCategory === 'comparison' && !a.category.includes('So sánh') && !a.title.includes('So sánh')) return false;
+    if (activeCategory === 'ai' && !a.category.includes('AI') && !a.title.includes('AI'))
+      return false;
+    if (
+      activeCategory === 'review' &&
+      !a.category.includes('Đánh giá') &&
+      !a.title.includes('Đánh giá')
+    )
+      return false;
+    if (
+      activeCategory === 'guide' &&
+      !a.category.includes('Tư vấn') &&
+      !a.title.includes('Hướng dẫn')
+    )
+      return false;
+    if (
+      activeCategory === 'howto' &&
+      !a.category.includes('Thủ thuật') &&
+      !a.category.includes('Mẹo') &&
+      !a.title.includes('mẹo')
+    )
+      return false;
+    if (
+      activeCategory === 'comparison' &&
+      !a.category.includes('So sánh') &&
+      !a.title.includes('So sánh')
+    )
+      return false;
     if (queryQ.trim()) {
       const q = queryQ.toLowerCase().trim();
       const matchTitle = a.title.toLowerCase().includes(q);
@@ -87,7 +111,8 @@ export const NewsPage: React.FC = () => {
 
   const featured = (allArticles[0] || ARTICLES_SEED[0]) as ArticleItem;
   const heroPopular = allArticles.slice(1, 4);
-  const mainArticles = activeCategory === 'all' && !queryQ ? allArticles.slice(1) : filteredArticles;
+  const mainArticles =
+    activeCategory === 'all' && !queryQ ? allArticles.slice(1) : filteredArticles;
   const popularArticles = allArticles.slice(0, 3);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -306,10 +331,26 @@ export const NewsPage: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="news-empty" style={{ textAlign: 'center', padding: '60px 20px', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-                  <i className="fa-solid fa-filter-circle-xmark" style={{ fontSize: '36px', color: '#94A3B8', marginBottom: '12px' }}></i>
-                  <h4 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px 0' }}>Chưa có bài viết nào phù hợp</h4>
-                  <p style={{ color: '#64748B', fontSize: '14px', margin: '0 0 20px 0' }}>Hãy thử chọn chuyên mục khác hoặc tìm kiếm với từ khóa khác.</p>
+                <div
+                  className="news-empty"
+                  style={{
+                    textAlign: 'center',
+                    padding: '60px 20px',
+                    background: '#FFFFFF',
+                    borderRadius: '16px',
+                    border: '1px solid #E2E8F0',
+                  }}
+                >
+                  <i
+                    className="fa-solid fa-filter-circle-xmark"
+                    style={{ fontSize: '36px', color: '#94A3B8', marginBottom: '12px' }}
+                  ></i>
+                  <h4 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px 0' }}>
+                    Chưa có bài viết nào phù hợp
+                  </h4>
+                  <p style={{ color: '#64748B', fontSize: '14px', margin: '0 0 20px 0' }}>
+                    Hãy thử chọn chuyên mục khác hoặc tìm kiếm với từ khóa khác.
+                  </p>
                   <button
                     type="button"
                     onClick={() => {
@@ -317,7 +358,15 @@ export const NewsPage: React.FC = () => {
                       setSearchKeyword('');
                     }}
                     className="btn btn--primary"
-                    style={{ padding: '8px 20px', borderRadius: '8px', background: '#0A5BFF', color: '#FFFFFF', border: 'none', fontWeight: 600, cursor: 'pointer' }}
+                    style={{
+                      padding: '8px 20px',
+                      borderRadius: '8px',
+                      background: '#0A5BFF',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
                   >
                     Xem lại tất cả bài viết
                   </button>
@@ -352,7 +401,14 @@ export const NewsPage: React.FC = () => {
               <div className="news-sidebar-widget">
                 <h3 className="widget-title">🔥 Xu hướng tìm kiếm</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {['RTX 5090', 'Core Ultra 9', 'OLED Gaming', 'Build PC AI', 'Bàn phím cơ', 'Wi-Fi 7'].map((tag) => (
+                  {[
+                    'RTX 5090',
+                    'Core Ultra 9',
+                    'OLED Gaming',
+                    'Build PC AI',
+                    'Bàn phím cơ',
+                    'Wi-Fi 7',
+                  ].map((tag) => (
                     <span
                       key={tag}
                       style={{

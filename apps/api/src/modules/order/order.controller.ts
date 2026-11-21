@@ -33,10 +33,17 @@ export class OrderController {
   getOrderByCode = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const code = req.params.code as string;
-      if (!code) {
+      if (!code || !code.trim()) {
         throw new AppError(400, 'INVALID_CODE', 'Mã đơn hàng không được để trống.');
       }
-      const order = await this.service.getOrderByCode(code);
+      const phone = typeof req.query.phone === 'string' ? req.query.phone : undefined;
+      const email = typeof req.query.email === 'string' ? req.query.email : undefined;
+
+      const order = await this.service.getOrderByCode(code, {
+        requester: req.user,
+        phone,
+        email,
+      });
       sendSuccess(res, order);
     } catch (error) {
       next(error);
@@ -54,7 +61,11 @@ export class OrderController {
         throw new AppError(400, 'VALIDATION_ERROR', 'Vui lòng cung cấp mã đơn và số điện thoại.');
       }
 
-      const order = await this.service.trackOrder(parsed.data.orderCode, parsed.data.phone);
+      const order = await this.service.trackOrder(
+        parsed.data.orderCode,
+        parsed.data.phone,
+        req.user,
+      );
       sendSuccess(res, order);
     } catch (error) {
       next(error);

@@ -7,6 +7,11 @@ import { getEnv, type AppEnv } from './config/env.js';
 import { buildOpenApiSpec } from './config/swagger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
+import {
+  createRateLimiters,
+  type RateLimitPolicyConfig,
+  type RateLimitTierConfig,
+} from './middleware/rateLimit.js';
 import type { SystemRepository } from './modules/system/system.repository.js';
 import { createV1Router } from './routes/index.js';
 
@@ -24,6 +29,9 @@ if (!('toJSON' in BigInt.prototype)) {
 export interface CreateAppOptions {
   env?: AppEnv;
   systemRepository?: SystemRepository;
+  rateLimitOverrides?: Partial<{
+    [K in keyof RateLimitPolicyConfig]: Partial<RateLimitTierConfig>;
+  }>;
 }
 
 export function createApp(options: CreateAppOptions = {}): Express {
@@ -31,6 +39,9 @@ export function createApp(options: CreateAppOptions = {}): Express {
   const app = express();
 
   app.disable('x-powered-by');
+  // Safe proxy trust: false by default so arbitrary X-Forwarded-For headers are NEVER trusted.
+  // Behind a single Nginx reverse proxy, set TRUST_PROXY=1.
+  app.set('trust proxy', env.trustProxy);
   app.use(helmet());
   app.use(
     cors({
@@ -52,7 +63,12 @@ export function createApp(options: CreateAppOptions = {}): Express {
   });
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 
-  app.use(NEXORA_API_V1_PREFIX, createV1Router(options.systemRepository));
+  const rateLimiters = createRateLimiters(options.rateLimitOverrides);
+  app.use(
+    NEXORA_API_V1_PREFIX,
+    rateLimiters.globalApi,
+    createV1Router(options.systemRepository, rateLimiters),
+  );
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -112,14 +112,18 @@ function parseSpecs(rawSpecs: unknown, product?: ProductDto): FormattedSpec[] {
             .map((item) => String(item).trim())
             .filter(Boolean);
           if (strItems.length > 0 && !IGNORED_SPEC_KEYS.has(lowerKey)) {
-            const label = SPEC_LABEL_MAP[lowerKey] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+            const label =
+              SPEC_LABEL_MAP[lowerKey] ||
+              key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
             addSpec(label, strItems.join(', '));
           }
         } else {
           let valStr = String(val).trim();
           if (valStr === '[object Object]' || valStr === 'undefined' || valStr === 'null') continue;
 
-          const label = SPEC_LABEL_MAP[lowerKey] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+          const label =
+            SPEC_LABEL_MAP[lowerKey] ||
+            key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
           if (lowerKey === 'ram_gb' && !valStr.toLowerCase().includes('gb')) valStr += ' GB';
           if (lowerKey === 'storage_gb' && !valStr.toLowerCase().includes('gb')) {
@@ -129,7 +133,8 @@ function parseSpecs(rawSpecs: unknown, product?: ProductDto): FormattedSpec[] {
           if (lowerKey === 'weight_kg' && !valStr.toLowerCase().includes('kg')) valStr += ' kg';
           if (lowerKey === 'refresh_rate' && !valStr.toLowerCase().includes('hz')) valStr += ' Hz';
           if (lowerKey === 'battery_wh' && !valStr.toLowerCase().includes('wh')) valStr += ' Wh';
-          if (lowerKey === 'warranty_months' && !valStr.toLowerCase().includes('tháng')) valStr += ' tháng';
+          if (lowerKey === 'warranty_months' && !valStr.toLowerCase().includes('tháng'))
+            valStr += ' tháng';
           if (lowerKey === 'power_watts' && !valStr.toLowerCase().includes('w')) valStr += ' W';
 
           addSpec(label, valStr);
@@ -155,7 +160,9 @@ export const ProductDetailPage: React.FC = () => {
 
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'specs' | 'desc' | 'reviews' | 'aiChat'>('specs');
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Product AI Q&A State
@@ -245,7 +252,9 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   if (!product) {
-    return <div style={{ padding: '60px', textAlign: 'center' }}>Đang tải thông tin sản phẩm...</div>;
+    return (
+      <div style={{ padding: '60px', textAlign: 'center' }}>Đang tải thông tin sản phẩm...</div>
+    );
   }
 
   const p = Number(product.price);
@@ -403,7 +412,11 @@ export const ProductDetailPage: React.FC = () => {
                       cursor: 'pointer',
                     }}
                   >
-                    <img src={img} alt="Thumb" style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
+                    <img
+                      src={img}
+                      alt="Thumb"
+                      style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }}
+                    />
                   </div>
                 ))}
               </div>
@@ -411,7 +424,9 @@ export const ProductDetailPage: React.FC = () => {
 
             {/* Right: Product Buy Box */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}
+              >
                 <span
                   style={{
                     backgroundColor: '#EFF6FF',
@@ -443,7 +458,9 @@ export const ProductDetailPage: React.FC = () => {
               </h1>
 
               {/* Rating */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+              >
                 <div style={{ color: '#FACC15', fontSize: '13px' }}>
                   <i className="fa-solid fa-star"></i>
                   <i className="fa-solid fa-star"></i>
@@ -452,15 +469,36 @@ export const ProductDetailPage: React.FC = () => {
                   <i className="fa-solid fa-star"></i>
                 </div>
                 <span style={{ fontSize: '13px', fontWeight: 700 }}>5.0</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>(24 đánh giá)</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  (24 đánh giá)
+                </span>
                 <span style={{ color: 'var(--border)' }}>|</span>
                 {isOutOfStock ? (
-                  <span style={{ fontSize: '13px', color: '#EF4444', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                  <span
+                    style={{
+                      fontSize: '13px',
+                      color: '#EF4444',
+                      fontWeight: 700,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                    }}
+                  >
                     <i className="fa-solid fa-circle-xmark"></i> Hết hàng
                   </span>
                 ) : (
-                  <span style={{ fontSize: '12px', color: '#16A34A', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                    <i className="fa-solid fa-circle-check"></i> Còn hàng ({product.stockQuantity} sản phẩm)
+                  <span
+                    style={{
+                      fontSize: '12px',
+                      color: '#16A34A',
+                      fontWeight: 600,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-check"></i> Còn hàng ({product.stockQuantity}{' '}
+                    sản phẩm)
                   </span>
                 )}
               </div>
@@ -477,7 +515,9 @@ export const ProductDetailPage: React.FC = () => {
                   gap: '14px',
                 }}
               >
-                <span style={{ fontSize: '28px', fontWeight: 900, color: 'var(--primary, #0A5BFF)' }}>
+                <span
+                  style={{ fontSize: '28px', fontWeight: 900, color: 'var(--primary, #0A5BFF)' }}
+                >
                   {formatPrice(currentPrice)}
                 </span>
                 {hasDiscount && (
@@ -502,7 +542,9 @@ export const ProductDetailPage: React.FC = () => {
                   <h4 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '8px' }}>
                     Thông số nổi bật:
                   </h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                  <div
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}
+                  >
                     {specsList.slice(0, 4).map((spec, i) => (
                       <div
                         key={i}
@@ -526,7 +568,9 @@ export const ProductDetailPage: React.FC = () => {
               )}
 
               {/* Quantity & Buy Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}
+              >
                 <div
                   style={{
                     display: 'flex',
@@ -553,7 +597,15 @@ export const ProductDetailPage: React.FC = () => {
                   >
                     -
                   </button>
-                  <span style={{ width: '44px', textAlign: 'center', fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>
+                  <span
+                    style={{
+                      width: '44px',
+                      textAlign: 'center',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      color: 'var(--text-primary)',
+                    }}
+                  >
                     {quantity}
                   </span>
                   <button
@@ -594,7 +646,7 @@ export const ProductDetailPage: React.FC = () => {
                     transition: 'all 0.15s',
                   }}
                 >
-                  <i className={isOutOfStock ? "fa-solid fa-ban" : "fa-solid fa-cart-plus"}></i>
+                  <i className={isOutOfStock ? 'fa-solid fa-ban' : 'fa-solid fa-cart-plus'}></i>
                   {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ hàng'}
                 </button>
 
@@ -602,7 +654,7 @@ export const ProductDetailPage: React.FC = () => {
                   type="button"
                   disabled={isOutOfStock}
                   onClick={handleBuyNow}
-                  className={isOutOfStock ? "" : "auth-btn-primary"}
+                  className={isOutOfStock ? '' : 'auth-btn-primary'}
                   style={{
                     flex: 1,
                     height: '48px',
@@ -633,19 +685,31 @@ export const ProductDetailPage: React.FC = () => {
                 }}
               >
                 <div>
-                  <i className="fa-solid fa-shield-halved" style={{ color: '#0A5BFF', marginRight: '6px' }}></i>
+                  <i
+                    className="fa-solid fa-shield-halved"
+                    style={{ color: '#0A5BFF', marginRight: '6px' }}
+                  ></i>
                   Cam kết chính hãng 100%
                 </div>
                 <div>
-                  <i className="fa-solid fa-rotate-left" style={{ color: '#16A34A', marginRight: '6px' }}></i>
+                  <i
+                    className="fa-solid fa-rotate-left"
+                    style={{ color: '#16A34A', marginRight: '6px' }}
+                  ></i>
                   1 đổi 1 trong 7 ngày nếu lỗi
                 </div>
                 <div>
-                  <i className="fa-solid fa-truck-fast" style={{ color: '#0A5BFF', marginRight: '6px' }}></i>
+                  <i
+                    className="fa-solid fa-truck-fast"
+                    style={{ color: '#0A5BFF', marginRight: '6px' }}
+                  ></i>
                   Miễn phí vận chuyển cho đơn từ 500.000đ
                 </div>
                 <div>
-                  <i className="fa-solid fa-phone" style={{ color: '#EF4444', marginRight: '6px' }}></i>
+                  <i
+                    className="fa-solid fa-phone"
+                    style={{ color: '#EF4444', marginRight: '6px' }}
+                  ></i>
                   Tư vấn kỹ thuật: 1800 2097
                 </div>
               </div>
@@ -690,7 +754,8 @@ export const ProductDetailPage: React.FC = () => {
                     fontSize: '13px',
                     cursor: 'pointer',
                     border: 'none',
-                    backgroundColor: activeTab === tab.id ? 'var(--primary, #0A5BFF)' : 'transparent',
+                    backgroundColor:
+                      activeTab === tab.id ? 'var(--primary, #0A5BFF)' : 'transparent',
                     color: activeTab === tab.id ? '#FFFFFF' : 'var(--text-secondary)',
                     transition: 'all 0.15s ease',
                   }}
@@ -716,7 +781,10 @@ export const ProductDetailPage: React.FC = () => {
                         <tr
                           key={idx}
                           style={{
-                            backgroundColor: idx % 2 === 0 ? 'var(--surface-muted, rgba(0, 0, 0, 0.02))' : 'transparent',
+                            backgroundColor:
+                              idx % 2 === 0
+                                ? 'var(--surface-muted, rgba(0, 0, 0, 0.02))'
+                                : 'transparent',
                             borderBottom: '1px solid var(--border, #E2E8F0)',
                           }}
                         >
@@ -738,7 +806,9 @@ export const ProductDetailPage: React.FC = () => {
                     </tbody>
                   </table>
                 ) : (
-                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  <div
+                    style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}
+                  >
                     Thông số kỹ thuật chi tiết của sản phẩm đang được cập nhật.
                   </div>
                 )}
@@ -750,7 +820,8 @@ export const ProductDetailPage: React.FC = () => {
               <div style={{ lineHeight: 1.8, fontSize: '14px', color: 'var(--text-primary)' }}>
                 <p>{product.shortDescription}</p>
                 <p>
-                  Sản phẩm được phân phối chính hãng bởi <strong>Nexora</strong> với đầy đủ hóa đơn VAT, tem bảo hành chính hãng và hỗ trợ kỹ thuật trọn đời máy.
+                  Sản phẩm được phân phối chính hãng bởi <strong>Nexora</strong> với đầy đủ hóa đơn
+                  VAT, tem bảo hành chính hãng và hỗ trợ kỹ thuật trọn đời máy.
                 </p>
               </div>
             )}
@@ -758,9 +829,22 @@ export const ProductDetailPage: React.FC = () => {
             {/* Tab 3: Reviews */}
             {activeTab === 'reviews' && (
               <div>
-                <div style={{ display: 'flex', gap: '30px', alignItems: 'center', marginBottom: '24px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '30px',
+                    alignItems: 'center',
+                    marginBottom: '24px',
+                  }}
+                >
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '48px', fontWeight: 900, color: 'var(--primary, #0A5BFF)' }}>
+                    <div
+                      style={{
+                        fontSize: '48px',
+                        fontWeight: 900,
+                        color: 'var(--primary, #0A5BFF)',
+                      }}
+                    >
                       5.0
                     </div>
                     <div style={{ color: '#FACC15', fontSize: '16px' }}>
@@ -770,7 +854,9 @@ export const ProductDetailPage: React.FC = () => {
                       <i className="fa-solid fa-star"></i>
                       <i className="fa-solid fa-star"></i>
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                    <div
+                      style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}
+                    >
                       Dựa trên 24 đánh giá
                     </div>
                   </div>
@@ -792,7 +878,8 @@ export const ProductDetailPage: React.FC = () => {
                       <i className="fa-solid fa-star"></i>
                     </div>
                     <p style={{ fontSize: '13px', margin: 0 }}>
-                      Sản phẩm đóng gói rất cẩn thận, full box nguyên seal chính hãng. Giao hàng hỏa tốc trong 2h siêu nhanh!
+                      Sản phẩm đóng gói rất cẩn thận, full box nguyên seal chính hãng. Giao hàng hỏa
+                      tốc trong 2h siêu nhanh!
                     </p>
                   </div>
                 </div>
@@ -802,17 +889,47 @@ export const ProductDetailPage: React.FC = () => {
             {/* Tab 4: AI Product Q&A */}
             {activeTab === 'aiChat' && (
               <div>
-                <div style={{ backgroundColor: '#F8FAFC', borderRadius: '16px', padding: '24px', border: '1px solid #E2E8F0', marginBottom: '24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: '#0A5BFF', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+                <div
+                  style={{
+                    backgroundColor: '#F8FAFC',
+                    borderRadius: '16px',
+                    padding: '24px',
+                    border: '1px solid #E2E8F0',
+                    marginBottom: '24px',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        backgroundColor: '#0A5BFF',
+                        color: '#fff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '16px',
+                      }}
+                    >
                       <i className="fa-solid fa-robot"></i>
                     </div>
                     <div>
-                      <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0F172A' }}>
+                      <h4
+                        style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0F172A' }}
+                      >
                         Trợ Lý AI Chuyên Sâu Về {product.name}
                       </h4>
                       <div style={{ fontSize: '12px', color: '#64748B' }}>
-                        Hỏi về benchmark FPS game, khả năng nâng cấp RAM/SSD, cổng kết nối và bảo hành
+                        Hỏi về benchmark FPS game, khả năng nâng cấp RAM/SSD, cổng kết nối và bảo
+                        hành
                       </div>
                     </div>
                   </div>
@@ -893,11 +1010,29 @@ export const ProductDetailPage: React.FC = () => {
                       boxShadow: '0 4px 16px rgba(10, 91, 255, 0.08)',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0A5BFF', fontWeight: 800, fontSize: '13px', marginBottom: '8px' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color: '#0A5BFF',
+                        fontWeight: 800,
+                        fontSize: '13px',
+                        marginBottom: '8px',
+                      }}
+                    >
                       <i className="fa-solid fa-sparkles"></i>
                       <span>Câu trả lời từ Nexora AI:</span>
                     </div>
-                    <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.7, color: '#1E293B', whiteSpace: 'pre-line' }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: '14px',
+                        lineHeight: 1.7,
+                        color: '#1E293B',
+                        whiteSpace: 'pre-line',
+                      }}
+                    >
                       {productAiAnswer}
                     </p>
                   </div>

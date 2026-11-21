@@ -47,37 +47,38 @@ Toàn bộ các yêu cầu của Người dùng và Hội đồng kỹ thuật �
 
 ### 2.2. Danh sách tài khoản & Mật khẩu thử nghiệm chính thức
 
-| STT | Loại tài khoản | Họ và tên | Email đăng nhập | Mật khẩu | Quyền hạn (Role) | Ghi chú |
-| :---: | :--- | :--- | :--- | :--- | :---: | :--- |
-| **1** | **Admin Quản trị viên** | Quản Trị Viên Nexora | `admin@nexora.local` | `password123` | `ADMIN` | Tài khoản khởi tạo chuẩn Nexora |
-| **2** | **Admin TechPilot** | TechPilot Dev Admin | `admin@techpilot.vn` | `admin123` | `ADMIN` | Tài khoản ID 1 "Quản trị tối cao" di chuyển từ TechPilot |
-| **3** | **Staff Kỹ thuật** | Kỹ Thuật Viên Nexora | `staff@nexora.local` | `password123` | `STAFF` | Quản lý kho, đơn hàng, sản phẩm |
-| **4** | **Customer Khách hàng** | Nguyễn Văn An | `customer@nexora.local` | `password123` | `CUSTOMER` | Khách hàng mẫu có địa chỉ và đơn hàng |
-| **5** | **Customer Dev User** | TechPilot Dev User | `dev@techpilot.vn` | `password123` | `CUSTOMER` | Tài khoản ID 2 di chuyển từ TechPilot |
+|  STT  | Loại tài khoản          | Họ và tên            | Email đăng nhập         | Mật khẩu      | Quyền hạn (Role) | Ghi chú                                                  |
+| :---: | :---------------------- | :------------------- | :---------------------- | :------------ | :--------------: | :------------------------------------------------------- |
+| **1** | **Admin Quản trị viên** | Quản Trị Viên Nexora | `admin@nexora.local`    | `password123` |     `ADMIN`      | Tài khoản khởi tạo chuẩn Nexora                          |
+| **2** | **Admin TechPilot**     | TechPilot Dev Admin  | `admin@techpilot.vn`    | `admin123`    |     `ADMIN`      | Tài khoản ID 1 "Quản trị tối cao" di chuyển từ TechPilot |
+| **3** | **Staff Kỹ thuật**      | Kỹ Thuật Viên Nexora | `staff@nexora.local`    | `password123` |     `STAFF`      | Quản lý kho, đơn hàng, sản phẩm                          |
+| **4** | **Customer Khách hàng** | Nguyễn Văn An        | `customer@nexora.local` | `password123` |    `CUSTOMER`    | Khách hàng mẫu có địa chỉ và đơn hàng                    |
+| **5** | **Customer Dev User**   | TechPilot Dev User   | `dev@techpilot.vn`      | `password123` |    `CUSTOMER`    | Tài khoản ID 2 di chuyển từ TechPilot                    |
 
 ---
 
 ## 3. MA TRẬN ĐỐI CHIẾU 15 MÀN HÌNH THAM CHIẾU TECHPILOT (VISUAL PARITY MATRIX)
 
-| Ảnh tham chiếu | Route / Màn hình | Các thành phần đối chiếu trực quan | Trạng thái Nexora | Ghi chú kỹ thuật |
-| :---: | :--- | :--- | :---: | :--- |
-| **Ảnh 1** | `/admin` (Tổng quan) | Topbar (Avatar AD, Tìm kiếm, Xem Website, Dark toggle, Chuông báo), 5 Stat Cards, Biểu đồ doanh thu combo cột/đường, Biểu đồ tròn trạng thái đơn, Bảng đơn hàng mới, Cảnh báo sắp hết hàng. | **PASS** | Tái tạo chính xác kích thước, viền bo 16px-24px, màu sắc và độ dày đường viền. |
-| **Ảnh 2, 3** | `/admin/products` (Sản phẩm) | Bộ lọc (Tên, Danh mục, Brand, Trạng thái, Tồn kho thấp), Nút Nhập/Xuất kho & Thêm sản phẩm, Bảng sản phẩm, Badge tồn kho, Toggle switch xanh `Đang bán`, Nút `Sửa`, Phân trang tròn. | **PASS** | Đúng 100% cột, nút Nhập/Xuất kho tương tác thực tế, phân trang chuyển mượt mà. |
-| **Ảnh 4, 5** | `/admin/orders` (Đơn hàng) | Mã đơn dạng link xanh `TP-...`, Khách hàng, SĐT, Tiền tệ VND, Phương thức (VNPAY/COD), Badge trạng thái đơn & thanh toán, Nút `Chi tiết` có icon mắt. | **PASS** | Format tiền tệ chuẩn VND dấu chấm, màu sắc badge xanh/đỏ/vàng đồng bộ. |
-| **Ảnh 6, 7** | `/admin/users` (Khách hàng) | ID, Họ tên, Email, SĐT, Địa chỉ, Vai trò, Trạng thái hoạt động, Ngày đăng ký, Nút đỏ `Khoá`, Dropdown đổi quyền kèm nút tick xác nhận, Shield `Quản trị tối cao` cho ID 1. | **PASS** | Bảo vệ tuyệt đối Admin ID 1 không bị tự khóa hoặc hạ quyền. |
-| **Ảnh 8, 9** | `/admin/categories` (Danh mục) | STT, Tên, Slug monospace, Thứ tự, Badge số mẫu, Badge tổng tồn kho, Toggle switch xanh `Đang hoạt động`, Nút `Sửa`, Nút `+ Thêm danh mục mới`. | **PASS** | Tính toán tổng tồn kho thực tế của các sản phẩm thuộc danh mục. |
-| **Ảnh 10** | `/admin/brands` (Thương hiệu) | STT, Logo, Tên, Slug, Mô tả, Badge số sản phẩm, Checkbox checkmark `Đang hoạt động`, Nút `Sửa`, Nút `+ Thêm thương hiệu mới`. | **PASS** | Căn giữa logo thương hiệu, hiển thị chữ fallback nếu chưa có logo. |
-| **Ảnh 11** | `/admin/brands/edit/:id` | **Màn hình form chuyên biệt toàn trang:** Tiêu đề "Chỉnh sửa thương hiệu", Tên *, Slug, Preview logo cũ, Nút chọn tệp upload, Text hướng dẫn, Mô tả textarea, Nút `Cập nhật` & `Quay lại`. | **PASS** | Bỏ hoàn toàn modal popup, hiển thị đúng form card chuẩn TechPilot Image 11. |
-| **Ảnh 12** | `/admin/coupons` (Mã giảm giá) | ID, Mã code xanh nổi bật, Loại chiết khấu, Giá trị giảm, Đơn tối thiểu, Giới hạn lượt dùng, Badge đã dùng, Thời gian hiệu lực, Checkbox `Hoạt động`, Nút `Sửa`. | **PASS** | Hiển thị % hoặc VND tùy loại hình chiết khấu. |
-| **Ảnh 13** | `/admin/coupons/edit/:id` | **Màn hình form chuyên biệt toàn trang:** Banner cảnh báo giới hạn 20% chiết khấu, Mã code, Loại hình, Giá trị giảm *, Đơn tối thiểu, Giới hạn tổng/tài khoản, Ngày bắt đầu/kết thúc, Mô tả, Nút `Cập nhật` & `Quay lại`. | **PASS** | Banner info màu xanh dương viền bo tròn, kiểm soát validation max 20%. |
-| **Ảnh 14** | `/admin/flash-sales` (Flash Sale) | ID, Tên chiến dịch, Bắt đầu, Kết thúc, Badge số sản phẩm, Badge quota hổ phách, Badge trạng thái `Đang diễn ra`/`Đã kết thúc`, Checkbox kích hoạt, Nút `Sửa`. | **PASS** | Badge quota tính tổng số lượng mở bán thực tế. |
-| **Ảnh 15** | `/admin/flash-sales/edit/:id` | **Màn hình form chuyên biệt toàn trang:** Tiêu đề *, Bắt đầu *, Kết thúc *, Trạng thái select, Banner cảnh báo quy tắc, **Bảng chọn sản phẩm có checkbox, giá hiện tại, ô nhập giá sale, mở bán, đã bán, giới hạn/khách**, Nút `Cập nhật` & `Quay lại`. | **PASS** | Bảng sản phẩm nhúng trực tiếp trong form, cấu hình giá sale và quota linh hoạt. |
+| Ảnh tham chiếu | Route / Màn hình                  | Các thành phần đối chiếu trực quan                                                                                                                                                                                                                      | Trạng thái Nexora | Ghi chú kỹ thuật                                                                |
+| :------------: | :-------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------: | :------------------------------------------------------------------------------ |
+|   **Ảnh 1**    | `/admin` (Tổng quan)              | Topbar (Avatar AD, Tìm kiếm, Xem Website, Dark toggle, Chuông báo), 5 Stat Cards, Biểu đồ doanh thu combo cột/đường, Biểu đồ tròn trạng thái đơn, Bảng đơn hàng mới, Cảnh báo sắp hết hàng.                                                             |     **PASS**      | Tái tạo chính xác kích thước, viền bo 16px-24px, màu sắc và độ dày đường viền.  |
+|  **Ảnh 2, 3**  | `/admin/products` (Sản phẩm)      | Bộ lọc (Tên, Danh mục, Brand, Trạng thái, Tồn kho thấp), Nút Nhập/Xuất kho & Thêm sản phẩm, Bảng sản phẩm, Badge tồn kho, Toggle switch xanh `Đang bán`, Nút `Sửa`, Phân trang tròn.                                                                    |     **PASS**      | Đúng 100% cột, nút Nhập/Xuất kho tương tác thực tế, phân trang chuyển mượt mà.  |
+|  **Ảnh 4, 5**  | `/admin/orders` (Đơn hàng)        | Mã đơn dạng link xanh `TP-...`, Khách hàng, SĐT, Tiền tệ VND, Phương thức (VNPAY/COD), Badge trạng thái đơn & thanh toán, Nút `Chi tiết` có icon mắt.                                                                                                   |     **PASS**      | Format tiền tệ chuẩn VND dấu chấm, màu sắc badge xanh/đỏ/vàng đồng bộ.          |
+|  **Ảnh 6, 7**  | `/admin/users` (Khách hàng)       | ID, Họ tên, Email, SĐT, Địa chỉ, Vai trò, Trạng thái hoạt động, Ngày đăng ký, Nút đỏ `Khoá`, Dropdown đổi quyền kèm nút tick xác nhận, Shield `Quản trị tối cao` cho ID 1.                                                                              |     **PASS**      | Bảo vệ tuyệt đối Admin ID 1 không bị tự khóa hoặc hạ quyền.                     |
+|  **Ảnh 8, 9**  | `/admin/categories` (Danh mục)    | STT, Tên, Slug monospace, Thứ tự, Badge số mẫu, Badge tổng tồn kho, Toggle switch xanh `Đang hoạt động`, Nút `Sửa`, Nút `+ Thêm danh mục mới`.                                                                                                          |     **PASS**      | Tính toán tổng tồn kho thực tế của các sản phẩm thuộc danh mục.                 |
+|   **Ảnh 10**   | `/admin/brands` (Thương hiệu)     | STT, Logo, Tên, Slug, Mô tả, Badge số sản phẩm, Checkbox checkmark `Đang hoạt động`, Nút `Sửa`, Nút `+ Thêm thương hiệu mới`.                                                                                                                           |     **PASS**      | Căn giữa logo thương hiệu, hiển thị chữ fallback nếu chưa có logo.              |
+|   **Ảnh 11**   | `/admin/brands/edit/:id`          | **Màn hình form chuyên biệt toàn trang:** Tiêu đề "Chỉnh sửa thương hiệu", Tên *, Slug, Preview logo cũ, Nút chọn tệp upload, Text hướng dẫn, Mô tả textarea, Nút `Cập nhật` & `Quay lại`.                                                              |     **PASS**      | Bỏ hoàn toàn modal popup, hiển thị đúng form card chuẩn TechPilot Image 11.     |
+|   **Ảnh 12**   | `/admin/coupons` (Mã giảm giá)    | ID, Mã code xanh nổi bật, Loại chiết khấu, Giá trị giảm, Đơn tối thiểu, Giới hạn lượt dùng, Badge đã dùng, Thời gian hiệu lực, Checkbox `Hoạt động`, Nút `Sửa`.                                                                                         |     **PASS**      | Hiển thị % hoặc VND tùy loại hình chiết khấu.                                   |
+|   **Ảnh 13**   | `/admin/coupons/edit/:id`         | **Màn hình form chuyên biệt toàn trang:** Banner cảnh báo giới hạn 20% chiết khấu, Mã code, Loại hình, Giá trị giảm *, Đơn tối thiểu, Giới hạn tổng/tài khoản, Ngày bắt đầu/kết thúc, Mô tả, Nút `Cập nhật` & `Quay lại`.                               |     **PASS**      | Banner info màu xanh dương viền bo tròn, kiểm soát validation max 20%.          |
+|   **Ảnh 14**   | `/admin/flash-sales` (Flash Sale) | ID, Tên chiến dịch, Bắt đầu, Kết thúc, Badge số sản phẩm, Badge quota hổ phách, Badge trạng thái `Đang diễn ra`/`Đã kết thúc`, Checkbox kích hoạt, Nút `Sửa`.                                                                                           |     **PASS**      | Badge quota tính tổng số lượng mở bán thực tế.                                  |
+|   **Ảnh 15**   | `/admin/flash-sales/edit/:id`     | **Màn hình form chuyên biệt toàn trang:** Tiêu đề *, Bắt đầu *, Kết thúc *, Trạng thái select, Banner cảnh báo quy tắc, **Bảng chọn sản phẩm có checkbox, giá hiện tại, ô nhập giá sale, mở bán, đã bán, giới hạn/khách**, Nút `Cập nhật` & `Quay lại`. |     **PASS**      | Bảng sản phẩm nhúng trực tiếp trong form, cấu hình giá sale và quota linh hoạt. |
 
 ---
 
 ## 4. CHI TIẾT SỬA LỖI TRANG TÌM KIẾM (`/search?ram=ddr5`)
 
 ### 4.1. Nguyên nhân kỹ thuật gốc (Root Cause Analysis)
+
 1. Trong file `SearchPage.tsx`, đoạn mã xác định danh mục kích hoạt:
    ```ts
    // Đoạn mã lỗi trước đây:
@@ -94,21 +95,23 @@ Toàn bộ các yêu cầu của Người dùng và Hội đồng kỹ thuật �
 3. Thiếu logic trích xuất tham số query tùy ý ngoài `q`, `cat`, `sort` (như `ram=ddr5`, `cpu=i7`, `vga=rtx4060`).
 
 ### 4.2. Giải pháp khắc phục triệt để
+
 1. **Sửa logic Active Category:**
    ```ts
    const isActive = Boolean(
-     cleanCurrent && (cleanCurrent === cleanCat || (VIRTUAL_GROUPS[cleanCurrent]?.includes(cleanCat) ?? false))
+     cleanCurrent &&
+     (cleanCurrent === cleanCat || (VIRTUAL_GROUPS[cleanCurrent]?.includes(cleanCat) ?? false)),
    );
    ```
    Chỉ khi người dùng chọn danh mục cụ thể hoặc nhóm tương ứng thì mục đó mới kích hoạt `is-active`.
 2. **Loại bỏ thanh kéo cuộn:**
    ```css
    .category-list {
-       display: flex;
-       flex-direction: column;
-       gap: 4px;
-       max-height: none;
-       overflow: visible;
+     display: flex;
+     flex-direction: column;
+     gap: 4px;
+     max-height: none;
+     overflow: visible;
    }
    ```
 3. **Bộ lọc Spec động:**
@@ -121,26 +124,31 @@ Toàn bộ các yêu cầu của Người dùng và Hội đồng kỹ thuật �
 ## 5. KẾT QUẢ KIỂM THỬ THỰC NGHIỆM ĐỘC LẬP (EMPIRICAL VERIFICATION)
 
 ### 5.1. Typecheck toàn bộ Monorepo (`npm run typecheck`)
+
 - `@nexora/config`: **PASS** (0 lỗi)
 - `@nexora/shared`: **PASS** (0 lỗi)
 - `@nexora/api`: **PASS** (0 lỗi)
 - `@nexora/web`: **PASS** (0 lỗi)
 
 ### 5.2. Linter kiểm tra quy chuẩn mã nguồn (`npm run lint`)
+
 - **Kết quả:** `0 errors, 0 warnings` (Đã bổ sung đầy đủ dependencies cho các React hooks `useMemo`).
 
 ### 5.3. Kiểm thử tự động Vitest (`npm test`)
+
 - **Kết quả:** `10/10 test files passed (100%)`
 - **Số lượng test:** `64/64 tests passed (100%)`
 - **Thời gian chạy:** `12.90s`
 - Bao gồm đầy đủ: Concurrency inventory locks, Auth reset password email delivery & atomic token consumption, RBAC isolation, Payment HMAC integrity, Snapshot pricing.
 
 ### 5.4. Kiểm thử luồng người dùng Playwright E2E (`npx playwright test`)
+
 - **Kết quả:** `9/9 tests passed (100%)`
 - **Thời gian chạy:** `7.6s`
 - Bao gồm: Foundation health check, Storefront journeys, Product catalog & search, Customer login, AI survey, PC builder, Persona comparison, Order tracking, Admin dashboard rendering.
 
 ### 5.5. Đóng gói sản phẩm Production (`npm run build`)
+
 - **Kết quả:** Biên dịch thành công gói bundle `dist/` cho cả API backend và Web frontend với kích thước tối ưu gzip.
 
 ---

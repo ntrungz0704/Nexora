@@ -156,8 +156,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               border: 'none',
               background: 'none',
               cursor: 'pointer',
-              color: activeTab === 'login' ? 'var(--primary, #0A5BFF)' : 'var(--text-secondary, #6B7280)',
-              borderBottom: activeTab === 'login' ? '2.5px solid var(--primary, #0A5BFF)' : '2.5px solid transparent',
+              color:
+                activeTab === 'login'
+                  ? 'var(--primary, #0A5BFF)'
+                  : 'var(--text-secondary, #6B7280)',
+              borderBottom:
+                activeTab === 'login'
+                  ? '2.5px solid var(--primary, #0A5BFF)'
+                  : '2.5px solid transparent',
               marginBottom: '-1.5px',
               transition: 'all 0.15s ease',
             }}
@@ -178,8 +184,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               border: 'none',
               background: 'none',
               cursor: 'pointer',
-              color: activeTab === 'register' ? 'var(--primary, #0A5BFF)' : 'var(--text-secondary, #6B7280)',
-              borderBottom: activeTab === 'register' ? '2.5px solid var(--primary, #0A5BFF)' : '2.5px solid transparent',
+              color:
+                activeTab === 'register'
+                  ? 'var(--primary, #0A5BFF)'
+                  : 'var(--text-secondary, #6B7280)',
+              borderBottom:
+                activeTab === 'register'
+                  ? '2.5px solid var(--primary, #0A5BFF)'
+                  : '2.5px solid transparent',
               marginBottom: '-1.5px',
               transition: 'all 0.15s ease',
             }}

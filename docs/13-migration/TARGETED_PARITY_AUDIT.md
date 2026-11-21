@@ -8,17 +8,17 @@
 
 ## 1. Tóm Tắt Khắc Phục Lỗi Định Tuyến & Giao Diện (Route & UI Parity)
 
-| Yêu cầu kiểm toán | Tình trạng trước đây | Giải pháp đã thực hiện trên Nexora | Kết quả kiểm chứng |
-|---|---|---|---|
-| **Đặt lại mật khẩu (`/auth/reset`, `/reset-password`)** | Chỉ có trang quên mật khẩu | Tạo trang chuyên dụng `ResetPasswordPage.tsx`, bổ sung endpoint `POST /api/v1/auth/reset-password` và test E2E | `PASS` |
-| **Yêu cầu đổi trả (`/profile/return`, `.../:id`)** | Thiếu form đổi trả | Tích hợp tab Yêu cầu đổi trả vào `ProfilePage.tsx` với bộ chọn đơn hàng, hình thức hoàn tiền/sửa chữa và textarea mô tả lỗi | `PASS` |
-| **Thông báo hệ thống (`/profile/notifications`)** | Không có tab riêng | Thêm tab Thông báo vào `ProfilePage.tsx` kèm giao diện xem danh sách thông báo và đánh dấu đã đọc | `PASS` |
-| **Các trang chính sách (`/policy/warranty`, `/shipping`,...)** | Trỏ tạm về trang chủ | Tạo trang chuyên dụng `PolicyPage.tsx` có breadcrumb, layout điều hướng 4 chính sách lớn, nội dung chi tiết cam kết | `PASS` |
-| **Khắc phục lỗi đè giao diện Category Menu** | Sidebar danh mục 16 mục bị tràn qua Flash Sale | Tinh chỉnh padding `4.5px 14px`, `max-height: 560px`, `justify-content: space-evenly`, khôi phục `z-index: 10` chuẩn mực | `PASS` |
-| **Khắc phục tìm kiếm tiếng Việt không dấu** | Tìm kiếm danh mục không dấu trả 0 sản phẩm | Chuẩn hóa `removeVietnameseTones()` cho cả slug, không dấu và có dấu; sản phẩm thiết bị văn phòng hiển thị ngay | `PASS` |
-| **Chuyển toàn bộ Popup/Drawer sang Trang Độc Lập** | Giỏ hàng, Wishlist, Đăng nhập là modal/drawer | Chuyển hoàn toàn sang các trang riêng: `/cart`, `/wishlist`, `/auth/login`, `/auth/register` | `PASS` |
-| **Bảo vệ dữ liệu Wishlist & Khách Hàng (Customer Isolation)** | Khách chưa đăng nhập có thể thao tác | Yêu cầu đăng nhập 401, redirect kèm `?redirect=...`, cô lập dữ liệu giữa Customer A và B (có test tự động) | `PASS` |
-| **Backoffice Quản Trị Hệ Thống 13 Phân Hệ** | Các route trỏ về stub rỗng | Mở rộng đầy đủ 13 phân hệ trong `AdminDashboardPage.tsx`, liên kết Prisma ORM thực và MySQL 8.4 | `PASS` |
+| Yêu cầu kiểm toán                                              | Tình trạng trước đây                           | Giải pháp đã thực hiện trên Nexora                                                                                          | Kết quả kiểm chứng |
+| -------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **Đặt lại mật khẩu (`/auth/reset`, `/reset-password`)**        | Chỉ có trang quên mật khẩu                     | Tạo trang chuyên dụng `ResetPasswordPage.tsx`, bổ sung endpoint `POST /api/v1/auth/reset-password` và test E2E              | `PASS`             |
+| **Yêu cầu đổi trả (`/profile/return`, `.../:id`)**             | Thiếu form đổi trả                             | Tích hợp tab Yêu cầu đổi trả vào `ProfilePage.tsx` với bộ chọn đơn hàng, hình thức hoàn tiền/sửa chữa và textarea mô tả lỗi | `PASS`             |
+| **Thông báo hệ thống (`/profile/notifications`)**              | Không có tab riêng                             | Thêm tab Thông báo vào `ProfilePage.tsx` kèm giao diện xem danh sách thông báo và đánh dấu đã đọc                           | `PASS`             |
+| **Các trang chính sách (`/policy/warranty`, `/shipping`,...)** | Trỏ tạm về trang chủ                           | Tạo trang chuyên dụng `PolicyPage.tsx` có breadcrumb, layout điều hướng 4 chính sách lớn, nội dung chi tiết cam kết         | `PASS`             |
+| **Khắc phục lỗi đè giao diện Category Menu**                   | Sidebar danh mục 16 mục bị tràn qua Flash Sale | Tinh chỉnh padding `4.5px 14px`, `max-height: 560px`, `justify-content: space-evenly`, khôi phục `z-index: 10` chuẩn mực    | `PASS`             |
+| **Khắc phục tìm kiếm tiếng Việt không dấu**                    | Tìm kiếm danh mục không dấu trả 0 sản phẩm     | Chuẩn hóa `removeVietnameseTones()` cho cả slug, không dấu và có dấu; sản phẩm thiết bị văn phòng hiển thị ngay             | `PASS`             |
+| **Chuyển toàn bộ Popup/Drawer sang Trang Độc Lập**             | Giỏ hàng, Wishlist, Đăng nhập là modal/drawer  | Chuyển hoàn toàn sang các trang riêng: `/cart`, `/wishlist`, `/auth/login`, `/auth/register`                                | `PASS`             |
+| **Bảo vệ dữ liệu Wishlist & Khách Hàng (Customer Isolation)**  | Khách chưa đăng nhập có thể thao tác           | Yêu cầu đăng nhập 401, redirect kèm `?redirect=...`, cô lập dữ liệu giữa Customer A và B (có test tự động)                  | `PASS`             |
+| **Backoffice Quản Trị Hệ Thống 13 Phân Hệ**                    | Các route trỏ về stub rỗng                     | Mở rộng đầy đủ 13 phân hệ trong `AdminDashboardPage.tsx`, liên kết Prisma ORM thực và MySQL 8.4                             | `PASS`             |
 
 ---
 

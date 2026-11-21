@@ -141,14 +141,22 @@ export class AdminService {
     for (const row of allOrderStatuses) {
       const count = row._count._all;
       if (row.orderStatus === 'PENDING') pending += count;
-      else if (row.orderStatus === 'CONFIRMED' || row.orderStatus === 'PROCESSING' || row.orderStatus === 'SHIPPING') {
+      else if (
+        row.orderStatus === 'CONFIRMED' ||
+        row.orderStatus === 'PROCESSING' ||
+        row.orderStatus === 'SHIPPING'
+      ) {
         shipping += count;
       } else if (row.orderStatus === 'DELIVERED') completed += count;
-      else if (row.orderStatus === 'CANCELLED' || row.orderStatus === 'RETURNED') cancelled += count;
+      else if (row.orderStatus === 'CANCELLED' || row.orderStatus === 'RETURNED')
+        cancelled += count;
     }
 
     // Build 7-day realtime revenue + orders series (inclusive of today)
-    const dayMap = new Map<string, { date: string; isoDate: string; revenue: number; orders: number }>();
+    const dayMap = new Map<
+      string,
+      { date: string; isoDate: string; revenue: number; orders: number }
+    >();
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now);
       d.setHours(0, 0, 0, 0);
@@ -163,7 +171,10 @@ export class AdminService {
       const bucket = dayMap.get(isoDate);
       if (bucket) {
         bucket.orders += 1;
-        if (ord.orderStatus !== 'CANCELLED' && (ord.paymentStatus === 'PAID' || ord.orderStatus === 'DELIVERED')) {
+        if (
+          ord.orderStatus !== 'CANCELLED' &&
+          (ord.paymentStatus === 'PAID' || ord.orderStatus === 'DELIVERED')
+        ) {
           bucket.revenue += Number(ord.totalAmount);
         }
       }
@@ -346,8 +357,16 @@ export class AdminService {
     return { id, deleted: true };
   }
 
-  generateAiProductDescription(name: string, categoryName?: string, specs?: Record<string, unknown>): string {
-    const specsSummary = specs ? Object.entries(specs).map(([k, v]) => `- ${k}: ${String(v)}`).join('\n') : '';
+  generateAiProductDescription(
+    name: string,
+    categoryName?: string,
+    specs?: Record<string, unknown>,
+  ): string {
+    const specsSummary = specs
+      ? Object.entries(specs)
+          .map(([k, v]) => `- ${k}: ${String(v)}`)
+          .join('\n')
+      : '';
     return `### Giới thiệu tổng quan về ${name}\n\n${name} là sản phẩm phần cứng đỉnh cao thuộc phân khúc ${categoryName || 'công nghệ chính hãng'}, được thiết kế nhằm đáp ứng tối đa nhu cầu của người dùng khắt khe nhất. Với ngôn ngữ hoàn thiện cao cấp, độ bền vượt trội và linh kiện đạt chứng chỉ kiểm định quốc tế, sản phẩm mang lại sự an tâm tuyệt đối trong suốt quá trình vận hành.\n\n### Đặc điểm nổi bật\n- **Hiệu năng bứt phá**: Tối ưu hóa vi kiến trúc, hạn chế độ trễ và giữ mức nhiệt độ mát mẻ dưới tải nặng liên tục.\n- **Độ tin cậy hàng đầu**: Được bảo hành chính hãng lên tới 24-36 tháng cùng cam kết 1-đổi-1 trong 7 ngày đầu tại Nexora.\n- **Thiết kế công thái học**: Từng đường nét được trau chuốt tỉ mỉ, phù hợp với mọi không gian làm việc và setup gaming hiện đại.\n\n${specsSummary ? `### Thông số kỹ thuật chi tiết\n${specsSummary}\n` : ''}\n### Tại sao nên mua tại Nexora?\n- Cam kết 100% hàng mới nguyên seal, hóa đơn VAT đầy đủ.\n- Giao hàng siêu tốc toàn quốc, miễn phí vận chuyển cho đơn từ 500k.\n- Đội ngũ kỹ sư hỗ trợ kỹ thuật và tư vấn 24/7 qua hotline 1800 2097.`;
   }
 
@@ -528,14 +547,20 @@ export class AdminService {
     expiresAt?: Date | string;
     isActive?: boolean;
   }) {
-    const existing = await prisma.coupon.findUnique({ where: { code: data.code.toUpperCase().trim() } });
+    const existing = await prisma.coupon.findUnique({
+      where: { code: data.code.toUpperCase().trim() },
+    });
     if (existing) {
       throw new AppError(409, 'COUPON_EXISTS', 'Mã giảm giá này đã tồn tại.');
     }
     const normalizedType = this.normalizeCouponType(data.discountType);
     const val = Number(data.discountValue);
     if (normalizedType === 'PERCENTAGE' && (val <= 0 || val > 20)) {
-      throw new AppError(400, 'COUPON_DISCOUNT_LIMIT', 'Theo chính sách Nexora, mã giảm phần trăm chỉ được tối đa 20%.');
+      throw new AppError(
+        400,
+        'COUPON_DISCOUNT_LIMIT',
+        'Theo chính sách Nexora, mã giảm phần trăm chỉ được tối đa 20%.',
+      );
     }
     return prisma.coupon.create({
       data: {
@@ -553,21 +578,34 @@ export class AdminService {
     });
   }
 
-  async updateCoupon(id: number, data: {
-    code?: string;
-    description?: string;
-    discountType?: 'PERCENTAGE' | 'FIXED' | 'FIXED_AMOUNT';
-    discountValue?: number | string;
-    minOrderValue?: number | string;
-    maxDiscount?: number | string | null;
-    usageLimit?: number | null;
-    startsAt?: Date | string;
-    expiresAt?: Date | string;
-    isActive?: boolean;
-  }) {
-    const normalizedType = data.discountType ? this.normalizeCouponType(data.discountType) : undefined;
-    if (normalizedType === 'PERCENTAGE' && data.discountValue !== undefined && Number(data.discountValue) > 20) {
-      throw new AppError(400, 'COUPON_DISCOUNT_LIMIT', 'Theo chính sách Nexora, mã giảm phần trăm chỉ được tối đa 20%.');
+  async updateCoupon(
+    id: number,
+    data: {
+      code?: string;
+      description?: string;
+      discountType?: 'PERCENTAGE' | 'FIXED' | 'FIXED_AMOUNT';
+      discountValue?: number | string;
+      minOrderValue?: number | string;
+      maxDiscount?: number | string | null;
+      usageLimit?: number | null;
+      startsAt?: Date | string;
+      expiresAt?: Date | string;
+      isActive?: boolean;
+    },
+  ) {
+    const normalizedType = data.discountType
+      ? this.normalizeCouponType(data.discountType)
+      : undefined;
+    if (
+      normalizedType === 'PERCENTAGE' &&
+      data.discountValue !== undefined &&
+      Number(data.discountValue) > 20
+    ) {
+      throw new AppError(
+        400,
+        'COUPON_DISCOUNT_LIMIT',
+        'Theo chính sách Nexora, mã giảm phần trăm chỉ được tối đa 20%.',
+      );
     }
     return prisma.coupon.update({
       where: { id },
@@ -577,8 +615,12 @@ export class AdminService {
         ...(normalizedType ? { discountType: normalizedType } : {}),
         ...(data.discountValue !== undefined ? { discountValue: Number(data.discountValue) } : {}),
         ...(data.minOrderValue !== undefined ? { minOrderValue: Number(data.minOrderValue) } : {}),
-        ...(data.maxDiscount !== undefined ? { maxDiscount: data.maxDiscount ? Number(data.maxDiscount) : null } : {}),
-        ...(data.usageLimit !== undefined ? { usageLimit: data.usageLimit ? Number(data.usageLimit) : null } : {}),
+        ...(data.maxDiscount !== undefined
+          ? { maxDiscount: data.maxDiscount ? Number(data.maxDiscount) : null }
+          : {}),
+        ...(data.usageLimit !== undefined
+          ? { usageLimit: data.usageLimit ? Number(data.usageLimit) : null }
+          : {}),
         ...(data.startsAt ? { startsAt: new Date(data.startsAt) } : {}),
         ...(data.expiresAt ? { expiresAt: new Date(data.expiresAt) } : {}),
         ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
@@ -769,14 +811,17 @@ export class AdminService {
     });
   }
 
-  async updateBanner(id: number, data: Partial<{
-    title: string;
-    imageUrl: string;
-    linkUrl: string | null;
-    placement: string;
-    sortOrder: number;
-    isActive: boolean;
-  }>) {
+  async updateBanner(
+    id: number,
+    data: Partial<{
+      title: string;
+      imageUrl: string;
+      linkUrl: string | null;
+      placement: string;
+      sortOrder: number;
+      isActive: boolean;
+    }>,
+  ) {
     return prisma.banner.update({
       where: { id },
       data,
@@ -832,15 +877,18 @@ export class AdminService {
     });
   }
 
-  async updatePost(id: number, data: Partial<{
-    title: string;
-    slug: string;
-    excerpt: string | null;
-    content: string;
-    thumbnailUrl: string | null;
-    category: string;
-    isPublished: boolean;
-  }>) {
+  async updatePost(
+    id: number,
+    data: Partial<{
+      title: string;
+      slug: string;
+      excerpt: string | null;
+      content: string;
+      thumbnailUrl: string | null;
+      category: string;
+      isPublished: boolean;
+    }>,
+  ) {
     return prisma.post.update({
       where: { id },
       data,
@@ -889,13 +937,16 @@ export class AdminService {
     });
   }
 
-  async updateBrand(id: number, data: Partial<{
-    name: string;
-    slug: string;
-    logoUrl: string | null;
-    description: string | null;
-    isActive: boolean;
-  }>) {
+  async updateBrand(
+    id: number,
+    data: Partial<{
+      name: string;
+      slug: string;
+      logoUrl: string | null;
+      description: string | null;
+      isActive: boolean;
+    }>,
+  ) {
     return prisma.brand.update({
       where: { id },
       data,
@@ -924,15 +975,33 @@ export class AdminService {
     });
   }
 
-  async toggleUserStatus(id: number, actorId?: number) {
+  async toggleUserStatus(id: number, actorId?: number, actorRole?: string) {
+    if (actorRole !== 'ADMIN') {
+      throw new AppError(
+        403,
+        'FORBIDDEN',
+        'Chỉ Quản trị viên (ADMIN) mới có quyền khóa hoặc mở khóa tài khoản.',
+      );
+    }
     if (id === 1) {
       throw new AppError(403, 'PROTECTED_ADMIN', 'Không thể khóa tài khoản Quản trị tối cao.');
     }
     if (actorId && id === actorId) {
-      throw new AppError(400, 'SELF_LOCK_FORBIDDEN', 'Bạn không thể tự khóa tài khoản đang đăng nhập.');
+      throw new AppError(
+        400,
+        'SELF_LOCK_FORBIDDEN',
+        'Bạn không thể tự khóa tài khoản đang đăng nhập.',
+      );
     }
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy người dùng.');
+    if (user.role === 'ADMIN') {
+      throw new AppError(
+        403,
+        'PROTECTED_ADMIN',
+        'Không thể khóa tài khoản có vai trò Quản trị viên (ADMIN).',
+      );
+    }
     const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     return prisma.user.update({
       where: { id },
@@ -941,9 +1010,42 @@ export class AdminService {
     });
   }
 
-  async changeUserRole(id: number, role: 'CUSTOMER' | 'STAFF' | 'ADMIN') {
+  async changeUserRole(
+    id: number,
+    role: 'CUSTOMER' | 'STAFF' | 'ADMIN',
+    actorId?: number,
+    actorRole?: string,
+  ) {
+    if (actorRole !== 'ADMIN') {
+      throw new AppError(
+        403,
+        'FORBIDDEN',
+        'Chỉ Quản trị viên (ADMIN) mới có quyền thay đổi vai trò tài khoản.',
+      );
+    }
     if (id === 1) {
       throw new AppError(403, 'PROTECTED_ADMIN', 'Không thể thay đổi vai trò Quản trị tối cao.');
+    }
+    if (actorId && id === actorId) {
+      throw new AppError(
+        403,
+        'SELF_ROLE_CHANGE_FORBIDDEN',
+        'Bạn không thể tự thay đổi vai trò của tài khoản đang đăng nhập.',
+      );
+    }
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    if (!targetUser) {
+      throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy người dùng.');
+    }
+    if (
+      targetUser.role === 'ADMIN' &&
+      (targetUser.email === 'admin@nexora.local' || targetUser.email === 'admin@nexora.vn')
+    ) {
+      throw new AppError(
+        403,
+        'PROTECTED_ADMIN',
+        'Không thể thay đổi vai trò tài khoản Quản trị hệ thống được bảo vệ.',
+      );
     }
     return prisma.user.update({
       where: { id },

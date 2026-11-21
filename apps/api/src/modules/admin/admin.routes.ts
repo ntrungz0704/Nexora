@@ -68,10 +68,10 @@ export function createAdminRouter(): Router {
   router.put('/brands/:id', controller.updateBrand);
   router.delete('/brands/:id', controller.deleteBrand);
 
-  // Users
+  // Users (Read allowed for ADMIN/STAFF; role & account status mutations strictly ADMIN-only)
   router.get('/users', controller.getUsers);
-  router.patch('/users/:id/toggle', controller.toggleUserStatus);
-  router.patch('/users/:id/role', controller.changeUserRole);
+  router.patch('/users/:id/toggle', requireAuth(['ADMIN']), controller.toggleUserStatus);
+  router.patch('/users/:id/role', requireAuth(['ADMIN']), controller.changeUserRole);
 
   // Reviews
   router.get('/reviews', controller.getReviews);

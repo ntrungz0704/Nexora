@@ -125,7 +125,8 @@ export const LoginPage: React.FC = () => {
 
               <div className="auth-form-row">
                 <label className="auth-checkbox-label">
-                  <input type="checkbox" className="auth-checkbox" defaultChecked /> Ghi nhớ đăng nhập
+                  <input type="checkbox" className="auth-checkbox" defaultChecked /> Ghi nhớ đăng
+                  nhập
                 </label>
                 <Link to="/auth/forgot" className="auth-link-accent">
                   Quên mật khẩu?
@@ -146,7 +147,9 @@ export const LoginPage: React.FC = () => {
             <button
               type="button"
               className="auth-btn-google"
-              onClick={() => setErrorMsg('Đăng nhập qua Google hiện đang được nâng cấp bảo mật SSO.')}
+              onClick={() =>
+                setErrorMsg('Đăng nhập qua Google hiện đang được nâng cấp bảo mật SSO.')
+              }
             >
               <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <path

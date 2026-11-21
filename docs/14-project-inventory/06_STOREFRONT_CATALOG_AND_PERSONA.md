@@ -1,12 +1,14 @@
 # CỬA HÀNG TRỰC TUYẾN, DANH MỤC VÀ HỆ THỐNG GỢI Ý PERSONA
+
 **Tài liệu:** `06_STOREFRONT_CATALOG_AND_PERSONA.md`  
-**Dự án:** Nexora  
+**Dự án:** Nexora
 
 ---
 
 ## 1. Trình Diễn Danh Mục 16 Ngành Hàng Phần Cứng
 
 Nexora phân loại rõ ràng 16 nhóm ngành hàng công nghệ:
+
 1. Laptop / Gaming Laptop
 2. Máy tính để bàn PC đồng bộ & Workstation
 3. Bộ vi xử lý (CPU) Intel / AMD
@@ -29,6 +31,7 @@ Nexora phân loại rõ ràng 16 nhóm ngành hàng công nghệ:
 ## 2. Thuật Toán Chấm Điểm Persona Động
 
 Thay vì gán điểm tĩnh cố định, Nexora sử dụng thuật toán tính điểm Persona động dựa trên thông số phần cứng thực tế:
+
 - **Gamer Persona:** Ưu tiên hiệu năng card đồ họa (VGA VRAM >= 8GB, TGP), xung nhịp đơn nhân CPU và tần số quét màn hình (>= 144Hz).
 - **Creator Persona:** Ưu tiên dung lượng RAM (>= 32GB), độ phủ màu màn hình (100% sRGB/DCI-P3) và dung lượng ổ cứng SSD NVMe tốc độ cao.
 - **Office / Student Persona:** Ưu tiên trọng lượng mỏng nhẹ (< 1.5kg), thời lượng pin lâu và giá thành tối ưu dưới 20 triệu đồng.

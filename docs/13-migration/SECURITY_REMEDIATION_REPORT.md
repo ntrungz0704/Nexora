@@ -10,6 +10,7 @@
 ## 1. Danh Mục Lỗ Hổng & Biện Pháp Khắc Phục (Evidence-Based)
 
 ### Lỗ hổng SEC-1: Endpoint giả lập thanh toán (`/simulate`) có nguy cơ bị gọi trái phép trong Production
+
 - **Mức độ rủi ro:** **Critical (Nghiêm trọng)**
 - **File & dòng code liên quan:**
   - `apps/api/src/modules/payment/payment.routes.ts` (dòng 10-12)
@@ -24,6 +25,7 @@
 ---
 
 ### Lỗ hổng SEC-2: Sử dụng Fallback Hash Secret trong môi trường Production
+
 - **Mức độ rủi ro:** **High (Cao)**
 - **File & dòng code liên quan:** `apps/api/src/modules/payment/payment.service.ts` (dòng 9)
 - **Nguyên nhân gốc:** Sử dụng `process.env.VNPAY_HASH_SECRET || 'NEXORAVNPAYHASHSECRET2026DEVKEY'`. Khi triển khai production nếu quên cấu hình biến môi trường, hệ thống sẽ âm thầm sử dụng secret dev mặc định, dẫn đến nguy cơ kẻ gian tự ký giả mạo chữ ký HMAC-SHA512.
@@ -49,6 +51,7 @@
 ---
 
 ### Lỗ hổng SEC-3: Tin tưởng số tiền thanh toán do Client gửi lên (`createVnpayUrl`)
+
 - **Mức độ rủi ro:** **Critical (Nghiêm trọng)**
 - **File & dòng code liên quan:**
   - `apps/api/src/modules/payment/payment.controller.ts` (dòng 11)
@@ -64,6 +67,7 @@
 ---
 
 ### Lỗ hổng SEC-4: Thiếu kiểm tra số tiền và xử lý Idempotency trong VNPay Callback
+
 - **Mức độ rủi ro:** **High (Cao)**
 - **File & dòng code liên quan:** `apps/api/src/modules/payment/payment.service.ts` (dòng 48-96)
 - **Nguyên nhân gốc:** Callback chỉ kiểm tra `vnp_ResponseCode === '00'` mà không so khớp `vnp_Amount` với giá trị đơn hàng trong DB, đồng thời không có cờ kiểm tra trạng thái thanh toán hiện tại (`Idempotency`).
@@ -81,6 +85,7 @@
 ---
 
 ### Lỗ hổng SEC-5: Phân quyền truy cập quản trị (RBAC) & Nguy cơ Overselling kho hàng
+
 - **Mức độ rủi ro:** **High (Cao)**
 - **File & dòng code liên quan:**
   - `apps/api/src/modules/admin/admin.routes.ts` (dòng 10)
@@ -97,15 +102,15 @@
 
 ## 2. Bảng Tổng Hợp Kiểm Thử Bảo Mật
 
-| Mã Test | Mô tả kiểm thử | Kỳ vọng | Kết quả thực tế | Trạng thái |
-|:---:|:---|:---|:---:|:---:|
-| `SEC-1` | Chống giả mạo số tiền VNPay | Server lấy tiền từ DB | URL mang đúng số tiền DB | `PASS` |
-| `SEC-2` | Chống giả mạo chữ ký VNPay | Từ chối chữ ký sai | `isSuccess: false` | `PASS` |
-| `SEC-3` | Đối chiếu số tiền callback | Bác bỏ số tiền lệch | `isSuccess: false` | `PASS` |
-| `SEC-4` | Idempotency callback | Không lặp giao dịch | `isSuccess: true (Idempotent)` | `PASS` |
-| `SEC-5` | Vô hiệu hóa simulator trên Prod | Ném ngoại lệ 403 | Throws SIMULATOR_DISABLED | `PASS` |
-| `RBAC-1` | Chặn khách vãng lai vào Admin | HTTP 401 Unauthorized | `status: 401` | `PASS` |
-| `RBAC-2` | Chặn tài khoản CUSTOMER vào Admin | HTTP 403 Forbidden | `status: 403` | `PASS` |
-| `RBAC-3` | Cho phép STAFF vào Admin | HTTP 200 OK | `status: 200` | `PASS` |
-| `RBAC-4` | Cho phép ADMIN vào Admin | HTTP 200 OK | `status: 200` | `PASS` |
-| `CONC-1` | Chặn mua hàng khi hết tồn kho | HTTP 400 Insufficient Stock | `status: 400` | `PASS` |
+| Mã Test  | Mô tả kiểm thử                    | Kỳ vọng                     |        Kết quả thực tế         | Trạng thái |
+| :------: | :-------------------------------- | :-------------------------- | :----------------------------: | :--------: |
+| `SEC-1`  | Chống giả mạo số tiền VNPay       | Server lấy tiền từ DB       |    URL mang đúng số tiền DB    |   `PASS`   |
+| `SEC-2`  | Chống giả mạo chữ ký VNPay        | Từ chối chữ ký sai          |       `isSuccess: false`       |   `PASS`   |
+| `SEC-3`  | Đối chiếu số tiền callback        | Bác bỏ số tiền lệch         |       `isSuccess: false`       |   `PASS`   |
+| `SEC-4`  | Idempotency callback              | Không lặp giao dịch         | `isSuccess: true (Idempotent)` |   `PASS`   |
+| `SEC-5`  | Vô hiệu hóa simulator trên Prod   | Ném ngoại lệ 403            |   Throws SIMULATOR_DISABLED    |   `PASS`   |
+| `RBAC-1` | Chặn khách vãng lai vào Admin     | HTTP 401 Unauthorized       |         `status: 401`          |   `PASS`   |
+| `RBAC-2` | Chặn tài khoản CUSTOMER vào Admin | HTTP 403 Forbidden          |         `status: 403`          |   `PASS`   |
+| `RBAC-3` | Cho phép STAFF vào Admin          | HTTP 200 OK                 |         `status: 200`          |   `PASS`   |
+| `RBAC-4` | Cho phép ADMIN vào Admin          | HTTP 200 OK                 |         `status: 200`          |   `PASS`   |
+| `CONC-1` | Chặn mua hàng khi hết tồn kho     | HTTP 400 Insufficient Stock |         `status: 400`          |   `PASS`   |

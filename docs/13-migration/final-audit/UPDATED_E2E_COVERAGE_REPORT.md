@@ -27,6 +27,7 @@ Trong kiến trúc kiểm thử chuyên nghiệp (Testing Pyramid), Nexora phân
 ## 2. KẾT QUẢ THỰC THI BỘ KIỂM THỬ PLAYWRIGHT (9/9 PASS)
 
 Lệnh thực thi:
+
 ```bash
 npm run test:e2e
 ```
@@ -56,24 +57,25 @@ Running 9 tests using 2 workers
 
 ## 3. MA TRẬN PHÂN BỔ KIỂM THỬ GIỮA PLAYWRIGHT VÀ VITEST
 
-| Luồng nghiệp vụ | Kiểm thử trên Playwright (Browser E2E) | Kiểm thử trên Vitest (Backend/API/DB) | Đánh giá tổng hợp |
-| :--- | :--- | :--- | :---: |
-| **1. Trang chủ & Định vị thương hiệu** | Journey 1: Header, Hero, Cam kết, Navigation | `storefront.integration.test.ts` (API Catalog, Categories) | **HOÀN TOÀN ĐẠT** |
-| **2. Danh mục & Tìm kiếm sản phẩm** | Journey 2: Tải sản phẩm, render lưới card, filter | `storefront.integration.test.ts` (Query filter, pagination, price range) | **HOÀN TOÀN ĐẠT** |
-| **3. Xác thực & Đăng nhập (Auth)** | Journey 3: Form đăng nhập, validation client | `auth_password_reset_security.test.ts`, `rbac_and_concurrency.test.ts` (Bcrypt, JWT, Token leak, One-time use) | **HOÀN TOÀN ĐẠT** |
-| **4. Tư vấn Cấu hình AI 5 bước** | Journey 4: Render câu hỏi, lựa chọn ngân sách/nhu cầu | `commerce_and_ai.integration.test.ts` (POST `/ai/advisor/survey`, tính toán cấu hình) | **HOÀN TOÀN ĐẠT** |
-| **5. Công cụ Xây dựng cấu hình PC** | Journey 5: Render 8 slot linh kiện (CPU, Main, RAM...) | `commerce_and_ai.integration.test.ts` (Tương thích socket, tổng công suất nguồn) | **HOÀN TOÀN ĐẠT** |
-| **6. So sánh Sản phẩm theo Persona** | Journey 6: Chọn danh mục, persona (Gaming, Đồ họa...) | `commerce_and_ai.integration.test.ts` (POST `/ai/compare/persona`, scoring ma trận) | **HOÀN TOÀN ĐẠT** |
-| **7. Tra cứu Đơn hàng (Order Tracking)** | Journey 7: Nhập mã đơn, hiển thị tiến trình giao nhận | `storefront.integration.test.ts` (GET `/orders/track/:code`, snapshot trạng thái) | **HOÀN TOÀN ĐẠT** |
-| **8. Bảng điều khiển Quản trị (Admin)** | Journey 8: Render KPIs, biểu đồ doanh thu, tabs quản trị | `rbac_and_concurrency.test.ts` (Chặn 401/403, CRUD sản phẩm, đơn hàng, danh mục) | **HOÀN TOÀN ĐẠT** |
-| **9. Đặt hàng & Trừ kho song song** | Giao diện Checkout & Success | `commerce_and_ai.integration.test.ts`, `rbac_and_concurrency.test.ts` (Prisma transaction, chặn tồn kho âm, snapshot COGS) | **HOÀN TOÀN ĐẠT** |
-| **10. Thanh toán Trực tuyến VNPay** | Nút bấm cổng thanh toán & redirect URL | `payment_security.test.ts` (13 tests: Quyền sở hữu, HMAC checksum, chống giả mạo số tiền, Idempotency) | **HOÀN TOÀN ĐẠT** |
-| **11. Quản lý Giỏ hàng & Wishlist** | Tương tác giỏ hàng & modal | `commerce_and_ai.integration.test.ts` (Phân lập dữ liệu khách hàng A và B) | **HOÀN TOÀN ĐẠT** |
+| Luồng nghiệp vụ                          | Kiểm thử trên Playwright (Browser E2E)                   | Kiểm thử trên Vitest (Backend/API/DB)                                                                                      | Đánh giá tổng hợp |
+| :--------------------------------------- | :------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------- | :---------------: |
+| **1. Trang chủ & Định vị thương hiệu**   | Journey 1: Header, Hero, Cam kết, Navigation             | `storefront.integration.test.ts` (API Catalog, Categories)                                                                 | **HOÀN TOÀN ĐẠT** |
+| **2. Danh mục & Tìm kiếm sản phẩm**      | Journey 2: Tải sản phẩm, render lưới card, filter        | `storefront.integration.test.ts` (Query filter, pagination, price range)                                                   | **HOÀN TOÀN ĐẠT** |
+| **3. Xác thực & Đăng nhập (Auth)**       | Journey 3: Form đăng nhập, validation client             | `auth_password_reset_security.test.ts`, `rbac_and_concurrency.test.ts` (Bcrypt, JWT, Token leak, One-time use)             | **HOÀN TOÀN ĐẠT** |
+| **4. Tư vấn Cấu hình AI 5 bước**         | Journey 4: Render câu hỏi, lựa chọn ngân sách/nhu cầu    | `commerce_and_ai.integration.test.ts` (POST `/ai/advisor/survey`, tính toán cấu hình)                                      | **HOÀN TOÀN ĐẠT** |
+| **5. Công cụ Xây dựng cấu hình PC**      | Journey 5: Render 8 slot linh kiện (CPU, Main, RAM...)   | `commerce_and_ai.integration.test.ts` (Tương thích socket, tổng công suất nguồn)                                           | **HOÀN TOÀN ĐẠT** |
+| **6. So sánh Sản phẩm theo Persona**     | Journey 6: Chọn danh mục, persona (Gaming, Đồ họa...)    | `commerce_and_ai.integration.test.ts` (POST `/ai/compare/persona`, scoring ma trận)                                        | **HOÀN TOÀN ĐẠT** |
+| **7. Tra cứu Đơn hàng (Order Tracking)** | Journey 7: Nhập mã đơn, hiển thị tiến trình giao nhận    | `storefront.integration.test.ts` (GET `/orders/track/:code`, snapshot trạng thái)                                          | **HOÀN TOÀN ĐẠT** |
+| **8. Bảng điều khiển Quản trị (Admin)**  | Journey 8: Render KPIs, biểu đồ doanh thu, tabs quản trị | `rbac_and_concurrency.test.ts` (Chặn 401/403, CRUD sản phẩm, đơn hàng, danh mục)                                           | **HOÀN TOÀN ĐẠT** |
+| **9. Đặt hàng & Trừ kho song song**      | Giao diện Checkout & Success                             | `commerce_and_ai.integration.test.ts`, `rbac_and_concurrency.test.ts` (Prisma transaction, chặn tồn kho âm, snapshot COGS) | **HOÀN TOÀN ĐẠT** |
+| **10. Thanh toán Trực tuyến VNPay**      | Nút bấm cổng thanh toán & redirect URL                   | `payment_security.test.ts` (13 tests: Quyền sở hữu, HMAC checksum, chống giả mạo số tiền, Idempotency)                     | **HOÀN TOÀN ĐẠT** |
+| **11. Quản lý Giỏ hàng & Wishlist**      | Tương tác giỏ hàng & modal                               | `commerce_and_ai.integration.test.ts` (Phân lập dữ liệu khách hàng A và B)                                                 | **HOÀN TOÀN ĐẠT** |
 
 ---
 
 ## 4. KẾT LUẬN
 
 Hệ thống kiểm thử hai tầng của Nexora bảo đảm độ tin cậy toàn diện:
+
 1. **Playwright** đảm bảo không có bất kỳ màn hình nào bị lỗi render (White Screen of Death), lỗi cú pháp JS, lỗi CSS hoặc đứt gãy tương tác người dùng.
 2. **Vitest** (55 tests) đảm bảo mọi quy tắc kinh doanh, tiền tệ, trừ kho, bảo mật và thanh toán hoạt động chính xác 100% trên cơ sở dữ liệu MySQL 8.4 thực tế.

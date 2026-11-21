@@ -24,8 +24,13 @@ export const CheckoutPage: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'VNPAY' | 'VIETQR'>('COD');
   const [couponInput, setCouponInput] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
-  const [couponMessage, setCouponMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountAmount: number;
+  } | null>(null);
+  const [couponMessage, setCouponMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(
+    null,
+  );
   const [isCheckingCoupon, setIsCheckingCoupon] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -68,7 +73,9 @@ export const CheckoutPage: React.FC = () => {
       setAppliedCoupon(null);
       setCouponMessage({
         type: 'err',
-        text: errorResponse.response?.data?.error?.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn.',
+        text:
+          errorResponse.response?.data?.error?.message ||
+          'Mã giảm giá không hợp lệ hoặc đã hết hạn.',
       });
     } finally {
       setIsCheckingCoupon(false);
@@ -91,7 +98,9 @@ export const CheckoutPage: React.FC = () => {
       setAppliedCoupon(null);
       setCouponMessage({
         type: 'err',
-        text: errorResponse.response?.data?.error?.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn.',
+        text:
+          errorResponse.response?.data?.error?.message ||
+          'Mã giảm giá không hợp lệ hoặc đã hết hạn.',
       });
     } finally {
       setIsCheckingCoupon(false);
@@ -172,7 +181,8 @@ export const CheckoutPage: React.FC = () => {
 
       navigate(`/checkout/success?code=${order.orderCode}`);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.';
+      const message =
+        err instanceof Error ? err.message : 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.';
       setErrorMsg(message);
     } finally {
       setIsSubmitting(false);
@@ -210,7 +220,9 @@ export const CheckoutPage: React.FC = () => {
               Giỏ hàng
             </Link>
             <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px' }}></i>
-            <span style={{ fontWeight: 600, color: 'var(--text-primary, #111827)' }}>Thanh toán</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-primary, #111827)' }}>
+              Thanh toán
+            </span>
           </nav>
         </div>
 
@@ -401,7 +413,8 @@ export const CheckoutPage: React.FC = () => {
                           paymentMethod === 'COD'
                             ? '2px solid #0A5BFF'
                             : '1px solid var(--border, #E5E7EB)',
-                        backgroundColor: paymentMethod === 'COD' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
+                        backgroundColor:
+                          paymentMethod === 'COD' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
                         cursor: 'pointer',
                       }}
                     >
@@ -412,13 +425,17 @@ export const CheckoutPage: React.FC = () => {
                         onChange={() => setPaymentMethod('COD')}
                         style={{ accentColor: '#0A5BFF', width: '18px', height: '18px' }}
                       />
-                      <i className="fa-solid fa-money-bill-wave" style={{ color: '#16A34A', fontSize: '20px' }}></i>
+                      <i
+                        className="fa-solid fa-money-bill-wave"
+                        style={{ color: '#16A34A', fontSize: '20px' }}
+                      ></i>
                       <div>
                         <div style={{ fontWeight: 700, fontSize: '14px' }}>
                           Thanh toán khi nhận hàng (COD)
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                          Nhận hàng, kiểm tra tem niêm phong và thanh toán tiền mặt cho nhân viên giao hàng.
+                          Nhận hàng, kiểm tra tem niêm phong và thanh toán tiền mặt cho nhân viên
+                          giao hàng.
                         </div>
                       </div>
                     </label>
@@ -435,7 +452,8 @@ export const CheckoutPage: React.FC = () => {
                           paymentMethod === 'VNPAY'
                             ? '2px solid #0A5BFF'
                             : '1px solid var(--border, #E5E7EB)',
-                        backgroundColor: paymentMethod === 'VNPAY' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
+                        backgroundColor:
+                          paymentMethod === 'VNPAY' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
                         cursor: 'pointer',
                       }}
                     >
@@ -446,13 +464,17 @@ export const CheckoutPage: React.FC = () => {
                         onChange={() => setPaymentMethod('VNPAY')}
                         style={{ accentColor: '#0A5BFF', width: '18px', height: '18px' }}
                       />
-                      <i className="fa-solid fa-qrcode" style={{ color: '#0A5BFF', fontSize: '20px' }}></i>
+                      <i
+                        className="fa-solid fa-qrcode"
+                        style={{ color: '#0A5BFF', fontSize: '20px' }}
+                      ></i>
                       <div>
                         <div style={{ fontWeight: 700, fontSize: '14px' }}>
                           Cổng thanh toán trực tuyến VNPAY
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                          Hỗ trợ quét VNPAY-QR, thẻ ATM nội địa 40+ ngân hàng hoặc thẻ quốc tế Visa/MasterCard.
+                          Hỗ trợ quét VNPAY-QR, thẻ ATM nội địa 40+ ngân hàng hoặc thẻ quốc tế
+                          Visa/MasterCard.
                         </div>
                       </div>
                     </label>
@@ -469,7 +491,8 @@ export const CheckoutPage: React.FC = () => {
                           paymentMethod === 'VIETQR'
                             ? '2px solid #0A5BFF'
                             : '1px solid var(--border, #E5E7EB)',
-                        backgroundColor: paymentMethod === 'VIETQR' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
+                        backgroundColor:
+                          paymentMethod === 'VIETQR' ? 'rgba(10, 91, 255, 0.1)' : 'transparent',
                         cursor: 'pointer',
                       }}
                     >
@@ -480,7 +503,10 @@ export const CheckoutPage: React.FC = () => {
                         onChange={() => setPaymentMethod('VIETQR')}
                         style={{ accentColor: '#0A5BFF', width: '18px', height: '18px' }}
                       />
-                      <i className="fa-solid fa-building-columns" style={{ color: '#8B5CF6', fontSize: '20px' }}></i>
+                      <i
+                        className="fa-solid fa-building-columns"
+                        style={{ color: '#8B5CF6', fontSize: '20px' }}
+                      ></i>
                       <div>
                         <div style={{ fontWeight: 700, fontSize: '14px' }}>
                           Chuyển khoản VietQR Napas 247
@@ -557,11 +583,14 @@ export const CheckoutPage: React.FC = () => {
                             {item.product.name}
                           </div>
                           <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                            x{item.quantity} · {formatPrice(Number(item.product.salePrice || item.product.price))}
+                            x{item.quantity} ·{' '}
+                            {formatPrice(Number(item.product.salePrice || item.product.price))}
                           </div>
                         </div>
                         <div style={{ fontWeight: 700, fontSize: '13px' }}>
-                          {formatPrice(Number(item.product.salePrice || item.product.price) * item.quantity)}
+                          {formatPrice(
+                            Number(item.product.salePrice || item.product.price) * item.quantity,
+                          )}
                         </div>
                       </div>
                     );
@@ -569,7 +598,13 @@ export const CheckoutPage: React.FC = () => {
                 </div>
 
                 {/* Coupon Code Input (Live DB Sync with Admin Coupons) */}
-                <div style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid var(--border)' }}>
+                <div
+                  style={{
+                    marginBottom: '16px',
+                    paddingBottom: '14px',
+                    borderBottom: '1px solid var(--border)',
+                  }}
+                >
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <input
                       type="text"
@@ -577,7 +612,13 @@ export const CheckoutPage: React.FC = () => {
                       placeholder="Nhập mã giảm giá..."
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                      style={{ flex: 1, height: '40px', fontSize: '13px', fontFamily: 'monospace', fontWeight: 700 }}
+                      style={{
+                        flex: 1,
+                        height: '40px',
+                        fontSize: '13px',
+                        fontFamily: 'monospace',
+                        fontWeight: 700,
+                      }}
                     />
                     <button
                       type="button"
@@ -620,7 +661,14 @@ export const CheckoutPage: React.FC = () => {
                             setCouponInput('');
                             setCouponMessage(null);
                           }}
-                          style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '11px', fontWeight: 700 }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#EF4444',
+                            cursor: 'pointer',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                          }}
                         >
                           Bỏ mã
                         </button>
@@ -630,7 +678,14 @@ export const CheckoutPage: React.FC = () => {
 
                   {/* Selectable Voucher List */}
                   {availableCoupons.length > 0 && (
-                    <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div
+                      style={{
+                        marginTop: '14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
                       <div
                         style={{
                           fontSize: '11px',
@@ -678,16 +733,40 @@ export const CheckoutPage: React.FC = () => {
                             >
                               <div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '12.5px', color: '#0A5BFF' }}>
+                                  <span
+                                    style={{
+                                      fontFamily: 'monospace',
+                                      fontWeight: 800,
+                                      fontSize: '12.5px',
+                                      color: '#0A5BFF',
+                                    }}
+                                  >
                                     {cp.code}
                                   </span>
-                                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #1F2937)' }}>
+                                  <span
+                                    style={{
+                                      fontSize: '12px',
+                                      fontWeight: 700,
+                                      color: 'var(--text-primary, #1F2937)',
+                                    }}
+                                  >
                                     {cp.discountType === 'PERCENTAGE'
                                       ? `Giảm ${cp.discountValue}%`
                                       : `Giảm ${Number(cp.discountValue).toLocaleString('vi-VN')}đ`}
                                   </span>
                                 </div>
-                                <div style={{ fontSize: '10.5px', color: isEligible ? 'var(--text-secondary, #6B7280)' : '#EF4444', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <div
+                                  style={{
+                                    fontSize: '10.5px',
+                                    color: isEligible
+                                      ? 'var(--text-secondary, #6B7280)'
+                                      : '#EF4444',
+                                    marginTop: '2px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                  }}
+                                >
                                   <span>
                                     {Number(cp.minOrderValue) > 0
                                       ? `Đơn tối thiểu ${Number(cp.minOrderValue).toLocaleString('vi-VN')}đ`
@@ -700,11 +779,31 @@ export const CheckoutPage: React.FC = () => {
                               </div>
                               <div>
                                 {isCurrentActive ? (
-                                  <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#16A34A', backgroundColor: '#DCFCE7', padding: '3px 8px', borderRadius: '6px' }}>
+                                  <span
+                                    style={{
+                                      fontSize: '10.5px',
+                                      fontWeight: 800,
+                                      color: '#16A34A',
+                                      backgroundColor: '#DCFCE7',
+                                      padding: '3px 8px',
+                                      borderRadius: '6px',
+                                    }}
+                                  >
                                     ✓ Đang dùng
                                   </span>
                                 ) : (
-                                  <span style={{ fontSize: '10.5px', fontWeight: 700, color: isEligible ? '#0A5BFF' : '#9CA3AF', backgroundColor: isEligible ? 'rgba(10, 91, 255, 0.08)' : '#F3F4F6', padding: '3px 8px', borderRadius: '6px' }}>
+                                  <span
+                                    style={{
+                                      fontSize: '10.5px',
+                                      fontWeight: 700,
+                                      color: isEligible ? '#0A5BFF' : '#9CA3AF',
+                                      backgroundColor: isEligible
+                                        ? 'rgba(10, 91, 255, 0.08)'
+                                        : '#F3F4F6',
+                                      padding: '3px 8px',
+                                      borderRadius: '6px',
+                                    }}
+                                  >
                                     Áp dụng
                                   </span>
                                 )}
@@ -717,19 +816,49 @@ export const CheckoutPage: React.FC = () => {
                   )}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '8px',
+                    fontSize: '13px',
+                  }}
+                >
                   <span style={{ color: 'var(--text-secondary)' }}>Tạm tính:</span>
                   <span style={{ fontWeight: 600 }}>{formatPrice(rawTotal)}</span>
                 </div>
                 {discountAmount > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
-                    <span style={{ color: '#16A34A', fontWeight: 600 }}>Giảm giá ({appliedCoupon?.code}):</span>
-                    <span style={{ fontWeight: 700, color: '#16A34A' }}>-{formatPrice(discountAmount)}</span>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '8px',
+                      fontSize: '13px',
+                    }}
+                  >
+                    <span style={{ color: '#16A34A', fontWeight: 600 }}>
+                      Giảm giá ({appliedCoupon?.code}):
+                    </span>
+                    <span style={{ fontWeight: 700, color: '#16A34A' }}>
+                      -{formatPrice(discountAmount)}
+                    </span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px', fontSize: '13px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '14px',
+                    fontSize: '13px',
+                  }}
+                >
                   <span style={{ color: 'var(--text-secondary)' }}>Phí vận chuyển:</span>
-                  <span style={{ fontWeight: 600, color: shippingFee === 0 ? '#16A34A' : 'var(--text-primary)' }}>
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      color: shippingFee === 0 ? '#16A34A' : 'var(--text-primary)',
+                    }}
+                  >
                     {shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}
                   </span>
                 </div>
@@ -745,7 +874,9 @@ export const CheckoutPage: React.FC = () => {
                   }}
                 >
                   <span style={{ fontSize: '15px', fontWeight: 800 }}>Tổng tiền:</span>
-                  <span style={{ fontSize: '22px', fontWeight: 900, color: 'var(--primary, #0A5BFF)' }}>
+                  <span
+                    style={{ fontSize: '22px', fontWeight: 900, color: 'var(--primary, #0A5BFF)' }}
+                  >
                     {formatPrice(finalTotal)}
                   </span>
                 </div>
@@ -772,7 +903,8 @@ export const CheckoutPage: React.FC = () => {
                     marginTop: '12px',
                   }}
                 >
-                  Bằng cách nhấn Đặt hàng, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo hành của Nexora.
+                  Bằng cách nhấn Đặt hàng, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo hành
+                  của Nexora.
                 </p>
               </div>
             </div>

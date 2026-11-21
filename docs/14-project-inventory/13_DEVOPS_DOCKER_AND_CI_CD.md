@@ -1,6 +1,7 @@
 # HẠ TẦNG DEVOPS, DOCKER VÀ TỰ ĐỘNG HÓA CI/CD
+
 **Tài liệu:** `13_DEVOPS_DOCKER_AND_CI_CD.md`  
-**Dự án:** Nexora  
+**Dự án:** Nexora
 
 ---
 
@@ -15,6 +16,7 @@
 ## 2. Quy Trình Tự Động Hóa CI/CD (GitHub Actions)
 
 Tệp workflow `.github/workflows/ci.yml` tự động kích hoạt trên mỗi Pull Request và Commit vào nhánh `main`:
+
 1. **Kiểm tra cú pháp & quy chuẩn:** Chạy `npm run lint` (ESLint 9).
 2. **Kiểm tra kiểu dữ liệu tĩnh:** Chạy `npm run typecheck` (`tsc --noEmit`).
 3. **Khởi tạo dịch vụ MySQL:** Chạy MySQL service container, tự động nạp `prisma migrate deploy`.

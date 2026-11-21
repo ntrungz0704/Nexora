@@ -193,22 +193,26 @@ const CUSTOMER_REVIEWS = [
   {
     name: 'Nguyễn Minh Tuấn',
     role: 'Khách hàng mua ROG Zephyrus G16',
-    comment: 'Máy đóng gói cực kỳ cẩn thận, nguyên seal chính hãng, giao hỏa tốc trong 2 giờ. Kỹ thuật viên hỗ trợ cài win và test máy rất nhiệt tình!',
+    comment:
+      'Máy đóng gói cực kỳ cẩn thận, nguyên seal chính hãng, giao hỏa tốc trong 2 giờ. Kỹ thuật viên hỗ trợ cài win và test máy rất nhiệt tình!',
   },
   {
     name: 'Trần Văn Hoàng',
     role: 'Khách hàng build PC Workstation',
-    comment: 'Cấu hình i9 14900K kèm RTX 4090 chạy mượt mà không bị nghẽn, giá rẻ hơn mặt bằng chung vài triệu và tặng kèm gói vệ sinh máy trọn đời.',
+    comment:
+      'Cấu hình i9 14900K kèm RTX 4090 chạy mượt mà không bị nghẽn, giá rẻ hơn mặt bằng chung vài triệu và tặng kèm gói vệ sinh máy trọn đời.',
   },
   {
     name: 'Lê Thu Trang',
     role: 'Khách hàng mua màn hình OLED',
-    comment: 'Màn hình Samsung Odyssey OLED G9 hình ảnh quá đỉnh, màu đen sâu tuyệt đối. Đổi trả 7 ngày 1-đổi-1 làm mình rất yên tâm khi mua online.',
+    comment:
+      'Màn hình Samsung Odyssey OLED G9 hình ảnh quá đỉnh, màu đen sâu tuyệt đối. Đổi trả 7 ngày 1-đổi-1 làm mình rất yên tâm khi mua online.',
   },
   {
     name: 'Đặng Quốc Huy',
     role: 'Game thủ eSports',
-    comment: 'Chuột Logitech Superlight 2 chính hãng siêu nhẹ, click chuẩn xác, tư vấn AI trên web chuẩn nhu cầu mình cần. Sẽ tiếp tục ủng hộ Nexora!',
+    comment:
+      'Chuột Logitech Superlight 2 chính hãng siêu nhẹ, click chuẩn xác, tư vấn AI trên web chuẩn nhu cầu mình cần. Sẽ tiếp tục ủng hộ Nexora!',
   },
 ];
 
@@ -249,27 +253,59 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
   const getFilteredBestSellers = () => {
     if (activeTab === 'all') return products.slice(0, 10);
     if (activeTab === 'laptop') {
-      return products.filter((p) => p.category?.slug.includes('laptop') || p.name.toLowerCase().includes('laptop'));
+      return products.filter(
+        (p) => p.category?.slug.includes('laptop') || p.name.toLowerCase().includes('laptop'),
+      );
     }
     if (activeTab === 'pc') {
-      return products.filter((p) => p.category?.slug.includes('pc') || p.name.toLowerCase().includes('pc'));
+      return products.filter(
+        (p) => p.category?.slug.includes('pc') || p.name.toLowerCase().includes('pc'),
+      );
     }
     if (activeTab === 'components') {
-      return products.filter((p) =>
-        ['mainboard', 'cpu', 'vga', 'ram', 'storage', 'case', 'cooling', 'psu', 'main-cpu-vga', 'case-nguon-tan', 'o-cung'].includes(p.category?.slug || '') ||
-        p.name.toLowerCase().includes('rtx') ||
-        p.name.toLowerCase().includes('cpu') ||
-        p.name.toLowerCase().includes('ram')
+      return products.filter(
+        (p) =>
+          [
+            'mainboard',
+            'cpu',
+            'vga',
+            'ram',
+            'storage',
+            'case',
+            'cooling',
+            'psu',
+            'main-cpu-vga',
+            'case-nguon-tan',
+            'o-cung',
+          ].includes(p.category?.slug || '') ||
+          p.name.toLowerCase().includes('rtx') ||
+          p.name.toLowerCase().includes('cpu') ||
+          p.name.toLowerCase().includes('ram'),
       );
     }
     if (activeTab === 'monitor') {
-      return products.filter((p) => p.category?.slug === 'monitor' || p.category?.slug.includes('man-hinh') || p.name.toLowerCase().includes('màn hình'));
+      return products.filter(
+        (p) =>
+          p.category?.slug === 'monitor' ||
+          p.category?.slug.includes('man-hinh') ||
+          p.name.toLowerCase().includes('màn hình'),
+      );
     }
     if (activeTab === 'gear') {
-      return products.filter((p) =>
-        ['keyboard', 'mouse', 'chair', 'headset', 'speaker', 'ban-phim', 'chuot-lot-chuot', 'tai-nghe'].includes(p.category?.slug || '') ||
-        p.name.toLowerCase().includes('chuột') ||
-        p.name.toLowerCase().includes('bàn phím')
+      return products.filter(
+        (p) =>
+          [
+            'keyboard',
+            'mouse',
+            'chair',
+            'headset',
+            'speaker',
+            'ban-phim',
+            'chuot-lot-chuot',
+            'tai-nghe',
+          ].includes(p.category?.slug || '') ||
+          p.name.toLowerCase().includes('chuột') ||
+          p.name.toLowerCase().includes('bàn phím'),
       );
     }
     return products.slice(0, 10);
@@ -280,22 +316,43 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
   // Highlight and New Arrivals slices
   const featuredProducts = products.filter((p) => p.isFeatured || p.isHot).slice(0, 5);
   const newProducts = [...products].reverse().slice(0, 5);
-  const appleProducts = products.filter((p) => p.name.toLowerCase().includes('apple') || p.name.toLowerCase().includes('macbook') || p.category?.slug.includes('pc')).slice(0, 4);
+  const appleProducts = products
+    .filter(
+      (p) =>
+        p.name.toLowerCase().includes('apple') ||
+        p.name.toLowerCase().includes('macbook') ||
+        p.category?.slug.includes('pc'),
+    )
+    .slice(0, 4);
 
   // Category specific slices
-  const laptopProducts = products.filter((p) => p.category?.slug.includes('laptop') || p.name.toLowerCase().includes('laptop')).slice(0, 5);
-  const pcProducts = products.filter((p) => p.category?.slug.includes('pc') || p.name.toLowerCase().includes('pc')).slice(0, 5);
-  const componentProducts = products.filter((p) =>
-    ['main-cpu-vga', 'case-nguon-tan', 'o-cung'].includes(p.category?.slug || '') ||
-    p.name.toLowerCase().includes('rtx') ||
-    p.name.toLowerCase().includes('intel')
-  ).slice(0, 5);
-  const monitorProducts = products.filter((p) => p.category?.slug.includes('man-hinh') || p.name.toLowerCase().includes('màn hình')).slice(0, 5);
-  const gearProducts = products.filter((p) =>
-    ['ban-phim', 'chuot-lot-chuot', 'tai-nghe'].includes(p.category?.slug || '') ||
-    p.name.toLowerCase().includes('chuột') ||
-    p.name.toLowerCase().includes('phím')
-  ).slice(0, 5);
+  const laptopProducts = products
+    .filter((p) => p.category?.slug.includes('laptop') || p.name.toLowerCase().includes('laptop'))
+    .slice(0, 5);
+  const pcProducts = products
+    .filter((p) => p.category?.slug.includes('pc') || p.name.toLowerCase().includes('pc'))
+    .slice(0, 5);
+  const componentProducts = products
+    .filter(
+      (p) =>
+        ['main-cpu-vga', 'case-nguon-tan', 'o-cung'].includes(p.category?.slug || '') ||
+        p.name.toLowerCase().includes('rtx') ||
+        p.name.toLowerCase().includes('intel'),
+    )
+    .slice(0, 5);
+  const monitorProducts = products
+    .filter(
+      (p) => p.category?.slug.includes('man-hinh') || p.name.toLowerCase().includes('màn hình'),
+    )
+    .slice(0, 5);
+  const gearProducts = products
+    .filter(
+      (p) =>
+        ['ban-phim', 'chuot-lot-chuot', 'tai-nghe'].includes(p.category?.slug || '') ||
+        p.name.toLowerCase().includes('chuột') ||
+        p.name.toLowerCase().includes('phím'),
+    )
+    .slice(0, 5);
 
   return (
     <>
@@ -303,14 +360,25 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {featuredProducts.length > 0 && (
         <section className="container section" style={{ marginTop: '36px' }}>
           <div className="section__head">
-            <h2><i className="fa-solid fa-fire" style={{ color: '#ff4757', marginRight: '8px' }}></i>Sản phẩm nổi bật</h2>
+            <h2>
+              <i className="fa-solid fa-fire" style={{ color: '#ff4757', marginRight: '8px' }}></i>
+              Sản phẩm nổi bật
+            </h2>
             <Link to="/search?sort=popular" className="section__more">
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
           </div>
-          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
+          <div
+            className="products-grid"
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}
+          >
             {featuredProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                onAddToCart={onAddToCart}
+                onToggleWishlist={onToggleWishlist}
+              />
             ))}
           </div>
         </section>
@@ -326,13 +394,18 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
         </div>
         <div className="category-strip">
           {categoryItems.map((item, idx) => (
-            <Link key={item.slug || idx} to={`/search?cat=${item.slug}`} className="category-strip__item">
+            <Link
+              key={item.slug || idx}
+              to={`/search?cat=${item.slug}`}
+              className="category-strip__item"
+            >
               <div className="category-strip__icon">
                 <img
                   src={`/assets/images/categories/category-${item.cat}.png`}
                   alt={item.name}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).outerHTML = `<i class="${item.icon || 'fa-solid fa-tag'}" style="font-size: 24px; color: var(--primary);"></i>`;
+                    (e.target as HTMLImageElement).outerHTML =
+                      `<i class="${item.icon || 'fa-solid fa-tag'}" style="font-size: 24px; color: var(--primary);"></i>`;
                   }}
                 />
               </div>
@@ -347,7 +420,8 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
         <div
           className="promo-banner-feature"
           style={{
-            background: "linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.45) 60%, rgba(15, 23, 42, 0.1) 100%), url('/assets/images/rtx-banner.jpg') center/cover no-repeat",
+            background:
+              "linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.45) 60%, rgba(15, 23, 42, 0.1) 100%), url('/assets/images/rtx-banner.jpg') center/cover no-repeat",
           }}
         >
           <div className="promo-banner__content">
@@ -365,11 +439,28 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
             >
               SẮP RA MẮT
             </span>
-            <h3 style={{ color: '#ffffff', textShadow: '0 2px 6px rgba(0,0,0,0.8)', fontSize: '24px', fontWeight: 800, margin: '10px 0 6px 0' }}>
+            <h3
+              style={{
+                color: '#ffffff',
+                textShadow: '0 2px 6px rgba(0,0,0,0.8)',
+                fontSize: '24px',
+                fontWeight: 800,
+                margin: '10px 0 6px 0',
+              }}
+            >
               NVIDIA GeForce RTX 50 Series
             </h3>
-            <p style={{ color: '#e2e8f0', textShadow: '0 1px 4px rgba(0,0,0,0.8)', fontSize: '14px', margin: 0, maxWidth: '650px' }}>
-              Sức mạnh tối thượng từ kiến trúc Blackwell, dẫn đầu cuộc cách mạng đồ họa AI thế hệ mới.
+            <p
+              style={{
+                color: '#e2e8f0',
+                textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+                fontSize: '14px',
+                margin: 0,
+                maxWidth: '650px',
+              }}
+            >
+              Sức mạnh tối thượng từ kiến trúc Blackwell, dẫn đầu cuộc cách mạng đồ họa AI thế hệ
+              mới.
             </p>
           </div>
           <Link
@@ -396,8 +487,18 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
 
       {/* ===== 8. BEST SELLER PRODUCTS WITH TABS ===== */}
       <section className="container section section-best-sellers" style={{ marginTop: '36px' }}>
-        <div className="best-seller-section__header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+        <div
+          className="best-seller-section__header"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '20px',
+          }}
+        >
+          <h2
+            style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}
+          >
             Sản phẩm bán chạy
           </h2>
           <div className="tabs-nav" style={{ display: 'flex', gap: '8px' }}>
@@ -448,7 +549,13 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {newProducts.length > 0 && (
         <section className="container section" style={{ marginTop: '36px' }}>
           <div className="section__head">
-            <h2><i className="fa-solid fa-sparkles" style={{ color: '#2ed573', marginRight: '8px' }}></i>Sản phẩm mới về</h2>
+            <h2>
+              <i
+                className="fa-solid fa-sparkles"
+                style={{ color: '#2ed573', marginRight: '8px' }}
+              ></i>
+              Sản phẩm mới về
+            </h2>
             <Link to="/search?sort=newest" className="section__more">
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
@@ -464,26 +571,41 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {/* ===== 9. TRIPLE PROMOTION BANNER ===== */}
       <section className="container section" style={{ marginTop: '36px' }}>
         <div className="promo-banners-container">
-          <div className="promo-banner" style={{ backgroundImage: "url('/assets/images/promo-banner-1.jpg')" }}>
+          <div
+            className="promo-banner"
+            style={{ backgroundImage: "url('/assets/images/promo-banner-1.jpg')" }}
+          >
             <div className="promo-banner__content">
               <h3>Build PC Cực Chất</h3>
               <p>Tặng kèm tản nhiệt khí khi lắp PC nguyên bộ.</p>
             </div>
-            <Link to="/build-pc" className="btn btn--sm">Build Ngay</Link>
+            <Link to="/build-pc" className="btn btn--sm">
+              Build Ngay
+            </Link>
           </div>
-          <div className="promo-banner" style={{ backgroundImage: "url('/assets/images/promo-banner-2.jpg')" }}>
+          <div
+            className="promo-banner"
+            style={{ backgroundImage: "url('/assets/images/promo-banner-2.jpg')" }}
+          >
             <div className="promo-banner__content">
               <h3>BẢO HÀNH CHÍNH HÃNG</h3>
               <p>Cam kết bảo hành chính hãng 12-36 tháng cho tất cả sản phẩm.</p>
             </div>
-            <Link to="/policy/warranty" className="btn btn--sm">Xem ngay</Link>
+            <Link to="/policy/warranty" className="btn btn--sm">
+              Xem ngay
+            </Link>
           </div>
-          <div className="promo-banner" style={{ backgroundImage: "url('/assets/images/promo-banner-3.jpg')" }}>
+          <div
+            className="promo-banner"
+            style={{ backgroundImage: "url('/assets/images/promo-banner-3.jpg')" }}
+          >
             <div className="promo-banner__content">
               <h3>Thu Cũ Đổi Mới</h3>
               <p>Nâng cấp máy mới trợ giá lên tới 15%.</p>
             </div>
-            <Link to="/trade-in" className="btn btn--sm">Đổi Máy Ngay</Link>
+            <Link to="/trade-in" className="btn btn--sm">
+              Đổi Máy Ngay
+            </Link>
           </div>
         </div>
       </section>
@@ -492,7 +614,13 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {laptopProducts.length > 0 && (
         <section className="container section" style={{ marginTop: '36px' }}>
           <div className="section__head">
-            <h2><i className="fa-solid fa-gamepad" style={{ color: '#0A5BFF', marginRight: '8px' }}></i>Laptop Gaming & Đồ Họa</h2>
+            <h2>
+              <i
+                className="fa-solid fa-gamepad"
+                style={{ color: '#0A5BFF', marginRight: '8px' }}
+              ></i>
+              Laptop Gaming & Đồ Họa
+            </h2>
             <Link to="/category/laptop" className="section__more">
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
@@ -514,8 +642,15 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
           }}
         >
           <div className="promo-banner__content">
-            <h3 style={{ color: '#FFFFFF', fontSize: '22px', fontWeight: 800, margin: '0 0 6px 0' }}>GIAO HÀNG MIỄN PHÍ TOÀN QUỐC</h3>
-            <p style={{ color: '#CBD5E1', fontSize: '13.5px', margin: 0 }}>Giao hàng nhanh — kiểm tra trước, thanh toán sau (COD). Áp dụng cho đơn hàng từ 500.000đ.</p>
+            <h3
+              style={{ color: '#FFFFFF', fontSize: '22px', fontWeight: 800, margin: '0 0 6px 0' }}
+            >
+              GIAO HÀNG MIỄN PHÍ TOÀN QUỐC
+            </h3>
+            <p style={{ color: '#CBD5E1', fontSize: '13.5px', margin: 0 }}>
+              Giao hàng nhanh — kiểm tra trước, thanh toán sau (COD). Áp dụng cho đơn hàng từ
+              500.000đ.
+            </p>
           </div>
           <Link
             to="/search"
@@ -541,7 +676,13 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {pcProducts.length > 0 && (
         <section className="container section" style={{ marginTop: '36px' }}>
           <div className="section__head">
-            <h2><i className="fa-solid fa-desktop" style={{ color: '#0A5BFF', marginRight: '8px' }}></i>PC Gaming & Đồng Bộ</h2>
+            <h2>
+              <i
+                className="fa-solid fa-desktop"
+                style={{ color: '#0A5BFF', marginRight: '8px' }}
+              ></i>
+              PC Gaming & Đồng Bộ
+            </h2>
             <Link to="/category/pc-nexora" className="section__more">
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
@@ -558,7 +699,13 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {componentProducts.length > 0 && (
         <section className="container section" style={{ marginTop: '36px' }}>
           <div className="section__head">
-            <h2><i className="fa-solid fa-microchip" style={{ color: '#0A5BFF', marginRight: '8px' }}></i>Linh Kiện Máy Tính Chính Hãng</h2>
+            <h2>
+              <i
+                className="fa-solid fa-microchip"
+                style={{ color: '#0A5BFF', marginRight: '8px' }}
+              ></i>
+              Linh Kiện Máy Tính Chính Hãng
+            </h2>
             <Link to="/category/main-cpu-vga" className="section__more">
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
@@ -575,7 +722,10 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {monitorProducts.length > 0 && (
         <section className="container section" style={{ marginTop: '36px' }}>
           <div className="section__head">
-            <h2><i className="fa-solid fa-tv" style={{ color: '#0A5BFF', marginRight: '8px' }}></i>Màn Hình Gaming & Đồ Họa</h2>
+            <h2>
+              <i className="fa-solid fa-tv" style={{ color: '#0A5BFF', marginRight: '8px' }}></i>Màn
+              Hình Gaming & Đồ Họa
+            </h2>
             <Link to="/category/man-hinh" className="section__more">
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
@@ -592,7 +742,13 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {gearProducts.length > 0 && (
         <section className="container section" style={{ marginTop: '36px' }}>
           <div className="section__head">
-            <h2><i className="fa-solid fa-keyboard" style={{ color: '#0A5BFF', marginRight: '8px' }}></i>Gaming Gear & Phụ Kiện</h2>
+            <h2>
+              <i
+                className="fa-solid fa-keyboard"
+                style={{ color: '#0A5BFF', marginRight: '8px' }}
+              ></i>
+              Gaming Gear & Phụ Kiện
+            </h2>
             <Link to="/category/ban-phim" className="section__more">
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
@@ -609,7 +765,13 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {appleProducts.length > 0 && (
         <section className="container section section-apple-zone" style={{ marginTop: '36px' }}>
           <div className="section__head">
-            <h2><i className="fa-solid fa-boxes-stacked" style={{ color: '#0A5BFF', marginRight: '8px' }}></i>Máy tính bộ đồng bộ</h2>
+            <h2>
+              <i
+                className="fa-solid fa-boxes-stacked"
+                style={{ color: '#0A5BFF', marginRight: '8px' }}
+              ></i>
+              Máy tính bộ đồng bộ
+            </h2>
             <Link to="/category/pc-nexora" className="section__more">
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
@@ -618,7 +780,8 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
             <div
               className="apple-banner"
               style={{
-                backgroundImage: "linear-gradient(135deg, rgba(15,91,255,0.95), rgba(7,26,51,0.6)), url('/assets/images/apple-banner-bg.jpg')",
+                backgroundImage:
+                  "linear-gradient(135deg, rgba(15,91,255,0.95), rgba(7,26,51,0.6)), url('/assets/images/apple-banner-bg.jpg')",
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 borderRadius: '16px',
@@ -630,9 +793,26 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               }}
             >
               <div>
-                <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8 }}>PREMIUM LINE</span>
-                <h3 style={{ fontSize: '22px', fontWeight: 800, margin: '8px 0', color: '#FFFFFF' }}>Máy tính bộ đồng bộ</h3>
-                <p style={{ fontSize: '13px', lineHeight: 1.5, opacity: 0.9 }}>Trải nghiệm các bộ máy tính All-in-One, máy tính văn phòng và máy tính đồng bộ cấu hình cao tại Nexora.</p>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    opacity: 0.8,
+                  }}
+                >
+                  PREMIUM LINE
+                </span>
+                <h3
+                  style={{ fontSize: '22px', fontWeight: 800, margin: '8px 0', color: '#FFFFFF' }}
+                >
+                  Máy tính bộ đồng bộ
+                </h3>
+                <p style={{ fontSize: '13px', lineHeight: 1.5, opacity: 0.9 }}>
+                  Trải nghiệm các bộ máy tính All-in-One, máy tính văn phòng và máy tính đồng bộ cấu
+                  hình cao tại Nexora.
+                </p>
               </div>
               <Link
                 to="/search?cat=pc-nexora"
@@ -652,7 +832,12 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               </Link>
             </div>
             {appleProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                onAddToCart={onAddToCart}
+                onToggleWishlist={onToggleWishlist}
+              />
             ))}
           </div>
         </section>
@@ -660,12 +845,27 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
 
       {/* ===== 15. TECHNOLOGY NEWS & AI HUB ===== */}
       <section className="container section" style={{ marginTop: '40px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px', alignItems: 'start' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 340px',
+            gap: '24px',
+            alignItems: 'start',
+          }}
+        >
           {/* Left: 4 Technology News Cards */}
           <div>
             <div className="section__head" style={{ marginBottom: '16px' }}>
-              <h2><i className="fa-solid fa-newspaper" style={{ color: 'var(--primary)', marginRight: '8px' }}></i> Tin Tức Công Nghệ</h2>
-              <Link to="/news" className="section__more">Xem thêm <i className="fa-solid fa-chevron-right"></i></Link>
+              <h2>
+                <i
+                  className="fa-solid fa-newspaper"
+                  style={{ color: 'var(--primary)', marginRight: '8px' }}
+                ></i>{' '}
+                Tin Tức Công Nghệ
+              </h2>
+              <Link to="/news" className="section__more">
+                Xem thêm <i className="fa-solid fa-chevron-right"></i>
+              </Link>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {(posts.length > 0
@@ -683,7 +883,8 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                 : [
                     {
                       slug: 'nvidia-rtx-50-series-chinh-thuc-lo-dien',
-                      title: 'NVIDIA RTX 50 Series chính thức lộ diện: Bước nhảy vọt về AI và Ray Tracing',
+                      title:
+                        'NVIDIA RTX 50 Series chính thức lộ diện: Bước nhảy vọt về AI và Ray Tracing',
                       img: '/assets/images/posts/tin-tuc-3.jpg',
                       date: '18/11/2026',
                       desc: 'Tìm hiểu sức mạnh thực tế của dòng card RTX 5090 và RTX 5080 với GDDR7...',
@@ -694,7 +895,12 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                   key={news.slug || idx}
                   to={`/post/${news.slug}`}
                   className="news-card news-card-hover"
-                  style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column' }}
+                  style={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
                 >
                   <div className="news-card__thumb">
                     <img
@@ -708,14 +914,11 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                   </div>
                   <div className="news-card__body">
                     <span className="news-card__date">
-                      <i className="fa-regular fa-clock" style={{ marginRight: '4px' }}></i>{news.date}
+                      <i className="fa-regular fa-clock" style={{ marginRight: '4px' }}></i>
+                      {news.date}
                     </span>
-                    <h4 className="news-card__title">
-                      {news.title}
-                    </h4>
-                    <p className="news-card__summary">
-                      {news.desc}
-                    </p>
+                    <h4 className="news-card__title">{news.title}</h4>
+                    <p className="news-card__summary">{news.desc}</p>
                   </div>
                 </Link>
               ))}
@@ -725,7 +928,13 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
           {/* Right: Prominent AI Modules Sidebar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div className="section__head" style={{ marginBottom: '16px' }}>
-              <h2><i className="fa-solid fa-microchip" style={{ color: '#8B5CF6', marginRight: '8px' }}></i> Góc Trợ Lý AI</h2>
+              <h2>
+                <i
+                  className="fa-solid fa-microchip"
+                  style={{ color: '#8B5CF6', marginRight: '8px' }}
+                ></i>{' '}
+                Góc Trợ Lý AI
+              </h2>
             </div>
 
             {/* AI Recommendation Card */}
@@ -742,13 +951,39 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                 gap: '12px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', background: 'rgba(139, 92, 246, 0.25)', color: '#C4B5FD', border: '1px solid rgba(139, 92, 246, 0.4)', padding: '3px 8px', borderRadius: '20px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <span
+                  style={{
+                    fontSize: '10.5px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    background: 'rgba(139, 92, 246, 0.25)',
+                    color: '#C4B5FD',
+                    border: '1px solid rgba(139, 92, 246, 0.4)',
+                    padding: '3px 8px',
+                    borderRadius: '20px',
+                  }}
+                >
                   AI 4.0 Smart
                 </span>
-                <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '22px', color: '#A78BFA' }}></i>
+                <i
+                  className="fa-solid fa-wand-magic-sparkles"
+                  style={{ fontSize: '22px', color: '#A78BFA' }}
+                ></i>
               </div>
-              <h3 style={{ fontSize: '17px', fontWeight: 700, margin: 0, color: '#FFFFFF', lineHeight: 1.3 }}>Tư Vấn Chọn Máy AI</h3>
+              <h3
+                style={{
+                  fontSize: '17px',
+                  fontWeight: 700,
+                  margin: 0,
+                  color: '#FFFFFF',
+                  lineHeight: 1.3,
+                }}
+              >
+                Tư Vấn Chọn Máy AI
+              </h3>
               <p style={{ fontSize: '12.5px', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
                 Khảo sát 5 câu hỏi nhanh để AI tìm 3 cấu hình tối ưu nhất theo ngân sách của bạn.
               </p>
@@ -788,13 +1023,39 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                 gap: '12px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', background: 'rgba(16, 185, 129, 0.25)', color: '#6EE7B7', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '3px 8px', borderRadius: '20px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <span
+                  style={{
+                    fontSize: '10.5px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    background: 'rgba(16, 185, 129, 0.25)',
+                    color: '#6EE7B7',
+                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                    padding: '3px 8px',
+                    borderRadius: '20px',
+                  }}
+                >
                   Chuyên Sâu
                 </span>
-                <i className="fa-solid fa-scale-balanced" style={{ fontSize: '22px', color: '#34D399' }}></i>
+                <i
+                  className="fa-solid fa-scale-balanced"
+                  style={{ fontSize: '22px', color: '#34D399' }}
+                ></i>
               </div>
-              <h3 style={{ fontSize: '17px', fontWeight: 700, margin: 0, color: '#FFFFFF', lineHeight: 1.3 }}>So Sánh Cấu Hình AI</h3>
+              <h3
+                style={{
+                  fontSize: '17px',
+                  fontWeight: 700,
+                  margin: 0,
+                  color: '#FFFFFF',
+                  lineHeight: 1.3,
+                }}
+              >
+                So Sánh Cấu Hình AI
+              </h3>
               <p style={{ fontSize: '12.5px', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
                 Chọn 2–4 sản phẩm để đối chiếu bảng thông số thật và xem đánh giá ưu/nhược từ AI.
               </p>
@@ -864,7 +1125,10 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
         <div className="section__head">
           <h2>Khách hàng nói gì về Nexora</h2>
         </div>
-        <div className="review-strip" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+        <div
+          className="review-strip"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}
+        >
           {(reviews.length > 0
             ? reviews.slice(0, 4).map((r) => ({
                 name: r.user?.fullName || 'Khách hàng Nexora',
@@ -889,13 +1153,56 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               }}
             >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#0A5BFF', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px', flexShrink: 0 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    marginBottom: '10px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      backgroundColor: '#0A5BFF',
+                      color: '#FFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 800,
+                      fontSize: '14px',
+                      flexShrink: 0,
+                    }}
+                  >
                     {rev.name.slice(0, 1).toUpperCase()}
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <strong style={{ fontSize: '13.5px', color: 'var(--text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rev.name}</strong>
-                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{rev.role}</span>
+                    <strong
+                      style={{
+                        fontSize: '13.5px',
+                        color: 'var(--text-primary)',
+                        display: 'block',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {rev.name}
+                    </strong>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        color: 'var(--text-secondary)',
+                        display: 'block',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {rev.role}
+                    </span>
                   </div>
                 </div>
                 <div style={{ color: '#F59E0B', fontSize: '12px', marginBottom: '10px' }}>
@@ -906,7 +1213,15 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                     ></i>
                   ))}
                 </div>
-                <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0, fontStyle: 'italic' }}>
+                <p
+                  style={{
+                    fontSize: '12.5px',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.5,
+                    margin: 0,
+                    fontStyle: 'italic',
+                  }}
+                >
                   "{rev.comment}"
                 </p>
               </div>

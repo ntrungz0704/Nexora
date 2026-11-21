@@ -8,8 +8,18 @@ on:
 
 jobs:
   quality-and-build:
-    name: Typecheck, Lint, Format, Unit Tests & Build
+    name: Typecheck, Lint, Format, Prisma Validate, Unit Tests & Build
     runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: test
+      API_PORT: '3000'
+      DATABASE_URL: mysql://nexora:ci_unit_placeholder@127.0.0.1:3306/nexora
+      AUTH_SECRET: ci-ephemeral-secret-key-minimum-32-characters-long
+      CLIENT_URL: http://localhost:5173
+      SERVER_URL: http://localhost:3000
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      TRUST_PROXY: 'false'
 
     steps:
       - uses: actions/checkout@v4
@@ -23,8 +33,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Prisma Client
-        run: npm run db:generate
+      - name: Generate Prisma Client & validate schema
+        run: |
+          npm run db:generate
+          npx prisma validate
 
       - name: Typecheck all workspaces
         run: npm run typecheck
@@ -35,14 +47,14 @@ jobs:
       - name: Check Prettier formatting
         run: npm run format:check
 
-      - name: Run Vitest unit & contract suite
-        run: npm run test
+      - name: Run DB-free Vitest unit & frontend flow tests
+        run: npm run test:unit
 
       - name: Build production bundles
         run: npm run build
 
   mysql-integration:
-    name: MySQL 8.4 Migration, Seed & Supertest Integration
+    name: MySQL 8.4 Migration, Seed & Full Integration/Security Suite
     runs-on: ubuntu-latest
     needs: quality-and-build
 
@@ -60,7 +72,7 @@ jobs:
           --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci_ephemeral_root_pw --silent"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=10
+          --health-retries=15
 
     env:
       NODE_ENV: test
@@ -70,6 +82,7 @@ jobs:
       CLIENT_URL: http://localhost:5173
       SERVER_URL: http://localhost:3000
       CORS_ALLOWED_ORIGINS: http://localhost:5173
+      TRUST_PROXY: 'false'
 
     steps:
       - uses: actions/checkout@v4
@@ -96,7 +109,11 @@ jobs:
       - name: Deploy Prisma migrations & run synthetic seed
         run: |
           npm run db:deploy
+          npx prisma migrate status
           npm run db:seed
 
-      - name: Run API + MySQL + Prisma Supertest integration tests
+      - name: Run full Vitest + Supertest integration & security test suite against MySQL 8.4
+        run: npm run test
+
+      - name: Run dedicated DB integration contract test
         run: npm run test:integration -w @nexora/api

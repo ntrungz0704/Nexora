@@ -1,12 +1,14 @@
 # CHI TIẾT TẦNG BACKEND EXPRESS.JS & CÁC DỊCH VỤ NGHIỆP VỤ
+
 **Tài liệu:** `02_BACKEND_EXPRESS_API_AND_SERVICES.md`  
-**Dự án:** Nexora  
+**Dự án:** Nexora
 
 ---
 
 ## 1. Cấu Trúc Phân Lớp Backend
 
 Ứng dụng `apps/api` xây dựng trên nền Node.js + Express.js + TypeScript, phân chia thành các lớp chức năng rành mạch:
+
 - **Routes Layer (`routes.ts`):** Khai báo các đường dẫn HTTP, gắn kết các middleware xác thực JWT, RBAC và rate limiting.
 - **Controller Layer (`controller.ts`):** Tiếp nhận HTTP Request, gọi tầng Validation, chuyển tham số cho Service và đóng gói HTTP Response theo chuẩn Envelope JSON.
 - **Service Layer (`service.ts`):** Chứa toàn bộ quy tắc nghiệp vụ cốt lõi (Business Logic), quản lý giao dịch cơ sở dữ liệu (Transactions), tính toán giá tiền, snapshot đơn hàng, kiểm tra concurrency và gửi email thông báo.

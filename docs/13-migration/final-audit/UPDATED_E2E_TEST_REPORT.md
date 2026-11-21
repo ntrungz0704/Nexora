@@ -13,11 +13,13 @@
 Bộ kiểm thử End-to-End được thiết lập để kiểm tra hành vi tương tác thực tế của người dùng trên toàn bộ các trang chức năng cốt lõi của Nexora, sử dụng cấu hình chính thức tại [`tests/playwright.config.ts`](file:///d:/Nexora/tests/playwright.config.ts).
 
 ### Lệnh thực thi:
+
 ```powershell
 npm run test:e2e
 ```
 
 ### Kết quả tổng quát:
+
 ```text
 > nexora-monorepo@0.1.0 test:e2e
 > playwright test --config=tests/playwright.config.ts
@@ -41,23 +43,24 @@ Running 9 tests using 2 workers
 
 ## 2. BẢNG CHI TIẾT 9 CA KIỂM THỬ HÀNH TRÌNH NGƯỜI DÙNG (USER JOURNEYS)
 
-| STT | Tên ca kiểm thử | Phạm vi xác minh | Thời gian chạy | Trạng thái |
-| :---: | :--- | :--- | :---: | :---: |
-| 1 | **Foundation Health & API Roundtrip** | Khởi động server, kiểm tra kết nối API và CSDL từ giao diện | 723ms | **PASS** |
-| 2 | **Storefront Home Journey** | Header, Navigation menu, Cam kết dịch vụ cửa hàng, Footer | 910ms | **PASS** |
-| 3 | **Product Catalog & Search** | Ô tìm kiếm sản phẩm, giao diện lưới danh mục sản phẩm | 525ms | **PASS** |
-| 4 | **Customer Authentication** | Form đăng nhập, trường Email, Password, nút Đăng nhập | 722ms | **PASS** |
-| 5 | **AI Advisor Survey** | Khảo sát AI 5 bước, câu hỏi ngân sách, thanh tiến trình | 549ms | **PASS** |
-| 6 | **PC Builder Journey** | 12 thành phần phần cứng (CPU, Mainboard, RAM, VGA, PSU...) | 613ms | **PASS** |
-| 7 | **Persona Comparison** | Bảng so sánh sản phẩm, phân loại theo Persona người dùng | 573ms | **PASS** |
-| 8 | **Order Tracking Lookup** | Trang tra cứu tiến trình đơn hàng theo mã `NX-` và số điện thoại | 519ms | **PASS** |
-| 9 | **Admin Operations Dashboard**| Bảng điều khiển quản trị, các tab Sản phẩm, Đơn hàng, Thống kê | 541ms | **PASS** |
+| STT | Tên ca kiểm thử                       | Phạm vi xác minh                                                 | Thời gian chạy | Trạng thái |
+| :-: | :------------------------------------ | :--------------------------------------------------------------- | :------------: | :--------: |
+|  1  | **Foundation Health & API Roundtrip** | Khởi động server, kiểm tra kết nối API và CSDL từ giao diện      |     723ms      |  **PASS**  |
+|  2  | **Storefront Home Journey**           | Header, Navigation menu, Cam kết dịch vụ cửa hàng, Footer        |     910ms      |  **PASS**  |
+|  3  | **Product Catalog & Search**          | Ô tìm kiếm sản phẩm, giao diện lưới danh mục sản phẩm            |     525ms      |  **PASS**  |
+|  4  | **Customer Authentication**           | Form đăng nhập, trường Email, Password, nút Đăng nhập            |     722ms      |  **PASS**  |
+|  5  | **AI Advisor Survey**                 | Khảo sát AI 5 bước, câu hỏi ngân sách, thanh tiến trình          |     549ms      |  **PASS**  |
+|  6  | **PC Builder Journey**                | 12 thành phần phần cứng (CPU, Mainboard, RAM, VGA, PSU...)       |     613ms      |  **PASS**  |
+|  7  | **Persona Comparison**                | Bảng so sánh sản phẩm, phân loại theo Persona người dùng         |     573ms      |  **PASS**  |
+|  8  | **Order Tracking Lookup**             | Trang tra cứu tiến trình đơn hàng theo mã `NX-` và số điện thoại |     519ms      |  **PASS**  |
+|  9  | **Admin Operations Dashboard**        | Bảng điều khiển quản trị, các tab Sản phẩm, Đơn hàng, Thống kê   |     541ms      |  **PASS**  |
 
 ---
 
 ## 3. TỔNG HỢP KIỂM THỬ TOÀN HỆ THỐNG
 
 Khi kết hợp cả 2 bộ kiểm thử:
+
 - **API & Unit Testing (Vitest):** **39/39 passed** (100%).
 - **Browser End-to-End Testing (Playwright):** **9/9 passed** (100%).
 - **TỔNG SỐ CA KIỂM THỬ TỰ ĐỘNG:** **48/48 passed** (100%). Tỷ lệ thất bại: 0%.

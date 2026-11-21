@@ -25,6 +25,7 @@ Kế hoạch này vạch ra các hành động cụ thể nhằm khắc phục t
 ---
 
 ### 🔴 HẠNG MỤC P1: LOẠI BỎ MÃ FALLBACK MẬT KHẨU TRONG AUTH SERVICE
+
 - **Mức độ:** **P1 — Bắt buộc xử lý trước khi triển khai môi trường Production**
 - **Vấn đề:** Trong tệp `apps/api/src/modules/auth/auth.service.ts` (dòng 46-69), tồn tại khối mã fallback cho phép đăng nhập bằng các mật khẩu plaintext cũ (`TechPilotAdmin2026!`, `admin123`, `dev123`, `password123`).
 - **Kế hoạch thực hiện:**
@@ -37,6 +38,7 @@ Kế hoạch này vạch ra các hành động cụ thể nhằm khắc phục t
 ---
 
 ### 🟡 HẠNG MỤC P2: MỞ RỘNG BỘ TEST SUITE E2E PLAYWRIGHT
+
 - **Mức độ:** **P2 — Trung bình**
 - **Vấn đề:** Hiện tại repository đã có tệp `tests/e2e/foundation.spec.ts` kiểm tra luồng cơ bản, nhưng chưa bao phủ toàn diện 34 kịch bản người dùng (User Journeys) từ duyệt sản phẩm, đặt hàng, thanh toán đến quy trình xử lý đơn hàng của Admin.
 - **Kế hoạch thực hiện:**
@@ -50,6 +52,7 @@ Kế hoạch này vạch ra các hành động cụ thể nhằm khắc phục t
 ---
 
 ### 🟢 HẠNG MỤC P3: TINH GIẢN CSS UTILITY & DESIGN SYSTEM TOKENS
+
 - **Mức độ:** **P3 — Thấp (Tối ưu hóa trải nghiệm & thẩm mỹ)**
 - **Vấn đề:** Một số component giao diện chứa các class CSS inline của Tailwind có thể được gom nhóm lại thành các biến CSS variables dùng chung để tối ưu dung lượng tệp CSS và đảm bảo tính đồng bộ hoàn hảo hơn nữa giữa chế độ Sáng (Light) và Tối (Dark).
 - **Kế hoạch thực hiện:**
@@ -62,13 +65,13 @@ Kế hoạch này vạch ra các hành động cụ thể nhằm khắc phục t
 
 ## 3. LỘ TRÌNH VẬN HÀNH & TRIỂN KHAI SẢN XUẤT (GO-LIVE ROADMAP)
 
-| Giai đoạn | Nhiệm vụ chính | Trạng thái kỹ thuật | Thời hạn |
-| :--- | :--- | :---: | :--- |
-| **Giai đoạn 1** | Hoàn tất bộ 10 tài liệu kiểm toán kỹ thuật di trú | **COMPLETED** | 20/11/2026 |
-| **Giai đoạn 2** | Khắc phục mục P1 (Xóa mã fallback mật khẩu AuthService) | **READY TO EXECUTE** | Trong 24h tới |
-| **Giai đoạn 3** | Khởi động lại Docker Desktop daemon và chạy migration chính thức | **READY** | Sau khi dev bật Docker |
-| **Giai đoạn 4** | Mở rộng Playwright E2E suite (Mục P2) | **PLANNED** | 22/11/2026 |
-| **Giai đoạn 5** | Triển khai chính thức lên máy chủ Production | **ON TRACK** | Cuối tuần |
+| Giai đoạn       | Nhiệm vụ chính                                                   | Trạng thái kỹ thuật  | Thời hạn               |
+| :-------------- | :--------------------------------------------------------------- | :------------------: | :--------------------- |
+| **Giai đoạn 1** | Hoàn tất bộ 10 tài liệu kiểm toán kỹ thuật di trú                |    **COMPLETED**     | 20/11/2026             |
+| **Giai đoạn 2** | Khắc phục mục P1 (Xóa mã fallback mật khẩu AuthService)          | **READY TO EXECUTE** | Trong 24h tới          |
+| **Giai đoạn 3** | Khởi động lại Docker Desktop daemon và chạy migration chính thức |      **READY**       | Sau khi dev bật Docker |
+| **Giai đoạn 4** | Mở rộng Playwright E2E suite (Mục P2)                            |     **PLANNED**      | 22/11/2026             |
+| **Giai đoạn 5** | Triển khai chính thức lên máy chủ Production                     |     **ON TRACK**     | Cuối tuần              |
 
 ---
 

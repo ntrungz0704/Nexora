@@ -73,9 +73,7 @@ export function cleanAndParseSpecs(product: ProductDto): Record<string, string> 
     if (m && m[1]) cleaned['ram_gb'] = m[1];
   }
   if (!cleaned['storage_gb'] && !cleaned['storage'] && !cleaned['ssd']) {
-    const m = name.match(
-      /(SSD\s*\d{3,4}GB|SSD\s*1TB|2TB|\d{3,4}GB\s*SSD|1TB\s*SSD|2TB\s*SSD)/i,
-    );
+    const m = name.match(/(SSD\s*\d{3,4}GB|SSD\s*1TB|2TB|\d{3,4}GB\s*SSD|1TB\s*SSD|2TB\s*SSD)/i);
     if (m && m[1]) cleaned['storage_gb'] = m[1];
   }
 
@@ -256,7 +254,9 @@ export function rankComparedProducts(
       strengths.push(`Bộ vi xử lý mạnh mẽ: ${specs['cpu_model'] || specs['cpu']}`);
     }
     if (specs['gpu_model'] || specs['gpu'] || specs['vga']) {
-      strengths.push(`Card đồ họa xử lý mượt: ${specs['gpu_model'] || specs['gpu'] || specs['vga']}`);
+      strengths.push(
+        `Card đồ họa xử lý mượt: ${specs['gpu_model'] || specs['gpu'] || specs['vga']}`,
+      );
     }
     if (specs['ram_gb'] || specs['ram']) {
       strengths.push(`Bộ nhớ RAM đáp ứng tốt tác vụ: ${specs['ram_gb'] || specs['ram']}`);

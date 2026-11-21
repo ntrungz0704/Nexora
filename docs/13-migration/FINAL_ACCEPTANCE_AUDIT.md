@@ -11,16 +11,18 @@
 ## 1. Báo Cáo Khắc Phục 4 Blocker Trọng Yếu
 
 ### Blocker 1: Payment Security & VNPay Integrity (Khắc phục hoàn tất)
-| Vấn đề | File & Dòng liên quan | Nguyên nhân | Giải pháp kỹ thuật | Test case kiểm chứng | Trạng thái |
-|:---|:---|:---|:---|:---|:---:|
-| **1. Endpoint `/simulate` có nguy cơ bị gọi trong Prod** | `payment.routes.ts`: 10-12<br>`payment.service.ts`: 98-117 | Không kiểm tra `NODE_ENV`, cho phép giả lập thanh toán tùy ý | Chỉ mount router khi `NODE_ENV !== 'production'`; ném `403 SIMULATOR_DISABLED` trong service nếu chạy prod | `SEC-5` | `PASS` |
-| **2. Fallback Hash Secret trong Prod** | `payment.service.ts`: 9 | Dùng fallback key khi thiếu biến môi trường | Phương thức `getHashSecret()` ném lỗi `500 PAYMENT_CONFIG_ERROR` nếu prod thiếu `VNPAY_HASH_SECRET` | `SEC-1, SEC-5` | `PASS` |
-| **3. Tin tưởng số tiền từ Client** | `payment.controller.ts`: 11<br>`payment.service.ts`: 14-46 | Lấy `amount` từ body request thay vì kiểm tra đơn hàng | Lấy mã đơn, truy vấn `order.totalAmount` từ MySQL, nhân 100 theo chuẩn VNPay | `SEC-1` | `PASS` |
-| **4. Thiếu xác minh số tiền & Idempotency** | `payment.service.ts`: 48-96 | Callback chỉ xem response code `00` mà không so tiền và không chống lặp | Đối chiếu `vnp_Amount` với `order.totalAmount * 100`; nếu đơn đã `PAID` trả về Idempotent không ghi đè | `SEC-3, SEC-4` | `PASS` |
+
+| Vấn đề                                                   | File & Dòng liên quan                                      | Nguyên nhân                                                             | Giải pháp kỹ thuật                                                                                         | Test case kiểm chứng | Trạng thái |
+| :------------------------------------------------------- | :--------------------------------------------------------- | :---------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- | :------------------- | :--------: |
+| **1. Endpoint `/simulate` có nguy cơ bị gọi trong Prod** | `payment.routes.ts`: 10-12<br>`payment.service.ts`: 98-117 | Không kiểm tra `NODE_ENV`, cho phép giả lập thanh toán tùy ý            | Chỉ mount router khi `NODE_ENV !== 'production'`; ném `403 SIMULATOR_DISABLED` trong service nếu chạy prod | `SEC-5`              |   `PASS`   |
+| **2. Fallback Hash Secret trong Prod**                   | `payment.service.ts`: 9                                    | Dùng fallback key khi thiếu biến môi trường                             | Phương thức `getHashSecret()` ném lỗi `500 PAYMENT_CONFIG_ERROR` nếu prod thiếu `VNPAY_HASH_SECRET`        | `SEC-1, SEC-5`       |   `PASS`   |
+| **3. Tin tưởng số tiền từ Client**                       | `payment.controller.ts`: 11<br>`payment.service.ts`: 14-46 | Lấy `amount` từ body request thay vì kiểm tra đơn hàng                  | Lấy mã đơn, truy vấn `order.totalAmount` từ MySQL, nhân 100 theo chuẩn VNPay                               | `SEC-1`              |   `PASS`   |
+| **4. Thiếu xác minh số tiền & Idempotency**              | `payment.service.ts`: 48-96                                | Callback chỉ xem response code `00` mà không so tiền và không chống lặp | Đối chiếu `vnp_Amount` với `order.totalAmount * 100`; nếu đơn đã `PAID` trả về Idempotent không ghi đè     | `SEC-3, SEC-4`       |   `PASS`   |
 
 ---
 
 ### Blocker 2: Route & Page Parity và Xử Lý Trang 404 (Khắc phục hoàn tất)
+
 - **Vấn đề đã chỉ ra:**
   1. `AppRoutes.tsx` trước đây chỉ khai báo `/admin` và `/admin/dashboard`, các trang con của Admin và Profile bị thiếu route độc lập.
   2. Fallback `*` âm thầm trả về `StorefrontHome` thay vì trang lỗi 404 chuẩn.
@@ -35,20 +37,22 @@
 ---
 
 ### Blocker 3: Bản Sắc Kỹ Thuật Của 4 Hệ Thống AI (Minh Bạch Tuyệt Đối)
+
 Qua đối chiếu trực tiếp mã nguồn gốc TechPilot (`TechPilot/app/services/AiRecommendationService.php`, `AiService.php`, `ChatIntentClassifier.php`, `ProductIntelligenceService.php`), chúng tôi lập bảng đối chiếu khách quan:
 
-| Hệ thống AI | Cơ chế trong TechPilot (Gốc) | Cơ chế trong Nexora (Hiện tại) | Tính chất thực thi |
-|:---|:---|:---|:---|
-| **1. Floating Chatbot** | `ChatIntentClassifier`: Phân loại Intent dựa trên bộ từ khóa quy chuẩn (`INTENT_POLICY`, `INTENT_PRODUCT_QUESTION`, `INTENT_RECOMMENDATION_REQUEST`), trả lời từ cơ sở tri thức hoặc gọi `GeminiService` | `queryFloatingChatbot`: Phân tích ý định người dùng (chính sách đổi trả, bảo hành, giao hàng, địa chỉ showroom, tìm kiếm sản phẩm); tích hợp `callGeminiIfConfigured` khi có `GEMINI_API_KEY` | **Dual-Engine** (Quy tắc nghiệp vụ + Optional LLM) |
-| **2. AI Assistant (5 Bước)** | `AiRecommendationService`: **Deterministic Scoring Engine (Thang 100 điểm)** dựa trên ma trận: `purpose_fit`, `priority_fit`, `software_fit`, `budget_value`, `brand_filter`, `data_completeness`. Đề xuất 3 vai trò: `best_fit`, `best_value`, `max_performance` | `runSurveyRecommendation`: Áp dụng thuật toán chấm điểm đa tiêu chí 100 điểm, lọc ngân sách, tính điểm tương đồng, phân bổ đúng 3 vai trò: `BEST_MATCH`, `BEST_VALUE`, `TOP_PERFORMANCE` kèm đánh đổi trade-offs | **Deterministic Multi-Factor Scoring Engine** (Chuẩn xác 100% so với TechPilot) |
-| **3. AI So Sánh Sản Phẩm** | Đối đầu thông số kỹ thuật, áp dụng **Category Lock** ngăn so sánh chéo hệ, tóm tắt ưu/nhược điểm từng bên | `runProductComparison`: Bắt buộc chung danh mục (`Category Lock`), trả về bảng ma trận thông số đối đầu và đánh giá người chiến thắng theo nhu cầu | **Rule-based & Metric Alignment Engine** |
-| **4. Product-specific AI Chat** | `ProductIntelligenceService`: Trả lời thông số, tính tương thích, FPS game theo cấu hình cụ thể của sản phẩm đang xem | `queryProductChat`: Truy vấn thông số CPU/GPU/RAM của sản phẩm trong MySQL, tính toán FPS ước lượng, khả năng nâng cấp và chính sách bảo hành riêng; tích hợp `callGeminiIfConfigured` khi có `GEMINI_API_KEY` | **Context-Aware Specification Chatbot** |
+| Hệ thống AI                     | Cơ chế trong TechPilot (Gốc)                                                                                                                                                                                                                                      | Cơ chế trong Nexora (Hiện tại)                                                                                                                                                                                   | Tính chất thực thi                                                              |
+| :------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------ |
+| **1. Floating Chatbot**         | `ChatIntentClassifier`: Phân loại Intent dựa trên bộ từ khóa quy chuẩn (`INTENT_POLICY`, `INTENT_PRODUCT_QUESTION`, `INTENT_RECOMMENDATION_REQUEST`), trả lời từ cơ sở tri thức hoặc gọi `GeminiService`                                                          | `queryFloatingChatbot`: Phân tích ý định người dùng (chính sách đổi trả, bảo hành, giao hàng, địa chỉ showroom, tìm kiếm sản phẩm); tích hợp `callGeminiIfConfigured` khi có `GEMINI_API_KEY`                    | **Dual-Engine** (Quy tắc nghiệp vụ + Optional LLM)                              |
+| **2. AI Assistant (5 Bước)**    | `AiRecommendationService`: **Deterministic Scoring Engine (Thang 100 điểm)** dựa trên ma trận: `purpose_fit`, `priority_fit`, `software_fit`, `budget_value`, `brand_filter`, `data_completeness`. Đề xuất 3 vai trò: `best_fit`, `best_value`, `max_performance` | `runSurveyRecommendation`: Áp dụng thuật toán chấm điểm đa tiêu chí 100 điểm, lọc ngân sách, tính điểm tương đồng, phân bổ đúng 3 vai trò: `BEST_MATCH`, `BEST_VALUE`, `TOP_PERFORMANCE` kèm đánh đổi trade-offs | **Deterministic Multi-Factor Scoring Engine** (Chuẩn xác 100% so với TechPilot) |
+| **3. AI So Sánh Sản Phẩm**      | Đối đầu thông số kỹ thuật, áp dụng **Category Lock** ngăn so sánh chéo hệ, tóm tắt ưu/nhược điểm từng bên                                                                                                                                                         | `runProductComparison`: Bắt buộc chung danh mục (`Category Lock`), trả về bảng ma trận thông số đối đầu và đánh giá người chiến thắng theo nhu cầu                                                               | **Rule-based & Metric Alignment Engine**                                        |
+| **4. Product-specific AI Chat** | `ProductIntelligenceService`: Trả lời thông số, tính tương thích, FPS game theo cấu hình cụ thể của sản phẩm đang xem                                                                                                                                             | `queryProductChat`: Truy vấn thông số CPU/GPU/RAM của sản phẩm trong MySQL, tính toán FPS ước lượng, khả năng nâng cấp và chính sách bảo hành riêng; tích hợp `callGeminiIfConfigured` khi có `GEMINI_API_KEY`   | **Context-Aware Specification Chatbot**                                         |
 
 > **Cam kết kỹ thuật:** Nexora không ngụy tạo kết quả LLM khi chạy offline/local. Mặc định hệ thống hoạt động ổn định 100% nhờ bộ máy tính toán xác định (Deterministic Engine) độc lập, và sẽ tự động nâng cấp văn phong hội thoại khi cấu hình thêm biến môi trường `GEMINI_API_KEY`.
 
 ---
 
 ### Blocker 4: Quality Gates & Kiểm Chứng Thực Nghiệm Toàn Diện
+
 - **ESLint 9:** `npm run lint` -> **PASS (0 errors, 0 warnings)**.
 - **TypeScript 5:** `npm run typecheck` -> **PASS (0 errors trên 4 packages)**.
 - **Vitest Unit & Integration:** `npm run test` -> **PASS (7/7 test suites, 30/30 test cases)**.

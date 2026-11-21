@@ -10,7 +10,9 @@ import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser } from '@nexora/shared';
 
 export const NotFoundPage: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
@@ -48,7 +50,8 @@ export const NotFoundPage: React.FC = () => {
           </div>
           <h1 className="text-2xl font-black text-slate-900 mb-3">Không tìm thấy trang</h1>
           <p className="text-slate-500 text-sm leading-relaxed mb-8">
-            Đường dẫn bạn yêu cầu không tồn tại hoặc đã được chuyển sang vị trí mới trong hệ thống Nexora.
+            Đường dẫn bạn yêu cầu không tồn tại hoặc đã được chuyển sang vị trí mới trong hệ thống
+            Nexora.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

@@ -1,6 +1,7 @@
 # LỊCH SỬ VÀ TIẾN TRÌNH DI CHUYỂN TỪ TECHPILOT SANG NEXORA
+
 **Tài liệu:** `14_MIGRATION_FROM_TECHPILOT.md`  
-**Dự án:** Nexora  
+**Dự án:** Nexora
 
 ---
 

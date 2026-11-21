@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { createApp } from '../src/app.js';
@@ -9,11 +9,8 @@ import type { Express } from 'express';
 describe('Auth Password Reset Security & Email Delivery Test Suite', () => {
   let app: Express;
 
-  beforeAll(() => {
-    app = createApp();
-  });
-
   beforeEach(() => {
+    app = createApp();
     EmailService.clearSentEmails();
     EmailService.setMockFailure(false);
   });
@@ -26,7 +23,7 @@ describe('Auth Password Reset Security & Email Delivery Test Suite', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toBe(
-      'Nếu email tồn tại trên hệ thống, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.'
+      'Nếu email tồn tại trên hệ thống, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.',
     );
 
     // Security assertion: token must NEVER appear in HTTP response
@@ -63,7 +60,7 @@ describe('Auth Password Reset Security & Email Delivery Test Suite', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toBe(
-      'Nếu email tồn tại trên hệ thống, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.'
+      'Nếu email tồn tại trên hệ thống, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.',
     );
     expect(res.body.data.resetToken).toBeUndefined();
 

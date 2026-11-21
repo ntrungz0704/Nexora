@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 
 export class PaymentService {
   private readonly vnpTmnCode = process.env.VNPAY_TMN_CODE || 'NEXORATM';
-  private readonly vnpUrl = process.env.VNPAY_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+  private readonly vnpUrl =
+    process.env.VNPAY_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
   private readonly vnpReturnUrl =
     process.env.VNPAY_RETURN_URL || 'http://localhost:5173/checkout/success';
 
@@ -17,7 +18,7 @@ export class PaymentService {
       throw new AppError(
         500,
         'PAYMENT_CONFIG_ERROR',
-        'VNPAY_HASH_SECRET bắt buộc phải được cấu hình trong môi trường Production.'
+        'VNPAY_HASH_SECRET bắt buộc phải được cấu hình trong môi trường Production.',
       );
     }
     return secret || 'NEXORAVNPAYHASHSECRET2026DEVKEY';
@@ -44,14 +45,22 @@ export class PaymentService {
     }
 
     if (order.paymentStatus === 'PAID') {
-      throw new AppError(400, 'ORDER_ALREADY_PAID', `Đơn hàng ${params.orderCode} đã được thanh toán trước đó.`);
+      throw new AppError(
+        400,
+        'ORDER_ALREADY_PAID',
+        `Đơn hàng ${params.orderCode} đã được thanh toán trước đó.`,
+      );
     }
 
     // Xác thực quyền sở hữu đơn hàng (Ownership verification)
     if (order.userId !== null) {
       // Đơn hàng của người dùng đã đăng ký
       if (!params.requester) {
-        throw new AppError(401, 'UNAUTHORIZED', 'Vui lòng đăng nhập để thanh toán cho đơn hàng này.');
+        throw new AppError(
+          401,
+          'UNAUTHORIZED',
+          'Vui lòng đăng nhập để thanh toán cho đơn hàng này.',
+        );
       }
       const isPrivileged = params.requester.role === 'ADMIN' || params.requester.role === 'STAFF';
       const isOwner = Number(params.requester.sub) === Number(order.userId);
@@ -59,13 +68,14 @@ export class PaymentService {
         throw new AppError(
           403,
           'FORBIDDEN',
-          'Bạn không có quyền thực hiện thanh toán cho đơn hàng của người dùng khác.'
+          'Bạn không có quyền thực hiện thanh toán cho đơn hàng của người dùng khác.',
         );
       }
     } else {
       // Đơn hàng của khách vãng lai (Guest)
       const isPrivileged =
-        params.requester && (params.requester.role === 'ADMIN' || params.requester.role === 'STAFF');
+        params.requester &&
+        (params.requester.role === 'ADMIN' || params.requester.role === 'STAFF');
       if (!isPrivileged) {
         const matchesUserEmail =
           params.requester?.email &&
@@ -80,7 +90,7 @@ export class PaymentService {
           throw new AppError(
             403,
             'FORBIDDEN',
-            'Yêu cầu xác thực thông tin đơn hàng (email hoặc số điện thoại trùng khớp) để thanh toán.'
+            'Yêu cầu xác thực thông tin đơn hàng (email hoặc số điện thoại trùng khớp) để thanh toán.',
           );
         }
       }
@@ -227,7 +237,7 @@ export class PaymentService {
       throw new AppError(
         403,
         'SIMULATOR_DISABLED',
-        'Tính năng giả lập thanh toán bị vô hiệu hóa trong môi trường Production.'
+        'Tính năng giả lập thanh toán bị vô hiệu hóa trong môi trường Production.',
       );
     }
 

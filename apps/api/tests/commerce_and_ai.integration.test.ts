@@ -121,13 +121,11 @@ describe('Commerce, Marketing and AI Integration Endpoints', () => {
   });
 
   it('POST /api/v1/ai/assistant/survey computes 100-pt score and 3 distinct recommendation roles', async () => {
-    const res = await request(app)
-      .post('/api/v1/ai/assistant/survey')
-      .send({
-        persona: 'gaming',
-        budgetRange: '15m-25m',
-        priority: 'performance',
-      });
+    const res = await request(app).post('/api/v1/ai/assistant/survey').send({
+      persona: 'gaming',
+      budgetRange: '15m-25m',
+      priority: 'performance',
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

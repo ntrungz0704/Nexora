@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import { AiController } from './ai.controller.js';
+import { createRateLimiters, type AppRateLimiters } from '../../middleware/rateLimit.js';
 
-export function createAiRouter(): Router {
+export function createAiRouter(rateLimiters: AppRateLimiters = createRateLimiters()): Router {
   const router = Router();
   const controller = new AiController();
+
+  router.use(rateLimiters.ai);
 
   // 1. Floating Chatbot
   router.post('/chatbot/query', controller.chatbotQuery);

@@ -9,6 +9,7 @@
 ## 1. PHẠM VI & PHƯƠNG PHÁP KIỂM TOÁN
 
 Kiểm toán này đo lường và thẩm định khối lượng mã nguồn thực tế đã được xây dựng lại, đảm bảo:
+
 1. Toàn bộ các module từ hệ thống cũ đã được chuyển đổi sang mã nguồn mới bằng React 19 và Express 5 TypeScript.
 2. Không sử dụng mã giả (mock/fake/stub), không trả dữ liệu tĩnh (hardcoded data) trong API controllers.
 3. Không sót lại mã PHP hoặc mã JavaScript không an toàn kiểu.
@@ -18,21 +19,22 @@ Kiểm toán này đo lường và thẩm định khối lượng mã nguồn th
 
 ## 2. THỐNG KÊ KHỐI LƯỢNG MÃ NGUỒN (LOC METRICS)
 
-| Phân hệ / Gói | Số lượng tệp (Files) | Tổng số dòng mã (LOC) | Ngôn ngữ chính | Trách nhiệm chính |
-| :--- | :---: | :---: | :--- | :--- |
-| **Frontend (`apps/web/src`)** | **54** | **18.306** | TypeScript, TSX | Toàn bộ giao diện Storefront, Client State, Admin Dashboard |
-| **Backend (`apps/api/src`)** | **44** | **4.828** | TypeScript | REST API, Controller, Business Service, Repository, Middleware |
-| **Shared (`packages/shared/src`)** | **1** | **383** | TypeScript | Hợp đồng kiểu dữ liệu, Zod Schemas, DTOs, Enums dùng chung |
-| **Config (`packages/config/src`)** | **1** | **14** | TypeScript | Cấu hình hằng số môi trường dùng chung |
-| **Database (`prisma/`)** | **2** | **1.973** | Prisma Schema, SQL | Lược đồ CSDL 24 bảng, dữ liệu Seed chính thức |
-| **Integration Tests (`apps/api/src/**/*.spec.ts`)** | **6** | **762** | TypeScript | Bộ kiểm thử tích hợp API (Auth, Order, Product, Payment, Admin) |
-| **TỔNG CỘNG HỆ THỐNG** | **108** | **26.266** | TypeScript / Prisma | **Toàn bộ hệ sinh thái Nexora** |
+| Phân hệ / Gói                                       | Số lượng tệp (Files) | Tổng số dòng mã (LOC) | Ngôn ngữ chính      | Trách nhiệm chính                                               |
+| :-------------------------------------------------- | :------------------: | :-------------------: | :------------------ | :-------------------------------------------------------------- |
+| **Frontend (`apps/web/src`)**                       |        **54**        |      **18.306**       | TypeScript, TSX     | Toàn bộ giao diện Storefront, Client State, Admin Dashboard     |
+| **Backend (`apps/api/src`)**                        |        **44**        |       **4.828**       | TypeScript          | REST API, Controller, Business Service, Repository, Middleware  |
+| **Shared (`packages/shared/src`)**                  |        **1**         |        **383**        | TypeScript          | Hợp đồng kiểu dữ liệu, Zod Schemas, DTOs, Enums dùng chung      |
+| **Config (`packages/config/src`)**                  |        **1**         |        **14**         | TypeScript          | Cấu hình hằng số môi trường dùng chung                          |
+| **Database (`prisma/`)**                            |        **2**         |       **1.973**       | Prisma Schema, SQL  | Lược đồ CSDL 24 bảng, dữ liệu Seed chính thức                   |
+| **Integration Tests (`apps/api/src/**/*.spec.ts`)** |        **6**         |        **762**        | TypeScript          | Bộ kiểm thử tích hợp API (Auth, Order, Product, Payment, Admin) |
+| **TỔNG CỘNG HỆ THỐNG**                              |       **108**        |      **26.266**       | TypeScript / Prisma | **Toàn bộ hệ sinh thái Nexora**                                 |
 
 ---
 
 ## 3. CHI TIẾT DANH MỤC 35 MODULE NGHIỆP VỤ ĐÃ VIẾT LẠI
 
 ### 3.1. Các Module Khách Hàng (Storefront Modules)
+
 1. **Trang Chủ (Home Page):** `apps/web/src/features/storefront/HomePage.tsx` (1.230 LOC). Tích hợp Hero Carousel, Danh mục đa tầng, Flash Sale đếm ngược, Sản phẩm hot, Dịch vụ cam kết.
 2. **Chi Tiết Sản Phẩm (Product Detail):** `apps/web/src/features/storefront/ProductDetailPage.tsx` (846 LOC). Bộ chọn biến thể, thông số kỹ thuật chi tiết, trạng thái tồn kho thực tế, đánh giá sao, sản phẩm liên quan.
 3. **Danh Mục & Bộ Lọc Nâng Cao (Category & Filter):** `apps/web/src/features/storefront/CategoryPage.tsx` (611 LOC). Lọc theo khoảng giá, thương hiệu, danh mục con, sắp xếp theo giá/độ phổ biến, phân trang.
@@ -50,22 +52,11 @@ Kiểm toán này đo lường và thẩm định khối lượng mã nguồn th
 15. **Xác Thực (Auth Pages):** `LoginPage.tsx`, `RegisterPage.tsx`, `ForgotPasswordPage.tsx`, `ResetPasswordPage.tsx` (720 LOC).
 
 ### 3.2. Các Phân Hệ Quản Trị (Admin Operations Modules)
-Phân hệ Admin được thiết kế dạng Single Page Management với bảng điều khiển chính tại `apps/web/src/features/admin/AdminDashboardPage.tsx` (1.848 LOC) gồm 11 phân hệ chức năng:
-16. **Admin Tổng quan (Dashboard Overview):** Thống kê doanh thu 7 ngày (biểu đồ cột), phân bổ trạng thái đơn hàng (biểu đồ tròn), top sản phẩm bán chạy, cảnh báo hết hàng/sắp hết hàng.
-17. **Admin Quản lý Sản phẩm:** Bảng dữ liệu phân trang, tìm kiếm, lọc theo danh mục/thương hiệu/trạng thái, công tắc bật/tắt bán ngay tại dòng, modal tạo/sửa chi tiết.
-18. **Admin Quản lý Đơn hàng:** Danh sách đơn hàng, xem chi tiết từng đơn hàng, cập nhật trạng thái đơn (Chờ xử lý, Đã xác nhận, Đang giao, Hoàn tất, Đã hủy).
-19. **Admin Quản lý Khách hàng:** Danh sách người dùng, thống kê số lượng đơn và tổng chi tiêu, trạng thái tài khoản.
-20. **Admin Quản lý Danh mục:** Danh mục cha - con, thêm/sửa/xóa danh mục, hiển thị thứ tự ưu tiên.
-21. **Admin Quản lý Thương hiệu:** Danh sách thương hiệu công nghệ (Asus, Dell, MSI, Lenovo, Acer, Apple...), logo và trạng thái hoạt động.
-22. **Admin Quản lý Mã giảm giá (Coupons):** Tạo mã giảm giá theo số tiền cố định hoặc %, giới hạn đơn tối thiểu, giới hạn lượt dùng, theo dõi số lượt đã sử dụng.
-23. **Admin Quản lý Flash Sale:** Cấu hình khung giờ Flash Sale, thêm sản phẩm và mức giá giảm sốc.
-24. **Admin Quản lý Bài viết:** Đăng tải tin tức công nghệ, bài viết khuyến mãi, trạng thái xuất bản.
-25. **Admin Quản lý Đánh giá (Reviews):** Phê duyệt / ẩn đánh giá của khách hàng, phản hồi đánh giá.
-26. **Admin Quản lý Banner:** Quản lý vị trí hiển thị banner trên trang chủ, link liên kết và thứ tự hiển thị.
-27. **Admin Quản lý Tồn kho & Cảnh báo:** Theo dõi số lượng tồn kho theo từng SKU, cảnh báo tồn kho thấp (<10 chiếc), cảnh báo hết hàng (0 chiếc), lịch sử xuất nhập kho.
-28. **Admin Cấu hình Hệ thống:** Cài đặt thông tin cửa hàng, hotline, email, phí vận chuyển mặc định.
+
+Phân hệ Admin được thiết kế dạng Single Page Management với bảng điều khiển chính tại `apps/web/src/features/admin/AdminDashboardPage.tsx` (1.848 LOC) gồm 11 phân hệ chức năng: 16. **Admin Tổng quan (Dashboard Overview):** Thống kê doanh thu 7 ngày (biểu đồ cột), phân bổ trạng thái đơn hàng (biểu đồ tròn), top sản phẩm bán chạy, cảnh báo hết hàng/sắp hết hàng. 17. **Admin Quản lý Sản phẩm:** Bảng dữ liệu phân trang, tìm kiếm, lọc theo danh mục/thương hiệu/trạng thái, công tắc bật/tắt bán ngay tại dòng, modal tạo/sửa chi tiết. 18. **Admin Quản lý Đơn hàng:** Danh sách đơn hàng, xem chi tiết từng đơn hàng, cập nhật trạng thái đơn (Chờ xử lý, Đã xác nhận, Đang giao, Hoàn tất, Đã hủy). 19. **Admin Quản lý Khách hàng:** Danh sách người dùng, thống kê số lượng đơn và tổng chi tiêu, trạng thái tài khoản. 20. **Admin Quản lý Danh mục:** Danh mục cha - con, thêm/sửa/xóa danh mục, hiển thị thứ tự ưu tiên. 21. **Admin Quản lý Thương hiệu:** Danh sách thương hiệu công nghệ (Asus, Dell, MSI, Lenovo, Acer, Apple...), logo và trạng thái hoạt động. 22. **Admin Quản lý Mã giảm giá (Coupons):** Tạo mã giảm giá theo số tiền cố định hoặc %, giới hạn đơn tối thiểu, giới hạn lượt dùng, theo dõi số lượt đã sử dụng. 23. **Admin Quản lý Flash Sale:** Cấu hình khung giờ Flash Sale, thêm sản phẩm và mức giá giảm sốc. 24. **Admin Quản lý Bài viết:** Đăng tải tin tức công nghệ, bài viết khuyến mãi, trạng thái xuất bản. 25. **Admin Quản lý Đánh giá (Reviews):** Phê duyệt / ẩn đánh giá của khách hàng, phản hồi đánh giá. 26. **Admin Quản lý Banner:** Quản lý vị trí hiển thị banner trên trang chủ, link liên kết và thứ tự hiển thị. 27. **Admin Quản lý Tồn kho & Cảnh báo:** Theo dõi số lượng tồn kho theo từng SKU, cảnh báo tồn kho thấp (<10 chiếc), cảnh báo hết hàng (0 chiếc), lịch sử xuất nhập kho. 28. **Admin Cấu hình Hệ thống:** Cài đặt thông tin cửa hàng, hotline, email, phí vận chuyển mặc định.
 
 ### 3.3. Các Dịch Vụ Nền Tảng Backend (Backend Core Modules)
+
 29. `auth.service.ts`: Đăng ký, đăng nhập JWT, giải mã bearer token, đổi mật khẩu, phân quyền.
 30. `product.service.ts`: Truy vấn danh mục, lọc động, tính toán giá khuyến mãi, chi tiết sản phẩm.
 31. `order.service.ts`: Đặt hàng trong Prisma Transaction, snapshot giá/khuyến mãi/COGS, tự động trừ kho, ghi `InventoryLog`.

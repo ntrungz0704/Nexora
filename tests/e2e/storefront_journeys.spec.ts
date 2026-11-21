@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Nexora E2E Storefront & Commerce User Journeys', () => {
-  test('Journey 1: Storefront Home renders header, hero, commitments, and navigation', async ({ page }) => {
+  test('Journey 1: Storefront Home renders header, hero, commitments, and navigation', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     // 1. Verify Header / Brand presence
@@ -47,7 +49,9 @@ test.describe('Nexora E2E Storefront & Commerce User Journeys', () => {
     await expect(page.getByText('Ngân sách').first()).toBeVisible();
   });
 
-  test('Journey 5: PC Builder tool renders hardware component selection slots', async ({ page }) => {
+  test('Journey 5: PC Builder tool renders hardware component selection slots', async ({
+    page,
+  }) => {
     await page.goto('/pc-builder');
 
     // Check PC Builder page layout and components
@@ -56,13 +60,17 @@ test.describe('Nexora E2E Storefront & Commerce User Journeys', () => {
     await expect(page.getByText('Bo mạch chủ (Mainboard)').first()).toBeVisible();
   });
 
-  test('Journey 6: Persona Comparison tool renders category and persona selectors', async ({ page }) => {
+  test('Journey 6: Persona Comparison tool renders category and persona selectors', async ({
+    page,
+  }) => {
     await page.goto('/compare');
 
     // Check Persona Compare tool
     await expect(page.getByText(/So sánh sản phẩm/i).first()).toBeVisible();
     await expect(page.getByText('PC Lắp Sẵn').first()).toBeVisible();
-    await expect(page.getByText(/Chưa có sản phẩm so sánh|Chọn loại sản phẩm/i).first()).toBeVisible();
+    await expect(
+      page.getByText(/Chưa có sản phẩm so sánh|Chọn loại sản phẩm/i).first(),
+    ).toBeVisible();
   });
 
   test('Journey 7: Order Tracking tool allows searching by order number', async ({ page }) => {
@@ -73,7 +81,9 @@ test.describe('Nexora E2E Storefront & Commerce User Journeys', () => {
     await expect(page.locator('input').first()).toBeVisible();
   });
 
-  test('Journey 8: Admin Dashboard renders operational overview and navigation tabs', async ({ page }) => {
+  test('Journey 8: Admin Dashboard renders operational overview and navigation tabs', async ({
+    page,
+  }) => {
     await page.goto('/admin');
 
     // Verify Admin Dashboard view

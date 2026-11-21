@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { createRateLimiters, type AppRateLimiters } from '../middleware/rateLimit.js';
 import type { SystemRepository } from '../modules/system/system.repository.js';
 import { createSystemRouter } from '../modules/system/system.routes.js';
 import { createCatalogRouter } from '../modules/catalog/catalog.routes.js';
@@ -11,7 +12,10 @@ import { createAiRouter } from '../modules/ai/ai.routes.js';
 import { createAdminRouter } from '../modules/admin/admin.routes.js';
 import { createWishlistRouter } from '../modules/wishlist/wishlist.routes.js';
 
-export function createV1Router(systemRepository?: SystemRepository): Router {
+export function createV1Router(
+  systemRepository?: SystemRepository,
+  rateLimiters: AppRateLimiters = createRateLimiters(),
+): Router {
   const router = Router();
 
   // Foundation & System routes
@@ -19,19 +23,19 @@ export function createV1Router(systemRepository?: SystemRepository): Router {
 
   // Storefront & Catalog routes
   router.use('/catalog', createCatalogRouter());
-  router.use('/auth', createAuthRouter());
+  router.use('/auth', createAuthRouter(rateLimiters));
   router.use('/cart', createCartRouter());
   router.use('/wishlist', createWishlistRouter());
 
   // Commerce & Order routes
-  router.use('/orders', createOrderRouter());
-  router.use('/payment', createPaymentRouter());
+  router.use('/orders', createOrderRouter(rateLimiters));
+  router.use('/payment', createPaymentRouter(rateLimiters));
 
   // Marketing & Content routes (Coupons, Flash sales, Posts)
   router.use('/marketing', createMarketingRouter());
 
   // AI Engines (Floating Chatbot, 5-Step Assistant, AI Compare, Product Chat)
-  router.use('/ai', createAiRouter());
+  router.use('/ai', createAiRouter(rateLimiters));
 
   // Admin & Store Operations (Single-Vendor Management)
   router.use('/admin', createAdminRouter());

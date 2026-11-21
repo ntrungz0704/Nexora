@@ -26,6 +26,7 @@ Gate 5: MySQL 8.4 Prisma Migrations    --> PASS (3 migrations applied)
 ## 2. Chi Tiết Các Bộ Test (7 Test Files — 30 Test Cases)
 
 ### Bộ 1: `apps/api/tests/payment_security.test.ts` (5 Tests — 100% PASS)
+
 - `SEC-1: createVnpayPaymentUrl fetches amount from database and ignores forged client amounts` (PASS — URL chứa đúng số tiền server 3.290.000đ thay vì 1.000đ giả mạo)
 - `SEC-2: verifyVnpayCallback rejects invalid HMAC-SHA512 checksums` (PASS — Trả về `Chữ ký checksum VNPay không hợp lệ`)
 - `SEC-3: verifyVnpayCallback rejects payment if amount does not match server order total` (PASS — Trả về `Số tiền thanh toán không khớp`)
@@ -33,6 +34,7 @@ Gate 5: MySQL 8.4 Prisma Migrations    --> PASS (3 migrations applied)
 - `SEC-5: simulatePaymentSuccess throws 403 in production environment` (PASS — Chặn hoàn toàn simulator khi `NODE_ENV === 'production'`)
 
 ### Bộ 2: `apps/api/tests/rbac_and_concurrency.test.ts` (5 Tests — 100% PASS)
+
 - `RBAC-1: Unauthenticated request to /admin/dashboard/summary is rejected with 401` (PASS — 401 UNAUTHORIZED)
 - `RBAC-2: Customer role request to /admin/dashboard/summary is rejected with 403 Forbidden` (PASS — 403 FORBIDDEN)
 - `RBAC-3: Staff role request to /admin/dashboard/summary is allowed (200)` (PASS — 200 OK với quyền STAFF)
@@ -40,6 +42,7 @@ Gate 5: MySQL 8.4 Prisma Migrations    --> PASS (3 migrations applied)
 - `CONCURRENCY-1: Order creation rejects request when quantity exceeds current stock` (PASS — Tạo sản phẩm kho = 1; đơn 1 mua thành công; đơn 2 mua cùng lúc bị chặn 400 Insufficient Stock)
 
 ### Bộ 3: `apps/api/tests/commerce_and_ai.integration.test.ts` (6 Tests — 100% PASS)
+
 - `GET /api/v1/marketing/coupons returns active coupons` (PASS)
 - `POST /api/v1/marketing/coupons/validate verifies coupon discount` (PASS — Giảm 100.000đ trên đơn 1.000.000đ)
 - `POST /api/v1/orders creates order with snapshot items and inventory reduction` (PASS — Tạo mã NX-..., lưu snapshot giá và trừ kho)
@@ -48,6 +51,7 @@ Gate 5: MySQL 8.4 Prisma Migrations    --> PASS (3 migrations applied)
 - `POST /api/v1/ai/compare enforces Category Lock and returns spec comparison` (PASS — Khóa danh mục và trả về ma trận so sánh)
 
 ### Bộ 4: `apps/api/tests/storefront.integration.test.ts` (7 Tests — 100% PASS)
+
 - `GET /api/v1/catalog/categories returns active categories` (PASS)
 - `GET /api/v1/catalog/products returns paginated products` (PASS)
 - `GET /api/v1/catalog/products/:slug returns detail with specs and brand` (PASS)
@@ -57,15 +61,18 @@ Gate 5: MySQL 8.4 Prisma Migrations    --> PASS (3 migrations applied)
 - `GET /api/v1/catalog/stores returns showroom locations` (PASS)
 
 ### Bộ 5: `apps/api/tests/app.test.ts` (4 Tests — 100% PASS)
+
 - `GET /api/v1/system/health returns healthy status and DB up` (PASS)
 - `POST /api/v1/system/echo-check validates Zod contract` (PASS)
 - `GET /non-existent-route returns 404 envelope` (PASS)
 - `Central error handler masks sensitive internal error stack in production` (PASS)
 
 ### Bộ 6: `apps/web/tests/FoundationDashboard.test.tsx` (1 Test — 100% PASS)
+
 - `renders Foundation Dashboard with Single-Vendor status indicator` (PASS)
 
 ### Bộ 7: `packages/shared/tests/shared.test.ts` (2 Tests — 100% PASS)
+
 - `validates OrderDtoSchema structure and DECIMAL strings` (PASS)
 - `validates AiSurveyInputSchema and recommendation roles` (PASS)
 

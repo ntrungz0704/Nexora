@@ -143,7 +143,10 @@ export const PolicyPage: React.FC = () => {
       />
 
       <main style={{ minHeight: '70vh', backgroundColor: '#F8FAFC', padding: '36px 0 60px 0' }}>
-        <div className="container" style={{ maxWidth: '960px', margin: '0 auto', padding: '0 16px' }}>
+        <div
+          className="container"
+          style={{ maxWidth: '960px', margin: '0 auto', padding: '0 16px' }}
+        >
           {/* Breadcrumb */}
           <nav
             style={{
@@ -173,7 +176,9 @@ export const PolicyPage: React.FC = () => {
               marginBottom: '28px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}
+            >
               <div
                 style={{
                   width: '48px',
@@ -210,7 +215,8 @@ export const PolicyPage: React.FC = () => {
               </div>
             </div>
             <div style={{ fontSize: '12.5px', color: '#64748B' }}>
-              Cập nhật lần cuối: <strong>{content.updatedAt}</strong> · Áp dụng trên toàn hệ thống Nexora
+              Cập nhật lần cuối: <strong>{content.updatedAt}</strong> · Áp dụng trên toàn hệ thống
+              Nexora
             </div>
           </div>
 
@@ -228,8 +234,21 @@ export const PolicyPage: React.FC = () => {
             }}
           >
             {content.sections.map((sec, idx) => (
-              <div key={idx} style={{ borderBottom: idx < content.sections.length - 1 ? '1px solid #F1F5F9' : 'none', paddingBottom: idx < content.sections.length - 1 ? '24px' : '0' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 800, color: '#0F172A', marginBottom: '10px' }}>
+              <div
+                key={idx}
+                style={{
+                  borderBottom: idx < content.sections.length - 1 ? '1px solid #F1F5F9' : 'none',
+                  paddingBottom: idx < content.sections.length - 1 ? '24px' : '0',
+                }}
+              >
+                <h2
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    marginBottom: '10px',
+                  }}
+                >
                   {sec.heading}
                 </h2>
                 <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.7', margin: 0 }}>
@@ -254,7 +273,14 @@ export const PolicyPage: React.FC = () => {
               }}
             >
               <div>
-                <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', margin: '0 0 4px 0' }}>
+                <h4
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    color: '#0F172A',
+                    margin: '0 0 4px 0',
+                  }}
+                >
                   Bạn cần giải đáp thêm về chính sách?
                 </h4>
                 <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>

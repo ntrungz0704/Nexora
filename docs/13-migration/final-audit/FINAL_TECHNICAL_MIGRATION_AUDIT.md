@@ -37,28 +37,28 @@
 
 ## 2. KẾT QUẢ ĐỐI CHIẾU 20 TIÊU CHÍ NGHIỆM THU (ACCEPTANCE CRITERIA)
 
-| ID | Tiêu chí nghiệm thu | Yêu cầu kỹ thuật | Trạng thái | Bằng chứng kiểm chứng |
-| :--- | :--- | :--- | :---: | :--- |
-| **A01** | Frontend Stack | React 19, TypeScript, Tailwind 4, Vite | **PASS** | `apps/web/package.json`, `npm run build -w @nexora/web` (275 modules built) |
-| **A02** | Backend Stack | Node.js, Express 5, TypeScript | **PASS** | `apps/api/package.json` (`express: ^5.3.0`, `tsc -p tsconfig.json`) |
-| **A03** | Database Engine | MySQL 8.4 LTS runtime | **PASS** | `docker-compose.yml` (`image: mysql:8.4`), `prisma/migrations/migration_lock.toml` |
-| **A04** | ORM Layer | Prisma ORM & Prisma Migrate | **PASS** | `prisma validate` valid 🚀, 4 migrations đã áp dụng, `@prisma/client 6.19.3` |
-| **A05** | Decoupling | Không phụ thuộc runtime/build vào TechPilot | **PASS** | `.gitignore`, `.dockerignore`, `git ls-files TechPilot/` rỗng, build độc lập |
-| **A06** | Source Rewrite | Toàn bộ module viết lại bằng stack mới | **PASS** | 54 FE files, 44 BE files, 0 PHP runtime, 0 mock API |
-| **A07** | Business Logic | Luồng nghiệp vụ chính xác, đồng bộ | **PASS** | Cart -> Checkout -> Order Snapshot -> Inventory reduction hoạt động thực tế |
-| **A08** | Database Integrity | Schema, quan hệ FK, indexes, constraints | **PASS** | 24 models, 9 enums, khóa ngoại đầy đủ, quan hệ 1-N và N-N chuẩn |
-| **A09** | Data Consistency | Đồng bộ dữ liệu FE ↔ BE ↔ DB | **PASS** | DTO Zod wire contracts trong `@nexora/shared` làm nguồn sự thật |
-| **A10** | API Contract | RESTful JSON envelope thống nhất | **PASS** | Chuẩn envelope `{ success, data, error, timestamp }` trên toàn bộ endpoints |
-| **A11** | Authentication | Đăng ký, đăng nhập JWT, hash bcrypt | **PASS** | `bcryptjs`, JWT bearer token, refresh profile, reset password token |
-| **A12** | Authorization | RBAC (Customer, Staff, Admin) | **PASS** | `auth.middleware.ts` (`requireRole`), phân quyền nghiêm ngặt tại server |
-| **A13** | Payment Security | VNPay HMAC-SHA512, simulate blocked in Prod | **PASS** | `payment.service.ts` hash validation, idempotency key, Prod guard |
-| **A14** | Inventory Control | Chống oversell, không âm kho, audit log | **PASS** | Prisma transaction trong `order.service.ts` & `InventoryLog` truy vết chi tiết |
-| **A15** | Admin Operations | 11 phân hệ quản trị hoạt động thực tế | **PASS** | `AdminDashboardPage.tsx` kết nối trực tiếp database CRUD |
-| **A16** | AI Systems | 4 hệ thống AI độc lập (Chat, Survey, Compare, Detail) | **PASS** | `ai.service.ts` thuật toán chấm điểm 100 điểm + rule-based + optional Gemini |
-| **A17** | Quality Gates | Typecheck, Lint, Test, Build đạt 100% | **PASS** | Typecheck 0 errors, Lint 0 errors, Unit/Integration tests 35/35 passed |
-| **A18** | E2E Testing | Playwright end-to-end testing | **PARTIAL** | `tests/e2e/foundation.spec.ts` có sẵn, cần mở rộng test suite cho 34 user flows |
-| **A19** | Deployment | Docker Compose & GitHub Actions | **PASS** | `docker-compose.yml`, multi-stage Dockerfiles, `.github/workflows/ci.yml` |
-| **A20** | Documentation | Đầy đủ báo cáo và tài liệu kỹ thuật | **PASS** | Bộ 10 tài liệu audit chuyên sâu tại `docs/13-migration/final-audit/` |
+| ID      | Tiêu chí nghiệm thu | Yêu cầu kỹ thuật                                      | Trạng thái  | Bằng chứng kiểm chứng                                                              |
+| :------ | :------------------ | :---------------------------------------------------- | :---------: | :--------------------------------------------------------------------------------- |
+| **A01** | Frontend Stack      | React 19, TypeScript, Tailwind 4, Vite                |  **PASS**   | `apps/web/package.json`, `npm run build -w @nexora/web` (275 modules built)        |
+| **A02** | Backend Stack       | Node.js, Express 5, TypeScript                        |  **PASS**   | `apps/api/package.json` (`express: ^5.3.0`, `tsc -p tsconfig.json`)                |
+| **A03** | Database Engine     | MySQL 8.4 LTS runtime                                 |  **PASS**   | `docker-compose.yml` (`image: mysql:8.4`), `prisma/migrations/migration_lock.toml` |
+| **A04** | ORM Layer           | Prisma ORM & Prisma Migrate                           |  **PASS**   | `prisma validate` valid 🚀, 4 migrations đã áp dụng, `@prisma/client 6.19.3`       |
+| **A05** | Decoupling          | Không phụ thuộc runtime/build vào TechPilot           |  **PASS**   | `.gitignore`, `.dockerignore`, `git ls-files TechPilot/` rỗng, build độc lập       |
+| **A06** | Source Rewrite      | Toàn bộ module viết lại bằng stack mới                |  **PASS**   | 54 FE files, 44 BE files, 0 PHP runtime, 0 mock API                                |
+| **A07** | Business Logic      | Luồng nghiệp vụ chính xác, đồng bộ                    |  **PASS**   | Cart -> Checkout -> Order Snapshot -> Inventory reduction hoạt động thực tế        |
+| **A08** | Database Integrity  | Schema, quan hệ FK, indexes, constraints              |  **PASS**   | 24 models, 9 enums, khóa ngoại đầy đủ, quan hệ 1-N và N-N chuẩn                    |
+| **A09** | Data Consistency    | Đồng bộ dữ liệu FE ↔ BE ↔ DB                          |  **PASS**   | DTO Zod wire contracts trong `@nexora/shared` làm nguồn sự thật                    |
+| **A10** | API Contract        | RESTful JSON envelope thống nhất                      |  **PASS**   | Chuẩn envelope `{ success, data, error, timestamp }` trên toàn bộ endpoints        |
+| **A11** | Authentication      | Đăng ký, đăng nhập JWT, hash bcrypt                   |  **PASS**   | `bcryptjs`, JWT bearer token, refresh profile, reset password token                |
+| **A12** | Authorization       | RBAC (Customer, Staff, Admin)                         |  **PASS**   | `auth.middleware.ts` (`requireRole`), phân quyền nghiêm ngặt tại server            |
+| **A13** | Payment Security    | VNPay HMAC-SHA512, simulate blocked in Prod           |  **PASS**   | `payment.service.ts` hash validation, idempotency key, Prod guard                  |
+| **A14** | Inventory Control   | Chống oversell, không âm kho, audit log               |  **PASS**   | Prisma transaction trong `order.service.ts` & `InventoryLog` truy vết chi tiết     |
+| **A15** | Admin Operations    | 11 phân hệ quản trị hoạt động thực tế                 |  **PASS**   | `AdminDashboardPage.tsx` kết nối trực tiếp database CRUD                           |
+| **A16** | AI Systems          | 4 hệ thống AI độc lập (Chat, Survey, Compare, Detail) |  **PASS**   | `ai.service.ts` thuật toán chấm điểm 100 điểm + rule-based + optional Gemini       |
+| **A17** | Quality Gates       | Typecheck, Lint, Test, Build đạt 100%                 |  **PASS**   | Typecheck 0 errors, Lint 0 errors, Unit/Integration tests 35/35 passed             |
+| **A18** | E2E Testing         | Playwright end-to-end testing                         | **PARTIAL** | `tests/e2e/foundation.spec.ts` có sẵn, cần mở rộng test suite cho 34 user flows    |
+| **A19** | Deployment          | Docker Compose & GitHub Actions                       |  **PASS**   | `docker-compose.yml`, multi-stage Dockerfiles, `.github/workflows/ci.yml`          |
+| **A20** | Documentation       | Đầy đủ báo cáo và tài liệu kỹ thuật                   |  **PASS**   | Bộ 10 tài liệu audit chuyên sâu tại `docs/13-migration/final-audit/`               |
 
 ---
 

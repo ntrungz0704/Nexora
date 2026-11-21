@@ -39,7 +39,12 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   { key: 'laptop', label: 'Laptop', desc: 'Máy tính xách tay di động', icon: 'fa-solid fa-laptop' },
   { key: 'pc', label: 'PC Lắp Sẵn', desc: 'Máy bộ để bàn cố định', icon: 'fa-solid fa-desktop' },
   { key: 'monitor', label: 'Màn hình', desc: 'Hiển thị đồ họa / Gaming', icon: 'fa-solid fa-tv' },
-  { key: 'gear', label: 'Gaming Gear', desc: 'Bàn phím, chuột, tai nghe...', icon: 'fa-solid fa-gamepad' },
+  {
+    key: 'gear',
+    label: 'Gaming Gear',
+    desc: 'Bàn phím, chuột, tai nghe...',
+    icon: 'fa-solid fa-gamepad',
+  },
 ];
 
 const GEAR_SUBCATS = [
@@ -60,46 +65,150 @@ interface PurposeOption {
 
 const PURPOSES_MAP: Record<string, PurposeOption[]> = {
   laptop: [
-    { code: 'office', label: '💻 Học tập / Văn phòng', desc: 'Word, Excel, học online, lướt web mượt mà' },
-    { code: 'coding', label: '👨‍💻 Lập trình / Công nghệ', desc: 'VSCode, Docker, Android Studio, IDEs' },
-    { code: 'design', label: '🎨 Đồ họa / Dựng phim 2D-3D', desc: 'Photoshop, Premiere, AutoCAD, Blender' },
-    { code: 'gaming', label: '🎮 Chơi Game (eSports / AAA)', desc: 'Valorant, LoL, FC Online, Black Myth Wukong' },
+    {
+      code: 'office',
+      label: '💻 Học tập / Văn phòng',
+      desc: 'Word, Excel, học online, lướt web mượt mà',
+    },
+    {
+      code: 'coding',
+      label: '👨‍💻 Lập trình / Công nghệ',
+      desc: 'VSCode, Docker, Android Studio, IDEs',
+    },
+    {
+      code: 'design',
+      label: '🎨 Đồ họa / Dựng phim 2D-3D',
+      desc: 'Photoshop, Premiere, AutoCAD, Blender',
+    },
+    {
+      code: 'gaming',
+      label: '🎮 Chơi Game (eSports / AAA)',
+      desc: 'Valorant, LoL, FC Online, Black Myth Wukong',
+    },
     { code: 'travel', label: '✈️ Di chuyển / Công tác', desc: 'Mỏng nhẹ, pin trâu, độ bền cao' },
   ],
   pc: [
-    { code: 'office', label: '🏢 Văn phòng / Kế toán', desc: 'Bền bỉ, hoạt động liên tục, tiết kiệm điện' },
-    { code: 'coding', label: '👨‍💻 Lập trình / Máy chủ local', desc: 'Chạy đa nhiệm, ảo hóa, biên dịch nhanh' },
-    { code: 'design_2d', label: '🖌️ Thiết kế Đồ họa 2D', desc: 'Photoshop, Illustrator, Lightroom, Canva' },
-    { code: 'render_3d', label: '🎬 Dựng phim 4K / Rendering 3D', desc: 'Premiere, After Effects, Maya, Blender' },
-    { code: 'gaming_esports', label: '🎯 Gaming eSports (High FPS)', desc: 'CS2, Valorant, LoL, Naraka 240Hz+' },
-    { code: 'gaming_aaa', label: '🔥 Gaming AAA 4K / Ray Tracing', desc: 'Cyberpunk 2077, Wukong, Elden Ring, GTA V' },
-    { code: 'livestream', label: '🎙️ Livestream / Creator', desc: 'Vừa game vừa stream OBS, vMix mượt mà' },
-    { code: 'ai_ml', label: '🤖 AI / Machine Learning', desc: 'VRAM GPU lớn (RTX 4060/4070+), CUDA Core' },
+    {
+      code: 'office',
+      label: '🏢 Văn phòng / Kế toán',
+      desc: 'Bền bỉ, hoạt động liên tục, tiết kiệm điện',
+    },
+    {
+      code: 'coding',
+      label: '👨‍💻 Lập trình / Máy chủ local',
+      desc: 'Chạy đa nhiệm, ảo hóa, biên dịch nhanh',
+    },
+    {
+      code: 'design_2d',
+      label: '🖌️ Thiết kế Đồ họa 2D',
+      desc: 'Photoshop, Illustrator, Lightroom, Canva',
+    },
+    {
+      code: 'render_3d',
+      label: '🎬 Dựng phim 4K / Rendering 3D',
+      desc: 'Premiere, After Effects, Maya, Blender',
+    },
+    {
+      code: 'gaming_esports',
+      label: '🎯 Gaming eSports (High FPS)',
+      desc: 'CS2, Valorant, LoL, Naraka 240Hz+',
+    },
+    {
+      code: 'gaming_aaa',
+      label: '🔥 Gaming AAA 4K / Ray Tracing',
+      desc: 'Cyberpunk 2077, Wukong, Elden Ring, GTA V',
+    },
+    {
+      code: 'livestream',
+      label: '🎙️ Livestream / Creator',
+      desc: 'Vừa game vừa stream OBS, vMix mượt mà',
+    },
+    {
+      code: 'ai_ml',
+      label: '🤖 AI / Machine Learning',
+      desc: 'VRAM GPU lớn (RTX 4060/4070+), CUDA Core',
+    },
   ],
   monitor: [
-    { code: 'office', label: '💼 Văn phòng / Đọc tài liệu', desc: 'Bảo vệ mắt, chống chói, góc nhìn rộng IPS' },
-    { code: 'gaming', label: '🎮 Chơi Game eSports / Fast IPS', desc: 'Tần số quét cao 144Hz-240Hz, phản hồi 1ms' },
-    { code: 'design', label: '🎨 Đồ họa / Chuẩn màu sRGB/DCI-P3', desc: 'Màu sắc chính xác Delta E < 2, IPS/OLED' },
-    { code: 'video_edit', label: '🎬 Dựng phim / Màn hình siêu rộng (Ultrawide)', desc: 'Không gian làm việc rộng, độ phân giải 2K/4K' },
-    { code: 'entertainment', label: '🍿 Giải trí / Xem phim 4K', desc: 'Độ phân giải 4K, HDR, loa tích hợp' },
+    {
+      code: 'office',
+      label: '💼 Văn phòng / Đọc tài liệu',
+      desc: 'Bảo vệ mắt, chống chói, góc nhìn rộng IPS',
+    },
+    {
+      code: 'gaming',
+      label: '🎮 Chơi Game eSports / Fast IPS',
+      desc: 'Tần số quét cao 144Hz-240Hz, phản hồi 1ms',
+    },
+    {
+      code: 'design',
+      label: '🎨 Đồ họa / Chuẩn màu sRGB/DCI-P3',
+      desc: 'Màu sắc chính xác Delta E < 2, IPS/OLED',
+    },
+    {
+      code: 'video_edit',
+      label: '🎬 Dựng phim / Màn hình siêu rộng (Ultrawide)',
+      desc: 'Không gian làm việc rộng, độ phân giải 2K/4K',
+    },
+    {
+      code: 'entertainment',
+      label: '🍿 Giải trí / Xem phim 4K',
+      desc: 'Độ phân giải 4K, HDR, loa tích hợp',
+    },
   ],
   gear_mouse: [
-    { code: 'fps', label: '🎯 Chơi game FPS (Cảm biến siêu chuẩn)', desc: 'Trọng lượng siêu nhẹ, DPI cao, switch bền' },
+    {
+      code: 'fps',
+      label: '🎯 Chơi game FPS (Cảm biến siêu chuẩn)',
+      desc: 'Trọng lượng siêu nhẹ, DPI cao, switch bền',
+    },
     { code: 'moba', label: '⚔️ Chơi game MOBA / MMO', desc: 'Nhiều nút bấm phụ lập trình macro' },
-    { code: 'office', label: '💼 Văn phòng / Công thái học', desc: 'Chống đau cổ tay, click yên tĩnh (Silent)' },
+    {
+      code: 'office',
+      label: '💼 Văn phòng / Công thái học',
+      desc: 'Chống đau cổ tay, click yên tĩnh (Silent)',
+    },
   ],
   gear_keyboard: [
-    { code: 'gaming', label: '🎮 Chơi game phản hồi nhanh', desc: 'Switch cơ học (Red/Blue/Brown/Speed), RGB' },
-    { code: 'typing', label: '✍️ Gõ văn bản / Lập trình', desc: 'Cảm giác gõ sướng tay, Hotswap, Custom keycap' },
-    { code: 'silent', label: '🤫 Yên tĩnh văn phòng', desc: 'Silent Switch không gây ồn đồng nghiệp' },
+    {
+      code: 'gaming',
+      label: '🎮 Chơi game phản hồi nhanh',
+      desc: 'Switch cơ học (Red/Blue/Brown/Speed), RGB',
+    },
+    {
+      code: 'typing',
+      label: '✍️ Gõ văn bản / Lập trình',
+      desc: 'Cảm giác gõ sướng tay, Hotswap, Custom keycap',
+    },
+    {
+      code: 'silent',
+      label: '🤫 Yên tĩnh văn phòng',
+      desc: 'Silent Switch không gây ồn đồng nghiệp',
+    },
   ],
   gear_headset: [
-    { code: 'esports', label: '🎧 Gaming eSports 7.1', desc: 'Định vị tiếng chân, mic lọc ồn đàm thoại clear' },
-    { code: 'music', label: '🎵 Nghe nhạc / Giải trí', desc: 'Âm bass ấm, dải âm cân bằng, đeo thoải mái' },
+    {
+      code: 'esports',
+      label: '🎧 Gaming eSports 7.1',
+      desc: 'Định vị tiếng chân, mic lọc ồn đàm thoại clear',
+    },
+    {
+      code: 'music',
+      label: '🎵 Nghe nhạc / Giải trí',
+      desc: 'Âm bass ấm, dải âm cân bằng, đeo thoải mái',
+    },
   ],
   gear_default: [
-    { code: 'gaming', label: '🎮 Gaming & Giải trí', desc: 'Trang bị tối ưu trải nghiệm chiến game đỉnh cao' },
-    { code: 'office', label: '💼 Văn phòng & Làm việc', desc: 'Thiết kế tinh gọn, bền bỉ, công thái học' },
+    {
+      code: 'gaming',
+      label: '🎮 Gaming & Giải trí',
+      desc: 'Trang bị tối ưu trải nghiệm chiến game đỉnh cao',
+    },
+    {
+      code: 'office',
+      label: '💼 Văn phòng & Làm việc',
+      desc: 'Thiết kế tinh gọn, bền bỉ, công thái học',
+    },
   ],
 };
 
@@ -119,7 +228,10 @@ const PRIORITIES_MAP: Record<string, PriorityOption[]> = {
     { code: 'cooling_noise', label: '❄️ Máy mát & Ít ồn khi tải nặng' },
   ],
   pc: [
-    { code: 'cpu_performance', label: '🧠 Hiệu năng CPU tối đa (Xử lý dữ liệu / Render / Biên dịch)' },
+    {
+      code: 'cpu_performance',
+      label: '🧠 Hiệu năng CPU tối đa (Xử lý dữ liệu / Render / Biên dịch)',
+    },
     { code: 'gpu_performance', label: '🎨 Hiệu năng Card đồ họa GPU (Chơi Game / 3D / AI)' },
     { code: 'upgradeability', label: '🛠️ Khả năng mở rộng & Nâng cấp lâu dài' },
     { code: 'cooling', label: '❄️ Tản nhiệt mát mẻ, ổn định 24/7' },
@@ -147,7 +259,9 @@ const PRIORITIES_MAP: Record<string, PriorityOption[]> = {
 
 export const AiAssistantPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Stepper State
@@ -276,7 +390,10 @@ export const AiAssistantPage: React.FC = () => {
   };
 
   return (
-    <div className="home-page-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div
+      className="home-page-wrapper"
+      style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
+    >
       <StorefrontHeader
         currentUser={currentUser}
         categories={categories}
@@ -339,7 +456,8 @@ export const AiAssistantPage: React.FC = () => {
                     fontSize: '12px',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    background: 'linear-gradient(135deg, rgba(10, 91, 255, 0.1) 0%, rgba(10, 91, 255, 0.2) 100%)',
+                    background:
+                      'linear-gradient(135deg, rgba(10, 91, 255, 0.1) 0%, rgba(10, 91, 255, 0.2) 100%)',
                     color: '#0A5BFF',
                   }}
                 >
@@ -357,8 +475,15 @@ export const AiAssistantPage: React.FC = () => {
               >
                 Khảo Sát AI Gợi Ý Sản Phẩm Tối Ưu
               </h2>
-              <p style={{ color: 'var(--text-secondary, #64748B)', fontSize: '15px', marginBottom: '35px' }}>
-                Trả lời 5 câu hỏi nhanh để Trợ lý AI phân tích và lọc ra 3 sản phẩm phù hợp nhất trong kho hàng.
+              <p
+                style={{
+                  color: 'var(--text-secondary, #64748B)',
+                  fontSize: '15px',
+                  marginBottom: '35px',
+                }}
+              >
+                Trả lời 5 câu hỏi nhanh để Trợ lý AI phân tích và lọc ra 3 sản phẩm phù hợp nhất
+                trong kho hàng.
               </p>
 
               {/* Progress Steps Tracker */}
@@ -409,9 +534,14 @@ export const AiAssistantPage: React.FC = () => {
                           width: '32px',
                           height: '32px',
                           borderRadius: '50%',
-                          backgroundColor: isActive ? '#0A5BFF' : isCompleted ? '#10B981' : '#FFFFFF',
+                          backgroundColor: isActive
+                            ? '#0A5BFF'
+                            : isCompleted
+                              ? '#10B981'
+                              : '#FFFFFF',
                           border: `2px solid ${isActive ? '#0A5BFF' : isCompleted ? '#10B981' : 'var(--border, #E2E8F0)'}`,
-                          color: isActive || isCompleted ? '#FFFFFF' : 'var(--text-secondary, #64748B)',
+                          color:
+                            isActive || isCompleted ? '#FFFFFF' : 'var(--text-secondary, #64748B)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -421,13 +551,21 @@ export const AiAssistantPage: React.FC = () => {
                           transition: 'all 0.3s ease',
                         }}
                       >
-                        {isCompleted ? <i className="fa-solid fa-check" style={{ fontSize: '12px' }}></i> : item.step}
+                        {isCompleted ? (
+                          <i className="fa-solid fa-check" style={{ fontSize: '12px' }}></i>
+                        ) : (
+                          item.step
+                        )}
                       </div>
                       <span
                         style={{
                           fontSize: '12px',
                           fontWeight: isActive ? 700 : 600,
-                          color: isActive ? '#0A5BFF' : isCompleted ? '#10B981' : 'var(--text-secondary, #64748B)',
+                          color: isActive
+                            ? '#0A5BFF'
+                            : isCompleted
+                              ? '#10B981'
+                              : 'var(--text-secondary, #64748B)',
                           marginTop: '8px',
                           textAlign: 'center',
                         }}
@@ -442,7 +580,13 @@ export const AiAssistantPage: React.FC = () => {
               {/* PANEL 1: NGÂN SÁCH */}
               {currentStep === 1 && (
                 <div>
-                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                  <h4
+                    style={{
+                      marginBottom: '20px',
+                      fontWeight: 700,
+                      color: 'var(--text-primary, #0F172A)',
+                    }}
+                  >
                     Bước 1: Chọn khoảng ngân sách đầu tư của bạn:
                   </h4>
                   <div
@@ -470,11 +614,33 @@ export const AiAssistantPage: React.FC = () => {
                             boxShadow: isSelected ? '0 0 0 1px #0A5BFF' : 'none',
                           }}
                         >
-                          <i className="fa-solid fa-coins" style={{ fontSize: '26px', color: '#0A5BFF', marginBottom: '10px', display: 'block' }}></i>
-                          <span style={{ fontWeight: 700, fontSize: '15px', display: 'block', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                          <i
+                            className="fa-solid fa-coins"
+                            style={{
+                              fontSize: '26px',
+                              color: '#0A5BFF',
+                              marginBottom: '10px',
+                              display: 'block',
+                            }}
+                          ></i>
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              fontSize: '15px',
+                              display: 'block',
+                              color: 'var(--text-primary)',
+                              marginBottom: '4px',
+                            }}
+                          >
                             {b.label}
                           </span>
-                          <p style={{ fontSize: '12px', color: 'var(--text-secondary, #64748B)', margin: 0 }}>
+                          <p
+                            style={{
+                              fontSize: '12px',
+                              color: 'var(--text-secondary, #64748B)',
+                              margin: 0,
+                            }}
+                          >
                             {b.desc}
                           </p>
                         </div>
@@ -487,7 +653,13 @@ export const AiAssistantPage: React.FC = () => {
               {/* PANEL 2: LOẠI MÁY */}
               {currentStep === 2 && (
                 <div>
-                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                  <h4
+                    style={{
+                      marginBottom: '20px',
+                      fontWeight: 700,
+                      color: 'var(--text-primary, #0F172A)',
+                    }}
+                  >
                     Bước 2: Chọn dòng sản phẩm bạn cần tư vấn:
                   </h4>
                   <div
@@ -515,11 +687,33 @@ export const AiAssistantPage: React.FC = () => {
                             boxShadow: isSelected ? '0 0 0 1px #0A5BFF' : 'none',
                           }}
                         >
-                          <i className={cat.icon} style={{ fontSize: '26px', color: '#0A5BFF', marginBottom: '10px', display: 'block' }}></i>
-                          <span style={{ fontWeight: 700, fontSize: '15px', display: 'block', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                          <i
+                            className={cat.icon}
+                            style={{
+                              fontSize: '26px',
+                              color: '#0A5BFF',
+                              marginBottom: '10px',
+                              display: 'block',
+                            }}
+                          ></i>
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              fontSize: '15px',
+                              display: 'block',
+                              color: 'var(--text-primary)',
+                              marginBottom: '4px',
+                            }}
+                          >
                             {cat.label}
                           </span>
-                          <p style={{ fontSize: '12px', color: 'var(--text-secondary, #64748B)', margin: 0 }}>
+                          <p
+                            style={{
+                              fontSize: '12px',
+                              color: 'var(--text-secondary, #64748B)',
+                              margin: 0,
+                            }}
+                          >
                             {cat.desc}
                           </p>
                         </div>
@@ -529,7 +723,14 @@ export const AiAssistantPage: React.FC = () => {
 
                   {category === 'gear' && (
                     <div style={{ marginTop: '20px' }}>
-                      <label style={{ fontSize: '13.5px', fontWeight: 700, marginBottom: '10px', display: 'block' }}>
+                      <label
+                        style={{
+                          fontSize: '13.5px',
+                          fontWeight: 700,
+                          marginBottom: '10px',
+                          display: 'block',
+                        }}
+                      >
                         Chọn loại Gear cụ thể:
                       </label>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
@@ -565,7 +766,13 @@ export const AiAssistantPage: React.FC = () => {
               {/* PANEL 3: MỤC ĐÍCH */}
               {currentStep === 3 && (
                 <div>
-                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                  <h4
+                    style={{
+                      marginBottom: '20px',
+                      fontWeight: 700,
+                      color: 'var(--text-primary, #0F172A)',
+                    }}
+                  >
                     Bước 3: Chọn mục đích sử dụng chính:
                   </h4>
                   <div
@@ -593,13 +800,36 @@ export const AiAssistantPage: React.FC = () => {
                             boxShadow: isSelected ? '0 0 0 1px #0A5BFF' : 'none',
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <span style={{ fontWeight: 700, fontSize: '14.5px', color: 'var(--text-primary)' }}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              marginBottom: '8px',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontWeight: 700,
+                                fontSize: '14.5px',
+                                color: 'var(--text-primary)',
+                              }}
+                            >
                               {p.label}
                             </span>
-                            <i className="fa-regular fa-circle-dot" style={{ color: isSelected ? '#0A5BFF' : '#CBD5E1' }}></i>
+                            <i
+                              className="fa-regular fa-circle-dot"
+                              style={{ color: isSelected ? '#0A5BFF' : '#CBD5E1' }}
+                            ></i>
                           </div>
-                          <p style={{ fontSize: '12px', color: 'var(--text-secondary, #64748B)', margin: 0, lineHeight: 1.4 }}>
+                          <p
+                            style={{
+                              fontSize: '12px',
+                              color: 'var(--text-secondary, #64748B)',
+                              margin: 0,
+                              lineHeight: 1.4,
+                            }}
+                          >
                             {p.desc}
                           </p>
                         </div>
@@ -608,7 +838,15 @@ export const AiAssistantPage: React.FC = () => {
                   </div>
 
                   <div style={{ marginTop: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13.5px',
+                        fontWeight: 600,
+                        marginBottom: '8px',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Phần mềm hoặc tựa game bạn thường dùng nhất (nếu có):
                     </label>
                     <input
@@ -632,7 +870,13 @@ export const AiAssistantPage: React.FC = () => {
               {/* PANEL 4: TIÊU CHÍ ƯU TIÊN */}
               {currentStep === 4 && (
                 <div>
-                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                  <h4
+                    style={{
+                      marginBottom: '20px',
+                      fontWeight: 700,
+                      color: 'var(--text-primary, #0F172A)',
+                    }}
+                  >
                     Bước 4: Tiêu chí ưu tiên hàng đầu:
                   </h4>
                   <div
@@ -660,8 +904,23 @@ export const AiAssistantPage: React.FC = () => {
                             boxShadow: isSelected ? '0 0 0 1px #0A5BFF' : 'none',
                           }}
                         >
-                          <i className="fa-solid fa-star" style={{ color: '#0A5BFF', fontSize: '20px', marginBottom: '10px', display: 'block' }}></i>
-                          <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)', display: 'block' }}>
+                          <i
+                            className="fa-solid fa-star"
+                            style={{
+                              color: '#0A5BFF',
+                              fontSize: '20px',
+                              marginBottom: '10px',
+                              display: 'block',
+                            }}
+                          ></i>
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              fontSize: '14px',
+                              color: 'var(--text-primary)',
+                              display: 'block',
+                            }}
+                          >
                             {item.label}
                           </span>
                         </div>
@@ -674,11 +933,25 @@ export const AiAssistantPage: React.FC = () => {
               {/* PANEL 5: BỘ LỌC THƯƠNG HIỆU & LOẠI TRỪ */}
               {currentStep === 5 && (
                 <div>
-                  <h4 style={{ marginBottom: '20px', fontWeight: 700, color: 'var(--text-primary, #0F172A)' }}>
+                  <h4
+                    style={{
+                      marginBottom: '20px',
+                      fontWeight: 700,
+                      color: 'var(--text-primary, #0F172A)',
+                    }}
+                  >
                     Bước 5: Thương hiệu và yêu cầu loại trừ:
                   </h4>
                   <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13.5px',
+                        fontWeight: 600,
+                        marginBottom: '8px',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Thương hiệu ưu tiên (nếu có):
                     </label>
                     <input
@@ -698,7 +971,15 @@ export const AiAssistantPage: React.FC = () => {
                   </div>
 
                   <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13.5px',
+                        fontWeight: 600,
+                        marginBottom: '8px',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Thương hiệu hoặc yếu tố MUỐN LOẠI TRỪ:
                     </label>
                     <input
@@ -797,12 +1078,30 @@ export const AiAssistantPage: React.FC = () => {
                 boxShadow: '0 20px 40px rgba(0, 0, 0, 0.05)',
               }}
             >
-              <i className="fa-solid fa-circle-notch fa-spin" style={{ fontSize: '54px', color: '#0A5BFF', marginBottom: '20px' }}></i>
-              <h3 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '10px', color: 'var(--text-primary)' }}>
+              <i
+                className="fa-solid fa-circle-notch fa-spin"
+                style={{ fontSize: '54px', color: '#0A5BFF', marginBottom: '20px' }}
+              ></i>
+              <h3
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 800,
+                  marginBottom: '10px',
+                  color: 'var(--text-primary)',
+                }}
+              >
                 Trợ lý AI đang chấm điểm cấu hình...
               </h3>
-              <p style={{ color: 'var(--text-secondary, #64748B)', maxWidth: '500px', margin: '0 auto', fontSize: '14px' }}>
-                Hệ thống đang chạy thuật toán phân tích 100 điểm, lọc kho sản phẩm thật và tạo báo cáo tư vấn tối ưu...
+              <p
+                style={{
+                  color: 'var(--text-secondary, #64748B)',
+                  maxWidth: '500px',
+                  margin: '0 auto',
+                  fontSize: '14px',
+                }}
+              >
+                Hệ thống đang chạy thuật toán phân tích 100 điểm, lọc kho sản phẩm thật và tạo báo
+                cáo tư vấn tối ưu...
               </p>
             </div>
           )}
@@ -834,7 +1133,13 @@ export const AiAssistantPage: React.FC = () => {
                   🤖 3 Đề Xuất Tối Ưu Từ Nexora AI
                 </h3>
                 {analysisSummary && (
-                  <p style={{ color: 'var(--text-secondary, #64748B)', fontSize: '14.5px', marginTop: '6px' }}>
+                  <p
+                    style={{
+                      color: 'var(--text-secondary, #64748B)',
+                      fontSize: '14.5px',
+                      marginTop: '6px',
+                    }}
+                  >
                     {analysisSummary}
                   </p>
                 )}
@@ -852,12 +1157,16 @@ export const AiAssistantPage: React.FC = () => {
                   const imageUrl = getProductImage(p);
                   const isBestFit = item.role === 'BEST_MATCH';
                   const isBestValue = item.role === 'BEST_VALUE';
-                  const roleBadgeColor = isBestFit ? '#10B981' : isBestValue ? '#3B82F6' : '#8B5CF6';
+                  const roleBadgeColor = isBestFit
+                    ? '#10B981'
+                    : isBestValue
+                      ? '#3B82F6'
+                      : '#8B5CF6';
                   const roleBadgeBg = isBestFit
                     ? 'linear-gradient(135deg, #10B981, #059669)'
                     : isBestValue
-                    ? 'linear-gradient(135deg, #3B82F6, #1D4ED8)'
-                    : 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+                      ? 'linear-gradient(135deg, #3B82F6, #1D4ED8)'
+                      : 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
 
                   const circumference = 2 * Math.PI * 20;
                   const offset = circumference - (item.score / 100) * circumference;
@@ -914,8 +1223,18 @@ export const AiAssistantPage: React.FC = () => {
                             height: '52px',
                           }}
                         >
-                          <svg viewBox="0 0 48 48" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                            <circle cx="24" cy="24" r="20" fill="none" stroke="#E2E8F0" strokeWidth="4" />
+                          <svg
+                            viewBox="0 0 48 48"
+                            style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}
+                          >
+                            <circle
+                              cx="24"
+                              cy="24"
+                              r="20"
+                              fill="none"
+                              stroke="#E2E8F0"
+                              strokeWidth="4"
+                            />
                             <circle
                               cx="24"
                               cy="24"
@@ -943,7 +1262,15 @@ export const AiAssistantPage: React.FC = () => {
                             }}
                           >
                             {item.score}
-                            <small style={{ fontSize: '8px', fontWeight: 600, color: 'var(--text-secondary)' }}>điểm</small>
+                            <small
+                              style={{
+                                fontSize: '8px',
+                                fontWeight: 600,
+                                color: 'var(--text-secondary)',
+                              }}
+                            >
+                              điểm
+                            </small>
                           </div>
                         </div>
 
@@ -960,7 +1287,14 @@ export const AiAssistantPage: React.FC = () => {
                       </div>
 
                       {/* Card Body */}
-                      <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <div
+                        style={{
+                          padding: '20px',
+                          flex: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                        }}
+                      >
                         <h4
                           style={{
                             fontSize: '15px',
@@ -978,7 +1312,14 @@ export const AiAssistantPage: React.FC = () => {
                           {p.name}
                         </h4>
 
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '16px' }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            gap: '8px',
+                            marginBottom: '16px',
+                          }}
+                        >
                           <span style={{ color: '#0A5BFF', fontWeight: 800, fontSize: '20px' }}>
                             {formatPrice(p.salePrice || p.price)}
                           </span>
@@ -1012,35 +1353,92 @@ export const AiAssistantPage: React.FC = () => {
                           >
                             <i className="fa-solid fa-microchip"></i> Cấu hình phần cứng then chốt
                           </div>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px' }}>
+                          <div
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '8px 12px',
+                            }}
+                          >
                             {(() => {
                               const raw = p.specs as Record<string, unknown> | null;
-                              const inner = (raw && typeof raw === 'object' && raw.specs && typeof raw.specs === 'object')
-                                ? (raw.specs as Record<string, unknown>)
-                                : (raw && typeof raw === 'object' ? raw : {});
+                              const inner =
+                                raw &&
+                                typeof raw === 'object' &&
+                                raw.specs &&
+                                typeof raw.specs === 'object'
+                                  ? (raw.specs as Record<string, unknown>)
+                                  : raw && typeof raw === 'object'
+                                    ? raw
+                                    : {};
 
                               const cpu = inner.cpu_model || inner.cpu || null;
                               const gpu = inner.gpu_model || inner.gpu || inner.vga || null;
-                              const ram = inner.ram_gb ? `${inner.ram_gb}GB ${inner.ram_type || 'RAM'}` : inner.ram || null;
-                              const storage = inner.storage_gb ? `${Number(inner.storage_gb) >= 1000 ? `${Number(inner.storage_gb) / 1000}TB` : `${inner.storage_gb}GB`} ${inner.storage_type || 'SSD'}` : inner.storage || null;
+                              const ram = inner.ram_gb
+                                ? `${inner.ram_gb}GB ${inner.ram_type || 'RAM'}`
+                                : inner.ram || null;
+                              const storage = inner.storage_gb
+                                ? `${Number(inner.storage_gb) >= 1000 ? `${Number(inner.storage_gb) / 1000}TB` : `${inner.storage_gb}GB`} ${inner.storage_type || 'SSD'}`
+                                : inner.storage || null;
 
                               const items: { label: string; value: string; icon: string }[] = [];
-                              if (cpu) items.push({ label: 'CPU', value: String(cpu), icon: 'fa-microchip' });
-                              if (gpu) items.push({ label: 'Card đồ họa', value: String(gpu), icon: 'fa-tv' });
-                              if (ram) items.push({ label: 'Bộ nhớ RAM', value: String(ram), icon: 'fa-memory' });
-                              if (storage) items.push({ label: 'Ổ cứng SSD', value: String(storage), icon: 'fa-hard-drive' });
+                              if (cpu)
+                                items.push({
+                                  label: 'CPU',
+                                  value: String(cpu),
+                                  icon: 'fa-microchip',
+                                });
+                              if (gpu)
+                                items.push({
+                                  label: 'Card đồ họa',
+                                  value: String(gpu),
+                                  icon: 'fa-tv',
+                                });
+                              if (ram)
+                                items.push({
+                                  label: 'Bộ nhớ RAM',
+                                  value: String(ram),
+                                  icon: 'fa-memory',
+                                });
+                              if (storage)
+                                items.push({
+                                  label: 'Ổ cứng SSD',
+                                  value: String(storage),
+                                  icon: 'fa-hard-drive',
+                                });
 
                               if (items.length === 0) {
-                                items.push({ label: 'Thương hiệu', value: p.brand?.name || 'Chính hãng', icon: 'fa-tag' });
-                                items.push({ label: 'Phân khúc', value: p.category?.name || 'Máy tính cao cấp', icon: 'fa-layer-group' });
-                                items.push({ label: 'Tình trạng', value: 'Mới 100% Seal', icon: 'fa-box-open' });
-                                items.push({ label: 'Bảo hành', value: '36 Tháng', icon: 'fa-shield-halved' });
+                                items.push({
+                                  label: 'Thương hiệu',
+                                  value: p.brand?.name || 'Chính hãng',
+                                  icon: 'fa-tag',
+                                });
+                                items.push({
+                                  label: 'Phân khúc',
+                                  value: p.category?.name || 'Máy tính cao cấp',
+                                  icon: 'fa-layer-group',
+                                });
+                                items.push({
+                                  label: 'Tình trạng',
+                                  value: 'Mới 100% Seal',
+                                  icon: 'fa-box-open',
+                                });
+                                items.push({
+                                  label: 'Bảo hành',
+                                  value: '36 Tháng',
+                                  icon: 'fa-shield-halved',
+                                });
                               }
 
                               return items.slice(0, 4).map((spec, sIdx) => (
                                 <div key={sIdx} style={{ fontSize: '12px', lineHeight: 1.35 }}>
-                                  <div style={{ color: '#64748B', fontWeight: 500, fontSize: '11px' }}>
-                                    <i className={`fa-solid ${spec.icon}`} style={{ marginRight: '4px', opacity: 0.7 }}></i>
+                                  <div
+                                    style={{ color: '#64748B', fontWeight: 500, fontSize: '11px' }}
+                                  >
+                                    <i
+                                      className={`fa-solid ${spec.icon}`}
+                                      style={{ marginRight: '4px', opacity: 0.7 }}
+                                    ></i>
                                     {spec.label}
                                   </div>
                                   <div
@@ -1086,18 +1484,41 @@ export const AiAssistantPage: React.FC = () => {
                           >
                             <i className="fa-solid fa-gift"></i> Đặc quyền mua hàng tại Nexora
                           </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px', color: '#1E293B' }}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '6px',
+                              fontSize: '12px',
+                              color: '#1E293B',
+                            }}
+                          >
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
-                              <span><strong>Bảo hành chính hãng</strong> (1 đổi 1 trong 7 ngày nếu lỗi)</span>
+                              <i
+                                className="fa-solid fa-circle-check"
+                                style={{ color: '#10B981', fontSize: '11px' }}
+                              ></i>
+                              <span>
+                                <strong>Bảo hành chính hãng</strong> (1 đổi 1 trong 7 ngày nếu lỗi)
+                              </span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
-                              <span><strong>Miễn phí vận chuyển</strong> cho đơn từ 500.000đ</span>
+                              <i
+                                className="fa-solid fa-circle-check"
+                                style={{ color: '#10B981', fontSize: '11px' }}
+                              ></i>
+                              <span>
+                                <strong>Miễn phí vận chuyển</strong> cho đơn từ 500.000đ
+                              </span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <i className="fa-solid fa-circle-check" style={{ color: '#10B981', fontSize: '11px' }}></i>
-                              <span><strong>Hỗ trợ kỹ thuật</strong> &amp; Hotline 1800 2097 miễn phí</span>
+                              <i
+                                className="fa-solid fa-circle-check"
+                                style={{ color: '#10B981', fontSize: '11px' }}
+                              ></i>
+                              <span>
+                                <strong>Hỗ trợ kỹ thuật</strong> &amp; Hotline 1800 2097 miễn phí
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -1118,7 +1539,15 @@ export const AiAssistantPage: React.FC = () => {
                             >
                               <i className="fa-solid fa-circle-check"></i> Điểm nổi bật
                             </div>
-                            <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '12px', color: 'var(--text-secondary, #64748B)', lineHeight: 1.5 }}>
+                            <ul
+                              style={{
+                                margin: 0,
+                                paddingLeft: '16px',
+                                fontSize: '12px',
+                                color: 'var(--text-secondary, #64748B)',
+                                lineHeight: 1.5,
+                              }}
+                            >
                               {item.reasons.map((r, rIdx) => (
                                 <li key={rIdx}>{r}</li>
                               ))}
@@ -1142,7 +1571,14 @@ export const AiAssistantPage: React.FC = () => {
                             >
                               <i className="fa-solid fa-triangle-exclamation"></i> Cần lưu ý
                             </div>
-                            <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary, #64748B)', lineHeight: 1.5 }}>
+                            <p
+                              style={{
+                                margin: 0,
+                                fontSize: '12px',
+                                color: 'var(--text-secondary, #64748B)',
+                                lineHeight: 1.5,
+                              }}
+                            >
                               {item.tradeOffs}
                             </p>
                           </div>

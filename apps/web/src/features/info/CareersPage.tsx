@@ -152,10 +152,17 @@ export const CareersPage: React.FC = () => {
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Trang chủ</Link>
+        <nav
+          className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6"
+          aria-label="Breadcrumb"
+        >
+          <Link to="/" className="hover:text-blue-600 transition-colors">
+            Trang chủ
+          </Link>
           <i className="fa-solid fa-chevron-right text-[10px]"></i>
-          <span className="text-slate-800 dark:text-slate-200 font-semibold">Tuyển dụng nhân viên</span>
+          <span className="text-slate-800 dark:text-slate-200 font-semibold">
+            Tuyển dụng nhân viên
+          </span>
         </nav>
 
         {/* Hero Banner */}
@@ -171,7 +178,9 @@ export const CareersPage: React.FC = () => {
               </span>
             </h1>
             <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-              Môi trường làm việc trẻ trung, minh bạch và trao quyền. Nơi bạn được thỏa sức đam mê phần cứng, đóng góp vào trải nghiệm bán lẻ công nghệ hàng đầu và phát triển sự nghiệp bền vững.
+              Môi trường làm việc trẻ trung, minh bạch và trao quyền. Nơi bạn được thỏa sức đam mê
+              phần cứng, đóng góp vào trải nghiệm bán lẻ công nghệ hàng đầu và phát triển sự nghiệp
+              bền vững.
             </p>
           </div>
         </section>
@@ -198,16 +207,27 @@ export const CareersPage: React.FC = () => {
                 }`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                  <h3 className="font-bold text-base text-slate-900 dark:text-white">{job.title}</h3>
+                  <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                    {job.title}
+                  </h3>
                   <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                     {job.salary}
                   </span>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  <span><i className="fa-solid fa-building text-slate-400 mr-1"></i>{job.department}</span>
-                  <span><i className="fa-solid fa-location-dot text-slate-400 mr-1"></i>{job.location}</span>
-                  <span><i className="fa-solid fa-clock text-slate-400 mr-1"></i>{job.type}</span>
+                  <span>
+                    <i className="fa-solid fa-building text-slate-400 mr-1"></i>
+                    {job.department}
+                  </span>
+                  <span>
+                    <i className="fa-solid fa-location-dot text-slate-400 mr-1"></i>
+                    {job.location}
+                  </span>
+                  <span>
+                    <i className="fa-solid fa-clock text-slate-400 mr-1"></i>
+                    {job.type}
+                  </span>
                 </div>
 
                 <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400 list-disc pl-4">
@@ -238,7 +258,8 @@ export const CareersPage: React.FC = () => {
                     Nộp Hồ Sơ Thành Công!
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Cảm ơn bạn đã quan tâm đến cơ hội nghề nghiệp tại Nexora. Bộ phận nhân sự sẽ kiểm tra hồ sơ và liên hệ với bạn trong vòng 3 - 5 ngày làm việc.
+                    Cảm ơn bạn đã quan tâm đến cơ hội nghề nghiệp tại Nexora. Bộ phận nhân sự sẽ
+                    kiểm tra hồ sơ và liên hệ với bạn trong vòng 3 - 5 ngày làm việc.
                   </p>
                   <button
                     onClick={() => {
@@ -273,7 +294,9 @@ export const CareersPage: React.FC = () => {
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500"
                     >
                       {OPEN_POSITIONS.map((pos) => (
-                        <option key={pos.id} value={pos.id}>{pos.title}</option>
+                        <option key={pos.id} value={pos.id}>
+                          {pos.title}
+                        </option>
                       ))}
                     </select>
                   </div>

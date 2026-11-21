@@ -73,7 +73,9 @@ const STORES_SEED: StoreItem[] = [
 ];
 
 export const StoresPage: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
   const [selectedCity, setSelectedCity] = useState('all');
 
   const { data: categories = [] } = useQuery({
@@ -92,9 +94,8 @@ export const StoresPage: React.FC = () => {
     enabled: !!currentUser,
   });
 
-  const filteredStores = selectedCity === 'all'
-    ? STORES_SEED
-    : STORES_SEED.filter((s) => s.city === selectedCity);
+  const filteredStores =
+    selectedCity === 'all' ? STORES_SEED : STORES_SEED.filter((s) => s.city === selectedCity);
 
   return (
     <div style={{ backgroundColor: 'var(--bg-main, #F8FAFC)', minHeight: '100vh' }}>
@@ -109,10 +110,24 @@ export const StoresPage: React.FC = () => {
         }}
       />
 
-      <main className="container" style={{ margin: '30px auto 60px auto', maxWidth: '1100px', padding: '0 16px' }}>
+      <main
+        className="container"
+        style={{ margin: '30px auto 60px auto', maxWidth: '1100px', padding: '0 16px' }}
+      >
         {/* Breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748B', marginBottom: '20px' }}>
-          <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Trang chủ</Link>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '13px',
+            color: '#64748B',
+            marginBottom: '20px',
+          }}
+        >
+          <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+            Trang chủ
+          </Link>
           <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px' }}></i>
           <span style={{ color: '#0A5BFF', fontWeight: 600 }}>Hệ thống cửa hàng</span>
         </div>
@@ -123,12 +138,21 @@ export const StoresPage: React.FC = () => {
             Hệ Thống Showroom & Cửa Hàng Gần Bạn
           </h1>
           <p style={{ margin: 0, color: '#64748B', fontSize: '14.5px' }}>
-            Không gian trải nghiệm công nghệ thực tế, tư vấn build máy chuyên sâu và trạm bảo hành chính hãng.
+            Không gian trải nghiệm công nghệ thực tế, tư vấn build máy chuyên sâu và trạm bảo hành
+            chính hãng.
           </p>
         </div>
 
         {/* City Filter Tabs */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '28px', overflowX: 'auto', paddingBottom: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            marginBottom: '28px',
+            overflowX: 'auto',
+            paddingBottom: '8px',
+          }}
+        >
           {[
             { id: 'all', label: 'Tất cả các tỉnh / thành' },
             { id: 'hcm', label: 'TP. Hồ Chí Minh' },
@@ -159,7 +183,13 @@ export const StoresPage: React.FC = () => {
         </div>
 
         {/* Store Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: '20px',
+          }}
+        >
           {filteredStores.map((store) => (
             <div
               key={store.id}
@@ -194,33 +224,82 @@ export const StoresPage: React.FC = () => {
               )}
 
               <div>
-                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0F172A', margin: '0 0 12px 0', paddingRight: store.isFlagship ? '80px' : '0' }}>
+                <h3
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    margin: '0 0 12px 0',
+                    paddingRight: store.isFlagship ? '80px' : '0',
+                  }}
+                >
                   {store.name}
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: '#475569' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    fontSize: '13px',
+                    color: '#475569',
+                  }}
+                >
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <i className="fa-solid fa-location-dot" style={{ color: '#0A5BFF', marginTop: '3px' }}></i>
+                    <i
+                      className="fa-solid fa-location-dot"
+                      style={{ color: '#0A5BFF', marginTop: '3px' }}
+                    ></i>
                     <span>{store.address}</span>
                   </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <i className="fa-solid fa-phone" style={{ color: '#10B981', marginTop: '3px' }}></i>
+                    <i
+                      className="fa-solid fa-phone"
+                      style={{ color: '#10B981', marginTop: '3px' }}
+                    ></i>
                     <strong style={{ color: '#0F172A' }}>{store.phone}</strong>
                   </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <i className="fa-regular fa-clock" style={{ color: '#F59E0B', marginTop: '3px' }}></i>
+                    <i
+                      className="fa-regular fa-clock"
+                      style={{ color: '#F59E0B', marginTop: '3px' }}
+                    ></i>
                     <span>{store.hours}</span>
                   </div>
                 </div>
 
                 {/* Badges */}
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '16px' }}>
-                  <span style={{ fontSize: '11px', backgroundColor: '#F1F5F9', color: '#475569', padding: '3px 8px', borderRadius: '4px' }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      backgroundColor: '#F1F5F9',
+                      color: '#475569',
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                    }}
+                  >
                     🚗 Có chỗ đỗ ô tô
                   </span>
-                  <span style={{ fontSize: '11px', backgroundColor: '#F1F5F9', color: '#475569', padding: '3px 8px', borderRadius: '4px' }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      backgroundColor: '#F1F5F9',
+                      color: '#475569',
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                    }}
+                  >
                     🛠️ Kỹ thuật tại chỗ
                   </span>
-                  <span style={{ fontSize: '11px', backgroundColor: '#F1F5F9', color: '#475569', padding: '3px 8px', borderRadius: '4px' }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      backgroundColor: '#F1F5F9',
+                      color: '#475569',
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                    }}
+                  >
                     💳 Quẹt thẻ miễn phí
                   </span>
                 </div>
@@ -246,7 +325,8 @@ export const StoresPage: React.FC = () => {
                   textDecoration: 'none',
                 }}
               >
-                <i className="fa-solid fa-diamond-turn-right" style={{ color: '#0A5BFF' }}></i> Chỉ đường trên Google Maps
+                <i className="fa-solid fa-diamond-turn-right" style={{ color: '#0A5BFF' }}></i> Chỉ
+                đường trên Google Maps
               </a>
             </div>
           ))}

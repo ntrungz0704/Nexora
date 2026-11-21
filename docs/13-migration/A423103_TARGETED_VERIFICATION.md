@@ -11,7 +11,9 @@
 ## 1. PRODUCT COMMERCIAL CLAIMS VERIFICATION (PRIORITY 1)
 
 ### 1.1. Hiện trạng phát hiện trong commit a423103
+
 Trong file [ProductDetailPage.tsx](file:///d:/Nexora/apps/web/src/features/catalog/ProductDetailPage.tsx), hàm `parseSpecs` đã tự động chèn thêm 5 dòng cam kết thương mại cố định vào bảng thông số kỹ thuật chi tiết của mọi sản phẩm:
+
 - "Mới 100% nguyên hộp, chính hãng (Full Box)"
 - "24 tháng chính hãng (1 đổi 1 trong 30 ngày nếu lỗi NSX)"
 - "Đã bao gồm thuế giá trị gia tăng (VAT 10%)"
@@ -19,19 +21,21 @@ Trong file [ProductDetailPage.tsx](file:///d:/Nexora/apps/web/src/features/catal
 - "Giao hỏa tốc trong 2h nội thành, miễn phí giao hàng toàn quốc"
 
 ### 1.2. Đối chiếu thực tế với Source of Truth (TechPilot)
+
 Tiến hành kiểm tra trực tiếp mã nguồn TechPilot gốc tại `app/views/product/detail.php` (dòng 211-216) và `app/views/product/partials/specifications.php`:
 
-| Cam kết trong commit a423103 | Dữ liệu gốc tại TechPilot | Dữ liệu trong MySQL Nexora | Phân loại |
-|---|---|---|:---:|
-| **Hàng mới 100%, Full Box, chính hãng** | Không có trong bảng specs. TechPilot để trống hoặc lấy theo mô tả. | Bảng `Product` không có cột tình trạng máy (mặc định toàn bộ là hàng mới của store). | **Không có bằng chứng trong specs** |
-| **Bảo hành 24 tháng** | TechPilot hiển thị: `Bảo hành chính hãng <?= (int)($product['warranty_months'] ?? 36) ?> tháng`. Mỗi sản phẩm có thời hạn khác nhau (12, 24, 36 tháng). | Cột `specs.warranty_months` trong database lưu giá trị số thực tế của từng linh kiện/laptop. | **Mâu thuẫn với nguồn gốc** (Hardcode 24 tháng làm sai lệch sản phẩm bảo hành 12 hay 36 tháng) |
-| **Đổi mới trong 30 ngày** | TechPilot quy định: `Đổi trả dễ dàng trong 7 ngày đầu`. | Trang chính sách `/policy/return` quy định đổi trả trong 7 ngày đầu. | **Mâu thuẫn với nguồn gốc** |
-| **VAT 10%** | TechPilot hiển thị dòng nhỏ dưới giá bán: `(Đã bao gồm VAT 10%)`. Không chèn vào bảng thông số phần cứng. | Đã có dòng ghi chú dưới giá tiền. | **Sai vị trí trình bày** |
-| **Vệ sinh miễn phí trọn đời** | Hoàn toàn không có trong TechPilot. | Không có trong bất kỳ tài liệu chính sách nào của Nexora. | **Không có bằng chứng** (Agent tự tạo) |
-| **Giao hàng hỏa tốc trong 2 giờ** | Hoàn toàn không có trong TechPilot. | Không có cam kết SLA 2h trong hệ thống. | **Không có bằng chứng** (Agent tự tạo) |
-| **Miễn phí giao hàng toàn quốc** | TechPilot có perk: `Miễn phí giao hàng toàn quốc` cho đơn hàng trên ngưỡng. | Có trong chính sách vận chuyển của Nexora (`order.service.ts` miễn phí vận chuyển cho đơn >= 500.000đ). | **Có bằng chứng xác thực** (ở khối quyền lợi) |
+| Cam kết trong commit a423103            | Dữ liệu gốc tại TechPilot                                                                                                                               | Dữ liệu trong MySQL Nexora                                                                              |                                           Phân loại                                            |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------: |
+| **Hàng mới 100%, Full Box, chính hãng** | Không có trong bảng specs. TechPilot để trống hoặc lấy theo mô tả.                                                                                      | Bảng `Product` không có cột tình trạng máy (mặc định toàn bộ là hàng mới của store).                    |                              **Không có bằng chứng trong specs**                               |
+| **Bảo hành 24 tháng**                   | TechPilot hiển thị: `Bảo hành chính hãng <?= (int)($product['warranty_months'] ?? 36) ?> tháng`. Mỗi sản phẩm có thời hạn khác nhau (12, 24, 36 tháng). | Cột `specs.warranty_months` trong database lưu giá trị số thực tế của từng linh kiện/laptop.            | **Mâu thuẫn với nguồn gốc** (Hardcode 24 tháng làm sai lệch sản phẩm bảo hành 12 hay 36 tháng) |
+| **Đổi mới trong 30 ngày**               | TechPilot quy định: `Đổi trả dễ dàng trong 7 ngày đầu`.                                                                                                 | Trang chính sách `/policy/return` quy định đổi trả trong 7 ngày đầu.                                    |                                  **Mâu thuẫn với nguồn gốc**                                   |
+| **VAT 10%**                             | TechPilot hiển thị dòng nhỏ dưới giá bán: `(Đã bao gồm VAT 10%)`. Không chèn vào bảng thông số phần cứng.                                               | Đã có dòng ghi chú dưới giá tiền.                                                                       |                                    **Sai vị trí trình bày**                                    |
+| **Vệ sinh miễn phí trọn đời**           | Hoàn toàn không có trong TechPilot.                                                                                                                     | Không có trong bất kỳ tài liệu chính sách nào của Nexora.                                               |                             **Không có bằng chứng** (Agent tự tạo)                             |
+| **Giao hàng hỏa tốc trong 2 giờ**       | Hoàn toàn không có trong TechPilot.                                                                                                                     | Không có cam kết SLA 2h trong hệ thống.                                                                 |                             **Không có bằng chứng** (Agent tự tạo)                             |
+| **Miễn phí giao hàng toàn quốc**        | TechPilot có perk: `Miễn phí giao hàng toàn quốc` cho đơn hàng trên ngưỡng.                                                                             | Có trong chính sách vận chuyển của Nexora (`order.service.ts` miễn phí vận chuyển cho đơn >= 500.000đ). |                         **Có bằng chứng xác thực** (ở khối quyền lợi)                          |
 
 ### 1.3. Hành động khắc phục triệt để
+
 - Đã loại bỏ hoàn toàn 5 dòng cam kết thương mại tự tạo khỏi hàm `parseSpecs` trong [ProductDetailPage.tsx](file:///d:/Nexora/apps/web/src/features/catalog/ProductDetailPage.tsx).
 - Bảng thông số kỹ thuật `parseSpecs` hiện tại CHỈ phản ánh:
   1. Các thông số phần cứng kỹ thuật thực tế được giải mã từ trường `specs` trong database (CPU, GPU, RAM, Ổ cứng, Màn hình, Tần số quét, Thời hạn bảo hành thực tế từ DB...).
@@ -47,12 +51,14 @@ Tiến hành kiểm tra trực tiếp mã nguồn TechPilot gốc tại `app/vie
 ## 2. STOCK VALIDATION & BACKEND CONCURRENCY VERIFICATION
 
 ### 2.1. Đánh giá kiểm soát tồn kho đa tầng
+
 1. **Frontend Layer:** Cả [ProductDetailPage.tsx](file:///d:/Nexora/apps/web/src/features/catalog/ProductDetailPage.tsx) và [ProductCard.tsx](file:///d:/Nexora/apps/web/src/features/storefront/ProductCard.tsx) đều kiểm tra `stockQuantity <= 0`. Khi hết hàng, hiển thị huy hiệu đỏ `Hết hàng`, nút `Thêm vào giỏ` và `Mua ngay` bị vô hiệu hóa (`disabled`, `cursor: not-allowed`).
 2. **Backend Validation Layer:** Trong [order.service.ts](file:///d:/Nexora/apps/api/src/modules/order/order.service.ts), `OrderService.createOrder` không phụ thuộc vào trạng thái disable của Frontend. Khi nhận request đặt hàng:
    - Backend truy vấn danh sách `productId` trực tiếp từ MySQL.
    - Kiểm tra điều kiện `prod.stockQuantity < item.quantity`. Nếu vi phạm, ném lỗi `AppError(400, 'INSUFFICIENT_STOCK', ...)`.
 
 ### 2.2. Khắc phục lỗ hổng Race Condition & Concurrency
+
 - **Vấn đề tiềm ẩn phát hiện:** Trước đây, phép trừ tồn kho `stockQuantity = prod.stockQuantity - item.quantity` sử dụng giá trị `prod` đọc từ trước transaction. Nếu hai request mua đồng thời sản phẩm chỉ còn 1 chiếc, cả 2 request đều đọc được `stockQuantity = 1` và cùng trừ về 0, dẫn tới bán vượt số lượng thực (overselling).
 - **Giải pháp bảo vệ cấp độ InnoDB:** Nâng cấp khối trừ tồn kho trong Prisma Transaction của [order.service.ts](file:///d:/Nexora/apps/api/src/modules/order/order.service.ts) thành câu lệnh cập nhật có điều kiện nguyên tử (Atomic Conditional Update):
   ```typescript
@@ -86,13 +92,16 @@ Tiến hành kiểm tra trực tiếp mã nguồn TechPilot gốc tại `app/vie
 ## 3. ADMIN DASHBOARD AND PRODUCT FILTERS VERIFICATION
 
 ### 3.1. Xác minh tính toàn vẹn dữ liệu từ MySQL
+
 Kiểm tra trực tiếp database MySQL 8.4 thực tế:
+
 - Tổng số sản phẩm trong kho: **670** mẫu.
 - Số sản phẩm sắp hết hàng (`1 <= stockQuantity <= 9`): **2** sản phẩm.
 - Số sản phẩm hết hàng hoàn toàn (`stockQuantity <= 0`): **23** sản phẩm.
 - Tổng đơn vị tồn kho vật lý: **13.612** đơn vị.
 
 ### 3.2. Khắc phục giới hạn phân trang và sai lệch bộ lọc
+
 1. **Phân trang sản phẩm:** Trong [AdminDashboardPage.tsx](file:///d:/Nexora/apps/web/src/features/admin/AdminDashboardPage.tsx), API fetch sản phẩm đã được nâng từ `limit=50` lên `limit=1000` để bao quát toàn bộ danh mục single-vendor (670 sản phẩm), loại bỏ nguy cơ bộ lọc client chỉ quét được 50 sản phẩm đầu tiên.
 2. **Loại trừ giao thoa bộ lọc:**
    - Điều kiện `productLowStockOnly` được chuẩn hóa thành `p.stockQuantity >= 1 && p.stockQuantity <= 9` (khớp hoàn toàn với định nghĩa Card 4 "Sắp hết hàng: Tồn từ 1 - 9 sản phẩm").
@@ -105,10 +114,13 @@ Kiểm tra trực tiếp database MySQL 8.4 thực tế:
 ## 4. PERSONA COMPARISON VERIFICATION
 
 ### 4.1. Hiện trạng phát hiện
+
 Trong [ComparePage.tsx](file:///d:/Nexora/apps/web/src/features/compare/ComparePage.tsx), kết luận AI trước đó chứa chuỗi cố định `(94/100)`, và sản phẩm chiến thắng chỉ được chọn dựa trên giá thấp nhất (`pA - pB`), chưa phản ánh cấu hình phần cứng và trọng số Persona.
 
 ### 4.2. Khắc phục thuật toán chấm điểm đa tiêu chí (Dynamic Persona Scoring)
+
 Xây dựng module dùng chung `@nexora/shared/personaScoring.ts` và export từ `@nexora/shared`, chuyển đổi 100% thuật toán từ `ProductComparisonService.php` của TechPilot gốc:
+
 1. **Trích xuất và làm sạch thông số (Clean Specs Parsing):**
    - Loại trừ các trường meta không phải phần cứng: `warranty_months`, `included_accessories`, `dimensions`, `color`.
    - Trích xuất thông số thực tế từ `specs` và regex chuẩn hóa từ tên sản phẩm nếu thiếu (CPU, GPU, RAM, Ổ cứng, Tần số quét, Trọng lượng).
@@ -129,7 +141,9 @@ Xây dựng module dùng chung `@nexora/shared/personaScoring.ts` và export t�
 ---
 
 ## 5. UNIFIED SHIPPING POLICY VERIFICATION
+
 Đã đồng bộ hóa 100% ngưỡng chính sách miễn phí vận chuyển trên toàn bộ hệ thống để loại bỏ hoàn toàn các thông tin mâu thuẫn:
+
 - **Backend ([order.service.ts](file:///d:/Nexora/apps/api/src/modules/order/order.service.ts)):** `subtotal >= 500000 ? 0 : 30000` (Miễn phí vận chuyển cho đơn từ 500.000đ, phí tiêu chuẩn 30.000đ).
 - **Giỏ hàng ([CartPage.tsx](file:///d:/Nexora/apps/web/src/features/cart/CartPage.tsx)):** Thanh tiến trình miễn phí vận chuyển cập nhật ngưỡng tính toán từ 300.000đ lên `500.000đ` (`Miễn phí vận chuyển cho đơn từ 500.000đ`).
 - **Thanh toán ([CheckoutPage.tsx](file:///d:/Nexora/apps/web/src/features/checkout/CheckoutPage.tsx)):** Tính phí vận chuyển cập nhật ngưỡng `rawTotal >= 500000 || rawTotal === 0 ? 0 : 30000`.
@@ -140,7 +154,9 @@ Xây dựng module dùng chung `@nexora/shared/personaScoring.ts` và export t�
 ---
 
 ## 6. FULL ADMIN PARITY & OPERATIONAL FEATURES (TECHPILOT EXACT PARITY)
+
 Đối chiếu trực tiếp với toàn bộ 9 ảnh chụp giao diện quản trị TechPilot:
+
 1. **Đầy đủ Modal CRUD trên toàn bộ các tab:**
    - **Sửa sản phẩm (`editingProduct`):** Tên, Giá niêm yết, Giá khuyến mãi, Tồn kho, Danh mục, Thương hiệu, Trạng thái (`ACTIVE`/`INACTIVE`), Mô tả ngắn. Gọi `PUT /api/v1/admin/products/:id`.
    - **Sửa danh mục (`editingCategory`):** Tên, Slug, Icon, Thứ tự, Mô tả. Gọi `PUT /api/v1/admin/categories/:id`.
@@ -165,19 +181,19 @@ Xây dựng module dùng chung `@nexora/shared/personaScoring.ts` và export t�
 
 ## 7. UI EVIDENCE SUMMARY
 
-| Thành phần UI | Tình trạng kiểm tra thực tế | Kết quả đối chiếu |
-|---|---|:---:|
-| **Favicon** | Đã tạo `favicon.svg` vector không viền đen, hiển thị trong suốt trên cả Dark/Light tab trình duyệt. | **PASS** |
-| **Footer** | Đã xóa 100% từ khóa TechPilot, chuẩn hóa liên kết `Giới thiệu Nexora`. | **PASS** |
-| **Product Detail** | Đã xóa cam kết thương mại tự tạo; bảng specs chỉ còn thông số kỹ thuật thật từ database. | **PASS** |
-| **Out-of-Stock State** | Huy hiệu đỏ `Hết hàng`, nút Thêm giỏ và Mua ngay disabled khi tồn kho <= 0. | **PASS** |
-| **Shipping Policy** | Đồng bộ hóa toàn diện ngưỡng 500.000đ trên Giỏ hàng, Checkout, Detail, Policy và AI Advisor. | **PASS** |
-| **Persona Comparison** | Thuật toán Persona đa tiêu chí TechPilot, xử lý thiếu specs và tie-breaking xác định. | **PASS** |
-| **Admin Dashboard** | 5 card thống kê lấy số liệu trực tiếp từ MySQL; biểu đồ kết hợp và biểu đồ tròn Donut chuẩn xác. | **PASS** |
-| **Admin Products** | Bộ lọc Tồn kho thấp (1-9) và Hết hàng (0) độc lập; phân trang động; modal nhập xuất kho hoạt động. | **PASS** |
-| **Admin Orders** | Hiển thị mã đơn, khách hàng, phương thức thanh toán, trạng thái đơn/thanh toán và modal chi tiết. | **PASS** |
-| **Admin CRUD Modals** | Toàn bộ 9 modal Sửa/Tạo hoạt động đầy đủ trên Sản phẩm, Danh mục, Brand, Coupon, Flash Sale, Post, Banner. | **PASS** |
-| **Login Redirect** | Staff và Admin khi đăng nhập thành công được chuyển hướng thẳng tới `/admin`. | **PASS** |
+| Thành phần UI          | Tình trạng kiểm tra thực tế                                                                                | Kết quả đối chiếu |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- | :---------------: |
+| **Favicon**            | Đã tạo `favicon.svg` vector không viền đen, hiển thị trong suốt trên cả Dark/Light tab trình duyệt.        |     **PASS**      |
+| **Footer**             | Đã xóa 100% từ khóa TechPilot, chuẩn hóa liên kết `Giới thiệu Nexora`.                                     |     **PASS**      |
+| **Product Detail**     | Đã xóa cam kết thương mại tự tạo; bảng specs chỉ còn thông số kỹ thuật thật từ database.                   |     **PASS**      |
+| **Out-of-Stock State** | Huy hiệu đỏ `Hết hàng`, nút Thêm giỏ và Mua ngay disabled khi tồn kho <= 0.                                |     **PASS**      |
+| **Shipping Policy**    | Đồng bộ hóa toàn diện ngưỡng 500.000đ trên Giỏ hàng, Checkout, Detail, Policy và AI Advisor.               |     **PASS**      |
+| **Persona Comparison** | Thuật toán Persona đa tiêu chí TechPilot, xử lý thiếu specs và tie-breaking xác định.                      |     **PASS**      |
+| **Admin Dashboard**    | 5 card thống kê lấy số liệu trực tiếp từ MySQL; biểu đồ kết hợp và biểu đồ tròn Donut chuẩn xác.           |     **PASS**      |
+| **Admin Products**     | Bộ lọc Tồn kho thấp (1-9) và Hết hàng (0) độc lập; phân trang động; modal nhập xuất kho hoạt động.         |     **PASS**      |
+| **Admin Orders**       | Hiển thị mã đơn, khách hàng, phương thức thanh toán, trạng thái đơn/thanh toán và modal chi tiết.          |     **PASS**      |
+| **Admin CRUD Modals**  | Toàn bộ 9 modal Sửa/Tạo hoạt động đầy đủ trên Sản phẩm, Danh mục, Brand, Coupon, Flash Sale, Post, Banner. |     **PASS**      |
+| **Login Redirect**     | Staff và Admin khi đăng nhập thành công được chuyển hướng thẳng tới `/admin`.                              |     **PASS**      |
 
 ---
 

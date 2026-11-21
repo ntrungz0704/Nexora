@@ -10,7 +10,9 @@ import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser } from '@nexora/shared';
 
 export const TradeInPage: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Trade-in form state
@@ -84,7 +86,10 @@ export const TradeInPage: React.FC = () => {
             fontSize: '13px',
           }}
         >
-          <i className="fa-solid fa-circle-check" style={{ color: '#00C8FF', fontSize: '16px' }}></i>
+          <i
+            className="fa-solid fa-circle-check"
+            style={{ color: '#00C8FF', fontSize: '16px' }}
+          ></i>
           <span>{toastMessage}</span>
         </div>
       )}
@@ -101,10 +106,24 @@ export const TradeInPage: React.FC = () => {
         }}
       />
 
-      <main className="container" style={{ margin: '30px auto 60px auto', maxWidth: '1100px', padding: '0 16px' }}>
+      <main
+        className="container"
+        style={{ margin: '30px auto 60px auto', maxWidth: '1100px', padding: '0 16px' }}
+      >
         {/* Breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748B', marginBottom: '20px' }}>
-          <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Trang chủ</Link>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '13px',
+            color: '#64748B',
+            marginBottom: '20px',
+          }}
+        >
+          <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+            Trang chủ
+          </Link>
           <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px' }}></i>
           <span style={{ color: '#0A5BFF', fontWeight: 600 }}>Thu cũ đổi mới</span>
         </div>
@@ -140,34 +159,79 @@ export const TradeInPage: React.FC = () => {
             >
               🔥 NEXORA TRADE-IN 2026
             </span>
-            <h1 style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 12px 0', lineHeight: '1.3' }}>
+            <h1
+              style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 12px 0', lineHeight: '1.3' }}
+            >
               Thu Cũ Đổi Mới — Trợ Giá Lên Tới 6.000.000đ
             </h1>
             <p style={{ margin: 0, opacity: 0.9, fontSize: '15px', lineHeight: '1.6' }}>
-              Nâng cấp dàn máy, laptop, VGA thế hệ mới với mức giá tiết kiệm tối đa. Quy trình kiểm định 15 phút, giải ngân tiền mặt hoặc trừ trực tiếp vào đơn hàng mới.
+              Nâng cấp dàn máy, laptop, VGA thế hệ mới với mức giá tiết kiệm tối đa. Quy trình kiểm
+              định 15 phút, giải ngân tiền mặt hoặc trừ trực tiếp vào đơn hàng mới.
             </p>
           </div>
-          <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.1)', padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <div
+            style={{
+              textAlign: 'center',
+              background: 'rgba(255,255,255,0.1)',
+              padding: '24px',
+              borderRadius: '20px',
+              border: '1px solid rgba(255,255,255,0.2)',
+            }}
+          >
             <div style={{ fontSize: '36px', fontWeight: 900, color: '#FACC15' }}>100%</div>
             <div style={{ fontSize: '13px', fontWeight: 600 }}>Hỗ trợ tận nhà & Cửa hàng</div>
           </div>
         </div>
 
         {/* Calculator Form & Steps */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '30px', alignItems: 'start' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 380px',
+            gap: '30px',
+            alignItems: 'start',
+          }}
+        >
           {/* Form */}
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', border: '1px solid #E2E8F0', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 20px 0', color: '#0F172A' }}>
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid #E2E8F0',
+              padding: '32px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+            }}
+          >
+            <h2
+              style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 20px 0', color: '#0F172A' }}
+            >
               Định Giá Nhanh Thiết Bị Cũ
             </h2>
 
-            <form onSubmit={handleCalculateEstimate} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form
+              onSubmit={handleCalculateEstimate}
+              style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+            >
               {/* Device Type */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#475569',
+                    marginBottom: '8px',
+                  }}
+                >
                   1. Chọn loại thiết bị cần thu đổi
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '10px' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
+                    gap: '10px',
+                  }}
+                >
                   {[
                     { id: 'laptop', label: 'Laptop', icon: 'fa-solid fa-laptop' },
                     { id: 'vga', label: 'Card VGA', icon: 'fa-solid fa-ticket' },
@@ -202,7 +266,15 @@ export const TradeInPage: React.FC = () => {
 
               {/* Model name */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#475569',
+                    marginBottom: '8px',
+                  }}
+                >
                   2. Tên thiết bị / Model cụ thể
                 </label>
                 <input
@@ -223,14 +295,34 @@ export const TradeInPage: React.FC = () => {
 
               {/* Condition */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#475569',
+                    marginBottom: '8px',
+                  }}
+                >
                   3. Tình trạng ngoại hình & chức năng
                 </label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {[
-                    { id: 'like_new', title: 'Loại 1: Đẹp 98 - 99%', desc: 'Không cấn móp, màn hình hiển thị hoàn hảo, đầy đủ củ sạc phụ kiện' },
-                    { id: 'good', title: 'Loại 2: Bình thường 90 - 95%', desc: 'Trầy xước dăm nhẹ theo thời gian, mọi chức năng hoạt động bình thường' },
-                    { id: 'scratched', title: 'Loại 3: Trầy xước nhiều / Cấn móp', desc: 'Có vết cấn vỏ máy, pin chai nhẹ hoặc thiếu phụ kiện gốc' },
+                    {
+                      id: 'like_new',
+                      title: 'Loại 1: Đẹp 98 - 99%',
+                      desc: 'Không cấn móp, màn hình hiển thị hoàn hảo, đầy đủ củ sạc phụ kiện',
+                    },
+                    {
+                      id: 'good',
+                      title: 'Loại 2: Bình thường 90 - 95%',
+                      desc: 'Trầy xước dăm nhẹ theo thời gian, mọi chức năng hoạt động bình thường',
+                    },
+                    {
+                      id: 'scratched',
+                      title: 'Loại 3: Trầy xước nhiều / Cấn móp',
+                      desc: 'Có vết cấn vỏ máy, pin chai nhẹ hoặc thiếu phụ kiện gốc',
+                    },
                   ].map((cond) => (
                     <label
                       key={cond.id}
@@ -253,7 +345,9 @@ export const TradeInPage: React.FC = () => {
                         style={{ accentColor: '#0A5BFF' }}
                       />
                       <div>
-                        <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0F172A' }}>{cond.title}</div>
+                        <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0F172A' }}>
+                          {cond.title}
+                        </div>
                         <div style={{ fontSize: '12px', color: '#64748B' }}>{cond.desc}</div>
                       </div>
                     </label>
@@ -276,24 +370,53 @@ export const TradeInPage: React.FC = () => {
                   boxShadow: '0 4px 15px rgba(10, 91, 255, 0.25)',
                 }}
               >
-                <i className="fa-solid fa-calculator" style={{ marginRight: '8px' }}></i> Định Giá Ngay
+                <i className="fa-solid fa-calculator" style={{ marginRight: '8px' }}></i> Định Giá
+                Ngay
               </button>
             </form>
           </div>
 
           {/* Result / Promo Card */}
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', border: '1px solid #E2E8F0', padding: '28px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
-            <h3 style={{ fontSize: '17px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A' }}>
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid #E2E8F0',
+              padding: '28px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+            }}
+          >
+            <h3
+              style={{ fontSize: '17px', fontWeight: 800, margin: '0 0 16px 0', color: '#0F172A' }}
+            >
               Kết Quả Định Giá Ước Tính
             </h3>
 
             {estimatedPrice !== null ? (
               <div>
-                <div style={{ backgroundColor: '#EFF6FF', borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '20px', border: '1px solid #BFDBFE' }}>
-                  <div style={{ fontSize: '12px', color: '#1E40AF', fontWeight: 700, textTransform: 'uppercase' }}>
+                <div
+                  style={{
+                    backgroundColor: '#EFF6FF',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    textAlign: 'center',
+                    marginBottom: '20px',
+                    border: '1px solid #BFDBFE',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '12px',
+                      color: '#1E40AF',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     Giá Thu Dự Kiến:
                   </div>
-                  <div style={{ fontSize: '30px', fontWeight: 900, color: '#0A5BFF', margin: '8px 0' }}>
+                  <div
+                    style={{ fontSize: '30px', fontWeight: 900, color: '#0A5BFF', margin: '8px 0' }}
+                  >
                     {estimatedPrice.toLocaleString('vi-VN')}đ
                   </div>
                   <div style={{ fontSize: '12px', color: '#10B981', fontWeight: 700 }}>
@@ -316,7 +439,8 @@ export const TradeInPage: React.FC = () => {
                       fontSize: '13px',
                     }}
                   >
-                    <i className="fa-solid fa-bag-shopping" style={{ marginRight: '6px' }}></i> Chọn Máy Mới Lên Đời
+                    <i className="fa-solid fa-bag-shopping" style={{ marginRight: '6px' }}></i> Chọn
+                    Máy Mới Lên Đời
                   </Link>
                   <Link
                     to="/stores"
@@ -338,9 +462,13 @@ export const TradeInPage: React.FC = () => {
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '30px 10px', color: '#94A3B8' }}>
-                <i className="fa-solid fa-arrow-left" style={{ fontSize: '28px', marginBottom: '12px', color: '#CBD5E1' }}></i>
+                <i
+                  className="fa-solid fa-arrow-left"
+                  style={{ fontSize: '28px', marginBottom: '12px', color: '#CBD5E1' }}
+                ></i>
                 <p style={{ margin: 0, fontSize: '13px' }}>
-                  Điền thông tin máy cũ bên trái để xem bảng giá dự kiến và quyền lợi trợ giá độc quyền.
+                  Điền thông tin máy cũ bên trái để xem bảng giá dự kiến và quyền lợi trợ giá độc
+                  quyền.
                 </p>
               </div>
             )}

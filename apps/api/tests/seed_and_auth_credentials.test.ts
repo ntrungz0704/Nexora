@@ -92,14 +92,14 @@ describe('Seed Credentials & Re-seed Password Preservation Test Suite', () => {
           return 'hashed_password';
         }
         throw new Error(
-          '[FATAL SEED ERROR] In production, ADMIN_INITIAL_PASSWORD or ADMIN_INITIAL_PASSWORD_HASH environment variable must be provided to bootstrap the initial admin account safely without default passwords.'
+          '[FATAL SEED ERROR] In production, ADMIN_INITIAL_PASSWORD or ADMIN_INITIAL_PASSWORD_HASH environment variable must be provided to bootstrap the initial admin account safely without default passwords.',
         );
       }
       return 'dev_default';
     }
 
     expect(() => simulateProductionBootstrap()).toThrow(
-      /In production, ADMIN_INITIAL_PASSWORD or ADMIN_INITIAL_PASSWORD_HASH environment variable must be provided/
+      /In production, ADMIN_INITIAL_PASSWORD or ADMIN_INITIAL_PASSWORD_HASH environment variable must be provided/,
     );
 
     // Restore env

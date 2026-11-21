@@ -15,35 +15,36 @@ Ma trận này cung cấp bản đối chiếu chi tiết, toàn diện giữa h
 
 ## 2. MA TRẬN ĐỐI CHIẾU CHI TIẾT THEO TẦNG KIẾN TRÚC
 
-| Tầng công nghệ | Hệ thống cũ (TechPilot) | Hệ thống mới (Nexora) | Phiên bản thực tế | Trạng thái | Bằng chứng kiểm chứng |
-| :--- | :--- | :--- | :--- | :---: | :--- |
-| **Frontend Framework** | PHP rendering view + Vanilla JS | **React 19 (SPA)** | `react: ^19.3.1` | **PASS** | `apps/web/package.json`, 275 React modules compiled |
-| **Frontend Language** | JavaScript ES5/ES6 không kiểu | **TypeScript** | `typescript: ~5.9.3` | **PASS** | `apps/web/tsconfig.json`, `npm run typecheck` (0 errors) |
-| **Frontend Bundler** | Không có (load file static qua thẻ `<script>`) | **Vite** | `vite: ^8.3.8` | **PASS** | `apps/web/vite.config.ts`, build thời gian 1.09s |
-| **CSS & Styling** | Custom CSS không quy chuẩn | **Tailwind CSS 4** | `tailwindcss: ^4.3.5` | **PASS** | `apps/web/src/index.css` (`@import "tailwindcss";`), theme cấu hình chuẩn |
-| **Client Routing** | Server-side routing qua Apache/Nginx rewrite | **React Router (Client SPA)** | `react-router-dom: ^7.2.0` | **PASS** | `apps/web/src/routes/index.tsx`, quản lý 20+ routes |
-| **Server State Management** | Gọi `fetch`/`XMLHttpRequest` phân tán, không cache | **TanStack Query 5** | `@tanstack/react-query: ^5.108.0` | **PASS** | QueryClientProvider, mutation & cache invalidation tự động |
-| **Form Handling** | Bắt sự kiện DOM native, kiểm tra form bằng JS thuần | **React Hook Form 7** | `react-hook-form: ^7.92.0` | **PASS** | Áp dụng trên toàn bộ forms (Checkout, Login, Admin Product Form) |
-| **Schema Validation (FE)** | Không có schema tập trung | **Zod 4** | `zod: ^4.6.7` | **PASS** | `@hookform/resolvers/zod`, validate trực tiếp form input |
-| **Backend Runtime** | PHP 8.2 (FPM / Apache mod_php) | **Node.js** | `>=20.0.0` (LTS) | **PASS** | `package.json` engines, Docker base `node:20-alpine` |
-| **Backend Framework** | Tự viết PHP MVC (Controller - Model phân tán) | **Express.js 5** | `express: ^5.3.0` | **PASS** | `apps/api/package.json`, `apps/api/src/server.ts` |
-| **Backend Language** | PHP thuần | **TypeScript** | `typescript: ~5.9.3` | **PASS** | `apps/api/tsconfig.json`, build ra `apps/api/dist` |
-| **Backend Architecture** | Thủ tục kết hợp OOP không nghiêm ngặt | **Modular Monolith** | N/A | **PASS** | Phân tầng Routes -> Controllers -> Services -> Repositories -> Prisma |
-| **Database Engine** | MySQL 5.7 / 8.0 cũ | **MySQL 8.4 LTS** | `mysql:8.4` | **PASS** | `docker-compose.yml`, chuẩn tương thích LTS dài hạn |
-| **ORM / Data Access** | PDO raw SQL, rải rác câu lệnh SQL trong Controller | **Prisma ORM 6** | `@prisma/client: 6.19.3` | **PASS** | `prisma/schema.prisma`, type-safe database queries |
-| **Database Migrations** | Script SQL chạy thủ công bằng phpMyAdmin | **Prisma Migrate** | N/A | **PASS** | 4 versioned migration directories trong `prisma/migrations/` |
-| **Money Data Type** | `DOUBLE` / `FLOAT` trong bảng SQL cũ | **Decimal (18, 2)** | `@db.Decimal(18, 2)` | **PASS** | 100% trường tiền tệ sử dụng Decimal, 0 Float/Double |
-| **Shared Contracts** | Không có (chênh lệch định nghĩa giữa FE và BE) | **@nexora/shared** | `workspace:*` | **PASS** | `packages/shared/src/index.ts` (Zod schemas, DTOs, Enums) |
-| **Testing Framework** | Không có kiểm thử tự động | **Vitest + Supertest** | `vitest: ^4.1.0` | **PASS** | 7 test suites, 35/35 test cases PASS |
-| **E2E Testing** | Không có | **Playwright** | `@playwright/test: ^1.58.0` | **PARTIAL** | `tests/e2e/foundation.spec.ts` có sẵn, cần mở rộng test suite |
-| **Containerization** | Không có (chạy trực tiếp trên XAMPP / cPanel) | **Docker & Docker Compose** | Docker multi-stage | **PASS** | `docker-compose.yml`, multi-stage Dockerfiles cho web, api, db |
-| **CI/CD Automation** | Triển khai thủ công qua FTP | **GitHub Actions** | N/A | **PASS** | `.github/workflows/ci.yml` (Lint, Typecheck, Test, Build tự động) |
+| Tầng công nghệ              | Hệ thống cũ (TechPilot)                             | Hệ thống mới (Nexora)         | Phiên bản thực tế                 | Trạng thái  | Bằng chứng kiểm chứng                                                     |
+| :-------------------------- | :-------------------------------------------------- | :---------------------------- | :-------------------------------- | :---------: | :------------------------------------------------------------------------ |
+| **Frontend Framework**      | PHP rendering view + Vanilla JS                     | **React 19 (SPA)**            | `react: ^19.3.1`                  |  **PASS**   | `apps/web/package.json`, 275 React modules compiled                       |
+| **Frontend Language**       | JavaScript ES5/ES6 không kiểu                       | **TypeScript**                | `typescript: ~5.9.3`              |  **PASS**   | `apps/web/tsconfig.json`, `npm run typecheck` (0 errors)                  |
+| **Frontend Bundler**        | Không có (load file static qua thẻ `<script>`)      | **Vite**                      | `vite: ^8.3.8`                    |  **PASS**   | `apps/web/vite.config.ts`, build thời gian 1.09s                          |
+| **CSS & Styling**           | Custom CSS không quy chuẩn                          | **Tailwind CSS 4**            | `tailwindcss: ^4.3.5`             |  **PASS**   | `apps/web/src/index.css` (`@import "tailwindcss";`), theme cấu hình chuẩn |
+| **Client Routing**          | Server-side routing qua Apache/Nginx rewrite        | **React Router (Client SPA)** | `react-router-dom: ^7.2.0`        |  **PASS**   | `apps/web/src/routes/index.tsx`, quản lý 20+ routes                       |
+| **Server State Management** | Gọi `fetch`/`XMLHttpRequest` phân tán, không cache  | **TanStack Query 5**          | `@tanstack/react-query: ^5.108.0` |  **PASS**   | QueryClientProvider, mutation & cache invalidation tự động                |
+| **Form Handling**           | Bắt sự kiện DOM native, kiểm tra form bằng JS thuần | **React Hook Form 7**         | `react-hook-form: ^7.92.0`        |  **PASS**   | Áp dụng trên toàn bộ forms (Checkout, Login, Admin Product Form)          |
+| **Schema Validation (FE)**  | Không có schema tập trung                           | **Zod 4**                     | `zod: ^4.6.7`                     |  **PASS**   | `@hookform/resolvers/zod`, validate trực tiếp form input                  |
+| **Backend Runtime**         | PHP 8.2 (FPM / Apache mod_php)                      | **Node.js**                   | `>=20.0.0` (LTS)                  |  **PASS**   | `package.json` engines, Docker base `node:20-alpine`                      |
+| **Backend Framework**       | Tự viết PHP MVC (Controller - Model phân tán)       | **Express.js 5**              | `express: ^5.3.0`                 |  **PASS**   | `apps/api/package.json`, `apps/api/src/server.ts`                         |
+| **Backend Language**        | PHP thuần                                           | **TypeScript**                | `typescript: ~5.9.3`              |  **PASS**   | `apps/api/tsconfig.json`, build ra `apps/api/dist`                        |
+| **Backend Architecture**    | Thủ tục kết hợp OOP không nghiêm ngặt               | **Modular Monolith**          | N/A                               |  **PASS**   | Phân tầng Routes -> Controllers -> Services -> Repositories -> Prisma     |
+| **Database Engine**         | MySQL 5.7 / 8.0 cũ                                  | **MySQL 8.4 LTS**             | `mysql:8.4`                       |  **PASS**   | `docker-compose.yml`, chuẩn tương thích LTS dài hạn                       |
+| **ORM / Data Access**       | PDO raw SQL, rải rác câu lệnh SQL trong Controller  | **Prisma ORM 6**              | `@prisma/client: 6.19.3`          |  **PASS**   | `prisma/schema.prisma`, type-safe database queries                        |
+| **Database Migrations**     | Script SQL chạy thủ công bằng phpMyAdmin            | **Prisma Migrate**            | N/A                               |  **PASS**   | 4 versioned migration directories trong `prisma/migrations/`              |
+| **Money Data Type**         | `DOUBLE` / `FLOAT` trong bảng SQL cũ                | **Decimal (18, 2)**           | `@db.Decimal(18, 2)`              |  **PASS**   | 100% trường tiền tệ sử dụng Decimal, 0 Float/Double                       |
+| **Shared Contracts**        | Không có (chênh lệch định nghĩa giữa FE và BE)      | **@nexora/shared**            | `workspace:*`                     |  **PASS**   | `packages/shared/src/index.ts` (Zod schemas, DTOs, Enums)                 |
+| **Testing Framework**       | Không có kiểm thử tự động                           | **Vitest + Supertest**        | `vitest: ^4.1.0`                  |  **PASS**   | 7 test suites, 35/35 test cases PASS                                      |
+| **E2E Testing**             | Không có                                            | **Playwright**                | `@playwright/test: ^1.58.0`       | **PARTIAL** | `tests/e2e/foundation.spec.ts` có sẵn, cần mở rộng test suite             |
+| **Containerization**        | Không có (chạy trực tiếp trên XAMPP / cPanel)       | **Docker & Docker Compose**   | Docker multi-stage                |  **PASS**   | `docker-compose.yml`, multi-stage Dockerfiles cho web, api, db            |
+| **CI/CD Automation**        | Triển khai thủ công qua FTP                         | **GitHub Actions**            | N/A                               |  **PASS**   | `.github/workflows/ci.yml` (Lint, Typecheck, Test, Build tự động)         |
 
 ---
 
 ## 3. ĐỐI CHIẾU DEPENDENCY CHI TIẾT
 
 ### 3.1. Frontend Dependencies (`apps/web/package.json`)
+
 ```json
 {
   "name": "@nexora/web",
@@ -73,6 +74,7 @@ Ma trận này cung cấp bản đối chiếu chi tiết, toàn diện giữa h
 ```
 
 ### 3.2. Backend Dependencies (`apps/api/package.json`)
+
 ```json
 {
   "name": "@nexora/api",

@@ -19,6 +19,11 @@ export const ResetPasswordPage: React.FC = () => {
     e.preventDefault();
     setError(null);
 
+    if (!token.trim()) {
+      setError('Liên kết đặt lại mật khẩu không hợp lệ hoặc thiếu mã xác thực.');
+      return;
+    }
+
     if (!password) {
       setError('Vui lòng nhập mật khẩu mới.');
       return;
@@ -42,7 +47,12 @@ export const ResetPasswordPage: React.FC = () => {
         navigate('/auth/login');
       }, 2500);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Đặt lại mật khẩu không thành công. Token có thể đã hết hạn.';
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      const msg =
+        axiosErr.response?.data?.error?.message ||
+        (err instanceof Error
+          ? err.message
+          : 'Đặt lại mật khẩu không thành công. Token có thể đã hết hạn.');
       setError(msg);
     } finally {
       setIsSubmitting(false);
@@ -73,7 +83,10 @@ export const ResetPasswordPage: React.FC = () => {
           textAlign: 'center',
         }}
       >
-        <Link to="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '24px' }}>
+        <Link
+          to="/"
+          style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '24px' }}
+        >
           <img
             src="/assets/images/logo.png"
             alt="Nexora"
@@ -84,7 +97,9 @@ export const ResetPasswordPage: React.FC = () => {
         <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#0F172A', margin: '0 0 8px 0' }}>
           Đặt Lại Mật Khẩu
         </h1>
-        <p style={{ fontSize: '13.5px', color: '#64748B', lineHeight: '1.5', margin: '0 0 28px 0' }}>
+        <p
+          style={{ fontSize: '13.5px', color: '#64748B', lineHeight: '1.5', margin: '0 0 28px 0' }}
+        >
           Vui lòng nhập mật khẩu mới cho tài khoản của bạn.
         </p>
 
@@ -136,7 +151,9 @@ export const ResetPasswordPage: React.FC = () => {
             >
               <i className="fa-solid fa-check"></i>
             </div>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#166534', margin: '0 0 6px 0' }}>
+            <h3
+              style={{ fontSize: '15px', fontWeight: 800, color: '#166534', margin: '0 0 6px 0' }}
+            >
               Đặt lại mật khẩu thành công!
             </h3>
             <p style={{ fontSize: '13px', color: '#334155', margin: 0, lineHeight: '1.5' }}>
@@ -157,9 +174,20 @@ export const ResetPasswordPage: React.FC = () => {
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}
+          >
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '8px' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#334155',
+                  marginBottom: '8px',
+                }}
+              >
                 Mật khẩu mới
               </label>
               <div style={{ position: 'relative' }}>
@@ -212,7 +240,15 @@ export const ResetPasswordPage: React.FC = () => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '8px' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#334155',
+                  marginBottom: '8px',
+                }}
+              >
                 Xác nhận mật khẩu mới
               </label>
               <div style={{ position: 'relative' }}>
@@ -259,7 +295,11 @@ export const ResetPasswordPage: React.FC = () => {
                     fontSize: '15px',
                   }}
                 >
-                  <i className={showConfirmPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'}></i>
+                  <i
+                    className={
+                      showConfirmPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'
+                    }
+                  ></i>
                 </button>
               </div>
             </div>

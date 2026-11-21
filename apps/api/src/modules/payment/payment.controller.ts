@@ -13,8 +13,8 @@ export class PaymentController {
         throw new AppError(400, 'INVALID_PAYMENT_DATA', 'Vui lòng cung cấp mã đơn hàng.');
       }
 
-      const ipAddr =
-        (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '127.0.0.1';
+      // Respect Express trust proxy configuration; never trust arbitrary X-Forwarded-For headers directly
+      const ipAddr = req.ip || req.socket.remoteAddress || '127.0.0.1';
       const paymentUrl = await this.service.createVnpayPaymentUrl({
         orderCode,
         orderInfo,

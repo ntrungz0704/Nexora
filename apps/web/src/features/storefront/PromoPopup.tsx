@@ -17,7 +17,9 @@ export const PromoPopup: React.FC = () => {
   useEffect(() => {
     if (!activePopup) return;
     const todayVN = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
-    const hiddenDate = localStorage.getItem('nexora_hide_popup_date') || localStorage.getItem('techpilot_hide_popup_date');
+    const hiddenDate =
+      localStorage.getItem('nexora_hide_popup_date') ||
+      localStorage.getItem('techpilot_hide_popup_date');
     if (hiddenDate === todayVN) {
       return;
     }

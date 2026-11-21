@@ -1,7 +1,8 @@
 # NEXORA — MASTER PROJECT INVENTORY & SYSTEM OVERVIEW
+
 **Tài liệu:** `00_MASTER_PROJECT_INVENTORY.md`  
 **Phiên bản:** `1.0.0` | **Trạng thái:** `ĐÃ PHÊ DUYỆT (APPROVED)`  
-**Dự án:** Nexora — Single-Vendor Hardware E-Commerce & Store Management System  
+**Dự án:** Nexora — Single-Vendor Hardware E-Commerce & Store Management System
 
 ---
 

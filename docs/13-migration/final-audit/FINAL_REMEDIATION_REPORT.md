@@ -32,16 +32,16 @@
 
 ## 2. BẢNG ĐỐI CHIẾU TIẾN ĐỘ KHẮC PHỤC CÁC TÁC VỤ (TASK STATUS)
 
-| Mã tác vụ | Tên tác vụ | Trạng thái trước | Trạng thái hiện tại | Bằng chứng thực nghiệm |
-| :---: | :--- | :---: | :---: | :--- |
-| **TASK 1** | Fix P1 Auth Security | `BLOCKER` | **VERIFIED PASS** | Đã sửa `auth.service.ts`, 4 tests hồi quy trong `rbac_and_concurrency.test.ts` PASS |
-| **TASK 2** | Live MySQL 8.4 Verification | `BLOCKED` | **VERIFIED PASS** | Docker MySQL 8.4 healthy, migrate deploy thành công trên `nexora_test_audit`, 24 bảng |
-| **TASK 3** | Playwright E2E Suite | `PARTIAL` | **VERIFIED PASS** | `npx playwright test` chạy 9 tests trên headless browser, kết quả **9 passed (8.5s)** |
-| **TASK 4** | Admin & Profile Operations | `NOT FULLY PROVEN` | **VERIFIED PASS** | 11 phân hệ Admin CRUD kết nối CSDL thực, Profile & Orders truy vấn độc lập |
-| **TASK 5** | Full Business Logic Regression | `PASS` (lý thuyết) | **VERIFIED PASS** | Vitest 39/39 passed, trừ kho Transaction, snapshot giá/COGS, coupon rules |
-| **TASK 6** | TechPilot Decoupling Check | `PASS` | **VERIFIED PASS** | 0 file TechPilot trong git, không remote/submodule, build độc lập 814ms |
-| **TASK 7** | Quality Gates & Reconciliation | `PASS` | **VERIFIED PASS** | Typecheck 0 errors, Lint 0 errors, Vitest 39/39, Playwright 9/9, Build 100% PASS |
-| **TASK 8** | Release Freeze Preparation | `PENDING` | **COMPLETED** | Sẵn sàng tạo repo mới với duy nhất 1 commit ban đầu sạch |
+| Mã tác vụ  | Tên tác vụ                     |  Trạng thái trước  | Trạng thái hiện tại | Bằng chứng thực nghiệm                                                                |
+| :--------: | :----------------------------- | :----------------: | :-----------------: | :------------------------------------------------------------------------------------ |
+| **TASK 1** | Fix P1 Auth Security           |     `BLOCKER`      |  **VERIFIED PASS**  | Đã sửa `auth.service.ts`, 4 tests hồi quy trong `rbac_and_concurrency.test.ts` PASS   |
+| **TASK 2** | Live MySQL 8.4 Verification    |     `BLOCKED`      |  **VERIFIED PASS**  | Docker MySQL 8.4 healthy, migrate deploy thành công trên `nexora_test_audit`, 24 bảng |
+| **TASK 3** | Playwright E2E Suite           |     `PARTIAL`      |  **VERIFIED PASS**  | `npx playwright test` chạy 9 tests trên headless browser, kết quả **9 passed (8.5s)** |
+| **TASK 4** | Admin & Profile Operations     | `NOT FULLY PROVEN` |  **VERIFIED PASS**  | 11 phân hệ Admin CRUD kết nối CSDL thực, Profile & Orders truy vấn độc lập            |
+| **TASK 5** | Full Business Logic Regression | `PASS` (lý thuyết) |  **VERIFIED PASS**  | Vitest 39/39 passed, trừ kho Transaction, snapshot giá/COGS, coupon rules             |
+| **TASK 6** | TechPilot Decoupling Check     |       `PASS`       |  **VERIFIED PASS**  | 0 file TechPilot trong git, không remote/submodule, build độc lập 814ms               |
+| **TASK 7** | Quality Gates & Reconciliation |       `PASS`       |  **VERIFIED PASS**  | Typecheck 0 errors, Lint 0 errors, Vitest 39/39, Playwright 9/9, Build 100% PASS      |
+| **TASK 8** | Release Freeze Preparation     |     `PENDING`      |    **COMPLETED**    | Sẵn sàng tạo repo mới với duy nhất 1 commit ban đầu sạch                              |
 
 ---
 
@@ -67,6 +67,7 @@
 ```
 
 > **Ghi chú nghiệm thu:**
+>
 > - Toàn bộ 112 tệp tin thành phần cộng dồn hoàn toàn khớp chính xác 100% với cấu trúc thư mục trên đĩa.
 > - Tổng cộng 25.974 dòng mã (bao gồm 24.377 dòng TypeScript/TSX/Prisma và 1.597 dòng Tailwind CSS chuẩn hóa).
 
@@ -75,6 +76,7 @@
 ## 4. KẾT LUẬN NGHIỆM THU CHÍNH THỨC
 
 Toàn bộ 3 điều kiện tiên quyết (Blockers):
+
 1. **P1 Authentication:** Đã đóng và kiểm chứng bằng test.
 2. **Database MySQL 8.4:** Đã khởi động, tạo DB sạch, chạy 4 migrations thành công và kiểm tra toàn vẹn.
 3. **Playwright E2E:** Đã hoàn tất 9/9 luồng trên trình duyệt thật.

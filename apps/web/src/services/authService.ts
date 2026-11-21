@@ -29,15 +29,22 @@ export const authService = {
   },
 
   async forgotPassword(email: string): Promise<{ message: string }> {
-    const res = await apiClient.post<ApiSuccessEnvelope<{ message: string }>>('/auth/forgot-password', { email });
+    const res = await apiClient.post<ApiSuccessEnvelope<{ message: string }>>(
+      '/auth/forgot-password',
+      { email },
+    );
     return res.data.data;
   },
 
   async resetPassword(token: string, password: string): Promise<{ message: string }> {
-    const res = await apiClient.post<ApiSuccessEnvelope<{ message: string }>>('/auth/reset-password', {
-      token,
-      password,
-    });
+    const res = await apiClient.post<ApiSuccessEnvelope<{ message: string }>>(
+      '/auth/reset-password',
+      {
+        token,
+        newPassword: password,
+        password,
+      },
+    );
     return res.data.data;
   },
 

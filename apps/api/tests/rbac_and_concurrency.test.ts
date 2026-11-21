@@ -207,8 +207,7 @@ describe('RBAC & Concurrency Security Test Suite', () => {
     expect(failedRes.body.error.code).toBe('INSUFFICIENT_STOCK');
 
     // Verify final stock is exactly 0 in database (no negative stock, no overselling)
-    const checkRes = await request(app)
-      .get(`/api/v1/catalog/products/${product.slug}`);
+    const checkRes = await request(app).get(`/api/v1/catalog/products/${product.slug}`);
     expect(checkRes.status).toBe(200);
     expect(checkRes.body.data.stockQuantity).toBe(0);
   });

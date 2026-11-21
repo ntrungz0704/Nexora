@@ -23,11 +23,33 @@ export const EnvSchema = z.object({
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
   SERVER_URL: z.string().url().default('http://localhost:3000'),
   CORS_ALLOWED_ORIGINS: z.string().default('http://localhost:5173,http://127.0.0.1:5173'),
+  TRUST_PROXY: z.string().default('false'),
 });
+
+export type TrustProxySetting = boolean | number | string;
 
 export type AppEnv = z.infer<typeof EnvSchema> & {
   corsOrigins: string[];
+  trustProxy: TrustProxySetting;
 };
+
+export function parseTrustProxy(raw: string): TrustProxySetting {
+  const normalized = raw.trim().toLowerCase();
+  if (!normalized || normalized === 'false' || normalized === '0') {
+    return false;
+  }
+  if (normalized === 'loopback' || normalized === 'linklocal' || normalized === 'uniquelocal') {
+    return normalized;
+  }
+  if (/^\d+$/.test(normalized)) {
+    const hops = Number.parseInt(normalized, 10);
+    if (hops > 0 && hops <= 5) {
+      return hops;
+    }
+  }
+  // Never blindly trust arbitrary proxy chains ('true')
+  return false;
+}
 
 export function parseEnv(rawEnv: NodeJS.ProcessEnv = process.env): AppEnv {
   const result = EnvSchema.safeParse(rawEnv);
@@ -45,6 +67,7 @@ export function parseEnv(rawEnv: NodeJS.ProcessEnv = process.env): AppEnv {
   return {
     ...result.data,
     corsOrigins,
+    trustProxy: parseTrustProxy(result.data.TRUST_PROXY),
   };
 }
 

@@ -83,11 +83,19 @@ export const CheckoutSuccessPage: React.FC = () => {
             <i className="fa-solid fa-check" style={{ color: '#16A34A', fontSize: '32px' }}></i>
           </div>
 
-          <h1 style={{ fontSize: '24px', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '8px' }}>
+          <h1
+            style={{
+              fontSize: '24px',
+              fontWeight: 900,
+              color: 'var(--text-primary)',
+              marginBottom: '8px',
+            }}
+          >
             Đặt hàng thành công!
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '28px' }}>
-            Cảm ơn bạn đã tin tưởng mua sắm tại <strong>Nexora</strong>. Đơn hàng của bạn đã được tiếp nhận và đang được đóng gói.
+            Cảm ơn bạn đã tin tưởng mua sắm tại <strong>Nexora</strong>. Đơn hàng của bạn đã được
+            tiếp nhận và đang được đóng gói.
           </p>
 
           {/* Order Info Card */}
@@ -101,26 +109,56 @@ export const CheckoutSuccessPage: React.FC = () => {
               marginBottom: '28px',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '12px',
+                fontSize: '13px',
+              }}
+            >
               <span style={{ color: 'var(--text-secondary)' }}>Mã đơn hàng:</span>
               <strong style={{ color: '#0A5BFF', fontSize: '14px' }}>
                 {orderInfo?.orderCode || codeParam}
               </strong>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '12px',
+                fontSize: '13px',
+              }}
+            >
               <span style={{ color: 'var(--text-secondary)' }}>Người nhận hàng:</span>
-              <strong>{orderInfo?.fullName || 'Khách hàng'} - {orderInfo?.phone || '0901234567'}</strong>
+              <strong>
+                {orderInfo?.fullName || 'Khách hàng'} - {orderInfo?.phone || '0901234567'}
+              </strong>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '12px',
+                fontSize: '13px',
+              }}
+            >
               <span style={{ color: 'var(--text-secondary)' }}>Địa chỉ nhận:</span>
               <span style={{ textAlign: 'right', maxWidth: '300px', fontWeight: 600 }}>
                 {orderInfo?.address || 'Quận 1, TP. Hồ Chí Minh'}
               </span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '12px',
+                fontSize: '13px',
+              }}
+            >
               <span style={{ color: 'var(--text-secondary)' }}>Phương thức:</span>
               <strong>
                 {orderInfo?.paymentMethod === 'VNPAY'
@@ -149,30 +187,94 @@ export const CheckoutSuccessPage: React.FC = () => {
 
           {/* Timeline */}
           <div style={{ marginBottom: '32px' }}>
-            <h4 style={{ fontSize: '13px', fontWeight: 700, textAlign: 'left', marginBottom: '12px' }}>
+            <h4
+              style={{ fontSize: '13px', fontWeight: 700, textAlign: 'left', marginBottom: '12px' }}
+            >
               Trạng thái đơn hàng:
             </h4>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                position: 'relative',
+              }}
+            >
               <div style={{ textAlign: 'center', flex: 1 }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#0A5BFF', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto', fontSize: '12px' }}>
+                <div
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    backgroundColor: '#0A5BFF',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 6px auto',
+                    fontSize: '12px',
+                  }}
+                >
                   <i className="fa-solid fa-check"></i>
                 </div>
                 <div style={{ fontSize: '11px', fontWeight: 700 }}>Đã tiếp nhận</div>
               </div>
               <div style={{ textAlign: 'center', flex: 1 }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#EFF6FF', color: '#0A5BFF', border: '2px solid #0A5BFF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto', fontSize: '12px' }}>
+                <div
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    backgroundColor: '#EFF6FF',
+                    color: '#0A5BFF',
+                    border: '2px solid #0A5BFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 6px auto',
+                    fontSize: '12px',
+                  }}
+                >
                   <i className="fa-solid fa-box"></i>
                 </div>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: '#0A5BFF' }}>Đang đóng gói</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#0A5BFF' }}>
+                  Đang đóng gói
+                </div>
               </div>
               <div style={{ textAlign: 'center', flex: 1 }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#F3F4F6', color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto', fontSize: '12px' }}>
+                <div
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    backgroundColor: '#F3F4F6',
+                    color: '#9CA3AF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 6px auto',
+                    fontSize: '12px',
+                  }}
+                >
                   <i className="fa-solid fa-truck"></i>
                 </div>
                 <div style={{ fontSize: '11px', color: '#9CA3AF' }}>Đang giao hàng</div>
               </div>
               <div style={{ textAlign: 'center', flex: 1 }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#F3F4F6', color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px auto', fontSize: '12px' }}>
+                <div
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    backgroundColor: '#F3F4F6',
+                    color: '#9CA3AF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 6px auto',
+                    fontSize: '12px',
+                  }}
+                >
                   <i className="fa-solid fa-circle-check"></i>
                 </div>
                 <div style={{ fontSize: '11px', color: '#9CA3AF' }}>Giao thành công</div>

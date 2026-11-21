@@ -20,7 +20,12 @@ export const FloatingChatbot: React.FC = () => {
       id: 'welcome',
       sender: 'ai',
       text: 'Xin chào! Tôi là Nexora AI, trợ lý ảo chuyên tư vấn cấu hình PC, laptop và linh kiện máy tính. Bạn đang cần tìm sản phẩm hay cần tư vấn mức ngân sách nào?',
-      quickReplies: ['Tư vấn laptop gaming', 'Xây dựng cấu hình PC', 'Chính sách bảo hành', 'Phí giao hàng'],
+      quickReplies: [
+        'Tư vấn laptop gaming',
+        'Xây dựng cấu hình PC',
+        'Chính sách bảo hành',
+        'Phí giao hàng',
+      ],
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -208,7 +213,9 @@ export const FloatingChatbot: React.FC = () => {
                 key={m.id}
                 className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', maxWidth: '85%' }}>
+                <div
+                  style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', maxWidth: '85%' }}
+                >
                   {m.sender === 'ai' && (
                     <span
                       style={{

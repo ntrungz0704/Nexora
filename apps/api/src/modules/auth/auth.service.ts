@@ -135,7 +135,8 @@ export class AuthService {
   }
 
   async forgotPassword(email: string): Promise<{ message: string }> {
-    const genericMessage = 'Nếu email tồn tại trên hệ thống, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.';
+    const genericMessage =
+      'Nếu email tồn tại trên hệ thống, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.';
     const normalizedEmail = (email || '').trim().toLowerCase();
 
     // Always return generic safe message to prevent email enumeration
@@ -187,11 +188,14 @@ export class AuthService {
       });
     } catch (err: unknown) {
       // NEVER log resetToken or resetUrl
-      console.error(`[AuthService] Không thể gửi email đặt lại mật khẩu tới user id=${user.id}:`, err instanceof Error ? err.message : err);
+      console.error(
+        `[AuthService] Không thể gửi email đặt lại mật khẩu tới user id=${user.id}:`,
+        err instanceof Error ? err.message : err,
+      );
       throw new AppError(
         500,
         'EMAIL_DELIVERY_FAILED',
-        'Không thể gửi email đặt lại mật khẩu do lỗi dịch vụ thư. Vui lòng thử lại sau.'
+        'Không thể gửi email đặt lại mật khẩu do lỗi dịch vụ thư. Vui lòng thử lại sau.',
       );
     }
 
@@ -207,7 +211,11 @@ export class AuthService {
    */
   async generatePasswordResetTokenForTest(email: string): Promise<string> {
     if (process.env.NODE_ENV === 'production') {
-      throw new AppError(403, 'FORBIDDEN', 'Không được phép tạo test reset token trong production.');
+      throw new AppError(
+        403,
+        'FORBIDDEN',
+        'Không được phép tạo test reset token trong production.',
+      );
     }
     const user = await this.prisma.user.findUnique({
       where: { email: email.toLowerCase() },
@@ -226,7 +234,11 @@ export class AuthService {
 
   async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
     if (!token) {
-      throw new AppError(400, 'INVALID_TOKEN', 'Mã xác thực đặt lại mật khẩu không hợp lệ hoặc thiếu.');
+      throw new AppError(
+        400,
+        'INVALID_TOKEN',
+        'Mã xác thực đặt lại mật khẩu không hợp lệ hoặc thiếu.',
+      );
     }
 
     if (!newPassword || newPassword.length < 8) {
@@ -243,12 +255,20 @@ export class AuthService {
         hashSig?: string;
       };
     } catch {
-      throw new AppError(400, 'EXPIRED_OR_INVALID_TOKEN', 'Mã đặt lại mật khẩu đã hết hạn hoặc không hợp lệ.');
+      throw new AppError(
+        400,
+        'EXPIRED_OR_INVALID_TOKEN',
+        'Mã đặt lại mật khẩu đã hết hạn hoặc không hợp lệ.',
+      );
     }
 
     // Strict validation: must be 'password_reset' purpose AND have valid sub
     if (payload.purpose !== 'password_reset' || !payload.sub) {
-      throw new AppError(400, 'INVALID_TOKEN_PURPOSE', 'Token không dùng cho mục đích đặt lại mật khẩu.');
+      throw new AppError(
+        400,
+        'INVALID_TOKEN_PURPOSE',
+        'Token không dùng cho mục đích đặt lại mật khẩu.',
+      );
     }
 
     // Hash the new password before opening transaction to minimize lock holding duration
@@ -267,12 +287,14 @@ export class AuthService {
       }
 
       // One-time use verification: hashSig must match user's current passwordHash signature
-      const currentHashSig = lockedUser.password_hash ? lockedUser.password_hash.slice(-16) : 'init';
+      const currentHashSig = lockedUser.password_hash
+        ? lockedUser.password_hash.slice(-16)
+        : 'init';
       if (!payload.hashSig || payload.hashSig !== currentHashSig) {
         throw new AppError(
           400,
           'TOKEN_ALREADY_USED',
-          'Mã đặt lại mật khẩu này đã được sử dụng hoặc không còn hiệu lực.'
+          'Mã đặt lại mật khẩu này đã được sử dụng hoặc không còn hiệu lực.',
         );
       }
 

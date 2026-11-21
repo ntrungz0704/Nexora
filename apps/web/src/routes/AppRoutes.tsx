@@ -114,10 +114,12 @@ export function AppRoutes() {
         <Route path="/profile/wishlist" element={<Navigate to="/wishlist" replace />} />
         <Route path="/orders" element={<ProfilePage />} />
 
-        {/* 7. Authentication Routes (TechPilot Exact Parity) */}
+        {/* 7. Authentication Routes (Canonical + Legacy Aliases) */}
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
         <Route path="/auth/forgot" element={<ForgotPasswordPage />} />
+        <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
         <Route path="/auth/reset" element={<ResetPasswordPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

@@ -86,14 +86,12 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
     const randomSuffix = Math.floor(Math.random() * 100000);
     const cust2Email = `customer2_${randomSuffix}@nexora.local`;
     registeredCust2Email = cust2Email;
-    const cust2Res = await request(app)
-      .post('/api/v1/auth/register')
-      .send({
-        email: cust2Email,
-        password: 'password123',
-        fullName: 'Customer Two',
-        phone: '0912345678',
-      });
+    const cust2Res = await request(app).post('/api/v1/auth/register').send({
+      email: cust2Email,
+      password: 'password123',
+      fullName: 'Customer Two',
+      phone: '0912345678',
+    });
     expect(cust2Res.status).toBe(201);
     customer2Token = cust2Res.body.data.token;
 
@@ -146,42 +144,34 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
 
   it('OWN-1: Rejects payment URL creation for guest order when verification email/phone is missing or wrong', async () => {
     // Missing email and phone
-    const resNoCreds = await request(app)
-      .post('/api/v1/payment/vnpay/create-url')
-      .send({
-        orderCode: guestOrderCode,
-      });
+    const resNoCreds = await request(app).post('/api/v1/payment/vnpay/create-url').send({
+      orderCode: guestOrderCode,
+    });
     expect(resNoCreds.status).toBe(403);
     expect(resNoCreds.body.error.code).toBe('FORBIDDEN');
 
     // Wrong email
-    const resWrongEmail = await request(app)
-      .post('/api/v1/payment/vnpay/create-url')
-      .send({
-        orderCode: guestOrderCode,
-        customerEmail: 'hacker@malicious.com',
-      });
+    const resWrongEmail = await request(app).post('/api/v1/payment/vnpay/create-url').send({
+      orderCode: guestOrderCode,
+      customerEmail: 'hacker@malicious.com',
+    });
     expect(resWrongEmail.status).toBe(403);
     expect(resWrongEmail.body.error.code).toBe('FORBIDDEN');
   });
 
   it('OWN-2: Allows payment URL creation for guest order when matching customerEmail or customerPhone is provided', async () => {
-    const res = await request(app)
-      .post('/api/v1/payment/vnpay/create-url')
-      .send({
-        orderCode: guestOrderCode,
-        customerEmail: 'guest-payer@nexora.local',
-      });
+    const res = await request(app).post('/api/v1/payment/vnpay/create-url').send({
+      orderCode: guestOrderCode,
+      customerEmail: 'guest-payer@nexora.local',
+    });
     expect(res.status).toBe(200);
     expect(res.body.data.paymentUrl).toBeDefined();
   });
 
   it('OWN-3: Rejects payment URL creation for registered user order when unauthenticated (401)', async () => {
-    const res = await request(app)
-      .post('/api/v1/payment/vnpay/create-url')
-      .send({
-        orderCode: userOrderCode,
-      });
+    const res = await request(app).post('/api/v1/payment/vnpay/create-url').send({
+      orderCode: userOrderCode,
+    });
     expect(res.status).toBe(401);
     expect(res.body.error.code).toBe('UNAUTHORIZED');
   });
@@ -234,13 +224,11 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
 
   it('SEC-1: createVnpayPaymentUrl fetches amount from database and ignores forged client amounts', async () => {
     // Attempt to pass forged amount of 1000 VND
-    const res = await request(app)
-      .post('/api/v1/payment/vnpay/create-url')
-      .send({
-        orderCode: guestOrderCode,
-        customerEmail: 'guest-payer@nexora.local',
-        amount: 1000, // Forged
-      });
+    const res = await request(app).post('/api/v1/payment/vnpay/create-url').send({
+      orderCode: guestOrderCode,
+      customerEmail: 'guest-payer@nexora.local',
+      amount: 1000, // Forged
+    });
 
     expect(res.status).toBe(200);
     const paymentUrl = res.body.data.paymentUrl;
@@ -248,23 +236,21 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
 
     // The generated VNPay URL must contain the real server amount (guestOrderAmount * 100), NOT 1000
     const url = new URL(paymentUrl);
-    const expectedVnpAmount = (Math.round(guestOrderAmount * 100)).toString();
+    const expectedVnpAmount = Math.round(guestOrderAmount * 100).toString();
     expect(url.searchParams.get('vnp_Amount')).toBe(expectedVnpAmount);
     expect(url.searchParams.get('vnp_Amount')).not.toBe('100000');
   });
 
   it('SEC-2: verifyVnpayCallback rejects invalid HMAC-SHA512 checksums', async () => {
     const callbackQuery = {
-      vnp_Amount: (Math.round(guestOrderAmount * 100)).toString(),
+      vnp_Amount: Math.round(guestOrderAmount * 100).toString(),
       vnp_BankCode: 'NCB',
       vnp_ResponseCode: '00',
       vnp_TxnRef: guestOrderCode,
       vnp_SecureHash: 'invalid_fraudulent_hash_signature_123456',
     };
 
-    const res = await request(app)
-      .get('/api/v1/payment/vnpay/callback')
-      .query(callbackQuery);
+    const res = await request(app).get('/api/v1/payment/vnpay/callback').query(callbackQuery);
 
     expect(res.status).toBe(200);
     expect(res.body.data.isSuccess).toBe(false);
@@ -285,13 +271,14 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
     const sorted: Record<string, string> = {};
     for (const k of sortedKeys) sorted[k] = params[k];
     const signData = new URLSearchParams(sorted).toString();
-    const hash = crypto.createHmac('sha512', secret).update(Buffer.from(signData, 'utf-8')).digest('hex');
+    const hash = crypto
+      .createHmac('sha512', secret)
+      .update(Buffer.from(signData, 'utf-8'))
+      .digest('hex');
 
     const callbackQuery = { ...params, vnp_SecureHash: hash };
 
-    const res = await request(app)
-      .get('/api/v1/payment/vnpay/callback')
-      .query(callbackQuery);
+    const res = await request(app).get('/api/v1/payment/vnpay/callback').query(callbackQuery);
 
     expect(res.status).toBe(200);
     expect(res.body.data.isSuccess).toBe(false);
@@ -301,7 +288,7 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
   it('SEC-4: verifyVnpayCallback processes valid callback and enforces idempotency', async () => {
     const secret = process.env.VNPAY_HASH_SECRET || 'NEXORAVNPAYHASHSECRET2026DEVKEY';
     const params: Record<string, string> = {
-      vnp_Amount: (Math.round(guestOrderAmount * 100)).toString(),
+      vnp_Amount: Math.round(guestOrderAmount * 100).toString(),
       vnp_BankCode: 'NCB',
       vnp_ResponseCode: '00',
       vnp_TransactionStatus: '00',
@@ -312,23 +299,22 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
     const sorted: Record<string, string> = {};
     for (const k of sortedKeys) sorted[k] = params[k];
     const signData = new URLSearchParams(sorted).toString();
-    const hash = crypto.createHmac('sha512', secret).update(Buffer.from(signData, 'utf-8')).digest('hex');
+    const hash = crypto
+      .createHmac('sha512', secret)
+      .update(Buffer.from(signData, 'utf-8'))
+      .digest('hex');
 
     const callbackQuery = { ...params, vnp_SecureHash: hash };
 
     // First call: Successful payment
-    const res1 = await request(app)
-      .get('/api/v1/payment/vnpay/callback')
-      .query(callbackQuery);
+    const res1 = await request(app).get('/api/v1/payment/vnpay/callback').query(callbackQuery);
 
     expect(res1.status).toBe(200);
     expect(res1.body.data.isSuccess).toBe(true);
     expect(res1.body.data.message).toContain('Thanh toán VNPay thành công');
 
     // Second call: Idempotent return without duplicate processing
-    const res2 = await request(app)
-      .get('/api/v1/payment/vnpay/callback')
-      .query(callbackQuery);
+    const res2 = await request(app).get('/api/v1/payment/vnpay/callback').query(callbackQuery);
 
     expect(res2.status).toBe(200);
     expect(res2.body.data.isSuccess).toBe(true);
@@ -337,12 +323,10 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
 
   it('SEC-4B: Rejects payment URL creation if order is already paid with 400 ORDER_ALREADY_PAID', async () => {
     // guestOrderCode is now paid from SEC-4 test above
-    const res = await request(app)
-      .post('/api/v1/payment/vnpay/create-url')
-      .send({
-        orderCode: guestOrderCode,
-        customerEmail: 'guest-payer@nexora.local',
-      });
+    const res = await request(app).post('/api/v1/payment/vnpay/create-url').send({
+      orderCode: guestOrderCode,
+      customerEmail: 'guest-payer@nexora.local',
+    });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('ORDER_ALREADY_PAID');
@@ -353,9 +337,9 @@ describe('Payment Security & VNPay Verification Test Suite', () => {
     try {
       process.env.NODE_ENV = 'production';
 
-      await expect(
-        paymentService.simulatePaymentSuccess('NX-MOCK-TEST')
-      ).rejects.toThrow('Production');
+      await expect(paymentService.simulatePaymentSuccess('NX-MOCK-TEST')).rejects.toThrow(
+        'Production',
+      );
     } finally {
       process.env.NODE_ENV = originalEnv;
     }

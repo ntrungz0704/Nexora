@@ -9,7 +9,8 @@ import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser, OrderDto } from '@nexora/shared';
 
-export type ProfileTab = 'profile' | 'orders' | 'addresses' | 'notifications' | 'returns' | 'password';
+export type ProfileTab =
+  'profile' | 'orders' | 'addresses' | 'notifications' | 'returns' | 'password';
 
 export const ProfilePage: React.FC = () => {
   const location = useLocation();
@@ -24,7 +25,9 @@ export const ProfilePage: React.FC = () => {
     return 'profile';
   };
 
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => authService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
+    authService.getCurrentUser(),
+  );
   const [activeTab, setActiveTab] = useState<ProfileTab>(getTabFromPath);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -113,7 +116,10 @@ export const ProfilePage: React.FC = () => {
             fontSize: '13px',
           }}
         >
-          <i className="fa-solid fa-circle-check" style={{ color: '#00C8FF', fontSize: '16px' }}></i>
+          <i
+            className="fa-solid fa-circle-check"
+            style={{ color: '#00C8FF', fontSize: '16px' }}
+          ></i>
           <span>{toastMessage}</span>
         </div>
       )}
@@ -126,20 +132,58 @@ export const ProfilePage: React.FC = () => {
         onLogout={handleLogout}
       />
 
-      <main className="container" style={{ margin: '30px auto 60px auto', maxWidth: '1100px', padding: '0 16px' }}>
+      <main
+        className="container"
+        style={{ margin: '30px auto 60px auto', maxWidth: '1100px', padding: '0 16px' }}
+      >
         {/* Breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748B', marginBottom: '24px' }}>
-          <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Trang chủ</Link>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '13px',
+            color: '#64748B',
+            marginBottom: '24px',
+          }}
+        >
+          <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+            Trang chủ
+          </Link>
           <i className="fa-solid fa-chevron-right" style={{ fontSize: '10px' }}></i>
           <span style={{ color: '#0A5BFF', fontWeight: 600 }}>Tài khoản của tôi</span>
         </div>
 
         {/* 2-Column Profile Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '30px', alignItems: 'start' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '280px 1fr',
+            gap: '30px',
+            alignItems: 'start',
+          }}
+        >
           {/* Left Sidebar */}
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              border: '1px solid #E2E8F0',
+              padding: '24px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            }}
+          >
             {/* User Info Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', borderBottom: '1px solid #F1F5F9', paddingBottom: '20px', marginBottom: '16px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '14px',
+                borderBottom: '1px solid #F1F5F9',
+                paddingBottom: '20px',
+                marginBottom: '16px',
+              }}
+            >
               <div
                 style={{
                   width: '50px',
@@ -184,7 +228,11 @@ export const ProfilePage: React.FC = () => {
                 { id: 'orders', label: 'Đơn hàng của tôi', icon: 'fa-solid fa-box-open' },
                 { id: 'notifications', label: 'Thông báo hệ thống', icon: 'fa-regular fa-bell' },
                 { id: 'returns', label: 'Yêu cầu đổi trả', icon: 'fa-solid fa-rotate-left' },
-                { id: 'addresses', label: 'Sổ địa chỉ nhận hàng', icon: 'fa-solid fa-location-dot' },
+                {
+                  id: 'addresses',
+                  label: 'Sổ địa chỉ nhận hàng',
+                  icon: 'fa-solid fa-location-dot',
+                },
                 { id: 'password', label: 'Đổi mật khẩu', icon: 'fa-solid fa-shield-halved' },
               ].map((item) => (
                 <button
@@ -233,54 +281,129 @@ export const ProfilePage: React.FC = () => {
                   paddingTop: '16px',
                 }}
               >
-                <i className="fa-solid fa-right-from-bracket" style={{ width: '18px', textAlign: 'center' }}></i>
+                <i
+                  className="fa-solid fa-right-from-bracket"
+                  style={{ width: '18px', textAlign: 'center' }}
+                ></i>
                 <span>Đăng xuất</span>
               </button>
             </div>
           </div>
 
           {/* Right Content Area */}
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '32px', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              border: '1px solid #E2E8F0',
+              padding: '32px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            }}
+          >
             {activeTab === 'profile' && (
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0', borderBottom: '1px solid #F1F5F9', paddingBottom: '12px' }}>
+                <h3
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    margin: '0 0 20px 0',
+                    borderBottom: '1px solid #F1F5F9',
+                    paddingBottom: '12px',
+                  }}
+                >
                   Thông Tin Cá Nhân
                 </h3>
-                <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '18px', maxWidth: '500px' }}>
+                <form
+                  onSubmit={handleUpdateProfile}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '18px',
+                    maxWidth: '500px',
+                  }}
+                >
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Họ và tên
                     </label>
                     <input
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', outline: 'none' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
                       required
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Địa chỉ Email (Không thay đổi)
                     </label>
                     <input
                       type="email"
                       value={currentUser?.email || 'customer@nexora.local'}
                       disabled
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', backgroundColor: '#F1F5F9', color: '#64748B', fontSize: '14px', cursor: 'not-allowed' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #E2E8F0',
+                        backgroundColor: '#F1F5F9',
+                        color: '#64748B',
+                        fontSize: '14px',
+                        cursor: 'not-allowed',
+                      }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Số điện thoại liên hệ
                     </label>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', outline: 'none' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
                     />
                   </div>
 
@@ -308,7 +431,16 @@ export const ProfilePage: React.FC = () => {
 
             {activeTab === 'orders' && (
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0', borderBottom: '1px solid #F1F5F9', paddingBottom: '12px' }}>
+                <h3
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    margin: '0 0 20px 0',
+                    borderBottom: '1px solid #F1F5F9',
+                    paddingBottom: '12px',
+                  }}
+                >
                   Lịch Sử Đơn Hàng Của Bạn
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -328,15 +460,28 @@ export const ProfilePage: React.FC = () => {
                         }}
                       >
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                            <strong style={{ color: '#0A5BFF', fontSize: '14.5px' }}>{order.orderCode}</strong>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              marginBottom: '6px',
+                            }}
+                          >
+                            <strong style={{ color: '#0A5BFF', fontSize: '14.5px' }}>
+                              {order.orderCode}
+                            </strong>
                             <span style={{ fontSize: '12px', color: '#94A3B8' }}>
                               • {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                             </span>
                           </div>
                           <div style={{ fontSize: '13.5px', color: '#0F172A', fontWeight: 600 }}>
-                            {order.items && order.items.length > 0 ? (order.items[0]?.productName ?? 'Đơn hàng phần cứng') : 'Đơn hàng phần cứng'}
-                            {order.items && order.items.length > 1 && ` (+${order.items.length - 1} sản phẩm khác)`}
+                            {order.items && order.items.length > 0
+                              ? (order.items[0]?.productName ?? 'Đơn hàng phần cứng')
+                              : 'Đơn hàng phần cứng'}
+                            {order.items &&
+                              order.items.length > 1 &&
+                              ` (+${order.items.length - 1} sản phẩm khác)`}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
@@ -387,13 +532,48 @@ export const ProfilePage: React.FC = () => {
 
             {activeTab === 'addresses' && (
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0', borderBottom: '1px solid #F1F5F9', paddingBottom: '12px' }}>
+                <h3
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    margin: '0 0 20px 0',
+                    borderBottom: '1px solid #F1F5F9',
+                    paddingBottom: '12px',
+                  }}
+                >
                   Sổ Địa Chỉ Nhận Hàng
                 </h3>
-                <div style={{ border: '1.5px solid #0A5BFF', borderRadius: '12px', padding: '18px', backgroundColor: '#F8FAFC', marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <strong style={{ fontSize: '14px', color: '#0F172A' }}>Nguyễn Văn An - 0901234567</strong>
-                    <span style={{ backgroundColor: '#EFF6FF', color: '#0A5BFF', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700 }}>
+                <div
+                  style={{
+                    border: '1.5px solid #0A5BFF',
+                    borderRadius: '12px',
+                    padding: '18px',
+                    backgroundColor: '#F8FAFC',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    <strong style={{ fontSize: '14px', color: '#0F172A' }}>
+                      Nguyễn Văn An - 0901234567
+                    </strong>
+                    <span
+                      style={{
+                        backgroundColor: '#EFF6FF',
+                        color: '#0A5BFF',
+                        padding: '2px 8px',
+                        borderRadius: '10px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                      }}
+                    >
                       MẶC ĐỊNH
                     </span>
                   </div>
@@ -406,7 +586,19 @@ export const ProfilePage: React.FC = () => {
 
             {activeTab === 'notifications' && (
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0', borderBottom: '1px solid #F1F5F9', paddingBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    margin: '0 0 20px 0',
+                    borderBottom: '1px solid #F1F5F9',
+                    paddingBottom: '12px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
                   <span>Thông Báo Hệ Thống</span>
                   <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#0A5BFF' }}>
                     3 thông báo
@@ -417,21 +609,24 @@ export const ProfilePage: React.FC = () => {
                     {
                       id: 1,
                       title: 'Đơn hàng #NEX-8821 đã được giao thành công',
-                      content: 'Kiện hàng của bạn đã được giao đến địa chỉ đăng ký. Vui lòng kiểm tra sản phẩm và kích hoạt bảo hành điện tử.',
+                      content:
+                        'Kiện hàng của bạn đã được giao đến địa chỉ đăng ký. Vui lòng kiểm tra sản phẩm và kích hoạt bảo hành điện tử.',
                       time: '18/11/2026 14:30',
                       isRead: false,
                     },
                     {
                       id: 2,
                       title: 'Ưu đãi thành viên: Giảm 200.000đ cho đơn hàng linh kiện',
-                      content: 'Mã coupon NEXORA200 đã được thêm vào ví ưu đãi của bạn. Hạn sử dụng đến hết 30/11/2026.',
+                      content:
+                        'Mã coupon NEXORA200 đã được thêm vào ví ưu đãi của bạn. Hạn sử dụng đến hết 30/11/2026.',
                       time: '15/11/2026 09:15',
                       isRead: true,
                     },
                     {
                       id: 3,
                       title: 'Chào mừng bạn đến với hệ thống Nexora',
-                      content: 'Tài khoản của bạn đã được kích hoạt thành công. Hãy khám phá hàng ngàn sản phẩm công nghệ chính hãng giá tốt.',
+                      content:
+                        'Tài khoản của bạn đã được kích hoạt thành công. Hãy khám phá hàng ngàn sản phẩm công nghệ chính hãng giá tốt.',
                       time: '10/11/2026 08:00',
                       isRead: true,
                     },
@@ -465,13 +660,34 @@ export const ProfilePage: React.FC = () => {
                         <i className="fa-solid fa-bell"></i>
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                          <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '4px',
+                          }}
+                        >
+                          <h4
+                            style={{
+                              fontSize: '14px',
+                              fontWeight: 700,
+                              color: '#0F172A',
+                              margin: 0,
+                            }}
+                          >
                             {n.title}
                           </h4>
                           <span style={{ fontSize: '11.5px', color: '#94A3B8' }}>{n.time}</span>
                         </div>
-                        <p style={{ fontSize: '13px', color: '#475569', margin: 0, lineHeight: '1.5' }}>
+                        <p
+                          style={{
+                            fontSize: '13px',
+                            color: '#475569',
+                            margin: 0,
+                            lineHeight: '1.5',
+                          }}
+                        >
                           {n.content}
                         </p>
                       </div>
@@ -483,45 +699,104 @@ export const ProfilePage: React.FC = () => {
 
             {activeTab === 'returns' && (
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0', borderBottom: '1px solid #F1F5F9', paddingBottom: '12px' }}>
+                <h3
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    margin: '0 0 20px 0',
+                    borderBottom: '1px solid #F1F5F9',
+                    paddingBottom: '12px',
+                  }}
+                >
                   Yêu Cầu Đổi Trả & Hoàn Tiền
                 </h3>
-                <div style={{ marginBottom: '24px', padding: '16px 20px', borderRadius: '12px', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <div
+                  style={{
+                    marginBottom: '24px',
+                    padding: '16px 20px',
+                    borderRadius: '12px',
+                    backgroundColor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                  }}
+                >
                   <p style={{ margin: 0, fontSize: '13.5px', color: '#475569', lineHeight: '1.6' }}>
-                    Nexora hỗ trợ đổi trả sản phẩm miễn phí trong vòng <strong>7 ngày</strong> kể từ khi nhận hàng đối với lỗi kỹ thuật phần cứng hoặc hư hại trong quá trình vận chuyển.
+                    Nexora hỗ trợ đổi trả sản phẩm miễn phí trong vòng <strong>7 ngày</strong> kể từ
+                    khi nhận hàng đối với lỗi kỹ thuật phần cứng hoặc hư hại trong quá trình vận
+                    chuyển.
                   </p>
                 </div>
 
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    showToast('Đã gửi yêu cầu đổi trả thành công! Kỹ thuật viên sẽ liên hệ trong 24h.');
+                    showToast(
+                      'Đã gửi yêu cầu đổi trả thành công! Kỹ thuật viên sẽ liên hệ trong 24h.',
+                    );
                   }}
-                  style={{ display: 'flex', flexDirection: 'column', gap: '18px', maxWidth: '600px' }}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '18px',
+                    maxWidth: '600px',
+                  }}
                 >
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Chọn đơn hàng cần đổi trả
                     </label>
                     <select
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '13.5px', outline: 'none', backgroundColor: '#FFF' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '13.5px',
+                        outline: 'none',
+                        backgroundColor: '#FFF',
+                      }}
                       required
                     >
                       <option value="">-- Chọn đơn hàng của bạn --</option>
                       {userOrders.map((o) => (
                         <option key={o.id} value={o.id}>
-                          {o.orderCode} - {new Date(o.createdAt).toLocaleDateString('vi-VN')} ({Number(o.totalAmount).toLocaleString('vi-VN')}đ)
+                          {o.orderCode} - {new Date(o.createdAt).toLocaleDateString('vi-VN')} (
+                          {Number(o.totalAmount).toLocaleString('vi-VN')}đ)
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Hình thức mong muốn
                     </label>
                     <select
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '13.5px', outline: 'none', backgroundColor: '#FFF' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '13.5px',
+                        outline: 'none',
+                        backgroundColor: '#FFF',
+                      }}
                       required
                     >
                       <option value="replace">Đổi sản phẩm mới (Lỗi do nhà sản xuất)</option>
@@ -531,13 +806,29 @@ export const ProfilePage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Mô tả tình trạng lỗi chi tiết
                     </label>
                     <textarea
                       rows={4}
                       placeholder="Vui lòng mô tả cụ thể hiện tượng lỗi, ví dụ: máy không lên nguồn, sọc màn hình, quạt kêu to..."
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '13.5px', outline: 'none', resize: 'vertical' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '13.5px',
+                        outline: 'none',
+                        resize: 'vertical',
+                      }}
                       required
                     ></textarea>
                   </div>
@@ -566,40 +857,105 @@ export const ProfilePage: React.FC = () => {
 
             {activeTab === 'password' && (
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: '0 0 20px 0', borderBottom: '1px solid #F1F5F9', paddingBottom: '12px' }}>
+                <h3
+                  style={{
+                    fontSize: '18px',
+                    fontWeight: 800,
+                    color: '#0F172A',
+                    margin: '0 0 20px 0',
+                    borderBottom: '1px solid #F1F5F9',
+                    paddingBottom: '12px',
+                  }}
+                >
                   Đổi Mật Khẩu
                 </h3>
-                <form onSubmit={(e) => { e.preventDefault(); showToast('Đã đổi mật khẩu thành công!'); }} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '400px' }}>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    showToast('Đã đổi mật khẩu thành công!');
+                  }}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    maxWidth: '400px',
+                  }}
+                >
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Mật khẩu hiện tại
                     </label>
                     <input
                       type="password"
                       placeholder="••••••••"
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', outline: 'none' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
                       required
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Mật khẩu mới
                     </label>
                     <input
                       type="password"
                       placeholder="••••••••"
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', outline: 'none' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
                       required
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: '#475569',
+                        marginBottom: '6px',
+                      }}
+                    >
                       Xác nhận mật khẩu mới
                     </label>
                     <input
                       type="password"
                       placeholder="••••••••"
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '14px', outline: 'none' }}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        border: '1px solid #CBD5E1',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
                       required
                     />
                   </div>

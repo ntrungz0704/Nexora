@@ -44,12 +44,12 @@
 
 ## 3. Kết Quả Kiểm Thử Tự Động (Automated Test Summary)
 
-| Lệnh kiểm tra | Kết quả | Chi tiết |
-|:---|:---:|:---|
-| `npm run lint` | `PASS` | 0 lỗi, 0 cảnh báo |
-| `npm run typecheck` | `PASS` | TypeScript biên dịch thành công 100% không lỗi |
-| `npm run test` | `PASS` | 14/14 Unit & Integration tests đạt (100%) |
-| `npm run build` | `PASS` | Build sản xuất hoàn tất sạch sẽ |
+| Lệnh kiểm tra       | Kết quả | Chi tiết                                       |
+| :------------------ | :-----: | :--------------------------------------------- |
+| `npm run lint`      | `PASS`  | 0 lỗi, 0 cảnh báo                              |
+| `npm run typecheck` | `PASS`  | TypeScript biên dịch thành công 100% không lỗi |
+| `npm run test`      | `PASS`  | 14/14 Unit & Integration tests đạt (100%)      |
+| `npm run build`     | `PASS`  | Build sản xuất hoàn tất sạch sẽ                |
 
 ---
 

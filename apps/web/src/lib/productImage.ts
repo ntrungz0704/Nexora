@@ -32,19 +32,39 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
   const searchStr = `${name} ${slug} ${catSlug}`;
 
   // 1. Specific High-Res Product Match
-  if (searchStr.includes('superlight') || (searchStr.includes('chuột') && searchStr.includes('logitech'))) {
+  if (
+    searchStr.includes('superlight') ||
+    (searchStr.includes('chuột') && searchStr.includes('logitech'))
+  ) {
     return '/assets/images/review/unlinked/logitech-g-pro-x-wireless.jpg';
   }
-  if (searchStr.includes('g913') || searchStr.includes('k70') || (searchStr.includes('bàn phím') && searchStr.includes('logitech'))) {
+  if (
+    searchStr.includes('g913') ||
+    searchStr.includes('k70') ||
+    (searchStr.includes('bàn phím') && searchStr.includes('logitech'))
+  ) {
     return '/assets/images/review/unlinked/logitech-g213.jpg';
   }
-  if (searchStr.includes('odyssey') || searchStr.includes('g9') || (searchStr.includes('samsung') && searchStr.includes('màn'))) {
+  if (
+    searchStr.includes('odyssey') ||
+    searchStr.includes('g9') ||
+    (searchStr.includes('samsung') && searchStr.includes('màn'))
+  ) {
     return '/assets/images/review/unlinked/display.png';
   }
-  if (searchStr.includes('ultragear') || searchStr.includes('27gr95qe') || (searchStr.includes('lg') && searchStr.includes('màn'))) {
+  if (
+    searchStr.includes('ultragear') ||
+    searchStr.includes('27gr95qe') ||
+    (searchStr.includes('lg') && searchStr.includes('màn'))
+  ) {
     return '/assets/images/review/unlinked/display1.png';
   }
-  if (searchStr.includes('tuf') || searchStr.includes('rtx 4070') || searchStr.includes('vga-asus') || searchStr.includes('geforce rtx')) {
+  if (
+    searchStr.includes('tuf') ||
+    searchStr.includes('rtx 4070') ||
+    searchStr.includes('vga-asus') ||
+    searchStr.includes('geforce rtx')
+  ) {
     return '/assets/images/review/unlinked/rtx-4070-super.jpg';
   }
   if (searchStr.includes('14900k') || searchStr.includes('i9') || searchStr.includes('cpu-intel')) {
@@ -73,25 +93,61 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
   }
 
   // 2. Generic High-Res Category Fallback
-  if (searchStr.includes('in') || searchStr.includes('canon') || searchStr.includes('epson') || searchStr.includes('van-phong') || searchStr.includes('văn phòng')) {
+  if (
+    searchStr.includes('in') ||
+    searchStr.includes('canon') ||
+    searchStr.includes('epson') ||
+    searchStr.includes('van-phong') ||
+    searchStr.includes('văn phòng')
+  ) {
     return '/assets/images/review/unlinked/printer-canon.jpg';
   }
-  if (searchStr.includes('router') || searchStr.includes('wifi') || searchStr.includes('mạng') || searchStr.includes('phan-mem')) {
+  if (
+    searchStr.includes('router') ||
+    searchStr.includes('wifi') ||
+    searchStr.includes('mạng') ||
+    searchStr.includes('phan-mem')
+  ) {
     return '/assets/images/review/unlinked/router-tplink.jpg';
   }
-  if (searchStr.includes('webcam') || searchStr.includes('camera') || searchStr.includes('loa') || searchStr.includes('micro')) {
+  if (
+    searchStr.includes('webcam') ||
+    searchStr.includes('camera') ||
+    searchStr.includes('loa') ||
+    searchStr.includes('micro')
+  ) {
     return '/assets/images/review/unlinked/camera.jpg';
   }
-  if (searchStr.includes('case') || searchStr.includes('nguon') || searchStr.includes('nguồn') || searchStr.includes('tản') || searchStr.includes('deepcool')) {
+  if (
+    searchStr.includes('case') ||
+    searchStr.includes('nguon') ||
+    searchStr.includes('nguồn') ||
+    searchStr.includes('tản') ||
+    searchStr.includes('deepcool')
+  ) {
     return '/assets/images/review/unlinked/case1.jpg';
   }
-  if (searchStr.includes('hub') || searchStr.includes('phụ kiện') || searchStr.includes('phu-kien')) {
+  if (
+    searchStr.includes('hub') ||
+    searchStr.includes('phụ kiện') ||
+    searchStr.includes('phu-kien')
+  ) {
     return '/assets/images/review/unlinked/prod_625.png';
   }
-  if (searchStr.includes('sạc dự phòng') || searchStr.includes('sac-du-phong') || searchStr.includes('powerbank') || searchStr.includes('anker')) {
+  if (
+    searchStr.includes('sạc dự phòng') ||
+    searchStr.includes('sac-du-phong') ||
+    searchStr.includes('powerbank') ||
+    searchStr.includes('anker')
+  ) {
     return '/assets/images/review/unlinked/prod_632.jpg';
   }
-  if (searchStr.includes('tai-nghe') || searchStr.includes('tai nghe') || searchStr.includes('headphone') || searchStr.includes('hyperx')) {
+  if (
+    searchStr.includes('tai-nghe') ||
+    searchStr.includes('tai nghe') ||
+    searchStr.includes('headphone') ||
+    searchStr.includes('hyperx')
+  ) {
     return '/assets/images/review/unlinked/camera1.jpg';
   }
   if (searchStr.includes('laptop')) {

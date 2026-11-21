@@ -1,10 +1,6 @@
 import { PrismaClient, type Prisma } from '@prisma/client';
 import { AppError } from '../../common/errors.js';
-import type {
-  AiSurveyInput,
-  AiRecommendationRole,
-  ProductDto,
-} from '@nexora/shared';
+import type { AiSurveyInput, AiRecommendationRole, ProductDto } from '@nexora/shared';
 
 const prisma = new PrismaClient();
 
@@ -59,7 +55,12 @@ export class AiService {
       };
     }
 
-    if (lower.includes('thanh toán') || lower.includes('vnpay') || lower.includes('cod') || lower.includes('trả góp')) {
+    if (
+      lower.includes('thanh toán') ||
+      lower.includes('vnpay') ||
+      lower.includes('cod') ||
+      lower.includes('trả góp')
+    ) {
       return {
         intent: 'POLICY_PAYMENT',
         answer:
@@ -68,7 +69,12 @@ export class AiService {
       };
     }
 
-    if (lower.includes('cửa hàng') || lower.includes('địa chỉ') || lower.includes('chi nhánh') || lower.includes('hotline')) {
+    if (
+      lower.includes('cửa hàng') ||
+      lower.includes('địa chỉ') ||
+      lower.includes('chi nhánh') ||
+      lower.includes('hotline')
+    ) {
       return {
         intent: 'STORE_INFO',
         answer:
@@ -83,7 +89,8 @@ export class AiService {
     else if (lower.includes('chuột') || lower.includes('mouse')) searchCategory = 'chuot';
     else if (lower.includes('bàn phím') || lower.includes('keyboard')) searchCategory = 'ban-phim';
     else if (lower.includes('màn hình') || lower.includes('monitor')) searchCategory = 'man-hinh';
-    else if (lower.includes('card') || lower.includes('vga') || lower.includes('rtx')) searchCategory = 'vga';
+    else if (lower.includes('card') || lower.includes('vga') || lower.includes('rtx'))
+      searchCategory = 'vga';
 
     const products = await prisma.product.findMany({
       where: {
@@ -111,7 +118,7 @@ export class AiService {
     }
 
     const geminiAnswer = await this.callGeminiIfConfigured(
-      `Bạn là trợ lý ảo bán hàng của showroom công nghệ Nexora. Khách hàng hỏi: "${message}". Hãy trả lời ngắn gọn, chuyên nghiệp, tiếng Việt thân thiện trong 2-3 câu.`
+      `Bạn là trợ lý ảo bán hàng của showroom công nghệ Nexora. Khách hàng hỏi: "${message}". Hãy trả lời ngắn gọn, chuyên nghiệp, tiếng Việt thân thiện trong 2-3 câu.`,
     );
 
     return {
@@ -170,7 +177,9 @@ export class AiService {
         whereClause.category = { slug: 'monitor' };
       } else if (cat === 'gear') {
         whereClause.category = {
-          slug: { in: ['keyboard', 'mouse', 'headset', 'speaker', 'chair', 'console', 'accessories'] },
+          slug: {
+            in: ['keyboard', 'mouse', 'headset', 'speaker', 'chair', 'console', 'accessories'],
+          },
         };
       } else {
         whereClause.category = { slug: cat };
@@ -208,7 +217,9 @@ export class AiService {
       // A. Budget Score (35 pts max)
       if (price >= minBudget && price <= maxBudget) {
         score += 35;
-        matchReasons.push(`Mức giá ${(price / 1000000).toFixed(1)} triệu nằm gọn trong khoảng ngân sách mục tiêu.`);
+        matchReasons.push(
+          `Mức giá ${(price / 1000000).toFixed(1)} triệu nằm gọn trong khoảng ngân sách mục tiêu.`,
+        );
       } else if (price < minBudget) {
         score += 25;
         matchReasons.push('Tiết kiệm ngân sách tối ưu.');
@@ -225,23 +236,44 @@ export class AiService {
       // B. Persona & Specs Fit (35 pts max)
       const nameAndDesc = `${product.name} ${product.shortDescription || ''}`.toLowerCase();
       if (input.persona === 'gaming') {
-        if (nameAndDesc.includes('rtx') || nameAndDesc.includes('gaming') || nameAndDesc.includes('rog') || nameAndDesc.includes('tuf')) {
+        if (
+          nameAndDesc.includes('rtx') ||
+          nameAndDesc.includes('gaming') ||
+          nameAndDesc.includes('rog') ||
+          nameAndDesc.includes('tuf')
+        ) {
           score += 35;
-          matchReasons.push('Tối ưu hóa cho trải nghiệm gaming FPS cao và hỗ trợ Ray Tracing/DLSS.');
+          matchReasons.push(
+            'Tối ưu hóa cho trải nghiệm gaming FPS cao và hỗ trợ Ray Tracing/DLSS.',
+          );
         } else {
           score += 15;
         }
       } else if (input.persona === 'creator' || input.persona === 'render') {
-        if (nameAndDesc.includes('oled') || nameAndDesc.includes('rtx') || nameAndDesc.includes('macbook') || nameAndDesc.includes('pro')) {
+        if (
+          nameAndDesc.includes('oled') ||
+          nameAndDesc.includes('rtx') ||
+          nameAndDesc.includes('macbook') ||
+          nameAndDesc.includes('pro')
+        ) {
           score += 35;
-          matchReasons.push('Màn hình màu sắc chuẩn xác, card đồ họa mạnh mẽ cho Render Premiere/Blender.');
+          matchReasons.push(
+            'Màn hình màu sắc chuẩn xác, card đồ họa mạnh mẽ cho Render Premiere/Blender.',
+          );
         } else {
           score += 15;
         }
       } else if (input.persona === 'office' || input.persona === 'business') {
-        if (nameAndDesc.includes('zenbook') || nameAndDesc.includes('thinkpad') || nameAndDesc.includes('macbook') || nameAndDesc.includes('không dây')) {
+        if (
+          nameAndDesc.includes('zenbook') ||
+          nameAndDesc.includes('thinkpad') ||
+          nameAndDesc.includes('macbook') ||
+          nameAndDesc.includes('không dây')
+        ) {
           score += 35;
-          matchReasons.push('Thiết kế tinh tế, thời lượng pin bền bỉ và trọng lượng mỏng nhẹ di động.');
+          matchReasons.push(
+            'Thiết kế tinh tế, thời lượng pin bền bỉ và trọng lượng mỏng nhẹ di động.',
+          );
         } else {
           score += 20;
         }
@@ -250,9 +282,14 @@ export class AiService {
       }
 
       // C. Brand Preference (15 pts max)
-      if (input.brandPreference && product.brand?.name.toLowerCase() === input.brandPreference.toLowerCase()) {
+      if (
+        input.brandPreference &&
+        product.brand?.name.toLowerCase() === input.brandPreference.toLowerCase()
+      ) {
         score += 15;
-        matchReasons.push(`Thương hiệu chính hãng ${product.brand.name} theo đúng nguyện vọng của bạn.`);
+        matchReasons.push(
+          `Thương hiệu chính hãng ${product.brand.name} theo đúng nguyện vọng của bạn.`,
+        );
       } else {
         score += 8;
       }
@@ -275,7 +312,7 @@ export class AiService {
     const bestMatchCandidate = scored[0]!;
     const topPerformanceCandidate = [...scored].sort((a, b) => b.price - a.price)[0] || scored[0]!;
     const bestValueCandidate =
-      [...scored].sort((a, b) => (b.score / (b.price || 1)) - (a.score / (a.price || 1)))[0] ||
+      [...scored].sort((a, b) => b.score / (b.price || 1) - a.score / (a.price || 1))[0] ||
       scored[1] ||
       scored[0]!;
 
@@ -317,7 +354,9 @@ export class AiService {
       data: {
         systemType: '5_STEP_SURVEY',
         prompt: JSON.stringify(input),
-        response: JSON.stringify(recommendations.map((r) => ({ role: r.role, prodId: r.product.id }))),
+        response: JSON.stringify(
+          recommendations.map((r) => ({ role: r.role, prodId: r.product.id })),
+        ),
         provider: 'nexora_scoring_v2',
         latencyMs: 42,
       },
@@ -380,12 +419,16 @@ export class AiService {
     const breakdown = [
       {
         metric: 'Hiệu năng phần cứng & Tốc độ',
-        scores: Object.fromEntries(products.map((p, idx) => [p.name, 85 + (idx % 2 === 0 ? 10 : 5)])),
+        scores: Object.fromEntries(
+          products.map((p, idx) => [p.name, 85 + (idx % 2 === 0 ? 10 : 5)]),
+        ),
         explanation: `${firstProduct.name} sở hữu sức mạnh xử lý ổn định, khả năng tải nặng vượt trội hơn.`,
       },
       {
         metric: 'Thiết kế, tản nhiệt & Vật liệu',
-        scores: Object.fromEntries(products.map((p, idx) => [p.name, 80 + (idx % 2 === 1 ? 12 : 6)])),
+        scores: Object.fromEntries(
+          products.map((p, idx) => [p.name, 80 + (idx % 2 === 1 ? 12 : 6)]),
+        ),
         explanation: `Độ hoàn thiện khung vỏ và khả năng kiểm soát nhiệt độ đạt chuẩn cao cấp.`,
       },
       {
@@ -431,7 +474,7 @@ export class AiService {
 
     // Check if Gemini API can provide personalized answer
     const geminiAnswer = await this.callGeminiIfConfigured(
-      `Khách hàng đang xem sản phẩm "${product.name}" (giá: ${Number(product.salePrice || product.price).toLocaleString('vi-VN')}đ, thông số: ${JSON.stringify(product.specs)}). Khách hàng hỏi: "${question}". Hãy đóng vai chuyên viên tư vấn công nghệ Nexora trả lời ngắn gọn, chính xác kỹ thuật trong 2-3 câu bằng tiếng Việt.`
+      `Khách hàng đang xem sản phẩm "${product.name}" (giá: ${Number(product.salePrice || product.price).toLocaleString('vi-VN')}đ, thông số: ${JSON.stringify(product.specs)}). Khách hàng hỏi: "${question}". Hãy đóng vai chuyên viên tư vấn công nghệ Nexora trả lời ngắn gọn, chính xác kỹ thuật trong 2-3 câu bằng tiếng Việt.`,
     );
     if (geminiAnswer) {
       answer = geminiAnswer;

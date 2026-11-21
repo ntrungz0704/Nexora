@@ -14,6 +14,8 @@ const testEnv: AppEnv = {
   SERVER_URL: 'http://localhost:3000',
   CORS_ALLOWED_ORIGINS: 'http://localhost:5173',
   corsOrigins: ['http://localhost:5173'],
+  TRUST_PROXY: 'false',
+  trustProxy: false,
 };
 
 function makeFakeRepo(up: boolean): SystemRepository {

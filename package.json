@@ -19,6 +19,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md,css}\" --ignore-path .gitignore",
     "typecheck": "npm run build:packages && npm run typecheck -w @nexora/api && npm run typecheck -w @nexora/web",
     "test": "npm run build:packages && vitest run",
+    "test:unit": "npm run build:packages && vitest run packages/shared/tests apps/web/tests apps/api/tests/app.test.ts",
     "test:integration": "npm run build:packages && npm run test:integration -w @nexora/api",
     "test:e2e": "playwright test --config=tests/playwright.config.ts",
     "db:generate": "prisma generate",

@@ -81,10 +81,17 @@ export const GuidePage: React.FC = () => {
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Trang chủ</Link>
+        <nav
+          className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6"
+          aria-label="Breadcrumb"
+        >
+          <Link to="/" className="hover:text-blue-600 transition-colors">
+            Trang chủ
+          </Link>
           <i className="fa-solid fa-chevron-right text-[10px]"></i>
-          <span className="text-slate-800 dark:text-slate-200 font-semibold">Hướng dẫn mua hàng online</span>
+          <span className="text-slate-800 dark:text-slate-200 font-semibold">
+            Hướng dẫn mua hàng online
+          </span>
         </nav>
 
         {/* Section Header */}
@@ -96,7 +103,8 @@ export const GuidePage: React.FC = () => {
             Hướng Dẫn Mua Hàng Online Tại Nexora
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-            Quy trình mua sắm an toàn, nhanh chóng và minh bạch từ lúc chọn sản phẩm đến khi nhận hàng tận tay
+            Quy trình mua sắm an toàn, nhanh chóng và minh bạch từ lúc chọn sản phẩm đến khi nhận
+            hàng tận tay
           </p>
         </div>
 
@@ -139,7 +147,9 @@ export const GuidePage: React.FC = () => {
                 Tôi có được kiểm tra sản phẩm trước khi thanh toán tiền mặt (COD) không?
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Có. Nexora áp dụng chính sách đồng kiểm ngoại quan cùng bưu tá. Bạn được mở hộp carton để kiểm tra tình trạng nguyên seal, tem bảo hành chính hãng và đúng model trước khi thanh toán.
+                Có. Nexora áp dụng chính sách đồng kiểm ngoại quan cùng bưu tá. Bạn được mở hộp
+                carton để kiểm tra tình trạng nguyên seal, tem bảo hành chính hãng và đúng model
+                trước khi thanh toán.
               </p>
             </div>
 
@@ -148,7 +158,8 @@ export const GuidePage: React.FC = () => {
                 Thời gian giao hàng mất bao lâu?
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Nội thành TP.HCM và Hà Nội giao hỏa tốc từ 2 giờ đến trong ngày. Các tỉnh thành khác giao từ 1 - 3 ngày làm việc qua đối tác vận chuyển chuyên biệt thiết bị công nghệ.
+                Nội thành TP.HCM và Hà Nội giao hỏa tốc từ 2 giờ đến trong ngày. Các tỉnh thành khác
+                giao từ 1 - 3 ngày làm việc qua đối tác vận chuyển chuyên biệt thiết bị công nghệ.
               </p>
             </div>
 
@@ -157,7 +168,8 @@ export const GuidePage: React.FC = () => {
                 Sản phẩm có xuất hóa đơn điện tử VAT không?
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                100% sản phẩm phân phối bởi Nexora đều có hóa đơn VAT điện tử hợp pháp được xuất gửi qua email của khách hàng sau khi đơn hàng giao thành công.
+                100% sản phẩm phân phối bởi Nexora đều có hóa đơn VAT điện tử hợp pháp được xuất gửi
+                qua email của khách hàng sau khi đơn hàng giao thành công.
               </p>
             </div>
           </div>
@@ -167,13 +179,20 @@ export const GuidePage: React.FC = () => {
         <section className="text-center p-8 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-3xl shadow-lg">
           <h3 className="text-xl font-bold mb-2">Bắt Đầu Trải Nghiệm Mua Sắm Ngay</h3>
           <p className="text-xs md:text-sm text-blue-100 max-w-lg mx-auto mb-6">
-            Hàng ngàn sản phẩm máy tính và linh kiện phần cứng chính hãng đang sẵn sàng phục vụ bạn với giá tốt nhất thị trường.
+            Hàng ngàn sản phẩm máy tính và linh kiện phần cứng chính hãng đang sẵn sàng phục vụ bạn
+            với giá tốt nhất thị trường.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link to="/search" className="px-6 py-2.5 bg-white text-blue-600 font-bold text-xs rounded-xl shadow transition-transform hover:scale-105">
+            <Link
+              to="/search"
+              className="px-6 py-2.5 bg-white text-blue-600 font-bold text-xs rounded-xl shadow transition-transform hover:scale-105"
+            >
               Khám phá sản phẩm
             </Link>
-            <Link to="/order-tracking" className="px-6 py-2.5 bg-blue-800/60 hover:bg-blue-800 text-white font-bold text-xs rounded-xl border border-blue-400/40 transition-colors">
+            <Link
+              to="/order-tracking"
+              className="px-6 py-2.5 bg-blue-800/60 hover:bg-blue-800 text-white font-bold text-xs rounded-xl border border-blue-400/40 transition-colors"
+            >
               Tra cứu đơn hàng
             </Link>
           </div>

@@ -1,6 +1,7 @@
 # THANH TOÁN AN TOÀN & BẢO VỆ GIAO DỊCH VÍ / CỔNG THANH TOÁN
+
 **Tài liệu:** `09_PAYMENT_AND_TRANSACTION_SAFETY.md`  
-**Dự án:** Nexora  
+**Dự án:** Nexora
 
 ---
 

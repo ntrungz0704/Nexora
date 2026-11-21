@@ -30,7 +30,9 @@ export const RegisterPage: React.FC = () => {
   const ruleUpperLower = /[a-z]/.test(password) && /[A-Z]/.test(password);
   const ruleNumberOrSpecial = /[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password);
 
-  const passedRulesCount = [ruleMinLength, ruleUpperLower, ruleNumberOrSpecial].filter(Boolean).length;
+  const passedRulesCount = [ruleMinLength, ruleUpperLower, ruleNumberOrSpecial].filter(
+    Boolean,
+  ).length;
   let strengthLabel = 'Chưa nhập';
   let strengthColor = '#CBD5E1';
   let strengthPercent = 0;
@@ -231,7 +233,9 @@ export const RegisterPage: React.FC = () => {
                     tabIndex={-1}
                     aria-label="Hiện/ẩn xác nhận mật khẩu"
                   >
-                    <i className={`fa-regular ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                    <i
+                      className={`fa-regular ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}
+                    ></i>
                   </button>
                 </div>
               </div>
@@ -239,7 +243,13 @@ export const RegisterPage: React.FC = () => {
               {/* Password Strength Box */}
               {password.length > 0 && (
                 <div className="auth-pw-strength">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
                     <span className="auth-pw-strength__label">Độ mạnh mật khẩu:</span>
                     <span style={{ fontSize: '12px', fontWeight: 700, color: strengthColor }}>
                       {strengthLabel}
@@ -256,15 +266,23 @@ export const RegisterPage: React.FC = () => {
                   </div>
                   <ul className="auth-pw-rules">
                     <li className={`auth-pw-rule ${ruleMinLength ? 'auth-pw-rule--pass' : ''}`}>
-                      <i className={`fa-solid ${ruleMinLength ? 'fa-circle-check' : 'fa-circle-dot'}`}></i>
+                      <i
+                        className={`fa-solid ${ruleMinLength ? 'fa-circle-check' : 'fa-circle-dot'}`}
+                      ></i>
                       <span>Ít nhất 8 ký tự</span>
                     </li>
                     <li className={`auth-pw-rule ${ruleUpperLower ? 'auth-pw-rule--pass' : ''}`}>
-                      <i className={`fa-solid ${ruleUpperLower ? 'fa-circle-check' : 'fa-circle-dot'}`}></i>
+                      <i
+                        className={`fa-solid ${ruleUpperLower ? 'fa-circle-check' : 'fa-circle-dot'}`}
+                      ></i>
                       <span>Bao gồm chữ hoa và chữ thường</span>
                     </li>
-                    <li className={`auth-pw-rule ${ruleNumberOrSpecial ? 'auth-pw-rule--pass' : ''}`}>
-                      <i className={`fa-solid ${ruleNumberOrSpecial ? 'fa-circle-check' : 'fa-circle-dot'}`}></i>
+                    <li
+                      className={`auth-pw-rule ${ruleNumberOrSpecial ? 'auth-pw-rule--pass' : ''}`}
+                    >
+                      <i
+                        className={`fa-solid ${ruleNumberOrSpecial ? 'fa-circle-check' : 'fa-circle-dot'}`}
+                      ></i>
                       <span>Bao gồm số hoặc ký tự đặc biệt</span>
                     </li>
                   </ul>
@@ -309,9 +327,11 @@ export const RegisterPage: React.FC = () => {
               type="button"
               className="auth-btn-google"
               onClick={() => {
-                authService.login({ email: 'customer@nexora.vn', password: 'password123' }).then(() => {
-                  navigate('/');
-                });
+                authService
+                  .login({ email: 'customer@nexora.vn', password: 'password123' })
+                  .then(() => {
+                    navigate('/');
+                  });
               }}
             >
               <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">

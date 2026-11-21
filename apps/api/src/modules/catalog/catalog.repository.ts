@@ -55,13 +55,13 @@ export class CatalogRepository {
         'gaming-gear': ['keyboard', 'mouse', 'chair', 'headset', 'speaker', 'console'],
         'office-gear': ['office-equipment', 'power-bank'],
         'thiet-bi-van-phong': ['office-equipment', 'power-bank'],
-        'pc': ['pc'],
+        pc: ['pc'],
         'pc-dong-bo': ['pc'],
         'pc-nexora': ['pc'],
         'pc-techpilot': ['pc'],
-        'laptop': ['laptop'],
+        laptop: ['laptop'],
         'man-hinh': ['monitor'],
-        'monitor': ['monitor'],
+        monitor: ['monitor'],
       };
       const cleanSlug = options.categorySlug.toLowerCase().replace(/\s+/g, '-');
       if (VIRTUAL_GROUPS[cleanSlug]) {

@@ -35,7 +35,10 @@ export const ForgotPasswordPage: React.FC = () => {
           textAlign: 'center',
         }}
       >
-        <Link to="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '24px' }}>
+        <Link
+          to="/"
+          style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '24px' }}
+        >
           <img
             src="/assets/images/logo.png"
             alt="Nexora"
@@ -46,8 +49,11 @@ export const ForgotPasswordPage: React.FC = () => {
         <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#0F172A', margin: '0 0 8px 0' }}>
           Quên Mật Khẩu?
         </h1>
-        <p style={{ fontSize: '13.5px', color: '#64748B', lineHeight: '1.5', margin: '0 0 28px 0' }}>
-          Nhập email đăng ký của bạn. Chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu an toàn trong giây lát.
+        <p
+          style={{ fontSize: '13.5px', color: '#64748B', lineHeight: '1.5', margin: '0 0 28px 0' }}
+        >
+          Nhập email đăng ký của bạn. Chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu an toàn trong giây
+          lát.
         </p>
 
         {isSubmitted ? (
@@ -76,11 +82,14 @@ export const ForgotPasswordPage: React.FC = () => {
             >
               <i className="fa-solid fa-paper-plane"></i>
             </div>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#1E40AF', margin: '0 0 6px 0' }}>
+            <h3
+              style={{ fontSize: '15px', fontWeight: 800, color: '#1E40AF', margin: '0 0 6px 0' }}
+            >
               Kiểm Tra Hộp Thư Đến
             </h3>
             <p style={{ fontSize: '13px', color: '#334155', margin: 0, lineHeight: '1.5' }}>
-              Liên kết đặt lại mật khẩu đã được gửi đến <strong>{email}</strong>. Vui lòng kiểm tra cả thư mục Spam.
+              Liên kết đặt lại mật khẩu đã được gửi đến <strong>{email}</strong>. Vui lòng kiểm tra
+              cả thư mục Spam.
             </p>
             <Link
               to="/login"
@@ -97,9 +106,20 @@ export const ForgotPasswordPage: React.FC = () => {
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}
+          >
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: '#475569',
+                  marginBottom: '6px',
+                }}
+              >
                 Email tài khoản
               </label>
               <input
@@ -137,9 +157,14 @@ export const ForgotPasswordPage: React.FC = () => {
               Gửi Liên Kết Đặt Lại Mật Khẩu
             </button>
 
-            <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '13px', color: '#64748B' }}>
+            <div
+              style={{ textAlign: 'center', marginTop: '12px', fontSize: '13px', color: '#64748B' }}
+            >
               Nhớ lại mật khẩu?{' '}
-              <Link to="/login" style={{ color: '#0A5BFF', fontWeight: 700, textDecoration: 'none' }}>
+              <Link
+                to="/login"
+                style={{ color: '#0A5BFF', fontWeight: 700, textDecoration: 'none' }}
+              >
                 Đăng nhập ngay
               </Link>
             </div>

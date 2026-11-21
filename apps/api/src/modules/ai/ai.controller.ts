@@ -18,7 +18,10 @@ export class AiController {
       if (!parsed.success) {
         throw new AppError(400, 'VALIDATION_ERROR', 'Tin nhắn không hợp lệ.');
       }
-      const result = await this.service.queryFloatingChatbot(parsed.data.message, parsed.data.history);
+      const result = await this.service.queryFloatingChatbot(
+        parsed.data.message,
+        parsed.data.history,
+      );
       sendSuccess(res, result);
     } catch (error) {
       next(error);
@@ -44,7 +47,10 @@ export class AiController {
       if (!parsed.success) {
         throw new AppError(400, 'VALIDATION_ERROR', 'Danh sách sản phẩm so sánh không hợp lệ.');
       }
-      const result = await this.service.compareProducts(parsed.data.productIds, parsed.data.userPersona);
+      const result = await this.service.compareProducts(
+        parsed.data.productIds,
+        parsed.data.userPersona,
+      );
       sendSuccess(res, result);
     } catch (error) {
       next(error);

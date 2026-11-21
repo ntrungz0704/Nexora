@@ -35,7 +35,10 @@ export const HeroCarousel: React.FC<{ banners?: BannerDto[] }> = ({ banners: pro
     activeBanners.length > 0
       ? activeBanners.map((b) => ({
           id: b.id,
-          imageUrl: b.imageUrl.startsWith('/') || b.imageUrl.startsWith('http') ? b.imageUrl : `/${b.imageUrl}`,
+          imageUrl:
+            b.imageUrl.startsWith('/') || b.imageUrl.startsWith('http')
+              ? b.imageUrl
+              : `/${b.imageUrl}`,
           title: b.title,
           linkUrl: b.linkUrl || '/search',
         }))
@@ -79,7 +82,8 @@ export const HeroCarousel: React.FC<{ banners?: BannerDto[] }> = ({ banners: pro
                 {slide.title}
               </h2>
               <p style={{ color: '#E2E8F0', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
-                Sản phẩm phần cứng chính hãng — Bảo hành tiêu chuẩn nhà sản xuất, giao nhanh toàn quốc.
+                Sản phẩm phần cứng chính hãng — Bảo hành tiêu chuẩn nhà sản xuất, giao nhanh toàn
+                quốc.
               </p>
               <span
                 className="btn btn--light"

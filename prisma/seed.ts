@@ -18,7 +18,7 @@ async function getAdminInitialPasswordHash(): Promise<string> {
       return bcrypt.hash(process.env.ADMIN_INITIAL_PASSWORD, 10);
     }
     throw new Error(
-      '[FATAL SEED ERROR] In production, ADMIN_INITIAL_PASSWORD or ADMIN_INITIAL_PASSWORD_HASH environment variable must be provided to bootstrap the initial admin account safely without default passwords.'
+      '[FATAL SEED ERROR] In production, ADMIN_INITIAL_PASSWORD or ADMIN_INITIAL_PASSWORD_HASH environment variable must be provided to bootstrap the initial admin account safely without default passwords.',
     );
   }
   return DEV_DEFAULT_PASSWORD_HASH;
@@ -1314,8 +1314,10 @@ async function main(): Promise<void> {
     {
       title: 'Đánh giá NVIDIA GeForce RTX 5090: Quái vật hiệu năng kỷ nguyên AI',
       slug: 'danh-gia-nvidia-geforce-rtx-5090-hieu-nang-ai',
-      excerpt: 'Kiến trúc Blackwell tiến trình 4nm đem lại bước nhảy vọt hiệu năng Ray Tracing và DLSS 4 đột phá.',
-      content: '<p>NVIDIA đã chính thức công bố dòng card đồ họa GeForce RTX 50 Series với đầu tàu RTX 5090. Với bộ nhớ GDDR7 siêu tốc và hơn 24.000 nhân CUDA, đây là cỗ máy hoàn hảo cho đồ họa 8K và tính toán AI cục bộ.</p>',
+      excerpt:
+        'Kiến trúc Blackwell tiến trình 4nm đem lại bước nhảy vọt hiệu năng Ray Tracing và DLSS 4 đột phá.',
+      content:
+        '<p>NVIDIA đã chính thức công bố dòng card đồ họa GeForce RTX 50 Series với đầu tàu RTX 5090. Với bộ nhớ GDDR7 siêu tốc và hơn 24.000 nhân CUDA, đây là cỗ máy hoàn hảo cho đồ họa 8K và tính toán AI cục bộ.</p>',
       thumbnailUrl: '/assets/images/posts/rtx-5090-review.jpg',
       category: 'Phần cứng',
       views: 1250,
@@ -1325,8 +1327,10 @@ async function main(): Promise<void> {
     {
       title: 'Top 5 bàn phím cơ không dây văn phòng và gaming đáng mua nhất 2026',
       slug: 'top-5-ban-phim-co-khong-day-dang-mua-nhat-2026',
-      excerpt: 'Tổng hợp các mẫu bàn phím cơ gõ êm, pin trâu từ Logitech, Corsair và Keychron cho trải nghiệm làm việc đỉnh cao.',
-      content: '<p>Lựa chọn bàn phím cơ không dây đáp ứng tiêu chí gọn gàng, độ trễ thấp và cảm giác gõ mượt mà. Cùng Nexora điểm qua top 5 lựa chọn xuất sắc nhất hiện nay.</p>',
+      excerpt:
+        'Tổng hợp các mẫu bàn phím cơ gõ êm, pin trâu từ Logitech, Corsair và Keychron cho trải nghiệm làm việc đỉnh cao.',
+      content:
+        '<p>Lựa chọn bàn phím cơ không dây đáp ứng tiêu chí gọn gàng, độ trễ thấp và cảm giác gõ mượt mà. Cùng Nexora điểm qua top 5 lựa chọn xuất sắc nhất hiện nay.</p>',
       thumbnailUrl: '/assets/images/posts/mechanical-keyboards-2026.jpg',
       category: 'Gaming Gear',
       views: 890,
@@ -1336,8 +1340,10 @@ async function main(): Promise<void> {
     {
       title: 'Hướng dẫn tự build PC gaming cân mọi tựa game AAA tầm giá 25 triệu',
       slug: 'huong-dan-tu-build-pc-gaming-25-trieu',
-      excerpt: 'Chi tiết từng linh kiện từ CPU Core i5 / Ryzen 5 đến RTX 4060 Ti tối ưu hiệu năng trên từng đồng bỏ ra.',
-      content: '<p>Build cấu hình PC chơi game mượt mà ở độ phân giải 2K là mong muốn của nhiều game thủ. Bài viết này hướng dẫn chi tiết cách phối hợp linh kiện không bị nghẽn cổ chai.</p>',
+      excerpt:
+        'Chi tiết từng linh kiện từ CPU Core i5 / Ryzen 5 đến RTX 4060 Ti tối ưu hiệu năng trên từng đồng bỏ ra.',
+      content:
+        '<p>Build cấu hình PC chơi game mượt mà ở độ phân giải 2K là mong muốn của nhiều game thủ. Bài viết này hướng dẫn chi tiết cách phối hợp linh kiện không bị nghẽn cổ chai.</p>',
       thumbnailUrl: '/assets/images/posts/build-pc-guide.jpg',
       category: 'Tư vấn',
       views: 2400,

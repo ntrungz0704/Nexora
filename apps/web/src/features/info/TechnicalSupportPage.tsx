@@ -41,7 +41,12 @@ export const TechnicalSupportPage: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!customerName.trim() || !customerPhone.trim() || !productName.trim() || !description.trim()) {
+    if (
+      !customerName.trim() ||
+      !customerPhone.trim() ||
+      !productName.trim() ||
+      !description.trim()
+    ) {
       setError('Vui lòng điền đầy đủ họ tên, số điện thoại, sản phẩm và mô tả sự cố.');
       return;
     }
@@ -86,8 +91,13 @@ export const TechnicalSupportPage: React.FC = () => {
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Trang chủ</Link>
+        <nav
+          className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6"
+          aria-label="Breadcrumb"
+        >
+          <Link to="/" className="hover:text-blue-600 transition-colors">
+            Trang chủ
+          </Link>
           <i className="fa-solid fa-chevron-right text-[10px]"></i>
           <span className="text-slate-800 dark:text-slate-200 font-semibold">Hỗ trợ kỹ thuật</span>
         </nav>
@@ -101,7 +111,8 @@ export const TechnicalSupportPage: React.FC = () => {
             Gửi Yêu Cầu Hỗ Trợ Kỹ Thuật
           </h1>
           <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-            Đội ngũ chuyên viên kỹ thuật phần cứng và hệ thống Nexora luôn đồng hành để khắc phục nhanh chóng mọi vấn đề của bạn
+            Đội ngũ chuyên viên kỹ thuật phần cứng và hệ thống Nexora luôn đồng hành để khắc phục
+            nhanh chóng mọi vấn đề của bạn
           </p>
         </div>
 
@@ -118,11 +129,15 @@ export const TechnicalSupportPage: React.FC = () => {
                   <i className="fa-solid fa-phone-volume"></i>
                 </div>
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">Hotline Kỹ Thuật</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">
+                    Hotline Kỹ Thuật
+                  </h3>
                   <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
                     1900 8888 (Phím 2)
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Hỗ trợ từ 08:00 - 21:30 cả thứ 7 & Chủ Nhật</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Hỗ trợ từ 08:00 - 21:30 cả thứ 7 & Chủ Nhật
+                  </p>
                 </div>
               </div>
 
@@ -131,9 +146,12 @@ export const TechnicalSupportPage: React.FC = () => {
                   <i className="fa-solid fa-shield-halved"></i>
                 </div>
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">Tra Cứu Bảo Hành</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">
+                    Tra Cứu Bảo Hành
+                  </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Khách hàng mua hàng tại Nexora có thể mang máy đến bất kỳ showroom nào trên toàn quốc hoặc gửi chuyển phát về trung tâm bảo hành để được kiểm tra miễn phí.
+                    Khách hàng mua hàng tại Nexora có thể mang máy đến bất kỳ showroom nào trên toàn
+                    quốc hoặc gửi chuyển phát về trung tâm bảo hành để được kiểm tra miễn phí.
                   </p>
                 </div>
               </div>
@@ -143,9 +161,12 @@ export const TechnicalSupportPage: React.FC = () => {
                   <i className="fa-solid fa-robot"></i>
                 </div>
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">Trợ Lý Ảo Nexora AI</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-1">
+                    Trợ Lý Ảo Nexora AI
+                  </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Bạn có thể bấm vào biểu tượng chatbot ở góc dưới màn hình để hỏi nhanh mã lỗi phần cứng hoặc kiểm tra tính tương thích linh kiện 24/7.
+                    Bạn có thể bấm vào biểu tượng chatbot ở góc dưới màn hình để hỏi nhanh mã lỗi
+                    phần cứng hoặc kiểm tra tính tương thích linh kiện 24/7.
                   </p>
                 </div>
               </div>
@@ -159,7 +180,8 @@ export const TechnicalSupportPage: React.FC = () => {
                 Tạo Phiếu Yêu Cầu Hỗ Trợ
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
-                Vui lòng mô tả chi tiết sự cố gặp phải để kỹ thuật viên chuẩn bị sẵn linh kiện và phương án xử lý nhanh nhất
+                Vui lòng mô tả chi tiết sự cố gặp phải để kỹ thuật viên chuẩn bị sẵn linh kiện và
+                phương án xử lý nhanh nhất
               </p>
 
               {ticketId ? (
@@ -171,11 +193,17 @@ export const TechnicalSupportPage: React.FC = () => {
                     Tiếp Nhận Yêu Cầu Thành Công!
                   </h3>
                   <div className="inline-block px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <span className="text-xs text-slate-500 block">Mã phiếu hỗ trợ (Ticket ID):</span>
-                    <strong className="text-base font-extrabold text-blue-600 dark:text-blue-400">{ticketId}</strong>
+                    <span className="text-xs text-slate-500 block">
+                      Mã phiếu hỗ trợ (Ticket ID):
+                    </span>
+                    <strong className="text-base font-extrabold text-blue-600 dark:text-blue-400">
+                      {ticketId}
+                    </strong>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-md mx-auto">
-                    Kỹ thuật viên Nexora sẽ gọi điện cho bạn qua số điện thoại <strong className="text-slate-800 dark:text-slate-200">{customerPhone}</strong> trong vòng 60 phút để hướng dẫn xử lý hoặc hẹn lịch kiểm tra trực tiếp.
+                    Kỹ thuật viên Nexora sẽ gọi điện cho bạn qua số điện thoại{' '}
+                    <strong className="text-slate-800 dark:text-slate-200">{customerPhone}</strong>{' '}
+                    trong vòng 60 phút để hướng dẫn xử lý hoặc hẹn lịch kiểm tra trực tiếp.
                   </p>
                   <button
                     onClick={() => {
@@ -261,8 +289,12 @@ export const TechnicalSupportPage: React.FC = () => {
                       onChange={(e) => setIssueType(e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500"
                     >
-                      <option value="PhanCung">Sự cố phần cứng (không lên hình, mất nguồn, tiếng kêu lạ)</option>
-                      <option value="PhanMem">Lỗi phần mềm, Windows, màn hình xanh (BSOD), driver</option>
+                      <option value="PhanCung">
+                        Sự cố phần cứng (không lên hình, mất nguồn, tiếng kêu lạ)
+                      </option>
+                      <option value="PhanMem">
+                        Lỗi phần mềm, Windows, màn hình xanh (BSOD), driver
+                      </option>
                       <option value="BaoHanh">Yêu cầu bảo hành / đổi mới linh kiện 30 ngày</option>
                       <option value="NangCap">Tư vấn nâng cấp RAM, SSD, VGA, tản nhiệt</option>
                     </select>

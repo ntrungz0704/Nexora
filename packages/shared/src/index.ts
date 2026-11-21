@@ -215,7 +215,10 @@ export const CreateOrderItemInputSchema = z.object({
 export const CreateOrderInputSchema = z.object({
   customerName: z.string().trim().min(2, 'Họ tên tối thiểu 2 ký tự.'),
   customerEmail: z.string().trim().email('Email không đúng định dạng.'),
-  customerPhone: z.string().trim().regex(/^0\d{9}$/, 'Số điện thoại gồm 10 chữ số.'),
+  customerPhone: z
+    .string()
+    .trim()
+    .regex(/^0\d{9}$/, 'Số điện thoại gồm 10 chữ số.'),
   shippingAddress: z.string().trim().min(5, 'Địa chỉ giao hàng tối thiểu 5 ký tự.'),
   province: z.string().optional(),
   district: z.string().optional(),
@@ -403,4 +406,3 @@ export const AdminDashboardSummarySchema = z.object({
 export type AdminDashboardSummaryDto = z.infer<typeof AdminDashboardSummarySchema>;
 
 export * from './personaScoring.js';
-

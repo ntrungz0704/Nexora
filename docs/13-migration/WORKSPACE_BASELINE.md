@@ -11,6 +11,7 @@
 ---
 
 ## 1. Source Preservation Protocol
+
 1. `D:\Nexora\TechPilot` is kept strictly intact, clean, and tracked on `main`. No files have been deleted, moved, or altered.
 2. `audit-output/` is preserved as historic audit data.
 3. Nexora modern architecture is isolated within:
@@ -23,6 +24,7 @@
 ---
 
 ## 2. Legacy Metric Verification
+
 - **Total Views:** 78 view PHP files (55 page-level views + 23 layouts/partials)
 - **Total Routes:** 182 route declarations in `router.php`
 - **Database Tables:** 28 MySQL tables
