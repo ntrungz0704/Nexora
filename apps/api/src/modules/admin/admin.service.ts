@@ -1037,14 +1037,11 @@ export class AdminService {
     if (!targetUser) {
       throw new AppError(404, 'NOT_FOUND', 'Không tìm thấy người dùng.');
     }
-    if (
-      targetUser.role === 'ADMIN' &&
-      (targetUser.email === 'admin@nexora.local' || targetUser.email === 'admin@nexora.vn')
-    ) {
+    if (targetUser.role === 'ADMIN') {
       throw new AppError(
         403,
         'PROTECTED_ADMIN',
-        'Không thể thay đổi vai trò tài khoản Quản trị hệ thống được bảo vệ.',
+        'Không thể thay đổi vai trò tài khoản có vai trò Quản trị viên (ADMIN).',
       );
     }
     return prisma.user.update({

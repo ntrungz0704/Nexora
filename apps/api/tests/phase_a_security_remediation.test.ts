@@ -19,6 +19,7 @@ describe('Phase A Security Remediation Suite (RBAC, Order IDOR & Rate Limiting)'
   let customerAId: number;
   let customerBId: number;
   let disposableUserId: number;
+  let secondAdminId: number;
 
   let customerAOrderCode: string;
   let guestOrderCode: string;
@@ -66,6 +67,19 @@ describe('Phase A Security Remediation Suite (RBAC, Order IDOR & Rate Limiting)'
     });
     disposableUserId = disposable.id;
     createdUserIds.push(disposable.id);
+
+    const secondAdmin = await prisma.user.create({
+      data: {
+        email: `phasea-admin2-${ts}@external-partner.org`,
+        fullName: 'Phó Quản Trị Nexora 2',
+        phone: '0912000333',
+        passwordHash,
+        role: 'ADMIN',
+        status: 'ACTIVE',
+      },
+    });
+    secondAdminId = secondAdmin.id;
+    createdUserIds.push(secondAdmin.id);
 
     // Login Admin, Staff, Customer A, Customer B
     const adminRes = await request(app)
@@ -299,6 +313,36 @@ describe('Phase A Security Remediation Suite (RBAC, Order IDOR & Rate Limiting)'
       expect(toggleOn.status).toBe(200);
       expect(toggleOn.body.data.status).toBe('ACTIVE');
     });
+
+    it('RBAC-A8: Second ADMIN account with non-system email cannot have its role modified or be toggled/locked by another ADMIN', async () => {
+      // Admin cannot demote second admin to CUSTOMER
+      const demoteRes = await request(app)
+        .patch(`/api/v1/admin/users/${secondAdminId}/role`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ role: 'CUSTOMER' });
+      expect(demoteRes.status).toBe(403);
+      expect(demoteRes.body.error.code).toBe('PROTECTED_ADMIN');
+
+      // Admin cannot change second admin to STAFF
+      const staffRes = await request(app)
+        .patch(`/api/v1/admin/users/${secondAdminId}/role`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ role: 'STAFF' });
+      expect(staffRes.status).toBe(403);
+      expect(staffRes.body.error.code).toBe('PROTECTED_ADMIN');
+
+      // Admin cannot toggle/lock second admin
+      const toggleRes = await request(app)
+        .patch(`/api/v1/admin/users/${secondAdminId}/toggle`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(toggleRes.status).toBe(403);
+      expect(toggleRes.body.error.code).toBe('PROTECTED_ADMIN');
+
+      // Verify in DB that second admin remains strictly ADMIN and ACTIVE
+      const dbAdmin2 = await prisma.user.findUniqueOrThrow({ where: { id: secondAdminId } });
+      expect(dbAdmin2.role).toBe('ADMIN');
+      expect(dbAdmin2.status).toBe('ACTIVE');
+    });
   });
 
   // =========================================================================
@@ -394,6 +438,84 @@ describe('Phase A Security Remediation Suite (RBAC, Order IDOR & Rate Limiting)'
       expect(registeredOrderAsGuest.status).toBe(404);
       expect(wrongPhone.body.error.message).toBe(nonExistent.body.error.message);
       expect(registeredOrderAsGuest.body.error.message).toBe(nonExistent.body.error.message);
+    });
+
+    it('TRACK-B7: Guest tracking registered customer order with correct code & phone succeeds with sanitized masked PII', async () => {
+      const res = await request(app).get(
+        `/api/v1/orders/track?code=${encodeURIComponent(customerAOrderCode)}&phone=0903456789`,
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.orderCode).toBe(customerAOrderCode);
+      // PII is masked
+      expect(res.body.data.customerPhone).toContain('****');
+      expect(res.body.data.customerPhone).not.toBe('0903456789');
+      expect(res.body.data.customerEmail).toContain('***@');
+      expect(res.body.data.shippingAddress).toContain('***');
+      expect(res.body.data.customerNotes).toBeNull();
+    });
+
+    it('TRACK-B8: Guest tracking with incorrect phone number returns uniform 404 ORDER_NOT_FOUND', async () => {
+      const res = await request(app).get(
+        `/api/v1/orders/track?code=${encodeURIComponent(customerAOrderCode)}&phone=0999999999`,
+      );
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('ORDER_NOT_FOUND');
+    });
+
+    it('TRACK-B9: Guest tracking with non-existent order code returns uniform 404 ORDER_NOT_FOUND', async () => {
+      const res = await request(app).get(
+        '/api/v1/orders/track?code=NX-000000-0000&phone=0903456789',
+      );
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('ORDER_NOT_FOUND');
+    });
+
+    it('TRACK-B10: Authenticated owner (Customer A) tracking own order receives full unmasked data and notes', async () => {
+      const res = await request(app)
+        .get(`/api/v1/orders/track?code=${encodeURIComponent(customerAOrderCode)}&phone=0903456789`)
+        .set('Authorization', `Bearer ${customerAToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.orderCode).toBe(customerAOrderCode);
+      // Full unmasked data for owner
+      expect(res.body.data.customerPhone).toBe('0903456789');
+      expect(res.body.data.customerEmail).toBe('customer@nexora.local');
+      expect(res.body.data.shippingAddress).toBe('123 Đường Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh');
+      expect(res.body.data.customerNotes).toBe('Ghi chú riêng tư khách hàng A');
+    });
+
+    it('TRACK-B11: Authenticated different customer (Customer B) tracking Customer A order with code & phone receives sanitized/masked data, NOT owner data', async () => {
+      const res = await request(app)
+        .get(`/api/v1/orders/track?code=${encodeURIComponent(customerAOrderCode)}&phone=0903456789`)
+        .set('Authorization', `Bearer ${customerBToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.orderCode).toBe(customerAOrderCode);
+      // Customer B is not the owner: data MUST be masked and customerNotes MUST be null
+      expect(res.body.data.customerPhone).toContain('****');
+      expect(res.body.data.customerPhone).not.toBe('0903456789');
+      expect(res.body.data.customerEmail).toContain('***@');
+      expect(res.body.data.shippingAddress).toContain('***');
+      expect(res.body.data.customerNotes).toBeNull();
+    });
+
+    it('TRACK-B12: ADMIN and STAFF tracking registered order via /orders/track receive full unmasked data', async () => {
+      const resAdmin = await request(app)
+        .get(`/api/v1/orders/track?code=${encodeURIComponent(customerAOrderCode)}&phone=0903456789`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(resAdmin.status).toBe(200);
+      expect(resAdmin.body.data.customerPhone).toBe('0903456789');
+      expect(resAdmin.body.data.customerNotes).toBe('Ghi chú riêng tư khách hàng A');
+
+      const resStaff = await request(app)
+        .get(`/api/v1/orders/track?code=${encodeURIComponent(customerAOrderCode)}&phone=0903456789`)
+        .set('Authorization', `Bearer ${staffToken}`);
+      expect(resStaff.status).toBe(200);
+      expect(resStaff.body.data.customerPhone).toBe('0903456789');
+      expect(resStaff.body.data.customerNotes).toBe('Ghi chú riêng tư khách hàng A');
     });
   });
 
