@@ -111,6 +111,11 @@ export const storefrontService = {
     return res.data.data;
   },
 
+  async getActiveCoupons(): Promise<CouponDto[]> {
+    const res = await apiClient.get<ApiSuccessEnvelope<CouponDto[]>>('/marketing/coupons');
+    return res.data.data;
+  },
+
   async validateCoupon(code: string, subtotal: number): Promise<ValidateCouponResponse> {
     const res = await apiClient.post<ApiSuccessEnvelope<ValidateCouponResponse>>(
       '/marketing/coupons/validate',

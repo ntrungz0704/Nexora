@@ -1,13 +1,40 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
+import { PrismaClient } from '@prisma/client';
 import { createApp } from '../src/app.js';
 import type { Express } from 'express';
+
+const prisma = new PrismaClient();
 
 describe('RBAC & Concurrency Security Test Suite', () => {
   let app: Express;
   let customerToken: string;
   let staffToken: string;
   let adminToken: string;
+  const createdProductIds: number[] = [];
+  const createdOrderCodes: string[] = [];
+
+  afterAll(async () => {
+    try {
+      if (createdOrderCodes.length > 0) {
+        const orders = await prisma.order.findMany({
+          where: { orderCode: { in: createdOrderCodes } },
+          select: { id: true },
+        });
+        const orderIds = orders.map((o) => o.id);
+        if (orderIds.length > 0) {
+          await prisma.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
+          await prisma.order.deleteMany({ where: { id: { in: orderIds } } });
+        }
+      }
+      if (createdProductIds.length > 0) {
+        await prisma.inventoryLog.deleteMany({ where: { productId: { in: createdProductIds } } });
+        await prisma.product.deleteMany({ where: { id: { in: createdProductIds } } });
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
+  });
 
   beforeAll(async () => {
     app = createApp();
@@ -90,6 +117,7 @@ describe('RBAC & Concurrency Security Test Suite', () => {
 
     expect(prodRes.status).toBe(201);
     const product = prodRes.body.data;
+    createdProductIds.push(product.id);
 
     // 2. Order 1 unit with valid customer info (should succeed)
     const order1 = await request(app)
@@ -103,6 +131,9 @@ describe('RBAC & Concurrency Security Test Suite', () => {
         items: [{ productId: product.id, quantity: 1 }],
       });
     expect(order1.status).toBe(201);
+    if (order1.body?.data?.orderCode) {
+      createdOrderCodes.push(order1.body.data.orderCode);
+    }
 
     // 3. Second order for the same product (should fail with 400 due to 0 stock)
     const order2 = await request(app)
@@ -138,6 +169,7 @@ describe('RBAC & Concurrency Security Test Suite', () => {
 
     expect(prodRes.status).toBe(201);
     const product = prodRes.body.data;
+    createdProductIds.push(product.id);
 
     // 2. Fire 2 simultaneous purchase requests via Promise.all
     const [resA, resB] = await Promise.all([
@@ -162,6 +194,9 @@ describe('RBAC & Concurrency Security Test Suite', () => {
           items: [{ productId: product.id, quantity: 1 }],
         }),
     ]);
+
+    if (resA.body?.data?.orderCode) createdOrderCodes.push(resA.body.data.orderCode);
+    if (resB.body?.data?.orderCode) createdOrderCodes.push(resB.body.data.orderCode);
 
     const statuses = [resA.status, resB.status].sort();
     // Exactly one must succeed (201) and exactly one must be rejected (400)

@@ -130,6 +130,76 @@ interface AdminReviewItem {
   user?: { id: number; fullName: string; email: string };
 }
 
+function getPaginationItems(currentPage: number, totalPages: number): (number | '...')[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, '...', totalPages];
+  }
+  if (currentPage >= totalPages - 3) {
+    return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+}
+
+function AdminPagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+  const items = getPaginationItems(currentPage, totalPages);
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-6 pt-4 border-t border-[#E5E7EB] dark:border-[#1E293B] text-xs">
+      <button
+        type="button"
+        disabled={currentPage <= 1}
+        onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+        className="w-8 h-8 rounded-full font-bold text-[#4B5563] dark:text-[#CBD5E1] hover:bg-gray-100 dark:hover:bg-[#1E293B] flex items-center justify-center disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer disabled:cursor-not-allowed"
+        title="Trang trước"
+      >
+        <i className="fa-solid fa-chevron-left text-[10px]"></i>
+      </button>
+
+      {items.map((item, idx) =>
+        item === '...' ? (
+          <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-[#9CA3AF] font-bold select-none">
+            ...
+          </span>
+        ) : (
+          <button
+            key={item}
+            type="button"
+            onClick={() => onPageChange(item)}
+            className={`w-8 h-8 rounded-full font-bold flex items-center justify-center transition-all cursor-pointer ${
+              currentPage === item
+                ? 'bg-[#0A5BFF] text-white shadow-sm'
+                : 'text-[#4B5563] dark:text-[#CBD5E1] hover:bg-gray-100 dark:hover:bg-[#1E293B]'
+            }`}
+          >
+            {item}
+          </button>
+        )
+      )}
+
+      <button
+        type="button"
+        disabled={currentPage >= totalPages}
+        onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+        className="w-8 h-8 rounded-full font-bold text-[#4B5563] dark:text-[#CBD5E1] hover:bg-gray-100 dark:hover:bg-[#1E293B] flex items-center justify-center disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer disabled:cursor-not-allowed"
+        title="Trang sau"
+      >
+        <i className="fa-solid fa-chevron-right text-[10px]"></i>
+      </button>
+    </div>
+  );
+}
+
 export const AdminDashboardPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -483,6 +553,15 @@ export const AdminDashboardPage: React.FC = () => {
   const [productLowStockOnly, setProductLowStockOnly] = useState(false);
   const [productZeroStockOnly, setProductZeroStockOnly] = useState(false);
   const [productPage, setProductPage] = useState(1);
+  const [orderPage, setOrderPage] = useState(1);
+  const [userPage, setUserPage] = useState(1);
+  const [categoryPage, setCategoryPage] = useState(1);
+  const [brandPage, setBrandPage] = useState(1);
+  const [inventoryPage, setInventoryPage] = useState(1);
+  const [couponPage, setCouponPage] = useState(1);
+  const [bannerPage, setBannerPage] = useState(1);
+  const [postPage, setPostPage] = useState(1);
+  const [reviewPage, setReviewPage] = useState(1);
 
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('');
@@ -570,16 +649,22 @@ export const AdminDashboardPage: React.FC = () => {
     const q = globalSearch.trim();
     if (activeTab === 'orders') {
       setOrderSearch(q);
+      setOrderPage(1);
     } else if (activeTab === 'users') {
       setUserSearch(q);
+      setUserPage(1);
     } else if (activeTab === 'categories') {
       setCategorySearch(q);
+      setCategoryPage(1);
     } else if (activeTab === 'brands') {
       setBrandSearch(q);
+      setBrandPage(1);
     } else if (activeTab === 'posts') {
       setPostSearch(q);
+      setPostPage(1);
     } else if (activeTab === 'reviews') {
       setReviewSearch(q);
+      setReviewPage(1);
     } else {
       setProductSearch(q);
       setProductPage(1);
@@ -1431,6 +1516,8 @@ export const AdminDashboardPage: React.FC = () => {
     if (orderStatusFilter && o.orderStatus !== orderStatusFilter) return false;
     return true;
   });
+  const totalOrderPages = Math.max(1, Math.ceil(filteredOrders.length / 10));
+  const paginatedOrders = filteredOrders.slice((orderPage - 1) * 10, orderPage * 10);
 
   const filteredUsers = users.filter((u) => {
     if (userSearch) {
@@ -1446,16 +1533,22 @@ export const AdminDashboardPage: React.FC = () => {
     if (userRoleFilter && u.role !== userRoleFilter) return false;
     return true;
   });
+  const totalUserPages = Math.max(1, Math.ceil(filteredUsers.length / 10));
+  const paginatedUsers = filteredUsers.slice((userPage - 1) * 10, userPage * 10);
 
   const filteredCategories = categories.filter((c) => {
     if (categorySearch && !c.name.toLowerCase().includes(categorySearch.toLowerCase())) return false;
     return true;
   });
+  const totalCategoryPages = Math.max(1, Math.ceil(filteredCategories.length / 10));
+  const paginatedCategories = filteredCategories.slice((categoryPage - 1) * 10, categoryPage * 10);
 
   const filteredBrands = brands.filter((b) => {
     if (brandSearch && !b.name.toLowerCase().includes(brandSearch.toLowerCase())) return false;
     return true;
   });
+  const totalBrandPages = Math.max(1, Math.ceil(filteredBrands.length / 10));
+  const paginatedBrands = filteredBrands.slice((brandPage - 1) * 10, brandPage * 10);
 
   const filteredPosts = posts.filter((post) => {
     if (postSearch && !post.title.toLowerCase().includes(postSearch.toLowerCase())) return false;
@@ -1464,6 +1557,8 @@ export const AdminDashboardPage: React.FC = () => {
     if (postStatusFilter === '0' && post.isPublished) return false;
     return true;
   });
+  const totalPostPages = Math.max(1, Math.ceil(filteredPosts.length / 10));
+  const paginatedPosts = filteredPosts.slice((postPage - 1) * 10, postPage * 10);
 
   const filteredReviews = reviews.filter((rev) => {
     if (reviewSearch) {
@@ -1476,6 +1571,17 @@ export const AdminDashboardPage: React.FC = () => {
     if (reviewRatingFilter && String(rev.rating) !== reviewRatingFilter) return false;
     return true;
   });
+  const totalReviewPages = Math.max(1, Math.ceil(filteredReviews.length / 10));
+  const paginatedReviews = filteredReviews.slice((reviewPage - 1) * 10, reviewPage * 10);
+
+  const totalInventoryPages = Math.max(1, Math.ceil(inventoryLogs.length / 10));
+  const paginatedInventory = inventoryLogs.slice((inventoryPage - 1) * 10, inventoryPage * 10);
+
+  const totalCouponPages = Math.max(1, Math.ceil(coupons.length / 10));
+  const paginatedCoupons = coupons.slice((couponPage - 1) * 10, couponPage * 10);
+
+  const totalBannerPages = Math.max(1, Math.ceil(banners.length / 10));
+  const paginatedBanners = banners.slice((bannerPage - 1) * 10, bannerPage * 10);
 
   const pendingOrdersList = orders.filter((o) => o.orderStatus === 'PENDING').slice(0, 6);
   const selectedAdjustProduct = products.find((p) => String(p.id) === String(adjustProductId)) || null;
@@ -2426,7 +2532,10 @@ export const AdminDashboardPage: React.FC = () => {
                   type="text"
                   placeholder="Tìm theo mã đơn, tên, điện thoại..."
                   value={orderSearch}
-                  onChange={(e) => setOrderSearch(e.target.value)}
+                  onChange={(e) => {
+                    setOrderSearch(e.target.value);
+                    setOrderPage(1);
+                  }}
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 />
               </div>
@@ -2434,7 +2543,10 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="min-w-[180px]">
                 <select
                   value={orderStatusFilter}
-                  onChange={(e) => setOrderStatusFilter(e.target.value)}
+                  onChange={(e) => {
+                    setOrderStatusFilter(e.target.value);
+                    setOrderPage(1);
+                  }}
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 >
                   <option value="">Tất cả trạng thái</option>
@@ -2452,6 +2564,7 @@ export const AdminDashboardPage: React.FC = () => {
                 onClick={() => {
                   setOrderSearch('');
                   setOrderStatusFilter('');
+                  setOrderPage(1);
                 }}
                 className="px-4 py-2 bg-white dark:bg-transparent hover:bg-gray-100 text-gray-700 dark:text-slate-200 font-bold rounded-lg border border-[#E5E7EB] dark:border-[#334155] flex items-center gap-1.5 transition-colors admin-btn-outline"
               >
@@ -2477,14 +2590,14 @@ export const AdminDashboardPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#1E293B] font-medium">
-                  {filteredOrders.length === 0 ? (
+                  {paginatedOrders.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="py-10 text-center text-[#6B7280] dark:text-[#94A3B8]">
                         Không tìm thấy đơn hàng phù hợp.
                       </td>
                     </tr>
                   ) : (
-                    filteredOrders.map((o) => (
+                    paginatedOrders.map((o) => (
                       <tr
                         key={o.id}
                         className="hover:bg-[#F9FAFB] dark:hover:bg-[#1E293B]/60 transition-colors admin-table-row"
@@ -2554,6 +2667,13 @@ export const AdminDashboardPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination for Orders */}
+            <AdminPagination
+              currentPage={orderPage}
+              totalPages={totalOrderPages}
+              onPageChange={setOrderPage}
+            />
           </div>
         )}
 
@@ -2951,57 +3071,11 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-[#E5E7EB] dark:border-[#1E293B] text-xs">
-              <button
-                type="button"
-                disabled={productPage <= 1}
-                onClick={() => setProductPage((p) => Math.max(1, p - 1))}
-                className="w-8 h-8 rounded-full font-bold text-[#4B5563] dark:text-[#CBD5E1] hover:bg-gray-100 dark:hover:bg-[#1E293B] flex items-center justify-center disabled:opacity-40"
-                title="Trang trước"
-              >
-                <i className="fa-solid fa-chevron-left text-[10px]"></i>
-              </button>
-
-              {Array.from({ length: Math.min(totalProductPages, 5) }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setProductPage(page)}
-                  className={`w-8 h-8 rounded-full font-bold flex items-center justify-center transition-all ${
-                    productPage === page
-                      ? 'bg-[#0A5BFF] text-white shadow-sm'
-                      : 'text-[#4B5563] dark:text-[#CBD5E1] hover:bg-gray-100 dark:hover:bg-[#1E293B]'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              {totalProductPages > 5 && (
-                <>
-                  <span className="text-[#9CA3AF]">...</span>
-                  <button
-                    onClick={() => setProductPage(totalProductPages)}
-                    className={`w-8 h-8 rounded-full font-bold flex items-center justify-center transition-all ${
-                      productPage === totalProductPages
-                        ? 'bg-[#0A5BFF] text-white shadow-sm'
-                        : 'text-[#4B5563] dark:text-[#CBD5E1] hover:bg-gray-100 dark:hover:bg-[#1E293B]'
-                    }`}
-                  >
-                    {totalProductPages}
-                  </button>
-                </>
-              )}
-
-              <button
-                type="button"
-                disabled={productPage >= totalProductPages}
-                onClick={() => setProductPage((p) => Math.min(p + 1, totalProductPages))}
-                className="w-8 h-8 rounded-full font-bold text-[#4B5563] dark:text-[#CBD5E1] hover:bg-gray-100 dark:hover:bg-[#1E293B] flex items-center justify-center disabled:opacity-40"
-                title="Trang sau"
-              >
-                <i className="fa-solid fa-chevron-right text-[10px]"></i>
-              </button>
-            </div>
+            <AdminPagination
+              currentPage={productPage}
+              totalPages={totalProductPages}
+              onPageChange={setProductPage}
+            />
           </div>
           )
         )}
@@ -3115,7 +3189,10 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     placeholder="Tìm danh mục theo tên..."
                     value={categorySearch}
-                    onChange={(e) => setCategorySearch(e.target.value)}
+                    onChange={(e) => {
+                      setCategorySearch(e.target.value);
+                      setCategoryPage(1);
+                    }}
                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
                   />
                 </div>
@@ -3144,9 +3221,11 @@ export const AdminDashboardPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                    {filteredCategories.map((c, idx) => (
+                    {paginatedCategories.map((c, idx) => (
                       <tr key={c.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
-                        <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{idx + 1}</td>
+                        <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">
+                          {(categoryPage - 1) * 10 + idx + 1}
+                        </td>
                         <td className="py-3.5 px-3 font-bold text-gray-900 admin-text-title">{c.name}</td>
                         <td className="py-3.5 px-3 font-mono text-gray-500 admin-text-muted">{c.slug}</td>
                         <td className="py-3.5 px-3 text-center text-gray-600 font-semibold admin-text-muted">{c.sortOrder || 0}</td>
@@ -3199,6 +3278,13 @@ export const AdminDashboardPage: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination for Categories */}
+              <AdminPagination
+                currentPage={categoryPage}
+                totalPages={totalCategoryPages}
+                onPageChange={setCategoryPage}
+              />
             </div>
           )
         )}
@@ -3317,7 +3403,10 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     placeholder="Tìm thương hiệu theo tên..."
                     value={brandSearch}
-                    onChange={(e) => setBrandSearch(e.target.value)}
+                    onChange={(e) => {
+                      setBrandSearch(e.target.value);
+                      setBrandPage(1);
+                    }}
                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
                   />
                 </div>
@@ -3346,9 +3435,11 @@ export const AdminDashboardPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                    {filteredBrands.map((b, idx) => (
+                    {paginatedBrands.map((b, idx) => (
                       <tr key={b.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
-                        <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{idx + 1}</td>
+                        <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">
+                          {(brandPage - 1) * 10 + idx + 1}
+                        </td>
                         <td className="py-3.5 px-3 text-center">
                           {b.logoUrl ? (
                             <div className="inline-flex items-center justify-center bg-white rounded-lg px-2.5 py-1.5 border border-[#E5E7EB] dark:border-[#334155]">
@@ -3403,6 +3494,13 @@ export const AdminDashboardPage: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination for Brands */}
+              <AdminPagination
+                currentPage={brandPage}
+                totalPages={totalBrandPages}
+                onPageChange={setBrandPage}
+              />
             </div>
           )
         )}
@@ -3462,7 +3560,7 @@ export const AdminDashboardPage: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    inventoryLogs.map((log) => (
+                    paginatedInventory.map((log) => (
                       <tr
                         key={log.id}
                         className="hover:bg-[#F9FAFB] dark:hover:bg-[#1E293B]/60 transition-colors admin-table-row"
@@ -3513,6 +3611,13 @@ export const AdminDashboardPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination for Inventory */}
+            <AdminPagination
+              currentPage={inventoryPage}
+              totalPages={totalInventoryPages}
+              onPageChange={setInventoryPage}
+            />
           </div>
         )}
 
@@ -3713,7 +3818,7 @@ export const AdminDashboardPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                    {coupons.map((cp) => (
+                    {paginatedCoupons.map((cp) => (
                       <tr key={cp.id} className="hover:bg-slate-50/60 transition-colors admin-table-row">
                         <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">{cp.id}</td>
                         <td className="py-3.5 px-3 font-bold text-blue-600 font-mono text-sm tracking-wide">{cp.code}</td>
@@ -3771,6 +3876,13 @@ export const AdminDashboardPage: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination for Coupons */}
+              <AdminPagination
+                currentPage={couponPage}
+                totalPages={totalCouponPages}
+                onPageChange={setCouponPage}
+              />
             </div>
           )
         )}
@@ -4097,13 +4209,13 @@ export const AdminDashboardPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#1E293B] font-medium">
-                  {banners.map((bn, idx) => (
+                  {paginatedBanners.map((bn, idx) => (
                     <tr
                       key={bn.id}
                       className="hover:bg-[#F9FAFB] dark:hover:bg-[#1E293B]/60 transition-colors admin-table-row"
                     >
                       <td className="py-3.5 px-3 text-center text-[#9CA3AF] font-semibold">
-                        {idx + 1}
+                        {(bannerPage - 1) * 10 + idx + 1}
                       </td>
                       <td className="py-3.5 px-3">
                         <div className="w-24 h-11 rounded-lg bg-[#0F172A] overflow-hidden border border-[#E5E7EB] dark:border-[#334155] shrink-0">
@@ -4176,6 +4288,13 @@ export const AdminDashboardPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination for Banners */}
+            <AdminPagination
+              currentPage={bannerPage}
+              totalPages={totalBannerPages}
+              onPageChange={setBannerPage}
+            />
           </div>
         )}
 
@@ -4201,7 +4320,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <input
                   type="text"
                   value={postSearch}
-                  onChange={(e) => setPostSearch(e.target.value)}
+                  onChange={(e) => { setPostSearch(e.target.value); setPostPage(1); }}
                   placeholder="Tìm kiếm bài viết..."
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 />
@@ -4209,7 +4328,10 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="min-w-[160px]">
                 <select
                   value={postCategoryFilter}
-                  onChange={(e) => setPostCategoryFilter(e.target.value)}
+                  onChange={(e) => {
+                    setPostCategoryFilter(e.target.value);
+                    setPostPage(1);
+                  }}
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 >
                   <option value="">Tất cả chuyên mục</option>
@@ -4221,7 +4343,10 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="min-w-[140px]">
                 <select
                   value={postStatusFilter}
-                  onChange={(e) => setPostStatusFilter(e.target.value)}
+                  onChange={(e) => {
+                    setPostStatusFilter(e.target.value);
+                    setPostPage(1);
+                  }}
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 >
                   <option value="">Tất cả trạng thái</option>
@@ -4235,6 +4360,7 @@ export const AdminDashboardPage: React.FC = () => {
                   setPostSearch('');
                   setPostCategoryFilter('');
                   setPostStatusFilter('');
+                  setPostPage(1);
                 }}
                 className="px-4 py-2 bg-white dark:bg-transparent hover:bg-gray-100 text-gray-700 dark:text-slate-200 font-bold rounded-lg border border-[#E5E7EB] dark:border-[#334155] flex items-center gap-1.5 transition-colors admin-btn-outline"
               >
@@ -4259,13 +4385,13 @@ export const AdminDashboardPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#1E293B] font-medium">
-                  {filteredPosts.map((post, idx) => (
+                  {paginatedPosts.map((post, idx) => (
                     <tr
                       key={post.id}
                       className="hover:bg-[#F9FAFB] dark:hover:bg-[#1E293B]/60 transition-colors admin-table-row"
                     >
                       <td className="py-3.5 px-3 text-center text-[#9CA3AF] font-semibold">
-                        {idx + 1}
+                        {(postPage - 1) * 10 + idx + 1}
                       </td>
                       <td className="py-3.5 px-3">
                         <div className="w-14 h-10 rounded-lg bg-[#F3F4F6] dark:bg-[#1E293B] overflow-hidden border border-[#E5E7EB] dark:border-[#334155] shrink-0">
@@ -4334,6 +4460,13 @@ export const AdminDashboardPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination for Posts */}
+            <AdminPagination
+              currentPage={postPage}
+              totalPages={totalPostPages}
+              onPageChange={setPostPage}
+            />
           </div>
         )}
 
@@ -4353,7 +4486,10 @@ export const AdminDashboardPage: React.FC = () => {
                   type="text"
                   placeholder="Tìm theo tên, email, sđt..."
                   value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
+                  onChange={(e) => {
+                    setUserSearch(e.target.value);
+                    setUserPage(1);
+                  }}
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 />
               </div>
@@ -4361,7 +4497,10 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="min-w-[160px]">
                 <select
                   value={userRoleFilter}
-                  onChange={(e) => setUserRoleFilter(e.target.value)}
+                  onChange={(e) => {
+                    setUserRoleFilter(e.target.value);
+                    setUserPage(1);
+                  }}
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 >
                   <option value="">Tất cả chức vụ</option>
@@ -4376,6 +4515,7 @@ export const AdminDashboardPage: React.FC = () => {
                 onClick={() => {
                   setUserSearch('');
                   setUserRoleFilter('');
+                  setUserPage(1);
                 }}
                 className="px-4 py-2 bg-white dark:bg-transparent hover:bg-gray-100 text-gray-700 dark:text-slate-200 font-bold rounded-lg border border-[#E5E7EB] dark:border-[#334155] flex items-center gap-1.5 transition-colors admin-btn-outline"
               >
@@ -4400,7 +4540,7 @@ export const AdminDashboardPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#1E293B] font-medium">
-                  {filteredUsers.map((u) => {
+                  {paginatedUsers.map((u) => {
                     const isSelf = currentUser?.id === u.id;
                     return (
                       <tr
@@ -4496,6 +4636,13 @@ export const AdminDashboardPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination for Users */}
+            <AdminPagination
+              currentPage={userPage}
+              totalPages={totalUserPages}
+              onPageChange={setUserPage}
+            />
           </div>
         )}
 
@@ -4514,7 +4661,10 @@ export const AdminDashboardPage: React.FC = () => {
                 <input
                   type="text"
                   value={reviewSearch}
-                  onChange={(e) => setReviewSearch(e.target.value)}
+                  onChange={(e) => {
+                    setReviewSearch(e.target.value);
+                    setReviewPage(1);
+                  }}
                   placeholder="Tìm theo khách hàng, sản phẩm, nội dung..."
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 />
@@ -4522,7 +4672,10 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="min-w-[150px]">
                 <select
                   value={reviewRatingFilter}
-                  onChange={(e) => setReviewRatingFilter(e.target.value)}
+                  onChange={(e) => {
+                    setReviewRatingFilter(e.target.value);
+                    setReviewPage(1);
+                  }}
                   className="w-full px-3 py-2 bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg outline-none focus:border-[#0A5BFF] font-medium admin-input-control"
                 >
                   <option value="">Tất cả số sao</option>
@@ -4538,6 +4691,7 @@ export const AdminDashboardPage: React.FC = () => {
                 onClick={() => {
                   setReviewSearch('');
                   setReviewRatingFilter('');
+                  setReviewPage(1);
                 }}
                 className="px-4 py-2 bg-white dark:bg-transparent hover:bg-gray-100 text-gray-700 dark:text-slate-200 font-bold rounded-lg border border-[#E5E7EB] dark:border-[#334155] flex items-center gap-1.5 transition-colors admin-btn-outline"
               >
@@ -4569,7 +4723,7 @@ export const AdminDashboardPage: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredReviews.map((rev) => (
+                    paginatedReviews.map((rev) => (
                       <tr
                         key={rev.id}
                         className="hover:bg-[#F9FAFB] dark:hover:bg-[#1E293B]/60 transition-colors admin-table-row"
@@ -4617,6 +4771,13 @@ export const AdminDashboardPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination for Reviews */}
+            <AdminPagination
+              currentPage={reviewPage}
+              totalPages={totalReviewPages}
+              onPageChange={setReviewPage}
+            />
           </div>
         )}
 

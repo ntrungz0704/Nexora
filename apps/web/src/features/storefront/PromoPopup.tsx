@@ -151,7 +151,7 @@ export const PromoPopup: React.FC = () => {
               transition: 'transform 0.3s ease',
             }}
             onError={(e) => {
-              (e.target as HTMLImageElement).src = '/assets/images/banners/popup_mega_sale.jpg';
+              (e.target as HTMLImageElement).src = '/assets/banners/nexora-promo-popup.jpg';
             }}
           />
         </Link>
@@ -189,6 +189,28 @@ export const PromoPopup: React.FC = () => {
             />
             <span>Không hiển thị lại ngày hôm nay</span>
           </label>
+
+          <Link
+            to={activePopup.linkUrl || '/search'}
+            onClick={handleClose}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'linear-gradient(135deg, #0A5BFF 0%, #0040C1 100%)',
+              color: '#FFFFFF',
+              fontWeight: 700,
+              fontSize: '13px',
+              padding: '8px 18px',
+              borderRadius: '10px',
+              textDecoration: 'none',
+              boxShadow: '0 4px 12px rgba(10, 91, 255, 0.25)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>Khám phá ngay</span>
+            <i className="fa-solid fa-arrow-right text-xs"></i>
+          </Link>
         </div>
       </div>
     </div>

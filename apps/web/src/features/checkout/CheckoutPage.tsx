@@ -35,6 +35,11 @@ export const CheckoutPage: React.FC = () => {
     queryFn: () => storefrontService.getCategories(),
   });
 
+  const { data: availableCoupons = [] } = useQuery({
+    queryKey: ['active-coupons'],
+    queryFn: () => storefrontService.getActiveCoupons(),
+  });
+
   const { data: cart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => cartService.getCart(),
@@ -49,6 +54,29 @@ export const CheckoutPage: React.FC = () => {
   const handleApplyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
     if (!code) return;
+    setIsCheckingCoupon(true);
+    setCouponMessage(null);
+    try {
+      const result = await storefrontService.validateCoupon(code, rawTotal);
+      setAppliedCoupon({ code: result.coupon.code, discountAmount: result.discountAmount });
+      setCouponMessage({
+        type: 'ok',
+        text: `Đã áp dụng mã ${result.coupon.code} (-${result.discountAmount.toLocaleString('vi-VN')}đ)`,
+      });
+    } catch (err: unknown) {
+      const errorResponse = err as { response?: { data?: { error?: { message?: string } } } };
+      setAppliedCoupon(null);
+      setCouponMessage({
+        type: 'err',
+        text: errorResponse.response?.data?.error?.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn.',
+      });
+    } finally {
+      setIsCheckingCoupon(false);
+    }
+  };
+
+  const applySpecificCoupon = async (code: string) => {
+    setCouponInput(code);
     setIsCheckingCoupon(true);
     setCouponMessage(null);
     try {
@@ -597,6 +625,89 @@ export const CheckoutPage: React.FC = () => {
                           Bỏ mã
                         </button>
                       )}
+                    </div>
+                  )}
+
+                  {/* Selectable Voucher List */}
+                  {availableCoupons.length > 0 && (
+                    <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          color: 'var(--text-secondary, #6B7280)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                        }}
+                      >
+                        <i className="fa-solid fa-gift" style={{ color: '#F59E0B' }}></i>
+                        <span>Mã ưu đãi có sẵn (Bấm để chọn nhanh):</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {availableCoupons.map((cp) => {
+                          const isCurrentActive = appliedCoupon?.code === cp.code;
+                          const isEligible = rawTotal >= Number(cp.minOrderValue);
+                          return (
+                            <div
+                              key={cp.id}
+                              onClick={() => {
+                                if (isCurrentActive) {
+                                  setAppliedCoupon(null);
+                                  setCouponInput('');
+                                  setCouponMessage(null);
+                                } else {
+                                  applySpecificCoupon(cp.code);
+                                }
+                              }}
+                              style={{
+                                border: isCurrentActive
+                                  ? '1.5px solid #0A5BFF'
+                                  : '1px dashed var(--border, #D1D5DB)',
+                                backgroundColor: isCurrentActive
+                                  ? 'rgba(10, 91, 255, 0.06)'
+                                  : 'var(--bg-subtle, #F9FAFB)',
+                                borderRadius: '10px',
+                                padding: '10px 12px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '12.5px', color: '#0A5BFF' }}>
+                                    {cp.code}
+                                  </span>
+                                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #1F2937)' }}>
+                                    {cp.discountType === 'PERCENTAGE'
+                                      ? `Giảm ${cp.discountValue}%`
+                                      : `Giảm ${Number(cp.discountValue).toLocaleString('vi-VN')}đ`}
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: '10.5px', color: isEligible ? 'var(--text-secondary, #6B7280)' : '#EF4444', marginTop: '2px' }}>
+                                  {Number(cp.minOrderValue) > 0
+                                    ? `Đơn tối thiểu ${Number(cp.minOrderValue).toLocaleString('vi-VN')}đ`
+                                    : 'Áp dụng cho mọi giá trị đơn'}
+                                </div>
+                              </div>
+                              <div>
+                                {isCurrentActive ? (
+                                  <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#16A34A', backgroundColor: '#DCFCE7', padding: '3px 8px', borderRadius: '6px' }}>
+                                    ✓ Đang dùng
+                                  </span>
+                                ) : (
+                                  <span style={{ fontSize: '10.5px', fontWeight: 700, color: '#0A5BFF', backgroundColor: 'rgba(10, 91, 255, 0.08)', padding: '3px 8px', borderRadius: '6px' }}>
+                                    Áp dụng
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

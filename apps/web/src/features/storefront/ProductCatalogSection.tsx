@@ -14,6 +14,120 @@ interface ProductCatalogSectionProps {
   onToggleWishlist?: (productId: number | string) => void;
 }
 
+interface ProductSliderRowProps {
+  products: ProductDto[];
+  onAddToCart: (p: ProductDto) => void;
+  onToggleWishlist?: (productId: number | string) => void;
+}
+
+const ProductSliderRow: React.FC<ProductSliderRowProps> = ({
+  products,
+  onAddToCart,
+  onToggleWishlist,
+}) => {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollRef.current) return;
+    const amount = scrollRef.current.clientWidth * 0.75;
+    scrollRef.current.scrollBy({
+      left: direction === 'left' ? -amount : amount,
+      behavior: 'smooth',
+    });
+  };
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {/* Left button */}
+      <button
+        type="button"
+        onClick={() => scroll('left')}
+        style={{
+          position: 'absolute',
+          left: '-14px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 10,
+          width: '38px',
+          height: '38px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--surface-card, #FFFFFF)',
+          color: 'var(--text-primary, #1F2937)',
+          border: '1px solid var(--border, #E5E7EB)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+        aria-label="Cuộn sang trái"
+      >
+        <i className="fa-solid fa-chevron-left" style={{ fontSize: '13px' }}></i>
+      </button>
+
+      {/* Scrollable list */}
+      <div
+        ref={scrollRef}
+        style={{
+          display: 'flex',
+          gap: '16px',
+          overflowX: 'auto',
+          scrollBehavior: 'smooth',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          padding: '8px 2px 14px 2px',
+        }}
+      >
+        {products.map((p) => (
+          <div
+            key={p.id}
+            style={{
+              flex: '0 0 calc(20% - 13px)',
+              minWidth: '220px',
+              maxWidth: '260px',
+            }}
+          >
+            <ProductCard
+              product={p}
+              onAddToCart={onAddToCart}
+              onToggleWishlist={onToggleWishlist}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Right button */}
+      <button
+        type="button"
+        onClick={() => scroll('right')}
+        style={{
+          position: 'absolute',
+          right: '-14px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 10,
+          width: '38px',
+          height: '38px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--surface-card, #FFFFFF)',
+          color: 'var(--text-primary, #1F2937)',
+          border: '1px solid var(--border, #E5E7EB)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+        aria-label="Cuộn sang phải"
+      >
+        <i className="fa-solid fa-chevron-right" style={{ fontSize: '13px' }}></i>
+      </button>
+    </div>
+  );
+};
+
 const POPULAR_CATEGORIES = [
   { name: 'Laptop', slug: 'laptop', cat: 'laptop' },
   { name: 'PC', slug: 'pc', cat: 'pc' },
@@ -346,11 +460,11 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
           </div>
-          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
-            {newProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} />
-            ))}
-          </div>
+          <ProductSliderRow
+            products={newProducts}
+            onAddToCart={onAddToCart}
+            onToggleWishlist={onToggleWishlist}
+          />
         </section>
       )}
 
@@ -390,11 +504,11 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
           </div>
-          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
-            {laptopProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} />
-            ))}
-          </div>
+          <ProductSliderRow
+            products={laptopProducts}
+            onAddToCart={onAddToCart}
+            onToggleWishlist={onToggleWishlist}
+          />
         </section>
       )}
 
@@ -447,11 +561,11 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
           </div>
-          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
-            {pcProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} />
-            ))}
-          </div>
+          <ProductSliderRow
+            products={pcProducts}
+            onAddToCart={onAddToCart}
+            onToggleWishlist={onToggleWishlist}
+          />
         </section>
       )}
 
@@ -464,11 +578,11 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
           </div>
-          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
-            {componentProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} />
-            ))}
-          </div>
+          <ProductSliderRow
+            products={componentProducts}
+            onAddToCart={onAddToCart}
+            onToggleWishlist={onToggleWishlist}
+          />
         </section>
       )}
 
@@ -481,11 +595,11 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
           </div>
-          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
-            {monitorProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} />
-            ))}
-          </div>
+          <ProductSliderRow
+            products={monitorProducts}
+            onAddToCart={onAddToCart}
+            onToggleWishlist={onToggleWishlist}
+          />
         </section>
       )}
 
@@ -498,11 +612,11 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
               Xem tất cả <i className="fa-solid fa-chevron-right"></i>
             </Link>
           </div>
-          <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
-            {gearProducts.map((p) => (
-              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onToggleWishlist={onToggleWishlist} />
-            ))}
-          </div>
+          <ProductSliderRow
+            products={gearProducts}
+            onAddToCart={onAddToCart}
+            onToggleWishlist={onToggleWishlist}
+          />
         </section>
       )}
 
