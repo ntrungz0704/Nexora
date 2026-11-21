@@ -227,13 +227,20 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             <Link
               to="/"
               className="logo"
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                width: '188px',
+                height: '38px',
+                flexShrink: 0,
+                textDecoration: 'none',
+              }}
               title="Nexora — Hệ Thống Bán Lẻ Máy Tính & Linh Kiện Chính Hãng"
             >
               <img
                 src={isDarkMode ? '/assets/images/nexora-logo-white.png' : '/assets/images/logo.png'}
                 alt="Nexora Logo"
-                style={{ height: '38px', width: 'auto', objectFit: 'contain', display: 'block' }}
+                style={{ height: '38px', width: 'auto', maxWidth: '188px', objectFit: 'contain', display: 'block' }}
               />
             </Link>
 
@@ -589,9 +596,23 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               onClick={toggleTheme}
               aria-label={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
               title={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                width: '38px',
+                height: '38px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
             >
-              <i className={`fa-solid ${isDarkMode ? 'fa-sun' : 'fa-moon'}`} aria-hidden="true"></i>
+              <i
+                className={`fa-solid ${isDarkMode ? 'fa-sun' : 'fa-moon'}`}
+                style={{ width: '18px', textAlign: 'center', fontSize: '16px' }}
+                aria-hidden="true"
+              ></i>
             </button>
           </div>
         </div>

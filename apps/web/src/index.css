@@ -2,6 +2,10 @@
 
 @custom-variant dark (&:where(.dark, .dark-mode, .dark *, .dark-mode *));
 
+html {
+  scrollbar-gutter: stable;
+}
+
 /* =======================================================
    TECHPILOT MASCOT FLOATING AI CHATBOT LAUNCHER
    ======================================================= */

@@ -159,12 +159,14 @@ export const PromoPopup: React.FC = () => {
         <div
           className="tp-popup-footer"
           style={{
-            padding: '14px 22px',
+            padding: '12px 18px',
             background: 'var(--surface-card, #f8fafc)',
             borderTop: '1px solid var(--border, #e2e8f0)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '10px',
           }}
         >
           <label

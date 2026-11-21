@@ -62,6 +62,7 @@ export const CartPage: React.FC = () => {
   };
 
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   const { data: availableCoupons = [] } = useQuery({
     queryKey: ['active-coupons'],
@@ -70,16 +71,20 @@ export const CartPage: React.FC = () => {
 
   const applySpecificCoupon = async (code: string) => {
     setCouponCode(code);
+    setCouponError(null);
     try {
       const result = await storefrontService.validateCoupon(code, rawTotal);
       setCouponApplied(true);
       setAppliedDiscount(result.discountAmount);
+      setCouponError(null);
       showToast(`Áp dụng mã ${result.coupon.code} thành công! Giảm ${result.discountAmount.toLocaleString('vi-VN')}đ`);
     } catch (err: unknown) {
       const errorResponse = err as { response?: { data?: { error?: { message?: string } } } };
       setCouponApplied(false);
       setAppliedDiscount(0);
-      showToast(errorResponse.response?.data?.error?.message || 'Mã giảm giá không hợp lệ.');
+      const msg = errorResponse.response?.data?.error?.message || 'Mã giảm giá không hợp lệ.';
+      setCouponError(msg);
+      showToast(msg);
     }
   };
 
@@ -91,32 +96,25 @@ export const CartPage: React.FC = () => {
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!couponCode.trim()) return;
+    if (!couponCode.trim()) {
+      setCouponError('Vui lòng nhập mã giảm giá.');
+      return;
+    }
 
+    setCouponError(null);
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
-      const res = await fetch(`${apiUrl}/marketing/coupons/validate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code: couponCode.trim(),
-          subtotal: rawTotal,
-        }),
-      });
-
-      if (res.ok) {
-        const json = await res.json();
-        setCouponApplied(true);
-        setAppliedDiscount(json.data.discountAmount);
-        showToast(`Áp dụng mã ${json.data.coupon.code} thành công! Giảm ${json.data.discountAmount.toLocaleString('vi-VN')}đ`);
-      } else {
-        const errJson = await res.json();
-        setCouponApplied(false);
-        setAppliedDiscount(0);
-        showToast(errJson.error?.message || 'Mã giảm giá không hợp lệ.');
-      }
-    } catch {
-      showToast('Lỗi kết nối khi kiểm tra mã giảm giá.');
+      const result = await storefrontService.validateCoupon(couponCode.trim(), rawTotal);
+      setCouponApplied(true);
+      setAppliedDiscount(result.discountAmount);
+      setCouponError(null);
+      showToast(`Áp dụng mã ${result.coupon.code} thành công! Giảm ${result.discountAmount.toLocaleString('vi-VN')}đ`);
+    } catch (err: unknown) {
+      const errorResponse = err as { response?: { data?: { error?: { message?: string } } } };
+      setCouponApplied(false);
+      setAppliedDiscount(0);
+      const msg = errorResponse.response?.data?.error?.message || 'Mã giảm giá không hợp lệ.';
+      setCouponError(msg);
+      showToast(msg);
     }
   };
 
@@ -436,7 +434,10 @@ export const CartPage: React.FC = () => {
                       type="text"
                       placeholder="Nhập mã NEXORA"
                       value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
+                      onChange={(e) => {
+                        setCouponCode(e.target.value.toUpperCase());
+                        if (couponError) setCouponError(null);
+                      }}
                       style={{
                         flex: 1,
                         height: '40px',
@@ -465,6 +466,22 @@ export const CartPage: React.FC = () => {
                       Áp dụng
                     </button>
                   </form>
+                  {couponError && (
+                    <div
+                      style={{
+                        marginTop: '8px',
+                        fontSize: '12px',
+                        color: '#EF4444',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      <i className="fa-solid fa-circle-exclamation"></i>
+                      <span>{couponError}</span>
+                    </div>
+                  )}
                   {couponApplied && (
                     <div
                       style={{
@@ -486,6 +503,7 @@ export const CartPage: React.FC = () => {
                           setCouponApplied(false);
                           setCouponCode('');
                           setAppliedDiscount(0);
+                          setCouponError(null);
                           showToast('Đã hủy áp dụng mã giảm giá.');
                         }}
                         style={{
@@ -530,6 +548,7 @@ export const CartPage: React.FC = () => {
                                   setCouponApplied(false);
                                   setCouponCode('');
                                   setAppliedDiscount(0);
+                                  setCouponError(null);
                                   showToast('Đã hủy áp dụng mã.');
                                 } else {
                                   applySpecificCoupon(cp.code);
@@ -562,10 +581,15 @@ export const CartPage: React.FC = () => {
                                       : `Giảm ${Number(cp.discountValue).toLocaleString('vi-VN')}đ`}
                                   </span>
                                 </div>
-                                <div style={{ fontSize: '11px', color: isEligible ? 'var(--text-secondary, #6B7280)' : '#EF4444', marginTop: '2px' }}>
-                                  {Number(cp.minOrderValue) > 0
-                                    ? `Đơn tối thiểu ${Number(cp.minOrderValue).toLocaleString('vi-VN')}đ`
-                                    : 'Áp dụng cho mọi giá trị đơn'}
+                                <div style={{ fontSize: '11px', color: isEligible ? 'var(--text-secondary, #6B7280)' : '#EF4444', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <span>
+                                    {Number(cp.minOrderValue) > 0
+                                      ? `Đơn tối thiểu ${Number(cp.minOrderValue).toLocaleString('vi-VN')}đ`
+                                      : 'Áp dụng cho mọi giá trị đơn'}
+                                  </span>
+                                  {!isEligible && (
+                                    <span style={{ fontWeight: 600 }}>· Chưa đủ điều kiện</span>
+                                  )}
                                 </div>
                               </div>
                               <div>
@@ -574,7 +598,7 @@ export const CartPage: React.FC = () => {
                                     ✓ Đang dùng
                                   </span>
                                 ) : (
-                                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#0A5BFF', backgroundColor: 'rgba(10, 91, 255, 0.08)', padding: '3px 8px', borderRadius: '6px' }}>
+                                  <span style={{ fontSize: '11px', fontWeight: 700, color: isEligible ? '#0A5BFF' : '#9CA3AF', backgroundColor: isEligible ? 'rgba(10, 91, 255, 0.08)' : '#F3F4F6', padding: '3px 8px', borderRadius: '6px' }}>
                                     Áp dụng
                                   </span>
                                 )}

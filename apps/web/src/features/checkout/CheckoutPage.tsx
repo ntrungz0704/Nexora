@@ -687,10 +687,15 @@ export const CheckoutPage: React.FC = () => {
                                       : `Giảm ${Number(cp.discountValue).toLocaleString('vi-VN')}đ`}
                                   </span>
                                 </div>
-                                <div style={{ fontSize: '10.5px', color: isEligible ? 'var(--text-secondary, #6B7280)' : '#EF4444', marginTop: '2px' }}>
-                                  {Number(cp.minOrderValue) > 0
-                                    ? `Đơn tối thiểu ${Number(cp.minOrderValue).toLocaleString('vi-VN')}đ`
-                                    : 'Áp dụng cho mọi giá trị đơn'}
+                                <div style={{ fontSize: '10.5px', color: isEligible ? 'var(--text-secondary, #6B7280)' : '#EF4444', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <span>
+                                    {Number(cp.minOrderValue) > 0
+                                      ? `Đơn tối thiểu ${Number(cp.minOrderValue).toLocaleString('vi-VN')}đ`
+                                      : 'Áp dụng cho mọi giá trị đơn'}
+                                  </span>
+                                  {!isEligible && (
+                                    <span style={{ fontWeight: 600 }}>· Chưa đủ điều kiện</span>
+                                  )}
                                 </div>
                               </div>
                               <div>
@@ -699,7 +704,7 @@ export const CheckoutPage: React.FC = () => {
                                     ✓ Đang dùng
                                   </span>
                                 ) : (
-                                  <span style={{ fontSize: '10.5px', fontWeight: 700, color: '#0A5BFF', backgroundColor: 'rgba(10, 91, 255, 0.08)', padding: '3px 8px', borderRadius: '6px' }}>
+                                  <span style={{ fontSize: '10.5px', fontWeight: 700, color: isEligible ? '#0A5BFF' : '#9CA3AF', backgroundColor: isEligible ? 'rgba(10, 91, 255, 0.08)' : '#F3F4F6', padding: '3px 8px', borderRadius: '6px' }}>
                                     Áp dụng
                                   </span>
                                 )}

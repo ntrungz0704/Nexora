@@ -12,6 +12,116 @@ interface ProductCardProps {
   onToggleWishlist?: (productId: number | string) => void;
 }
 
+interface SpecPill {
+  icon: string;
+  label: string;
+}
+
+function extractProductPills(product: ProductDto): SpecPill[] {
+  const pills: SpecPill[] = [];
+  const raw = product.specs;
+  const s: Record<string, unknown> = {};
+
+  if (raw && typeof raw === 'object') {
+    if ('specs' in raw && raw.specs && typeof raw.specs === 'object') {
+      Object.assign(s, raw.specs);
+    }
+    Object.assign(s, raw);
+  }
+
+  // 1. CPU
+  if (s.cpu_model && typeof s.cpu_model === 'string') {
+    const cpu = s.cpu_model
+      .replace(/^Intel\s+(Core\s+)?/i, '')
+      .replace(/^AMD\s+(Ryzen\s+)?/i, 'R')
+      .replace(/\s+Processor$/i, '');
+    pills.push({ icon: 'fa-solid fa-microchip', label: cpu.length > 22 ? cpu.slice(0, 22) : cpu });
+  }
+
+  // 2. RAM
+  if (s.ram_gb) {
+    const ramType = s.ram_type ? String(s.ram_type).toUpperCase() : '';
+    const label = `${s.ram_gb}GB ${ramType}`.trim();
+    pills.push({ icon: 'fa-solid fa-memory', label });
+  }
+
+  // 3. Storage
+  if (s.storage_gb) {
+    const gb = Number(s.storage_gb);
+    const sizeStr = gb >= 1000 ? `${(gb / 1000).toFixed(gb % 1000 === 0 ? 0 : 1)}TB` : `${gb}GB`;
+    const typeStr = String(s.storage_type || '').toLowerCase().includes('hdd') ? 'HDD' : 'SSD';
+    pills.push({ icon: 'fa-solid fa-hard-drive', label: `${sizeStr} ${typeStr}` });
+  }
+
+  // 4. GPU
+  if (pills.length < 3 && s.gpu_model && typeof s.gpu_model === 'string') {
+    const gpu = s.gpu_model
+      .replace(/^NVIDIA\s+(GeForce\s+)?/i, '')
+      .replace(/^AMD\s+(Radeon\s+)?/i, '')
+      .replace(/\s+Laptop GPU$/i, '');
+    pills.push({ icon: 'fa-solid fa-gamepad', label: gpu.length > 22 ? gpu.slice(0, 22) : gpu });
+  }
+
+  // 5. Display / Màn hình
+  if (pills.length < 3 && (s.display_size_inch || s.resolution || s.refresh_rate_hz)) {
+    let disp = '';
+    if (s.display_size_inch) disp += `${s.display_size_inch}" `;
+    if (s.refresh_rate_hz && Number(s.refresh_rate_hz) > 60) disp += `${s.refresh_rate_hz}Hz `;
+    else if (s.resolution) disp += `${s.resolution} `;
+    if (disp.trim()) {
+      pills.push({ icon: 'fa-solid fa-display', label: disp.trim() });
+    }
+  }
+
+  // 6. Generic keys for accessories / peripherals
+  if (pills.length < 3) {
+    const secondaryKeys: { key: string; icon: string; prefix?: string; suffix?: string }[] = [
+      { key: 'switch_type', icon: 'fa-solid fa-keyboard' },
+      { key: 'sensor', icon: 'fa-solid fa-computer-mouse' },
+      { key: 'dpi', icon: 'fa-solid fa-bullseye', prefix: 'DPI ' },
+      { key: 'connection', icon: 'fa-solid fa-wifi' },
+      { key: 'wattage', icon: 'fa-solid fa-bolt', suffix: 'W' },
+      { key: 'chipset', icon: 'fa-solid fa-microchip' },
+      { key: 'socket', icon: 'fa-solid fa-plug' },
+    ];
+    for (const item of secondaryKeys) {
+      if (s[item.key]) {
+        const val = `${item.prefix || ''}${s[item.key]}${item.suffix || ''}`;
+        pills.push({ icon: item.icon, label: String(val) });
+        if (pills.length >= 3) break;
+      }
+    }
+  }
+
+  // 7. Fallback: Parse from shortDescription or name
+  if (pills.length === 0 && (product.shortDescription || product.name)) {
+    const text = `${product.shortDescription || ''} ${product.name}`;
+    const cpuMatch = text.match(/(i[3579]-[\w]+|Ryzen\s+[3579]\s+[\w]+|M[1234]\s+(Pro|Max)?)/i);
+    if (cpuMatch) pills.push({ icon: 'fa-solid fa-microchip', label: cpuMatch[0] });
+
+    const ramMatch = text.match(/(\d+\s*GB\s*(DDR[45])?)/i);
+    if (ramMatch) pills.push({ icon: 'fa-solid fa-memory', label: ramMatch[0] });
+
+    const ssdMatch = text.match(/((SSD\s*)?(\d+\s*(GB|TB))\s*(NVMe|PCIe)?)/i);
+    if (ssdMatch) pills.push({ icon: 'fa-solid fa-hard-drive', label: ssdMatch[0] });
+
+    if (pills.length < 3) {
+      const gpuMatch = text.match(/(RTX\s*\d{4}(\s*Ti)?|GTX\s*\d{4}|Radeon\s*\w+)/i);
+      if (gpuMatch) pills.push({ icon: 'fa-solid fa-gamepad', label: gpuMatch[0] });
+    }
+  }
+
+  // 8. Absolute fallback: guarantee 2 pills for uniform alignment
+  if (pills.length === 0) {
+    if (product.category?.name) {
+      pills.push({ icon: 'fa-solid fa-tag', label: product.category.name });
+    }
+    pills.push({ icon: 'fa-solid fa-shield-halved', label: 'Chính hãng 100%' });
+  }
+
+  return pills.slice(0, 3);
+}
+
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   isFlashSale = false,
@@ -32,26 +142,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return val.toLocaleString('vi-VN') + 'đ';
   };
 
-  const specsList = React.useMemo(() => {
-    if (!product.specs || typeof product.specs !== 'object') return [];
-    const entries: [string, string][] = [];
-    for (const [key, val] of Object.entries(product.specs)) {
-      if (val === null || val === undefined) continue;
-      if (typeof val === 'string' || typeof val === 'number') {
-        entries.push([key, String(val)]);
-      } else if (typeof val === 'boolean') {
-        entries.push([key, val ? 'Có' : 'Không']);
-      } else if (typeof val === 'object' && !Array.isArray(val)) {
-        for (const [nestedKey, nestedVal] of Object.entries(val)) {
-          if (typeof nestedVal === 'string' || typeof nestedVal === 'number') {
-            entries.push([nestedKey, String(nestedVal)]);
-          }
-        }
-      }
-      if (entries.length >= 3) break;
-    }
-    return entries.slice(0, 3);
-  }, [product.specs]);
+  const pills = React.useMemo(() => extractProductPills(product), [product]);
 
   const isOutOfStock = (product.stockQuantity ?? 1) <= 0;
 
@@ -189,17 +280,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {product.name}
         </Link>
 
-        {specsList.length > 0 && (
-          <div className="product-card__specs-box">
-            <div className="specs-pill-grid">
-              {specsList.map(([_key, val], i) => (
-                <span key={i} className="specs-pill">
-                  <i className="fa-solid fa-microchip"></i> {val}
-                </span>
-              ))}
-            </div>
+        <div className="product-card__specs-box">
+          <div className="specs-pill-grid">
+            {pills.map((pill, i) => (
+              <span key={i} className="specs-pill" title={pill.label}>
+                <i className={pill.icon}></i> {pill.label}
+              </span>
+            ))}
           </div>
-        )}
+        </div>
 
         <div className="product-card__price">
           <span className="product-card__price-now">{formatPrice(currentPrice)}</span>

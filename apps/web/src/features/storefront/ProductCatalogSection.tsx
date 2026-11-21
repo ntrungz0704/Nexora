@@ -345,16 +345,9 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {/* ===== BANNER TRUNG GIAN RTX 50 BLACKWELL ===== */}
       <section className="container section" style={{ marginTop: '28px' }}>
         <div
-          className="promo-banner"
+          className="promo-banner-feature"
           style={{
             background: "linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.45) 60%, rgba(15, 23, 42, 0.1) 100%), url('/assets/images/rtx-banner.jpg') center/cover no-repeat",
-            minHeight: '210px',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            borderRadius: '16px',
-            padding: '32px 40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
           }}
         >
           <div className="promo-banner__content">
@@ -515,17 +508,9 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       {/* ===== BANNER GIAO HÀNG MIỄN PHÍ TOÀN QUỐC ===== */}
       <section className="container section" style={{ marginTop: '28px' }}>
         <div
-          className="promo-banner"
+          className="promo-banner-feature"
           style={{
             backgroundImage: "url('/assets/images/installment-banner.jpg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            minHeight: '160px',
-            borderRadius: '16px',
-            padding: '28px 40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
           }}
         >
           <div className="promo-banner__content">
