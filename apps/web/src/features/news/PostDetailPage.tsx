@@ -10,6 +10,17 @@ import { wishlistService } from '../../services/wishlistService';
 import { ARTICLES_SEED, type ArticleItem } from './articlesData';
 import type { AuthUser } from '@nexora/shared';
 
+const NEWS_FALLBACK_IMAGES = [
+  '/assets/images/news/news-rtx-50.jpg',
+  '/assets/images/news/news-mouse-gaming.jpg',
+  '/assets/images/news/news-build-pc.jpg',
+  '/assets/images/news/news-intel-ultra.jpg',
+  '/assets/images/posts/cpu_i9_vs_ryzen7.jpg',
+  '/assets/images/posts/laptop_sinh_vien_2026.jpg',
+  '/assets/images/posts/pc_workstation_ai_deepseek.jpg',
+  '/assets/images/posts/windows11_gaming_opt.jpg',
+];
+
 export const PostDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
@@ -34,7 +45,7 @@ export const PostDetailPage: React.FC = () => {
         id: String(dbPost.id),
         slug: dbPost.slug,
         title: dbPost.title,
-        excerpt: dbPost.excerpt || '',
+        excerpt: (dbPost.excerpt || '').replace(/<[^>]+>/g, '').replace(/:::summary|:::/g, '').trim(),
         content: dbPost.content,
         category: dbPost.category || 'Tin công nghệ',
         categoryKey: dbPost.category || 'all',
@@ -42,7 +53,7 @@ export const PostDetailPage: React.FC = () => {
           ? dbPost.thumbnailUrl.startsWith('/') || dbPost.thumbnailUrl.startsWith('http')
             ? dbPost.thumbnailUrl
             : `/${dbPost.thumbnailUrl}`
-          : '/assets/images/posts/tin-tuc-1.jpg',
+          : '/assets/images/news/news-rtx-50.jpg',
         date: dbPost.publishedAt
           ? new Date(dbPost.publishedAt).toLocaleDateString('vi-VN')
           : 'Hôm nay',
@@ -59,19 +70,21 @@ export const PostDetailPage: React.FC = () => {
       ? dbPosts
           .filter((p) => p.slug !== article.slug)
           .slice(0, 4)
-          .map((p) => ({
+          .map((p, idx) => ({
             id: String(p.id),
             slug: p.slug,
             title: p.title,
-            excerpt: p.excerpt || '',
+            excerpt: (p.excerpt || '').replace(/<[^>]+>/g, '').replace(/:::summary|:::/g, '').trim(),
             content: p.content,
             category: p.category || 'Tin công nghệ',
             categoryKey: p.category || 'all',
-            image: p.thumbnailUrl
-              ? p.thumbnailUrl.startsWith('/') || p.thumbnailUrl.startsWith('http')
-                ? p.thumbnailUrl
-                : `/${p.thumbnailUrl}`
-              : '/assets/images/posts/tin-tuc-1.jpg',
+            image:
+              (p.thumbnailUrl
+                ? p.thumbnailUrl.startsWith('/') || p.thumbnailUrl.startsWith('http')
+                  ? p.thumbnailUrl
+                  : `/${p.thumbnailUrl}`
+                : NEWS_FALLBACK_IMAGES[idx % NEWS_FALLBACK_IMAGES.length]) ||
+              '/assets/images/news/news-rtx-50.jpg',
             date: p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('vi-VN') : 'Hôm nay',
             author: 'Nexora Editorial',
             readTime: '5 phút đọc',
@@ -299,19 +312,25 @@ export const PostDetailPage: React.FC = () => {
               >
                 {article.content ? (
                   <div
+                    className="news-article-html-body"
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        article.content.includes('<p>') || article.content.includes('<h')
+                          ? article.content
+                          : article.content
+                              .split(/\n{2,}/)
+                              .map((p) => `<p style="margin-bottom: 14px;">${p.trim()}</p>`)
+                              .join(''),
+                    }}
                     style={{
-                      whiteSpace: 'pre-line',
+                      fontSize: '15px',
+                      lineHeight: '1.8',
+                      color: 'var(--text-primary)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '14px',
                     }}
-                  >
-                    {article.content.split(/\n{2,}/).map((para, idx) => (
-                      <p key={idx} style={{ margin: 0 }}>
-                        {para.trim()}
-                      </p>
-                    ))}
-                  </div>
+                  />
                 ) : (
                   <>
                     <h2

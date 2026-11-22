@@ -19,6 +19,17 @@ const FILTER_PILLS = [
   { key: 'comparison', title: 'So sánh sản phẩm', icon: 'fa-solid fa-code-compare' },
 ];
 
+const NEWS_FALLBACK_IMAGES = [
+  '/assets/images/news/news-rtx-50.jpg',
+  '/assets/images/news/news-mouse-gaming.jpg',
+  '/assets/images/news/news-build-pc.jpg',
+  '/assets/images/news/news-intel-ultra.jpg',
+  '/assets/images/posts/cpu_i9_vs_ryzen7.jpg',
+  '/assets/images/posts/laptop_sinh_vien_2026.jpg',
+  '/assets/images/posts/pc_workstation_ai_deepseek.jpg',
+  '/assets/images/posts/windows11_gaming_opt.jpg',
+];
+
 export const NewsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
@@ -52,19 +63,26 @@ export const NewsPage: React.FC = () => {
 
   const allArticles: ArticleItem[] =
     dbPosts.length > 0
-      ? dbPosts.map((p) => ({
+      ? dbPosts.map((p, idx) => ({
           id: String(p.id),
           slug: p.slug,
           title: p.title,
-          excerpt: p.excerpt || p.content.slice(0, 140) + '...',
+          excerpt:
+            (p.excerpt || p.content)
+              .replace(/<[^>]+>/g, '')
+              .replace(/:::summary|:::/g, '')
+              .trim()
+              .slice(0, 150) + '...',
           content: p.content,
           category: p.category || 'Tin công nghệ',
           categoryKey: p.category || 'all',
-          image: p.thumbnailUrl
-            ? p.thumbnailUrl.startsWith('/') || p.thumbnailUrl.startsWith('http')
-              ? p.thumbnailUrl
-              : `/${p.thumbnailUrl}`
-            : '/assets/images/posts/tin-tuc-1.jpg',
+          image:
+            (p.thumbnailUrl
+              ? p.thumbnailUrl.startsWith('/') || p.thumbnailUrl.startsWith('http')
+                ? p.thumbnailUrl
+                : `/${p.thumbnailUrl}`
+              : NEWS_FALLBACK_IMAGES[idx % NEWS_FALLBACK_IMAGES.length]) ||
+            '/assets/images/posts/tin-tuc-1.jpg',
           date: p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('vi-VN') : 'Hôm nay',
           author: 'Nexora Editorial',
           readTime: '5 phút đọc',
@@ -299,7 +317,7 @@ export const NewsPage: React.FC = () => {
 
               {mainArticles.length > 0 ? (
                 <div className="news-list">
-                  {mainArticles.map((article) => (
+                  {mainArticles.map((article, aIdx) => (
                     <div key={article.id} className="news-horizontal-card">
                       <Link to={`/post/${article.slug}`} className="news-horizontal-card__img">
                         <img
@@ -308,7 +326,9 @@ export const NewsPage: React.FC = () => {
                           onError={(e) => {
                             const t = e.target as HTMLImageElement;
                             t.onerror = null;
-                            t.src = '/assets/images/posts/tin-tuc-1.jpg';
+                            t.src =
+                              NEWS_FALLBACK_IMAGES[aIdx % NEWS_FALLBACK_IMAGES.length] ||
+                              '/assets/images/posts/tin-tuc-1.jpg';
                           }}
                         />
                       </Link>

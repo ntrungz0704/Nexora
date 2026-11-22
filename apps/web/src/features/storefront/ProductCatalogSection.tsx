@@ -29,7 +29,7 @@ const ProductSliderRow: React.FC<ProductSliderRowProps> = ({
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.75;
+    const amount = Math.max(scrollRef.current.clientWidth * 0.8, 320);
     scrollRef.current.scrollBy({
       left: direction === 'left' ? -amount : amount,
       behavior: 'smooth',
@@ -44,26 +44,37 @@ const ProductSliderRow: React.FC<ProductSliderRowProps> = ({
         onClick={() => scroll('left')}
         style={{
           position: 'absolute',
-          left: '-14px',
+          left: '-16px',
           top: '50%',
           transform: 'translateY(-50%)',
-          zIndex: 10,
-          width: '38px',
-          height: '38px',
+          zIndex: 20,
+          width: '42px',
+          height: '42px',
           borderRadius: '50%',
           backgroundColor: 'var(--surface-card, #FFFFFF)',
           color: 'var(--text-primary, #1F2937)',
           border: '1px solid var(--border, #E5E7EB)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.16)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
+          userSelect: 'none',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1.12)';
+          e.currentTarget.style.backgroundColor = '#0A5BFF';
+          e.currentTarget.style.color = '#FFFFFF';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+          e.currentTarget.style.backgroundColor = 'var(--surface-card, #FFFFFF)';
+          e.currentTarget.style.color = 'var(--text-primary, #1F2937)';
         }}
         aria-label="Cuộn sang trái"
       >
-        <i className="fa-solid fa-chevron-left" style={{ fontSize: '13px' }}></i>
+        <i className="fa-solid fa-chevron-left" style={{ fontSize: '14px' }}></i>
       </button>
 
       {/* Scrollable list */}
@@ -103,26 +114,37 @@ const ProductSliderRow: React.FC<ProductSliderRowProps> = ({
         onClick={() => scroll('right')}
         style={{
           position: 'absolute',
-          right: '-14px',
+          right: '-16px',
           top: '50%',
           transform: 'translateY(-50%)',
-          zIndex: 10,
-          width: '38px',
-          height: '38px',
+          zIndex: 20,
+          width: '42px',
+          height: '42px',
           borderRadius: '50%',
           backgroundColor: 'var(--surface-card, #FFFFFF)',
           color: 'var(--text-primary, #1F2937)',
           border: '1px solid var(--border, #E5E7EB)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.16)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
+          userSelect: 'none',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1.12)';
+          e.currentTarget.style.backgroundColor = '#0A5BFF';
+          e.currentTarget.style.color = '#FFFFFF';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+          e.currentTarget.style.backgroundColor = 'var(--surface-card, #FFFFFF)';
+          e.currentTarget.style.color = 'var(--text-primary, #1F2937)';
         }}
         aria-label="Cuộn sang phải"
       >
-        <i className="fa-solid fa-chevron-right" style={{ fontSize: '13px' }}></i>
+        <i className="fa-solid fa-chevron-right" style={{ fontSize: '14px' }}></i>
       </button>
     </div>
   );
@@ -149,6 +171,17 @@ const POPULAR_CATEGORIES = [
   { name: 'Phụ kiện', slug: 'accessories', cat: 'accessories' },
   { name: 'Thiết bị VP', slug: 'office-equipment', cat: 'office-equipment' },
   { name: 'Sạc DP', slug: 'power-bank', cat: 'power-bank' },
+];
+
+const NEWS_FALLBACK_IMAGES = [
+  '/assets/images/news/news-build-pc.jpg',
+  '/assets/images/news/news-mouse-gaming.jpg',
+  '/assets/images/news/news-rtx-50.jpg',
+  '/assets/images/news/news-intel-ultra.jpg',
+  '/assets/images/posts/cpu_i9_vs_ryzen7.jpg',
+  '/assets/images/posts/laptop_sinh_vien_2026.jpg',
+  '/assets/images/posts/pc_workstation_ai_deepseek.jpg',
+  '/assets/images/posts/windows11_gaming_opt.jpg',
 ];
 
 const BEST_SELLER_TABS = [
@@ -218,7 +251,7 @@ const CUSTOMER_REVIEWS = [
 
 export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
   products,
-  categories = [],
+  categories: _categories = [],
   brands = [],
   posts = [],
   reviews = [],
@@ -227,10 +260,8 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('all');
 
-  const categoryItems =
-    categories.length > 0
-      ? categories.map((c) => ({ name: c.name, slug: c.slug, cat: c.slug, icon: c.icon }))
-      : POPULAR_CATEGORIES.map((c) => ({ ...c, icon: null as string | null }));
+  // Always use the 20 official category icons matching TechPilot Image 4
+  const categoryItems = POPULAR_CATEGORIES;
 
   const brandItems =
     brands.length > 0
@@ -313,9 +344,9 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
 
   const bestSellerList = getFilteredBestSellers();
 
-  // Highlight and New Arrivals slices
-  const featuredProducts = products.filter((p) => p.isFeatured || p.isHot).slice(0, 5);
-  const newProducts = [...products].reverse().slice(0, 5);
+  // Highlight and New Arrivals slices (allow smooth slider scrolling with 15 products)
+  const featuredProducts = products.filter((p) => p.isFeatured || p.isHot).slice(0, 15);
+  const newProducts = [...products].reverse().slice(0, 15);
   const appleProducts = products
     .filter(
       (p) =>
@@ -323,36 +354,61 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
         p.name.toLowerCase().includes('macbook') ||
         p.category?.slug.includes('pc'),
     )
-    .slice(0, 4);
+    .slice(0, 8);
 
   // Category specific slices
   const laptopProducts = products
     .filter((p) => p.category?.slug.includes('laptop') || p.name.toLowerCase().includes('laptop'))
-    .slice(0, 5);
+    .slice(0, 15);
   const pcProducts = products
     .filter((p) => p.category?.slug.includes('pc') || p.name.toLowerCase().includes('pc'))
-    .slice(0, 5);
+    .slice(0, 15);
   const componentProducts = products
     .filter(
       (p) =>
-        ['main-cpu-vga', 'case-nguon-tan', 'o-cung'].includes(p.category?.slug || '') ||
+        [
+          'main-cpu-vga',
+          'case-nguon-tan',
+          'o-cung',
+          'mainboard',
+          'cpu',
+          'vga',
+          'ram',
+          'storage',
+          'case',
+          'cooling',
+          'psu',
+        ].includes(p.category?.slug || '') ||
         p.name.toLowerCase().includes('rtx') ||
-        p.name.toLowerCase().includes('intel'),
+        p.name.toLowerCase().includes('intel') ||
+        p.name.toLowerCase().includes('ryzen'),
     )
-    .slice(0, 5);
+    .slice(0, 15);
   const monitorProducts = products
     .filter(
-      (p) => p.category?.slug.includes('man-hinh') || p.name.toLowerCase().includes('màn hình'),
+      (p) =>
+        p.category?.slug === 'monitor' ||
+        p.category?.slug.includes('man-hinh') ||
+        p.name.toLowerCase().includes('màn hình'),
     )
-    .slice(0, 5);
+    .slice(0, 15);
   const gearProducts = products
     .filter(
       (p) =>
-        ['ban-phim', 'chuot-lot-chuot', 'tai-nghe'].includes(p.category?.slug || '') ||
+        [
+          'ban-phim',
+          'chuot-lot-chuot',
+          'tai-nghe',
+          'keyboard',
+          'mouse',
+          'chair',
+          'headset',
+          'speaker',
+        ].includes(p.category?.slug || '') ||
         p.name.toLowerCase().includes('chuột') ||
         p.name.toLowerCase().includes('phím'),
     )
-    .slice(0, 5);
+    .slice(0, 15);
 
   return (
     <>
@@ -405,7 +461,7 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                   alt={item.name}
                   onError={(e) => {
                     (e.target as HTMLImageElement).outerHTML =
-                      `<i class="${item.icon || 'fa-solid fa-tag'}" style="font-size: 24px; color: var(--primary);"></i>`;
+                      `<i class="fa-solid fa-tag" style="font-size: 24px; color: var(--primary);"></i>`;
                   }}
                 />
               </div>
@@ -869,25 +925,55 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
               {(posts.length > 0
-                ? posts.slice(0, 4).map((p) => ({
+                ? posts.slice(0, 4).map((p, idx) => ({
                     slug: p.slug,
                     title: p.title,
                     img: p.thumbnailUrl
                       ? p.thumbnailUrl.startsWith('/') || p.thumbnailUrl.startsWith('http')
                         ? p.thumbnailUrl
                         : `/${p.thumbnailUrl}`
-                      : '/assets/images/posts/tin-tuc-1.jpg',
+                      : NEWS_FALLBACK_IMAGES[idx % NEWS_FALLBACK_IMAGES.length],
+                    fallbackImg: NEWS_FALLBACK_IMAGES[idx % NEWS_FALLBACK_IMAGES.length],
                     date: p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('vi-VN') : '',
-                    desc: p.excerpt || p.content.slice(0, 110) + '...',
+                    desc:
+                      (p.excerpt || p.content || '')
+                        .replace(/<[^>]*>/g, '')
+                        .replace(/:::summary|:::/g, '')
+                        .trim()
+                        .slice(0, 110) + '...',
                   }))
                 : [
                     {
-                      slug: 'nvidia-rtx-50-series-chinh-thuc-lo-dien',
-                      title:
-                        'NVIDIA RTX 50 Series chính thức lộ diện: Bước nhảy vọt về AI và Ray Tracing',
-                      img: '/assets/images/posts/tin-tuc-3.jpg',
-                      date: '18/11/2026',
-                      desc: 'Tìm hiểu sức mạnh thực tế của dòng card RTX 5090 và RTX 5080 với GDDR7...',
+                      slug: 'huong-dan-tu-build-pc-gaming-25-trieu',
+                      title: 'Hướng dẫn tự build PC gaming cân mọi tựa game AAA tầm giá 25 triệu',
+                      img: '/assets/images/news/news-build-pc.jpg',
+                      fallbackImg: '/assets/images/news/news-build-pc.jpg',
+                      date: '22/11/2026',
+                      desc: 'Chi tiết từng linh kiện từ CPU Core i5 / Ryzen 5 đến RTX 4060 Ti tối ưu hiệu năng...',
+                    },
+                    {
+                      slug: 'top-5-ban-phim-co-khong-day-dang-mua-nhat-2026',
+                      title: 'Top 5 bàn phím cơ không dây văn phòng và gaming đáng mua nhất 2026',
+                      img: '/assets/images/news/news-mouse-gaming.jpg',
+                      fallbackImg: '/assets/images/news/news-mouse-gaming.jpg',
+                      date: '22/11/2026',
+                      desc: 'Tổng hợp các mẫu bàn phím cơ gõ êm, pin trâu từ Logitech, Corsair và Keychron...',
+                    },
+                    {
+                      slug: 'danh-gia-nvidia-geforce-rtx-5090-hieu-nang-ai',
+                      title: 'Đánh giá NVIDIA GeForce RTX 5090: Quái vật hiệu năng kỷ nguyên AI',
+                      img: '/assets/images/news/news-rtx-50.jpg',
+                      fallbackImg: '/assets/images/news/news-rtx-50.jpg',
+                      date: '22/11/2026',
+                      desc: 'Kiến trúc Blackwell tiến trình 4nm đem lại bước nhảy vọt hiệu năng Ray Tracing và DLSS 4...',
+                    },
+                    {
+                      slug: 'danh-gia-chi-tiet-intel-core-ultra-9-285k',
+                      title: 'Đánh giá chi tiết Intel Core Ultra 9 285K: Bước tiến kiến trúc Arrow Lake',
+                      img: '/assets/images/news/news-intel-ultra.jpg',
+                      fallbackImg: '/assets/images/news/news-intel-ultra.jpg',
+                      date: '22/11/2026',
+                      desc: 'Phân tích kiến trúc Arrow Lake, hiệu năng đa nhân, NPU tích hợp và điện năng tiêu thụ mát hơn 40%...',
                     },
                   ]
               ).map((news, idx) => (
@@ -908,7 +994,8 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                       alt={news.title}
                       loading="lazy"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/assets/images/posts/tin-tuc-1.jpg';
+                        (e.target as HTMLImageElement).src =
+                          news.fallbackImg || '/assets/images/posts/tin-tuc-1.jpg';
                       }}
                     />
                   </div>

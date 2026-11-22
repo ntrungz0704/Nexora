@@ -139,19 +139,43 @@ const VIRTUAL_GROUPS: Record<string, string[]> = {
   networking: ['networking'],
   'phu-kien': ['accessories'],
   accessories: ['accessories'],
-  'office-gear': ['office-equipment', 'power-bank'],
-  'thiet-bi-van-phong': ['office-equipment'],
-  'thiet bi van phong': ['office-equipment'],
-  'office-equipment': ['office-equipment'],
-  'sac-du-phong': ['power-bank'],
-  'power-bank': ['power-bank'],
-  pc: ['pc'],
-  'pc-nexora': ['pc'],
-  'pc-techpilot': ['pc'],
+  'office-gear': ['office-equipment', 'power-bank', 'thiet-bi-van-phong', 'sac-du-phong'],
+  'thiet-bi-van-phong': ['office-equipment', 'power-bank', 'thiet-bi-van-phong', 'sac-du-phong'],
+  'thiet bi van phong': ['office-equipment', 'power-bank', 'thiet-bi-van-phong', 'sac-du-phong'],
+  'office-equipment': ['office-equipment', 'thiet-bi-van-phong'],
+  'sac-du-phong': ['power-bank', 'sac-du-phong'],
+  'power-bank': ['power-bank', 'sac-du-phong'],
+  pc: ['pc', 'pc-nexora', 'pc-techpilot'],
+  'pc-nexora': ['pc', 'pc-nexora', 'pc-techpilot'],
+  'pc-techpilot': ['pc', 'pc-nexora', 'pc-techpilot'],
   laptop: ['laptop'],
   'laptop-gaming': ['laptop'],
   'man-hinh': ['monitor'],
   monitor: ['monitor'],
+};
+
+const CATEGORY_DEFAULT_ICONS: Record<string, string> = {
+  laptop: 'fa-solid fa-laptop-code',
+  pc: 'fa-solid fa-desktop',
+  monitor: 'fa-solid fa-display',
+  mainboard: 'fa-solid fa-microchip',
+  cpu: 'fa-solid fa-microchip',
+  vga: 'fa-solid fa-memory',
+  ram: 'fa-solid fa-memory',
+  storage: 'fa-solid fa-hard-drive',
+  case: 'fa-solid fa-server',
+  cooling: 'fa-solid fa-fan',
+  psu: 'fa-solid fa-bolt',
+  keyboard: 'fa-solid fa-keyboard',
+  mouse: 'fa-solid fa-computer-mouse',
+  chair: 'fa-solid fa-chair',
+  headset: 'fa-solid fa-headphones',
+  speaker: 'fa-solid fa-volume-high',
+  console: 'fa-solid fa-gamepad',
+  accessories: 'fa-solid fa-plug',
+  'office-equipment': 'fa-solid fa-print',
+  'power-bank': 'fa-solid fa-battery-half',
+  networking: 'fa-solid fa-wifi',
 };
 
 export const SearchPage: React.FC = () => {
@@ -238,6 +262,44 @@ export const SearchPage: React.FC = () => {
     queryKey: ['categories'],
     queryFn: () => storefrontService.getCategories(),
   });
+
+  // Filter sidebar categories to avoid duplicate aliases (e.g. ban-phim vs keyboard, chuot-lot-chuot vs mouse)
+  const sidebarCategories = useMemo(() => {
+    const ALIAS_SLUGS = new Set([
+      'ban-phim',
+      'chuot-lot-chuot',
+      'tai-nghe',
+      'o-cung',
+      'man-hinh',
+      'main-cpu-vga',
+      'case-nguon-tan',
+      'loa-micro-webcam',
+      'ghe-ban',
+      'phan-mem-mang',
+      'phu-kien',
+      'thiet-bi-van-phong',
+      'sac-du-phong',
+      'laptop-gaming',
+      'pc-techpilot',
+      'pc-nexora',
+    ]);
+    return categories.filter((c) => !ALIAS_SLUGS.has(c.slug));
+  }, [categories]);
+
+  const isCatActive = (catSlug: string) => {
+    if (!queryCat || queryCat === 'all') return false;
+    const cleanCurrent = queryCat.toLowerCase().replace(/\s+/g, '-');
+    if (cleanCurrent === catSlug) return true;
+    const currentGroup = VIRTUAL_GROUPS[cleanCurrent];
+    if (currentGroup && currentGroup.length === 1 && currentGroup[0] === catSlug) {
+      return true;
+    }
+    const catGroup = VIRTUAL_GROUPS[catSlug];
+    if (catGroup && catGroup.length === 1 && catGroup[0] === cleanCurrent) {
+      return true;
+    }
+    return false;
+  };
 
   const { data: productsData } = useQuery({
     queryKey: ['products'],
@@ -706,21 +768,20 @@ export const SearchPage: React.FC = () => {
                   <span>Tất cả danh mục</span>
                 </Link>
 
-                {categories.map((cat) => {
+                {sidebarCategories.map((cat) => {
                   const cleanCat = cat.slug.toLowerCase();
-                  const cleanCurrent = (queryCat || '').toLowerCase().replace(/\s+/g, '-');
-                  const isActive = Boolean(
-                    cleanCurrent &&
-                    (cleanCurrent === cleanCat ||
-                      (VIRTUAL_GROUPS[cleanCurrent]?.includes(cleanCat) ?? false)),
-                  );
+                  const isActive = isCatActive(cleanCat);
+                  const iconClass =
+                    cat.icon && cat.icon.trim() !== ''
+                      ? cat.icon
+                      : CATEGORY_DEFAULT_ICONS[cleanCat] || 'fa-solid fa-tag';
                   return (
                     <Link
                       key={cat.id || cat.slug}
                       to={`/search?cat=${cat.slug}`}
                       className={`category-list__item ${isActive ? 'is-active' : ''}`}
                     >
-                      <i className={cat.icon || 'fa-solid fa-tag'}></i>
+                      <i className={iconClass}></i>
                       <span>{cat.name}</span>
                     </Link>
                   );
