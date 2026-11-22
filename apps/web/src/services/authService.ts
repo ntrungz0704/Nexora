@@ -1,17 +1,28 @@
 import { apiClient } from '../lib/apiClient';
 import { cartService } from './cartService';
-import type {
-  ApiSuccessEnvelope,
-  LoginInput,
-  RegisterInput,
-  AuthUser,
-  MergeCartResultDto,
+import {
+  type ApiSuccessEnvelope,
+  type LoginInput,
+  type RegisterInput,
+  type AuthUser,
+  type MergeCartResultDto,
+  MergeCartResultDtoSchema,
 } from '@nexora/shared';
 
 export interface AuthSession {
   user: AuthUser;
   token: string;
   cartMerge?: MergeCartResultDto;
+}
+
+/**
+ * Xác thực dữ liệu trả về của Cart Merge theo đúng MergeCartResultDtoSchema.
+ * Trả về MergeCartResultDto hợp lệ, hoặc null nếu dữ liệu bị lỗi/không đúng cấu trúc.
+ */
+function validateMergeResult(data: unknown): MergeCartResultDto | null {
+  if (!data || typeof data !== 'object') return null;
+  const parsed = MergeCartResultDtoSchema.safeParse(data);
+  return parsed.success ? parsed.data : null;
 }
 
 export const authService = {
@@ -34,25 +45,20 @@ export const authService = {
 
     // 2. Xử lý Failure-Safety cho Cart Merge nếu client có gửi guestSessionId
     if (guestSessionId) {
-      const isValidMergeResult =
-        session.cartMerge &&
-        typeof session.cartMerge.mergedItemsCount === 'number' &&
-        session.cartMerge.cart !== undefined;
+      const validMergeResult = validateMergeResult(session.cartMerge);
 
-      if (isValidMergeResult) {
-        // Backend Auto-Merge thành công -> xóa guest session an toàn
+      if (validMergeResult) {
+        // Backend Auto-Merge thành công với DTO hợp lệ -> xóa guest session an toàn
         cartService.clearGuestSession();
+        session.cartMerge = validMergeResult;
       } else {
-        // Backend Auto-Merge thất bại hoặc thiếu cartMerge -> Kích hoạt đúng 1 lần Immediate Retry
+        // Backend Auto-Merge thất bại hoặc DTO không hợp lệ -> Kích hoạt đúng 1 lần Immediate Retry
         try {
-          const retryResult = await cartService.mergeCart(guestSessionId);
-          if (
-            retryResult &&
-            typeof retryResult.mergedItemsCount === 'number' &&
-            retryResult.cart !== undefined
-          ) {
+          const retryRaw = await cartService.mergeCart(guestSessionId);
+          const validRetryResult = validateMergeResult(retryRaw);
+          if (validRetryResult) {
             cartService.clearGuestSession();
-            session.cartMerge = retryResult;
+            session.cartMerge = validRetryResult;
           }
         } catch {
           // Immediate retry thất bại -> Bảo toàn nexora_guest_session trong localStorage cho Passive Retry
@@ -82,23 +88,18 @@ export const authService = {
     localStorage.setItem('nexora_user', JSON.stringify(session.user));
 
     if (guestSessionId) {
-      const isValidMergeResult =
-        session.cartMerge &&
-        typeof session.cartMerge.mergedItemsCount === 'number' &&
-        session.cartMerge.cart !== undefined;
+      const validMergeResult = validateMergeResult(session.cartMerge);
 
-      if (isValidMergeResult) {
+      if (validMergeResult) {
         cartService.clearGuestSession();
+        session.cartMerge = validMergeResult;
       } else {
         try {
-          const retryResult = await cartService.mergeCart(guestSessionId);
-          if (
-            retryResult &&
-            typeof retryResult.mergedItemsCount === 'number' &&
-            retryResult.cart !== undefined
-          ) {
+          const retryRaw = await cartService.mergeCart(guestSessionId);
+          const validRetryResult = validateMergeResult(retryRaw);
+          if (validRetryResult) {
             cartService.clearGuestSession();
-            session.cartMerge = retryResult;
+            session.cartMerge = validRetryResult;
           }
         } catch {
           // Immediate retry thất bại -> Bảo toàn nexora_guest_session cho Passive Retry

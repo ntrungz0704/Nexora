@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
+import { StrictMode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -26,19 +27,30 @@ const mockUser: AuthUser = {
   role: 'CUSTOMER',
 };
 
+const mockProduct = {
+  id: 1,
+  categoryId: 1,
+  name: 'CPU AMD Ryzen 7',
+  slug: 'cpu-amd-ryzen-7',
+  sku: 'CPU-RYZEN-7',
+  price: '8500000',
+  salePrice: null,
+  stockQuantity: 10,
+  thumbnailUrl: null,
+  shortDescription: null,
+  specs: null,
+  isFeatured: true,
+  isHot: true,
+  status: 'ACTIVE' as const,
+};
+
 const mockCart: CartSummaryDto = {
   items: [
     {
       id: '1',
       productId: 1,
-      name: 'CPU AMD Ryzen 7',
-      sku: 'CPU-RYZEN-7',
-      slug: 'cpu-amd-ryzen-7',
-      image: null,
-      price: '8500000',
       quantity: 1,
-      lineTotal: '8500000',
-      stockQuantity: 10,
+      product: mockProduct,
     },
   ],
   totalItems: 1,
@@ -580,6 +592,285 @@ describe('M6.1: Guest Cart Merge & Failure-Safety Test Suite (TC-1 to TC-9)', ()
 
     await waitFor(() => {
       expect(passiveSpy).toHaveBeenCalledWith('jwt-token-cart-page');
+    });
+  });
+
+  // =========================================================================
+  // TARGETED ACCEPTANCE FIX TESTS: DTO VALIDATION & PASSIVE RETRY LIFECYCLE
+  // =========================================================================
+
+  describe('Targeted Acceptance Fix: Merge Result DTO Full Schema Validation', () => {
+    it('DTO-1: Reject malformed cartMerge ({ mergedItemsCount: 0, cart: null }) -> Kích hoạt retry, nếu retry cũng lỗi thì bảo toàn guestSessionId', async () => {
+      const testGuestId = 'guest_dto1_malformed';
+      localStorage.setItem(GUEST_SESSION_KEY, testGuestId);
+
+      const postSpy = vi.spyOn(apiClient, 'post').mockImplementation((url) => {
+        if (url === '/auth/login') {
+          return Promise.resolve({
+            data: {
+              success: true,
+              data: {
+                user: mockUser,
+                token: 'jwt-token-dto1',
+                // Dữ liệu lỗi: cart là null mặc dù mergedItemsCount là số
+                cartMerge: { mergedItemsCount: 0, cart: null },
+              },
+            },
+          });
+        }
+        if (url === '/cart/merge') {
+          // Immediate retry cũng trả về dữ liệu sai cấu trúc
+          return Promise.resolve({
+            data: {
+              success: true,
+              data: { mergedItemsCount: 2, cart: 'invalid_string' },
+            },
+          });
+        }
+        return Promise.reject(new Error(`Unexpected url: ${url}`));
+      });
+
+      const session = await authService.login({
+        email: 'customer@nexora.local',
+        password: 'Password123!',
+      });
+
+      // Login vẫn thành công
+      expect(session.token).toBe('jwt-token-dto1');
+      // Đã gọi cả login và immediate retry
+      expect(postSpy).toHaveBeenCalledTimes(2);
+
+      // Invariant: Vì cả hai DTO đều không vượt qua safeParse, session khách PHẢI ĐƯỢC BẢO TOÀN
+      expect(localStorage.getItem(GUEST_SESSION_KEY)).toBe(testGuestId);
+    });
+
+    it('DTO-2: Chấp nhận DTO hợp lệ ngay cả khi mergedItemsCount = 0 (giỏ trống hoặc đã đồng bộ từ trước) -> Xóa guest session an toàn', async () => {
+      const testGuestId = 'guest_dto2_zero_items';
+      localStorage.setItem(GUEST_SESSION_KEY, testGuestId);
+
+      const zeroMergeResult: MergeCartResultDto = {
+        cart: {
+          items: [],
+          totalItems: 0,
+          subtotal: '0',
+        },
+        mergedItemsCount: 0,
+        adjustedItemsCount: 0,
+        warnings: [],
+      };
+
+      vi.spyOn(apiClient, 'post').mockResolvedValueOnce({
+        data: {
+          success: true,
+          data: {
+            user: mockUser,
+            token: 'jwt-token-dto2',
+            cartMerge: zeroMergeResult,
+          },
+        },
+      });
+
+      const session = await authService.login({
+        email: 'customer@nexora.local',
+        password: 'Password123!',
+      });
+
+      expect(session.token).toBe('jwt-token-dto2');
+      // DTO hợp lệ -> guest session phải được xóa
+      expect(localStorage.getItem(GUEST_SESSION_KEY)).toBeNull();
+      expect(session.cartMerge).toEqual(zeroMergeResult);
+    });
+
+    it('DTO-3: Passive retry kiểm tra DTO schema bằng safeParse -> Từ chối kết quả malformed và bảo toàn session', async () => {
+      const testGuestId = 'guest_dto3_passive_malformed';
+      localStorage.setItem(GUEST_SESSION_KEY, testGuestId);
+
+      // Trả về đối tượng thiếu các trường bắt buộc của CartSummary
+      vi.spyOn(apiClient, 'post').mockResolvedValueOnce({
+        data: {
+          success: true,
+          data: {
+            mergedItemsCount: 1,
+            cart: { invalid: true }, // Thiếu items, totalItems, subtotal
+          },
+        },
+      });
+
+      const result = await cartService.attemptPassiveCartMerge('valid-token');
+
+      // Kết quả phải là null do safeParse thất bại
+      expect(result).toBeNull();
+      // Session khách BẮT BUỘC phải được bảo toàn
+      expect(localStorage.getItem(GUEST_SESSION_KEY)).toBe(testGuestId);
+    });
+  });
+
+  describe('Targeted Acceptance Fix: Passive Retry Lifecycle & StrictMode', () => {
+    it('LIFECYCLE-1: Chặn duplicate call khi CartPage re-render trong cùng một lần mount', async () => {
+      const queryClient = new QueryClient();
+      localStorage.setItem(GUEST_SESSION_KEY, 'guest_lifecycle_rerender');
+      localStorage.setItem('nexora_token', 'jwt-token-rerender');
+      localStorage.setItem('nexora_user', JSON.stringify(mockUser));
+
+      const passiveSpy = vi
+        .spyOn(cartService, 'attemptPassiveCartMerge')
+        .mockResolvedValue(mockMergeResult);
+
+      const { rerender } = render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <CartPage />
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+
+      await waitFor(() => {
+        expect(passiveSpy).toHaveBeenCalledTimes(1);
+      });
+
+      // Kích hoạt re-render của cùng một component mount
+      rerender(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <CartPage />
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+
+      // Re-render KHÔNG ĐƯỢC PHÉP gọi lại attemptPassiveCartMerge
+      expect(passiveSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('LIFECYCLE-2: Cho phép thử lại khi người dùng rời khỏi CartPage (unmount) và quay lại (mount mới) mà không cần F5', async () => {
+      const queryClient = new QueryClient();
+      const testGuestId = 'guest_lifecycle_remount';
+      localStorage.setItem(GUEST_SESSION_KEY, testGuestId);
+      localStorage.setItem('nexora_token', 'jwt-token-remount');
+      localStorage.setItem('nexora_user', JSON.stringify(mockUser));
+
+      // Lần mount 1: Thất bại do lỗi mạng
+      const mergeSpy = vi
+        .spyOn(cartService, 'mergeCart')
+        .mockRejectedValueOnce(new Error('Network temporary failure'))
+        .mockResolvedValueOnce(mockMergeResult);
+
+      // 1. User truy cập /cart lần đầu
+      const { unmount } = render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <CartPage />
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+
+      await waitFor(() => {
+        expect(mergeSpy).toHaveBeenCalledTimes(1);
+      });
+      // Session khách vẫn được bảo toàn
+      expect(localStorage.getItem(GUEST_SESSION_KEY)).toBe(testGuestId);
+
+      // 2. User rời khỏi CartPage (ví dụ: chuyển sang trang sản phẩm /products)
+      unmount();
+
+      // 3. User quay lại /cart trong cùng một phiên SPA (không reload F5)
+      render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <CartPage />
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+
+      // Lần mount mới BẮT BUỘC phải được phép kích hoạt retry mới!
+      await waitFor(() => {
+        expect(mergeSpy).toHaveBeenCalledTimes(2);
+      });
+
+      // Lần thử thứ 2 thành công -> session khách được xóa an toàn
+      expect(localStorage.getItem(GUEST_SESSION_KEY)).toBeNull();
+    });
+
+    it('LIFECYCLE-3: In-flight guard ngăn chặn gọi đồng thời khi một request merge đang diễn ra', async () => {
+      const testGuestId = 'guest_inflight_test';
+      localStorage.setItem(GUEST_SESSION_KEY, testGuestId);
+
+      let resolvePromise: (value: MergeCartResultDto) => void;
+      const delayedPromise = new Promise<MergeCartResultDto>((resolve) => {
+        resolvePromise = resolve;
+      });
+
+      vi.spyOn(cartService, 'mergeCart').mockReturnValueOnce(delayedPromise);
+
+      // Gọi lần 1: bắt đầu request (đang in-flight)
+      const call1 = cartService.attemptPassiveCartMerge('valid-token');
+
+      // Gọi lần 2: khi lần 1 chưa kết thúc
+      const call2 = cartService.attemptPassiveCartMerge('valid-token');
+
+      // Call 2 phải bị từ chối ngay lập tức do in-flight guard
+      const result2 = await call2;
+      expect(result2).toBeNull();
+
+      // Cho call 1 hoàn thành
+      resolvePromise!(mockMergeResult);
+      const result1 = await call1;
+      expect(result1).toEqual(mockMergeResult);
+      expect(localStorage.getItem(GUEST_SESSION_KEY)).toBeNull();
+    });
+
+    it('LIFECYCLE-4: Thao tác giỏ hàng (addItem, updateItem, removeItem) tự động reset guard để sẵn sàng đồng bộ', async () => {
+      const testGuestId = 'guest_mutation_reset';
+      localStorage.setItem(GUEST_SESSION_KEY, testGuestId);
+
+      // Giả lập lần thử trước đã fail
+      vi.spyOn(cartService, 'mergeCart').mockRejectedValueOnce(new Error('Backend busy'));
+      await cartService.attemptPassiveCartMerge('valid-token');
+
+      // Deduplication guard đang chặn: gọi lại ngay sẽ trả về null
+      const blockedCall = await cartService.attemptPassiveCartMerge('valid-token');
+      expect(blockedCall).toBeNull();
+
+      // Giả lập API cho cart mutations
+      vi.spyOn(apiClient, 'post').mockResolvedValueOnce({
+        data: { success: true, data: mockCart },
+      });
+
+      // User thao tác giỏ hàng: thêm sản phẩm mới
+      await cartService.addItem(99, 1);
+
+      // Sau khi thao tác giỏ hàng, guard đã được reset: cho phép thử lại
+      vi.spyOn(cartService, 'mergeCart').mockResolvedValueOnce(mockMergeResult);
+      const retryResult = await cartService.attemptPassiveCartMerge('valid-token');
+
+      expect(retryResult).toEqual(mockMergeResult);
+      expect(localStorage.getItem(GUEST_SESSION_KEY)).toBeNull();
+    });
+
+    it('LIFECYCLE-5: React.StrictMode không kích hoạt duplicate merge requests ngoài ý muốn', async () => {
+      const queryClient = new QueryClient();
+      localStorage.setItem(GUEST_SESSION_KEY, 'guest_strict_mode_session');
+      localStorage.setItem('nexora_token', 'jwt-token-strict');
+      localStorage.setItem('nexora_user', JSON.stringify(mockUser));
+
+      const passiveSpy = vi
+        .spyOn(cartService, 'attemptPassiveCartMerge')
+        .mockResolvedValueOnce(mockMergeResult);
+
+      render(
+        <StrictMode>
+          <QueryClientProvider client={queryClient}>
+            <MemoryRouter>
+              <CartPage />
+            </MemoryRouter>
+          </QueryClientProvider>
+        </StrictMode>,
+      );
+
+      await waitFor(() => {
+        // Trong React.StrictMode, mặc dù effect bị double-invoked trong dev mode,
+        // passiveAttemptedRef ngăn chặn việc gọi attemptPassiveCartMerge 2 lần!
+        expect(passiveSpy).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });

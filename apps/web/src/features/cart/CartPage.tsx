@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
@@ -20,27 +20,37 @@ export const CartPage: React.FC = () => {
   const [couponApplied, setCouponApplied] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const passiveAttemptedRef = useRef(false);
+  const isMountedRef = useRef(true);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  // Lifecycle: Reset deduplication guard khi rời khỏi trang (unmount) để cho phép thử lại khi quay lại /cart
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      cartService.resetPassiveMergeGuard();
+    };
+  }, []);
+
   // Passive Retry: Tự động gộp giỏ hàng khách khi user đã đăng nhập mở CartPage
   useEffect(() => {
     const token = authService.getToken();
     if (!token || !cartService.hasGuestSession()) return;
+    if (passiveAttemptedRef.current) return;
 
-    let mounted = true;
+    passiveAttemptedRef.current = true;
+
     cartService.attemptPassiveCartMerge(token).then((merged) => {
-      if (mounted && merged) {
+      if (isMountedRef.current && merged) {
         queryClient.invalidateQueries({ queryKey: ['cart'] });
         showToast('Đã tự động đồng bộ giỏ hàng trước đó của bạn.');
       }
     });
-
-    return () => {
-      mounted = false;
-    };
   }, [currentUser, queryClient]);
 
   const { data: categories = [] } = useQuery({

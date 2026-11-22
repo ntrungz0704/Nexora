@@ -1,5 +1,10 @@
 import { apiClient } from '../lib/apiClient';
-import type { ApiSuccessEnvelope, CartSummaryDto, MergeCartResultDto } from '@nexora/shared';
+import {
+  type ApiSuccessEnvelope,
+  type CartSummaryDto,
+  type MergeCartResultDto,
+  MergeCartResultDtoSchema,
+} from '@nexora/shared';
 
 export const GUEST_SESSION_KEY = 'nexora_guest_session';
 
@@ -59,7 +64,8 @@ let lastAttemptFailed = false;
  * Đảm bảo:
  * 1. In-flight guard: chống gọi đồng thời.
  * 2. Deduplication: không gọi lại vô hạn trên mỗi lần component re-render nếu lần trước đã thất bại.
- * 3. Chỉ xóa session khi nhận kết quả thành công.
+ * 3. DTO Schema Validation: Xác thực toàn diện qua MergeCartResultDtoSchema.safeParse().
+ * 4. Chỉ xóa session khi nhận kết quả thành công và DTO hoàn toàn hợp lệ.
  */
 export async function attemptPassiveCartMerge(
   token: string | null,
@@ -68,7 +74,7 @@ export async function attemptPassiveCartMerge(
   const guestSessionId = getExistingGuestSessionId();
   if (!guestSessionId) return null;
 
-  // In-flight guard
+  // In-flight guard: ngăn chặn thực thi song song
   if (isMergingInFlight) return null;
 
   // Deduplication: nếu session này vừa thử thất bại trong phiên mount hiện tại, không gọi lặp
@@ -80,12 +86,16 @@ export async function attemptPassiveCartMerge(
   lastAttemptedSessionId = guestSessionId;
 
   try {
-    const result = await cartService.mergeCart(guestSessionId);
-    if (result && typeof result.mergedItemsCount === 'number') {
+    const rawResult = await cartService.mergeCart(guestSessionId);
+    const parsed = MergeCartResultDtoSchema.safeParse(rawResult);
+
+    if (parsed.success) {
       clearGuestSession();
       lastAttemptFailed = false;
-      return result;
+      return parsed.data;
     }
+
+    // DTO trả về không hợp lệ (ví dụ: cart null, thiếu items, sai kiểu dữ liệu)
     lastAttemptFailed = true;
     return null;
   } catch {
@@ -98,7 +108,7 @@ export async function attemptPassiveCartMerge(
 }
 
 /**
- * Reset guard khi cần (ví dụ khi user chủ động bấm thử lại hoặc đăng nhập tài khoản khác).
+ * Reset guard khi cần (khi CartPage unmount/mount mới, khi user thao tác giỏ hàng, hoặc khi login tài khoản khác).
  */
 export function resetPassiveMergeGuard(): void {
   lastAttemptedSessionId = null;
@@ -122,6 +132,7 @@ export const cartService = {
   },
 
   async addItem(productId: number, quantity = 1): Promise<CartSummaryDto> {
+    resetPassiveMergeGuard();
     const guestSessionId = getGuestSessionId();
     const res = await apiClient.post<ApiSuccessEnvelope<CartSummaryDto>>(
       '/cart/items',
@@ -136,6 +147,7 @@ export const cartService = {
   },
 
   async updateItem(cartItemId: string, quantity: number): Promise<CartSummaryDto> {
+    resetPassiveMergeGuard();
     const guestSessionId = getExistingGuestSessionId() || getGuestSessionId();
     const res = await apiClient.patch<ApiSuccessEnvelope<CartSummaryDto>>(
       `/cart/items/${cartItemId}`,
@@ -146,6 +158,7 @@ export const cartService = {
   },
 
   async removeItem(cartItemId: string): Promise<CartSummaryDto> {
+    resetPassiveMergeGuard();
     const guestSessionId = getExistingGuestSessionId() || getGuestSessionId();
     const res = await apiClient.delete<ApiSuccessEnvelope<CartSummaryDto>>(
       `/cart/items/${cartItemId}`,
