@@ -10,7 +10,7 @@ services:
     ports:
       - '${MYSQL_PORT:-3306}:3306'
     volumes:
-      - nexora_mysql_data:/var/lib/mysql
+      - nexora_mysql_data_v2:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent']
@@ -71,4 +71,4 @@ services:
       retries: 5
 
 volumes:
-  nexora_mysql_data:
+  nexora_mysql_data_v2:

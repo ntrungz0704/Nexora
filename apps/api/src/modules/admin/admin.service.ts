@@ -414,6 +414,48 @@ export class AdminService {
     });
   }
 
+  async deleteCategory(id: number): Promise<{ success: boolean; message: string }> {
+    return prisma.$transaction(async (tx) => {
+      const category = await tx.category.findUnique({
+        where: { id },
+        include: {
+          _count: {
+            select: {
+              products: true,
+              children: true,
+            },
+          },
+        },
+      });
+
+      if (!category) {
+        throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Không tìm thấy danh mục.');
+      }
+
+      if (category._count.products > 0) {
+        throw new AppError(
+          400,
+          'CATEGORY_HAS_PRODUCTS',
+          `Không thể xóa danh mục đang có ${category._count.products} sản phẩm liên kết.`,
+        );
+      }
+
+      if (category._count.children > 0) {
+        throw new AppError(
+          400,
+          'CATEGORY_HAS_CHILDREN',
+          `Không thể xóa danh mục đang có ${category._count.children} danh mục con.`,
+        );
+      }
+
+      await tx.category.delete({
+        where: { id },
+      });
+
+      return { success: true, message: 'Xóa danh mục thành công.' };
+    });
+  }
+
   generateAiCategory(name: string): { description: string; icon: string; seoTitle: string } {
     let icon = 'fas fa-box';
     const lower = name.toLowerCase();

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { profileController } from './profile.controller.js';
+import { returnController } from '../order/return.controller.js';
 import { requireAuth } from '../auth/auth.middleware.js';
 import { createRateLimiters, type AppRateLimiters } from '../../middleware/rateLimit.js';
 
@@ -44,6 +45,13 @@ export function createProfileRouter(rateLimiters: AppRateLimiters = createRateLi
   );
   router.patch('/notifications/read-all', (req, res, next) =>
     profileController.markAllNotificationsAsRead(req, res, next),
+  );
+
+  // Return Requests (Customer view & submission)
+  router.post('/returns', (req, res, next) => returnController.createReturnRequest(req, res, next));
+  router.get('/returns', (req, res, next) => returnController.getOwnReturns(req, res, next));
+  router.get('/returns/:id', (req, res, next) =>
+    returnController.getOwnReturnDetail(req, res, next),
   );
 
   return router;

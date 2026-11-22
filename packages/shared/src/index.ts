@@ -273,6 +273,7 @@ export const OrderDtoSchema = z.object({
   trackingNumber: z.string().nullable().optional(),
   carrierName: z.string().nullable().optional(),
   paidAt: z.string().nullable().optional(),
+  deliveredAt: z.string().nullable().optional(),
   createdAt: z.string(),
   items: z.array(OrderItemDtoSchema).optional(),
 });
@@ -509,40 +510,109 @@ export const NotificationListDtoSchema = z.object({
 export type NotificationListDto = z.infer<typeof NotificationListDtoSchema>;
 
 // --- Phase B: Return Requests Schemas ---
-export const ReturnRequestStatusEnum = z.enum(['PENDING', 'APPROVED', 'REJECTED', 'COMPLETED']);
+export const ReturnRequestStatusEnum = z.enum([
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+  'PROCESSING',
+  'COMPLETED',
+]);
 export type ReturnRequestStatus = z.infer<typeof ReturnRequestStatusEnum>;
+
+export const ReturnResolutionEnum = z.enum(['REFUND', 'REPLACE', 'REPAIR']);
+export type ReturnResolution = z.infer<typeof ReturnResolutionEnum>;
+
+export const CreateReturnItemInputSchema = z.object({
+  orderItemId: z.union([z.string(), z.number()]).transform((val) => String(val)),
+  productId: z.number().int().positive().optional(),
+  quantity: z.number().int().positive('Số lượng sản phẩm đổi/trả phải lớn hơn 0.'),
+  resolution: ReturnResolutionEnum.optional().default('REFUND'),
+});
+export type CreateReturnItemInput = z.infer<typeof CreateReturnItemInputSchema>;
+
+export const CreateReturnRequestInputSchema = z.object({
+  orderId: z
+    .union([z.string(), z.number()])
+    .transform((val) => String(val))
+    .optional(),
+  orderCode: z.string().trim().optional(),
+  reason: z
+    .string()
+    .trim()
+    .min(3, 'Lý do đổi trả tối thiểu 3 ký tự.')
+    .max(255, 'Lý do đổi trả tối đa 255 ký tự.'),
+  notes: z.string().trim().max(2000, 'Mô tả chi tiết tối đa 2000 ký tự.').optional().nullable(),
+  returnAction: z.enum(['replace', 'refund', 'repair']).optional(),
+  images: z.array(z.string()).optional().nullable(),
+  items: z
+    .array(CreateReturnItemInputSchema)
+    .min(1, 'Vui lòng chọn ít nhất 1 sản phẩm để đổi trả.'),
+});
+export type CreateReturnRequestInput = z.infer<typeof CreateReturnRequestInputSchema>;
+
+export const ReturnItemDtoSchema = z.object({
+  id: z.number().int().positive(),
+  returnRequestId: z.number().int().positive(),
+  orderItemId: z.string(),
+  productId: z.number().int().positive(),
+  productName: z.string().optional(),
+  productSku: z.string().optional(),
+  thumbnailUrl: z.string().nullable().optional(),
+  quantity: z.number().int().positive(),
+  resolution: ReturnResolutionEnum,
+  isResellable: z.boolean(),
+  createdAt: z.string(),
+});
+export type ReturnItemDto = z.infer<typeof ReturnItemDtoSchema>;
+
+export const ReturnAuditLogDtoSchema = z.object({
+  id: z.number().int().positive(),
+  returnRequestId: z.number().int().positive(),
+  fromStatus: ReturnRequestStatusEnum,
+  toStatus: ReturnRequestStatusEnum,
+  actorId: z.number().int().positive(),
+  actorRole: z.string(),
+  actorName: z.string().optional(),
+  notes: z.string().nullable().optional(),
+  createdAt: z.string(),
+});
+export type ReturnAuditLogDto = z.infer<typeof ReturnAuditLogDtoSchema>;
 
 export const ReturnRequestDtoSchema = z.object({
   id: z.number().int().positive(),
+  returnCode: z.string(),
   orderId: z.string(),
   orderCode: z.string().optional(),
   userId: z.number().int().positive(),
+  customerName: z.string().optional(),
+  customerEmail: z.string().optional(),
   reason: z.string(),
+  rejectionReason: z.string().nullable().optional(),
+  handledBy: z.number().int().positive().nullable().optional(),
+  handlerName: z.string().nullable().optional(),
   status: ReturnRequestStatusEnum,
   notes: z.string().nullable().optional(),
   images: z.any().nullable().optional(),
   resolvedAt: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  items: z.array(ReturnItemDtoSchema).optional(),
+  auditLogs: z.array(ReturnAuditLogDtoSchema).optional(),
 });
 export type ReturnRequestDto = z.infer<typeof ReturnRequestDtoSchema>;
 
-export const CreateReturnRequestInputSchema = z.object({
-  orderCode: z.string().trim().min(3, 'Mã đơn hàng không hợp lệ.'),
-  reason: z
-    .string()
-    .trim()
-    .min(5, 'Lý do đổi trả tối thiểu 5 ký tự.')
-    .max(255, 'Lý do đổi trả tối đa 255 ký tự.'),
-  notes: z
-    .string()
-    .trim()
-    .min(10, 'Mô tả chi tiết tình trạng lỗi tối thiểu 10 ký tự.')
-    .max(2000, 'Mô tả chi tiết tối đa 2000 ký tự.'),
-  returnAction: z.enum(['replace', 'refund', 'repair']).optional().default('replace'),
-  images: z.array(z.string().url('Đường dẫn ảnh không hợp lệ.')).optional(),
+export const UpdateReturnStatusItemInputSchema = z.object({
+  returnItemId: z.number().int().positive(),
+  isResellable: z.boolean().default(false),
 });
-export type CreateReturnRequestInput = z.infer<typeof CreateReturnRequestInputSchema>;
+
+export const UpdateReturnStatusInputSchema = z.object({
+  status: ReturnRequestStatusEnum,
+  rejectionReason: z.string().trim().max(255).optional(),
+  items: z.array(UpdateReturnStatusItemInputSchema).optional(),
+  notes: z.string().trim().max(500).optional(),
+});
+export type UpdateReturnStatusInput = z.infer<typeof UpdateReturnStatusInputSchema>;
 
 // --- Phase B: Customer Reviews Schemas ---
 export const ReviewStatusSchema = z.enum(['APPROVED', 'HIDDEN']);

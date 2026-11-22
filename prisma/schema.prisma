@@ -66,7 +66,14 @@ enum ReturnRequestStatus {
   PENDING
   APPROVED
   REJECTED
+  PROCESSING
   COMPLETED
+}
+
+enum ReturnResolution {
+  REFUND
+  REPLACE
+  REPAIR
 }
 
 enum ReviewStatus {
@@ -92,7 +99,9 @@ model User {
   reviews         Review[]
   orders          Order[]
   notifications   Notification[]
-  returnRequests  ReturnRequest[]
+  returnRequests  ReturnRequest[]   @relation("UserReturns")
+  handledReturns  ReturnRequest[]   @relation("HandledReturns")
+  returnAuditLogs ReturnAuditLog[]
   posts           Post[]
   inventoryLogs   InventoryLog[]
   auditLogs       AuditLog[]
@@ -184,6 +193,7 @@ model Product {
   wishlists              Wishlist[]
   reviews                Review[]
   orderItems             OrderItem[]
+  returnItems            ReturnItem[]
   inventoryLogs          InventoryLog[]
   flashSaleItems         FlashSaleItem[]
   productAiChatHistories ProductAiChatHistory[]
@@ -341,6 +351,7 @@ model Order {
   trackingNumber      String?         @map("tracking_number") @db.VarChar(100)
   carrierName         String?         @map("carrier_name") @db.VarChar(100)
   paidAt              DateTime?       @map("paid_at")
+  deliveredAt         DateTime?       @map("delivered_at")
   cancelledAt         DateTime?       @map("cancelled_at")
   cancellationReason  String?         @map("cancellation_reason") @db.VarChar(255)
   createdAt           DateTime        @default(now()) @map("created_at")
@@ -370,8 +381,9 @@ model OrderItem {
   subtotal        Decimal   @db.Decimal(18, 2)
   createdAt       DateTime  @default(now()) @map("created_at")
 
-  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  product         Product?  @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  order           Order        @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product         Product?     @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  returnItems     ReturnItem[]
 
   @@index([orderId], map: "idx_order_items_order")
   @@index([productId], map: "idx_order_items_product")
@@ -490,9 +502,12 @@ model Notification {
 
 model ReturnRequest {
   id              Int                 @id @default(autoincrement()) @db.UnsignedInt
+  returnCode      String              @unique @map("return_code") @db.VarChar(50)
   orderId         BigInt              @map("order_id") @db.UnsignedBigInt
   userId          Int                 @map("user_id") @db.UnsignedInt
   reason          String              @db.VarChar(255)
+  rejectionReason String?             @map("rejection_reason") @db.VarChar(255)
+  handledBy       Int?                @map("handled_by") @db.UnsignedInt
   status          ReturnRequestStatus @default(PENDING)
   notes           String?             @db.Text
   images          Json?
@@ -501,11 +516,53 @@ model ReturnRequest {
   updatedAt       DateTime            @updatedAt @map("updated_at")
 
   order           Order               @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user            User                @relation("UserReturns", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  handler         User?               @relation("HandledReturns", fields: [handledBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  items           ReturnItem[]
+  auditLogs       ReturnAuditLog[]
 
   @@index([orderId], map: "idx_return_requests_order")
   @@index([userId, status], map: "idx_return_requests_user_status")
+  @@index([handledBy], map: "idx_return_requests_handler")
   @@map("return_requests")
+}
+
+model ReturnItem {
+  id              Int              @id @default(autoincrement()) @db.UnsignedInt
+  returnRequestId Int              @map("return_request_id") @db.UnsignedInt
+  orderItemId     BigInt           @map("order_item_id") @db.UnsignedBigInt
+  productId       Int              @map("product_id") @db.UnsignedInt
+  quantity        Int              @db.UnsignedInt
+  resolution      ReturnResolution @default(REFUND)
+  isResellable    Boolean          @default(false) @map("is_resellable")
+  createdAt       DateTime         @default(now()) @map("created_at")
+
+  returnRequest   ReturnRequest    @relation(fields: [returnRequestId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orderItem       OrderItem        @relation(fields: [orderItemId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  product         Product          @relation(fields: [productId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([returnRequestId], map: "idx_return_items_request")
+  @@index([orderItemId], map: "idx_return_items_order_item")
+  @@index([productId], map: "idx_return_items_product")
+  @@map("return_items")
+}
+
+model ReturnAuditLog {
+  id              Int                 @id @default(autoincrement()) @db.UnsignedInt
+  returnRequestId Int                 @map("return_request_id") @db.UnsignedInt
+  fromStatus      ReturnRequestStatus @map("from_status")
+  toStatus        ReturnRequestStatus @map("to_status")
+  actorId         Int                 @map("actor_id") @db.UnsignedInt
+  actorRole       UserRole            @map("actor_role")
+  notes           String?             @db.VarChar(500)
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  returnRequest   ReturnRequest       @relation(fields: [returnRequestId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  actor           User                @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([returnRequestId], map: "idx_return_audit_logs_request")
+  @@index([actorId], map: "idx_return_audit_logs_actor")
+  @@map("return_audit_logs")
 }
 
 model AiAssistantLog {

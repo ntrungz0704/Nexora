@@ -23,6 +23,7 @@ export function createAdminRouter(): Router {
   router.get('/categories', controller.getCategories);
   router.post('/categories', controller.createCategory);
   router.put('/categories/:id', controller.updateCategory);
+  router.delete('/categories/:id', controller.deleteCategory);
   router.post('/categories/ai-generate', controller.generateCategoryAi);
 
   // Orders
@@ -77,6 +78,11 @@ export function createAdminRouter(): Router {
   router.get('/reviews', controller.getReviews);
   router.patch('/reviews/:id/status', controller.updateReviewStatus);
   router.delete('/reviews/:id', controller.deleteReview);
+
+  // Returns Management
+  router.get('/returns', controller.getReturns);
+  router.get('/returns/:id', controller.getReturnDetail);
+  router.patch('/returns/:id/status', controller.updateReturnStatus);
 
   return router;
 }

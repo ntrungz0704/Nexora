@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AdminService } from './admin.service.js';
 import { OrderService } from '../order/order.service.js';
+import { returnController } from '../order/return.controller.js';
 import { sendSuccess } from '../../common/http.js';
 import { AppError } from '../../common/errors.js';
 import type { OrderStatus } from '@prisma/client';
@@ -108,6 +109,19 @@ export class AdminController {
       const id = parseInt(req.params.id as string, 10);
       const category = await this.service.updateCategory(id, req.body);
       sendSuccess(res, category);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      if (isNaN(id) || id <= 0) {
+        throw new AppError(400, 'INVALID_ID', 'ID danh mục không hợp lệ.');
+      }
+      const result = await this.service.deleteCategory(id);
+      sendSuccess(res, result);
     } catch (error) {
       next(error);
     }
@@ -521,5 +535,18 @@ export class AdminController {
     } catch (error) {
       next(error);
     }
+  };
+
+  // Returns Management
+  getReturns = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    returnController.getAdminReturns(req, res, next);
+  };
+
+  getReturnDetail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    returnController.getAdminReturnDetail(req, res, next);
+  };
+
+  updateReturnStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    returnController.updateReturnStatus(req, res, next);
   };
 }

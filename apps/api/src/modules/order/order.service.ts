@@ -521,9 +521,14 @@ export class OrderService {
         updateData.paidAt = new Date();
       }
     }
-    if (status === 'DELIVERED' && order.paymentMethod === 'COD' && !paymentStatus) {
-      updateData.paymentStatus = 'PAID';
-      updateData.paidAt = new Date();
+    if (status === 'DELIVERED') {
+      if (order.paymentMethod === 'COD' && !paymentStatus) {
+        updateData.paymentStatus = 'PAID';
+        updateData.paidAt = new Date();
+      }
+      if (!order.deliveredAt) {
+        updateData.deliveredAt = new Date();
+      }
     }
     if (status === 'CANCELLED' && order.orderStatus !== 'CANCELLED') {
       updateData.cancelledAt = new Date();
@@ -633,6 +638,7 @@ export class OrderService {
       trackingNumber: order.trackingNumber,
       carrierName: order.carrierName,
       paidAt: order.paidAt ? order.paidAt.toISOString() : null,
+      deliveredAt: order.deliveredAt ? order.deliveredAt.toISOString() : null,
       createdAt: order.createdAt.toISOString(),
       items: order.items?.map((item) => ({
         id: item.id.toString(),
