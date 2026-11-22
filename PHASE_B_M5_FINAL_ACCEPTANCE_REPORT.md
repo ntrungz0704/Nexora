@@ -23,16 +23,17 @@ Milestone M5 giải quyết trọn vẹn nghiệp vụ đổi trả hàng hóa (
 
 ## 2. Scope Thực Tế Đã Triển Khai
 
-| Phân hệ / Task | Nội dung triển khai thực tế | Trạng thái |
-| :--- | :--- | :--- |
-| **Task A1: Customer Returns** | API `POST /api/v1/profile/returns`, `GET /api/v1/profile/returns`, `GET /api/v1/profile/returns/:id`. Kiểm tra tài khoản ACTIVE, sở hữu đơn hàng, trạng thái `DELIVERED`, thời hạn 7 ngày từ `deliveredAt`, giới hạn số lượng đổi trả còn lại, sinh mã `RET-YYYYMMDD-XXXXX`. | **PASS** |
-| **Task A2: State Machine** | Quản lý quy trình 4 bước: `PENDING → APPROVED / REJECTED → PROCESSING → COMPLETED`. API `PATCH /api/v1/admin/returns/:id/status`. Bắt buộc `rejectionReason` khi REJECTED. Ghi nhận audit log chi tiết và thông báo khách hàng. | **PASS** |
-| **Task A3: Admin Management** | API `GET /api/v1/admin/returns`, `GET /api/v1/admin/returns/:id`. Phân quyền RBAC (`STAFF`, `ADMIN` được phép; `CUSTOMER` bị chặn 403 `FORBIDDEN`). Tìm kiếm theo returnCode, lọc theo status, phân trang chuẩn. | **PASS** |
-| **Task B: Inventory Integrity** | Hoàn kho nguyên tử trong Prisma transaction: chỉ hoàn trả khi `COMPLETED` và `isResellable: true`. Ghi nhận `InventoryLog` với `changeType: RETURN`. Sản phẩm `isResellable: false` giữ nguyên kho. Chống hoàn kho lặp lại bằng khóa dòng `FOR UPDATE`. | **PASS** |
-| **Task C1: Category Safe DELETE** | API `DELETE /api/v1/admin/categories/:id`. Chặn xóa khi có sản phẩm liên kết (`CATEGORY_HAS_PRODUCTS`) hoặc có danh mục con (`CATEGORY_HAS_CHILDREN`). Xóa sạch an toàn khi không có phụ thuộc. | **PASS** |
-| **Database & Contracts** | Cập nhật Prisma schema, tạo Migration `20261122140000_add_returns_workflow_and_order_delivered_at`, bổ sung Zod schemas & DTOs vào `@nexora/shared`. | **PASS** |
+| Phân hệ / Task                    | Nội dung triển khai thực tế                                                                                                                                                                                                                                                  | Trạng thái |
+| :-------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------- |
+| **Task A1: Customer Returns**     | API `POST /api/v1/profile/returns`, `GET /api/v1/profile/returns`, `GET /api/v1/profile/returns/:id`. Kiểm tra tài khoản ACTIVE, sở hữu đơn hàng, trạng thái `DELIVERED`, thời hạn 7 ngày từ `deliveredAt`, giới hạn số lượng đổi trả còn lại, sinh mã `RET-YYYYMMDD-XXXXX`. | **PASS**   |
+| **Task A2: State Machine**        | Quản lý quy trình 4 bước: `PENDING → APPROVED / REJECTED → PROCESSING → COMPLETED`. API `PATCH /api/v1/admin/returns/:id/status`. Bắt buộc `rejectionReason` khi REJECTED. Ghi nhận audit log chi tiết và thông báo khách hàng.                                              | **PASS**   |
+| **Task A3: Admin Management**     | API `GET /api/v1/admin/returns`, `GET /api/v1/admin/returns/:id`. Phân quyền RBAC (`STAFF`, `ADMIN` được phép; `CUSTOMER` bị chặn 403 `FORBIDDEN`). Tìm kiếm theo returnCode, lọc theo status, phân trang chuẩn.                                                             | **PASS**   |
+| **Task B: Inventory Integrity**   | Hoàn kho nguyên tử trong Prisma transaction: chỉ hoàn trả khi `COMPLETED` và `isResellable: true`. Ghi nhận `InventoryLog` với `changeType: RETURN`. Sản phẩm `isResellable: false` giữ nguyên kho. Chống hoàn kho lặp lại bằng khóa dòng `FOR UPDATE`.                      | **PASS**   |
+| **Task C1: Category Safe DELETE** | API `DELETE /api/v1/admin/categories/:id`. Chặn xóa khi có sản phẩm liên kết (`CATEGORY_HAS_PRODUCTS`) hoặc có danh mục con (`CATEGORY_HAS_CHILDREN`). Xóa sạch an toàn khi không có phụ thuộc.                                                                              | **PASS**   |
+| **Database & Contracts**          | Cập nhật Prisma schema, tạo Migration `20261122140000_add_returns_workflow_and_order_delivered_at`, bổ sung Zod schemas & DTOs vào `@nexora/shared`.                                                                                                                         | **PASS**   |
 
 ### Ranh giới phạm vi (Scope Boundaries):
+
 - **Single-Vendor Only:** Chỉ hỗ trợ 3 roles trong hệ thống RBAC (`CUSTOMER`, `STAFF`, `ADMIN`). Không phát triển tính năng đa người bán (Marketplace).
 - **Không can thiệp Frontend UI:** Giao diện người dùng sẽ được tích hợp hoàn chỉnh tại Milestone M6.
 - **Không chuyển đổi CSS:** Giữ nguyên cấu trúc CSS hiện có, không chuyển sang Tailwind trong Phase B.
@@ -42,14 +43,14 @@ Milestone M5 giải quyết trọn vẹn nghiệp vụ đổi trả hàng hóa (
 
 ## 3. TechPilot Source Parity Matrix Kèm File Paths
 
-| Tính năng nghiệp vụ | Nguồn TechPilot (Legacy PHP) | Mã nguồn triển khai Nexora (Modern TS) | Điểm cải tiến & Chuẩn hóa trong Nexora |
-| :--- | :--- | :--- | :--- |
-| **Tạo yêu cầu đổi trả** | `TechPilot/models/OrderModel.php` (`createReturnRequest`) | `apps/api/src/modules/order/return.service.ts` (`createReturnRequest`) | Kiểm tra nghiêm ngặt `deliveredAt` trong 7 ngày, tính toán số lượng đổi trả lũy kế, tạo mã duy nhất `returnCode`, sinh `ReturnItem` chi tiết từng món. |
-| **Danh sách & Chi tiết đổi trả khách hàng** | `TechPilot/models/OrderModel.php` (`getReturnRequestsByUser`, `getReturnRequestById`) | `apps/api/src/modules/order/return.service.ts` (`getOwnReturns`, `getOwnReturnDetail`) | Bảo vệ chống IDOR (chỉ xem đơn của mình), trả về DTO chuẩn Zod với đầy đủ items, audit logs và thông tin đơn hàng liên kết. |
-| **Quản trị đổi trả (Admin/Staff)** | `TechPilot/controllers/AdminController.php` (`returns`, `returnDetail`) | `apps/api/src/modules/order/return.service.ts` (`getAdminReturns`, `getAdminReturnDetail`) | Phân quyền RBAC chuẩn, phân trang `meta` chuẩn RESTful, tìm kiếm theo `returnCode`, lọc trạng thái. |
-| **Chuyển đổi trạng thái đổi trả** | `TechPilot/controllers/AdminController.php` (`updateReturnStatus`) | `apps/api/src/modules/order/return.service.ts` (`updateReturnStatus`) | State machine 4 bước chặt chẽ, bắt buộc lý do từ chối, ghi vết `ReturnAuditLog`, gửi thông báo cho khách hàng. |
-| **Hoàn kho & Nhật ký tồn kho** | `TechPilot/models/OrderModel.php` (tăng stock thủ công, không phân biệt khả năng bán lại) | `apps/api/src/modules/order/return.service.ts` (`updateReturnStatus`) | Chỉ hoàn kho khi `COMPLETED` và `isResellable = true`, ghi `InventoryLog` loại `RETURN`, khóa dòng `FOR UPDATE` chống hoàn kho trùng lặp. |
-| **Xóa danh mục an toàn** | `TechPilot/controllers/CategoryController.php` (`deleteCategory`) | `apps/api/src/modules/admin/admin.service.ts` (`deleteCategory`) | Bảo vệ toàn vẹn dữ liệu: kiểm tra cả sản phẩm liên kết lẫn danh mục con trực thuộc, trả mã lỗi nghiệp vụ 400 rõ ràng. |
+| Tính năng nghiệp vụ                         | Nguồn TechPilot (Legacy PHP)                                                              | Mã nguồn triển khai Nexora (Modern TS)                                                     | Điểm cải tiến & Chuẩn hóa trong Nexora                                                                                                                 |
+| :------------------------------------------ | :---------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tạo yêu cầu đổi trả**                     | `TechPilot/models/OrderModel.php` (`createReturnRequest`)                                 | `apps/api/src/modules/order/return.service.ts` (`createReturnRequest`)                     | Kiểm tra nghiêm ngặt `deliveredAt` trong 7 ngày, tính toán số lượng đổi trả lũy kế, tạo mã duy nhất `returnCode`, sinh `ReturnItem` chi tiết từng món. |
+| **Danh sách & Chi tiết đổi trả khách hàng** | `TechPilot/models/OrderModel.php` (`getReturnRequestsByUser`, `getReturnRequestById`)     | `apps/api/src/modules/order/return.service.ts` (`getOwnReturns`, `getOwnReturnDetail`)     | Bảo vệ chống IDOR (chỉ xem đơn của mình), trả về DTO chuẩn Zod với đầy đủ items, audit logs và thông tin đơn hàng liên kết.                            |
+| **Quản trị đổi trả (Admin/Staff)**          | `TechPilot/controllers/AdminController.php` (`returns`, `returnDetail`)                   | `apps/api/src/modules/order/return.service.ts` (`getAdminReturns`, `getAdminReturnDetail`) | Phân quyền RBAC chuẩn, phân trang `meta` chuẩn RESTful, tìm kiếm theo `returnCode`, lọc trạng thái.                                                    |
+| **Chuyển đổi trạng thái đổi trả**           | `TechPilot/controllers/AdminController.php` (`updateReturnStatus`)                        | `apps/api/src/modules/order/return.service.ts` (`updateReturnStatus`)                      | State machine 4 bước chặt chẽ, bắt buộc lý do từ chối, ghi vết `ReturnAuditLog`, gửi thông báo cho khách hàng.                                         |
+| **Hoàn kho & Nhật ký tồn kho**              | `TechPilot/models/OrderModel.php` (tăng stock thủ công, không phân biệt khả năng bán lại) | `apps/api/src/modules/order/return.service.ts` (`updateReturnStatus`)                      | Chỉ hoàn kho khi `COMPLETED` và `isResellable = true`, ghi `InventoryLog` loại `RETURN`, khóa dòng `FOR UPDATE` chống hoàn kho trùng lặp.              |
+| **Xóa danh mục an toàn**                    | `TechPilot/controllers/CategoryController.php` (`deleteCategory`)                         | `apps/api/src/modules/admin/admin.service.ts` (`deleteCategory`)                           | Bảo vệ toàn vẹn dữ liệu: kiểm tra cả sản phẩm liên kết lẫn danh mục con trực thuộc, trả mã lỗi nghiệp vụ 400 rõ ràng.                                  |
 
 ---
 
@@ -58,6 +59,7 @@ Milestone M5 giải quyết trọn vẹn nghiệp vụ đổi trả hàng hóa (
 ### 4.1. Customer Profile Returns API
 
 #### 1. Tạo yêu cầu đổi trả
+
 - **Endpoint:** `POST /api/v1/profile/returns`
 - **Xác thực:** Bearer JWT (Role: `CUSTOMER`, `STAFF`, `ADMIN` - Tài khoản phải `ACTIVE`).
 - **Input Contract:** `CreateReturnRequestInputSchema`
@@ -88,12 +90,14 @@ Milestone M5 giải quyết trọn vẹn nghiệp vụ đổi trả hàng hóa (
   - `404 ORDER_NOT_FOUND`: Đơn hàng không tồn tại.
 
 #### 2. Danh sách yêu cầu đổi trả của khách hàng
+
 - **Endpoint:** `GET /api/v1/profile/returns`
 - **Xác thực:** Bearer JWT.
 - **Query Params:** `page` (default 1), `limit` (default 10), `status` (tùy chọn: `PENDING`, `APPROVED`, `REJECTED`, `PROCESSING`, `COMPLETED`).
 - **Output:** Danh sách phân trang kèm `meta` (HTTP 200 OK).
 
 #### 3. Chi tiết yêu cầu đổi trả của khách hàng
+
 - **Endpoint:** `GET /api/v1/profile/returns/:id`
 - **Xác thực:** Bearer JWT.
 - **Output:** Chi tiết `ReturnRequestDtoSchema` gồm items, audit logs và handler (HTTP 200 OK).
@@ -102,17 +106,20 @@ Milestone M5 giải quyết trọn vẹn nghiệp vụ đổi trả hàng hóa (
 ### 4.2. Admin & Staff Returns API
 
 #### 4. Danh sách đổi trả toàn hệ thống
+
 - **Endpoint:** `GET /api/v1/admin/returns`
 - **Xác thực:** Bearer JWT (Role: `STAFF`, `ADMIN`). Chặn `CUSTOMER` với mã 403 `FORBIDDEN`.
 - **Query Params:** `page`, `limit`, `status`, `search` (tìm theo `returnCode`).
 - **Output:** Danh sách phân trang kèm `meta` (HTTP 200 OK).
 
 #### 5. Chi tiết đổi trả dành cho quản trị
+
 - **Endpoint:** `GET /api/v1/admin/returns/:id`
 - **Xác thực:** Bearer JWT (Role: `STAFF`, `ADMIN`).
 - **Output:** Chi tiết `ReturnRequestDtoSchema` (HTTP 200 OK).
 
 #### 6. Cập nhật trạng thái đổi trả
+
 - **Endpoint:** `PATCH /api/v1/admin/returns/:id/status`
 - **Xác thực:** Bearer JWT (Role: `STAFF`, `ADMIN`).
 - **Input Contract:** `UpdateReturnStatusInputSchema`
@@ -138,6 +145,7 @@ Milestone M5 giải quyết trọn vẹn nghiệp vụ đổi trả hàng hóa (
 ### 4.3. Admin Category Management API
 
 #### 7. Xóa danh mục an toàn
+
 - **Endpoint:** `DELETE /api/v1/admin/categories/:id`
 - **Xác thực:** Bearer JWT (Role: `ADMIN`). Chặn `CUSTOMER` và `STAFF` (chỉ ADMIN có quyền xóa danh mục).
 - **Output:** `{ "message": "Xóa danh mục thành công." }` (HTTP 200 OK).
@@ -149,6 +157,7 @@ Milestone M5 giải quyết trọn vẹn nghiệp vụ đổi trả hàng hóa (
 ### 4.4. Cập nhật Order Fulfillment API
 
 #### 8. Tự động ghi nhận `deliveredAt` khi hoàn tất giao hàng
+
 - **Endpoint:** `PATCH /api/v1/admin/orders/:id/status`
 - **Logic cập nhật:** Khi chuyển trạng thái đơn hàng sang `DELIVERED`, hệ thống tự động ghi nhận `deliveredAt = new Date()` vào cơ sở dữ liệu nếu trường này đang rỗng, làm mốc tính thời hạn 7 ngày cho quy trình đổi trả.
 
@@ -166,27 +175,30 @@ Hệ thống quản lý quy trình đổi trả thông qua State Machine 4 bư�
 
 ### Bảng ma trận chuyển trạng thái (State Transition Matrix):
 
-| Trạng thái hiện tại | Trạng thái tiếp theo cho phép | Yêu cầu / Điều kiện tiên quyết | Hành động kèm theo |
-| :--- | :--- | :--- | :--- |
-| **`PENDING`** | **`APPROVED`** | Nhân viên/Admin chấp thuận yêu cầu hợp lệ ban đầu. | Ghi nhận `handledBy`, thêm `ReturnAuditLog`, tạo `Notification` cho khách hàng. |
-| **`PENDING`** | **`REJECTED`** | Bắt buộc phải có `rejectionReason`. | Ghi nhận `resolvedAt = NOW()`, `rejectionReason`, thêm audit log, gửi notification. Chuyển sang trạng thái kết thúc. |
-| **`APPROVED`** | **`PROCESSING`** | Hàng đã về kho, kỹ thuật viên đang tiến hành kiểm tra vật lý. | Thêm `ReturnAuditLog`, tạo `Notification` cho khách hàng. |
-| **`PROCESSING`** | **`COMPLETED`** | Hoàn tất kiểm tra và giải quyết. | Duyệt qua danh sách items: hoàn trả tồn kho và ghi `InventoryLog` cho các item có `isResellable: true`. Cập nhật `resolvedAt = NOW()`, thêm audit log, gửi notification. Chuyển sang trạng thái kết thúc. |
-| **`REJECTED`** | *(Không có)* | Trạng thái kết thúc (Terminal). | Không cho phép bất kỳ bước chuyển nào tiếp theo. Báo lỗi `INVALID_STATUS_TRANSITION`. |
-| **`COMPLETED`** | *(Không có)* | Trạng thái kết thúc (Terminal). | Không cho phép tái xử lý. Báo lỗi `INVALID_STATUS_TRANSITION`. |
+| Trạng thái hiện tại | Trạng thái tiếp theo cho phép | Yêu cầu / Điều kiện tiên quyết                                | Hành động kèm theo                                                                                                                                                                                        |
+| :------------------ | :---------------------------- | :------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`PENDING`**       | **`APPROVED`**                | Nhân viên/Admin chấp thuận yêu cầu hợp lệ ban đầu.            | Ghi nhận `handledBy`, thêm `ReturnAuditLog`, tạo `Notification` cho khách hàng.                                                                                                                           |
+| **`PENDING`**       | **`REJECTED`**                | Bắt buộc phải có `rejectionReason`.                           | Ghi nhận `resolvedAt = NOW()`, `rejectionReason`, thêm audit log, gửi notification. Chuyển sang trạng thái kết thúc.                                                                                      |
+| **`APPROVED`**      | **`PROCESSING`**              | Hàng đã về kho, kỹ thuật viên đang tiến hành kiểm tra vật lý. | Thêm `ReturnAuditLog`, tạo `Notification` cho khách hàng.                                                                                                                                                 |
+| **`PROCESSING`**    | **`COMPLETED`**               | Hoàn tất kiểm tra và giải quyết.                              | Duyệt qua danh sách items: hoàn trả tồn kho và ghi `InventoryLog` cho các item có `isResellable: true`. Cập nhật `resolvedAt = NOW()`, thêm audit log, gửi notification. Chuyển sang trạng thái kết thúc. |
+| **`REJECTED`**      | _(Không có)_                  | Trạng thái kết thúc (Terminal).                               | Không cho phép bất kỳ bước chuyển nào tiếp theo. Báo lỗi `INVALID_STATUS_TRANSITION`.                                                                                                                     |
+| **`COMPLETED`**     | _(Không có)_                  | Trạng thái kết thúc (Terminal).                               | Không cho phép tái xử lý. Báo lỗi `INVALID_STATUS_TRANSITION`.                                                                                                                                            |
 
 ---
 
 ## 6. Bảo Toàn Tồn Kho & Chống Hoàn Kho Trùng Lặp (Inventory Integrity)
 
 ### 6.1. Quy tắc hoàn kho (Invariants)
+
 1. **Chỉ hoàn kho khi `COMPLETED`:** Các trạng thái `APPROVED` hoặc `PROCESSING` tuyệt đối không tác động đến trường `stockQuantity` của sản phẩm.
 2. **Kiểm tra khả năng bán lại (`isResellable`):**
    - Nếu `isResellable === true`: Sản phẩm còn nguyên vẹn, đáp ứng tiêu chuẩn bán hàng lại. Hệ thống tăng `stockQuantity` thêm đúng số lượng trả về, đồng thời tạo bản ghi `InventoryLog` với `changeType: 'RETURN'`.
    - Nếu `isResellable === false`: Sản phẩm hư hỏng, lỗi nặng, không thể bán lại. Hệ thống **không** tăng tồn kho và **không** tạo `InventoryLog`.
 
 ### 6.2. Cơ chế khóa dòng và chống Race Condition (Double Restoration Protection)
+
 Để đảm bảo nhiều request song song (hoặc nhân viên thao tác đồng thời) không làm hoàn kho hai lần:
+
 1. Toàn bộ quá trình xử lý diễn ra bên trong một `prisma.$transaction`.
 2. Hệ thống khóa dòng dữ liệu của yêu cầu đổi trả bằng câu lệnh native InnoDB:
    ```sql
@@ -209,7 +221,7 @@ Hệ thống ngăn chặn việc xóa lan truyền (cascade delete) làm thất 
      throw new AppError(
        400,
        `Không thể xóa danh mục đang có ${productCount} sản phẩm liên kết. Vui lòng chuyển sản phẩm sang danh mục khác trước khi xóa.`,
-       'CATEGORY_HAS_PRODUCTS'
+       'CATEGORY_HAS_PRODUCTS',
      );
    }
    ```
@@ -220,7 +232,7 @@ Hệ thống ngăn chặn việc xóa lan truyền (cascade delete) làm thất 
      throw new AppError(
        400,
        `Không thể xóa danh mục đang có ${childrenCount} danh mục con trực thuộc. Vui lòng xóa hoặc di chuyển danh mục con trước.`,
-       'CATEGORY_HAS_CHILDREN'
+       'CATEGORY_HAS_CHILDREN',
      );
    }
    ```
@@ -237,6 +249,7 @@ Hệ thống ngăn chặn việc xóa lan truyền (cascade delete) làm thất 
 Các thay đổi trong file `prisma/schema.prisma`:
 
 ### 8.1. Enums
+
 ```prisma
 enum ReturnRequestStatus {
   PENDING
@@ -254,6 +267,7 @@ enum ReturnResolution {
 ```
 
 ### 8.2. Mở rộng Model `Order`
+
 ```prisma
 model Order {
   // ... các trường hiện có ...
@@ -263,6 +277,7 @@ model Order {
 ```
 
 ### 8.3. Mở rộng Model `ReturnRequest` & Quan hệ
+
 ```prisma
 model ReturnRequest {
   id              Int                 @id @default(autoincrement())
@@ -291,6 +306,7 @@ model ReturnRequest {
 ```
 
 ### 8.4. Tạo mới Model `ReturnItem`
+
 ```prisma
 model ReturnItem {
   id              Int              @id @default(autoincrement())
@@ -315,6 +331,7 @@ model ReturnItem {
 ```
 
 ### 8.5. Tạo mới Model `ReturnAuditLog`
+
 ```prisma
 model ReturnAuditLog {
   id              Int                  @id @default(autoincrement())
@@ -341,6 +358,7 @@ Tập tin migration được khởi tạo và áp dụng:
 `prisma/migrations/20261122140000_add_returns_workflow_and_order_delivered_at/migration.sql`
 
 ### Nội dung migration:
+
 1. Thêm cột `delivered_at DATETIME(3) NULL` vào bảng `orders`.
 2. Backfill dữ liệu lịch sử: `UPDATE orders SET delivered_at = updated_at WHERE order_status = 'DELIVERED' AND delivered_at IS NULL;` (áp dụng thành công cho đơn `NX-2026-0001`).
 3. Cập nhật enum `return_requests.status` hỗ trợ thêm giá trị `PROCESSING`.
@@ -352,22 +370,22 @@ Tập tin migration được khởi tạo và áp dụng:
 
 ## 10. Danh Sách Tập Tin Đã Thêm / Chỉnh Sửa
 
-| Đường dẫn tập tin | Loại thay đổi | Vai trò / Mục đích |
-| :--- | :--- | :--- |
-| `prisma/schema.prisma` | Sửa đổi | Cập nhật enums, mở rộng Order/ReturnRequest, thêm ReturnItem & ReturnAuditLog. |
-| `prisma/migrations/20261122140000_.../migration.sql` | Thêm mới | File SQL migration DDL & backfill cho MySQL 8.4. |
-| `packages/shared/src/index.ts` | Sửa đổi | Bổ sung Zod contracts, enums và DTO schemas cho Returns workflow. |
-| `apps/api/src/modules/order/return.service.ts` | Thêm mới | Triển khai logic nghiệp vụ returns, state machine, locking, inventory restoration, DTO mapping. |
-| `apps/api/src/modules/order/return.controller.ts` | Thêm mới | Controller tiếp nhận HTTP requests, xử lý params/body và phân quyền. |
-| `apps/api/src/modules/profile/profile.routes.ts` | Sửa đổi | Đăng ký các endpoints profile returns (`POST /`, `GET /`, `GET /:id`). |
-| `apps/api/src/modules/order/order.service.ts` | Sửa đổi | Tự động ghi nhận `deliveredAt = new Date()` khi đơn hàng chuyển sang `DELIVERED`. |
-| `apps/api/src/modules/admin/admin.service.ts` | Sửa đổi | Triển khai `deleteCategory` với cơ chế kiểm tra an toàn phụ thuộc. |
-| `apps/api/src/modules/admin/admin.controller.ts` | Sửa đổi | Controller tiếp nhận yêu cầu admin returns và category deletion. |
-| `apps/api/src/modules/admin/admin.routes.ts` | Sửa đổi | Đăng ký admin returns routes và `DELETE /categories/:id`. |
-| `apps/api/tests/returns_state_machine.unit.test.ts` | Thêm mới | 11 unit tests độc lập kiểm tra state machine transitions, 7-day window và eligible quantity. |
-| `apps/api/tests/phase_b_returns_and_admin_crud.test.ts` | Thêm mới | 28 integration tests toàn diện trên MySQL 8.4 kiểm thử luồng trả hàng và category delete. |
-| `package.json` | Sửa đổi | Cập nhật script `test:unit` bao gồm test file mới. |
-| `docker-compose.yml` | Sửa đổi | Cấu hình volume dữ liệu `nexora_mysql_data_v2` ổn định cho môi trường phát triển local. |
+| Đường dẫn tập tin                                       | Loại thay đổi | Vai trò / Mục đích                                                                              |
+| :------------------------------------------------------ | :------------ | :---------------------------------------------------------------------------------------------- |
+| `prisma/schema.prisma`                                  | Sửa đổi       | Cập nhật enums, mở rộng Order/ReturnRequest, thêm ReturnItem & ReturnAuditLog.                  |
+| `prisma/migrations/20261122140000_.../migration.sql`    | Thêm mới      | File SQL migration DDL & backfill cho MySQL 8.4.                                                |
+| `packages/shared/src/index.ts`                          | Sửa đổi       | Bổ sung Zod contracts, enums và DTO schemas cho Returns workflow.                               |
+| `apps/api/src/modules/order/return.service.ts`          | Thêm mới      | Triển khai logic nghiệp vụ returns, state machine, locking, inventory restoration, DTO mapping. |
+| `apps/api/src/modules/order/return.controller.ts`       | Thêm mới      | Controller tiếp nhận HTTP requests, xử lý params/body và phân quyền.                            |
+| `apps/api/src/modules/profile/profile.routes.ts`        | Sửa đổi       | Đăng ký các endpoints profile returns (`POST /`, `GET /`, `GET /:id`).                          |
+| `apps/api/src/modules/order/order.service.ts`           | Sửa đổi       | Tự động ghi nhận `deliveredAt = new Date()` khi đơn hàng chuyển sang `DELIVERED`.               |
+| `apps/api/src/modules/admin/admin.service.ts`           | Sửa đổi       | Triển khai `deleteCategory` với cơ chế kiểm tra an toàn phụ thuộc.                              |
+| `apps/api/src/modules/admin/admin.controller.ts`        | Sửa đổi       | Controller tiếp nhận yêu cầu admin returns và category deletion.                                |
+| `apps/api/src/modules/admin/admin.routes.ts`            | Sửa đổi       | Đăng ký admin returns routes và `DELETE /categories/:id`.                                       |
+| `apps/api/tests/returns_state_machine.unit.test.ts`     | Thêm mới      | 11 unit tests độc lập kiểm tra state machine transitions, 7-day window và eligible quantity.    |
+| `apps/api/tests/phase_b_returns_and_admin_crud.test.ts` | Thêm mới      | 28 integration tests toàn diện trên MySQL 8.4 kiểm thử luồng trả hàng và category delete.       |
+| `package.json`                                          | Sửa đổi       | Cập nhật script `test:unit` bao gồm test file mới.                                              |
+| `docker-compose.yml`                                    | Sửa đổi       | Cấu hình volume dữ liệu `nexora_mysql_data_v2` ổn định cho môi trường phát triển local.         |
 
 ---
 
@@ -377,29 +395,30 @@ Hệ thống ghi nhận tổng cộng **214 bài test** độc lập (213 tests 
 
 ### 11.1. Bảng kê chi tiết 18 tập tin kiểm thử trong Suite chính:
 
-| STT | Tập tin kiểm thử | Số test thực thi | Kết quả | Thời gian chạy |
-| :---: | :--- | :---: | :---: | :---: |
-| 1 | `apps/api/tests/phase_b_returns_and_admin_crud.test.ts` | 28 | **28/28 PASS** | 11.54s |
-| 2 | `apps/api/tests/phase_b_cart_merge.test.ts` | 14 | **14/14 PASS** | 8.90s |
-| 3 | `apps/api/tests/phase_b_customer_reviews.test.ts` | 29 | **29/29 PASS** | 7.00s |
-| 4 | `apps/api/tests/phase_b_profile_addresses.test.ts` | 26 | **26/26 PASS** | 6.50s |
-| 5 | `apps/api/tests/phase_a_security_remediation.test.ts` | 25 | **25/25 PASS** | 5.33s |
-| 6 | `apps/api/tests/commerce_and_ai.integration.test.ts` | 11 | **11/11 PASS** | 4.92s |
-| 7 | `apps/api/tests/payment_security.test.ts` | 13 | **13/13 PASS** | 3.11s |
-| 8 | `apps/api/tests/rbac_and_concurrency.test.ts` | 10 | **10/10 PASS** | 2.51s |
-| 9 | `apps/api/tests/auth_password_reset_security.test.ts` | 8 | **8/8 PASS** | 1.23s |
-| 10 | `apps/api/tests/seed_and_auth_credentials.test.ts` | 2 | **2/2 PASS** | 1.22s |
-| 11 | `apps/api/tests/storefront.integration.test.ts` | 7 | **7/7 PASS** | 521ms |
-| 12 | `apps/web/tests/ResetPasswordFlow.test.tsx` | 4 | **4/4 PASS** | 180ms |
-| 13 | `apps/api/tests/app.test.ts` | 4 | **4/4 PASS** | 64ms |
-| 14 | `apps/web/tests/FoundationDashboard.test.tsx` | 1 | **1/1 PASS** | 52ms |
-| 15 | `apps/api/tests/returns_state_machine.unit.test.ts` | 11 | **11/11 PASS** | 8ms |
-| 16 | `apps/api/tests/review_p2002_isolation.unit.test.ts` | 12 | **12/12 PASS** | 7ms |
-| 17 | `packages/shared/tests/personaScoring.test.ts` | 6 | **6/6 PASS** | 4ms |
-| 18 | `packages/shared/tests/shared.test.ts` | 2 | **2/2 PASS** | 4ms |
-| **Tổng** | **18 test files** | **213 tests** | **213/213 PASS** | **65.78s** |
+|   STT    | Tập tin kiểm thử                                        | Số test thực thi |     Kết quả      | Thời gian chạy |
+| :------: | :------------------------------------------------------ | :--------------: | :--------------: | :------------: |
+|    1     | `apps/api/tests/phase_b_returns_and_admin_crud.test.ts` |        28        |  **28/28 PASS**  |     11.54s     |
+|    2     | `apps/api/tests/phase_b_cart_merge.test.ts`             |        14        |  **14/14 PASS**  |     8.90s      |
+|    3     | `apps/api/tests/phase_b_customer_reviews.test.ts`       |        29        |  **29/29 PASS**  |     7.00s      |
+|    4     | `apps/api/tests/phase_b_profile_addresses.test.ts`      |        26        |  **26/26 PASS**  |     6.50s      |
+|    5     | `apps/api/tests/phase_a_security_remediation.test.ts`   |        25        |  **25/25 PASS**  |     5.33s      |
+|    6     | `apps/api/tests/commerce_and_ai.integration.test.ts`    |        11        |  **11/11 PASS**  |     4.92s      |
+|    7     | `apps/api/tests/payment_security.test.ts`               |        13        |  **13/13 PASS**  |     3.11s      |
+|    8     | `apps/api/tests/rbac_and_concurrency.test.ts`           |        10        |  **10/10 PASS**  |     2.51s      |
+|    9     | `apps/api/tests/auth_password_reset_security.test.ts`   |        8         |   **8/8 PASS**   |     1.23s      |
+|    10    | `apps/api/tests/seed_and_auth_credentials.test.ts`      |        2         |   **2/2 PASS**   |     1.22s      |
+|    11    | `apps/api/tests/storefront.integration.test.ts`         |        7         |   **7/7 PASS**   |     521ms      |
+|    12    | `apps/web/tests/ResetPasswordFlow.test.tsx`             |        4         |   **4/4 PASS**   |     180ms      |
+|    13    | `apps/api/tests/app.test.ts`                            |        4         |   **4/4 PASS**   |      64ms      |
+|    14    | `apps/web/tests/FoundationDashboard.test.tsx`           |        1         |   **1/1 PASS**   |      52ms      |
+|    15    | `apps/api/tests/returns_state_machine.unit.test.ts`     |        11        |  **11/11 PASS**  |      8ms       |
+|    16    | `apps/api/tests/review_p2002_isolation.unit.test.ts`    |        12        |  **12/12 PASS**  |      7ms       |
+|    17    | `packages/shared/tests/personaScoring.test.ts`          |        6         |   **6/6 PASS**   |      4ms       |
+|    18    | `packages/shared/tests/shared.test.ts`                  |        2         |   **2/2 PASS**   |      4ms       |
+| **Tổng** | **18 test files**                                       |  **213 tests**   | **213/213 PASS** |   **65.78s**   |
 
 ### 11.2. Hợp đồng tích hợp cơ sở dữ liệu chuyên biệt:
+
 - **Tập tin:** `apps/api/tests/db.integration.test.ts`
 - **Lệnh thực thi:** `npm run test:integration -w @nexora/api`
 - **Kết quả:** **1/1 PASS** (669ms). Xác nhận kết nối vật lý, cấu hình schema và truy vấn thực tế trên MySQL 8.4.
@@ -408,13 +427,13 @@ Hệ thống ghi nhận tổng cộng **214 bài test** độc lập (213 tests 
 
 ## 12. Kết Quả Kiểm Tra Chất Lượng Mã Nguồn (Quality Gates)
 
-| Công cụ / Lệnh | Mục tiêu kiểm tra | Kết quả quan sát thực tế |
-| :--- | :--- | :--- |
-| `npm run typecheck` | Kiểm tra kiểu dữ liệu tĩnh TypeScript trên cả 4 workspaces (`@nexora/config`, `@nexora/shared`, `@nexora/api`, `@nexora/web`). | **PASS** (0 lỗi, biên dịch sạch). |
-| `npm run lint` | Rà soát lỗi cú pháp, quy chuẩn viết code và biến không dùng bằng ESLint. | **PASS** (0 errors, 0 warnings). |
-| `npm run format:check` | Kiểm tra định dạng mã nguồn theo tiêu chuẩn Prettier trên toàn bộ repo. | **PASS** (All matched files use Prettier code style). |
-| `npm run test:unit` | Chạy bộ test unit không phụ thuộc database (7 files, 40 tests). | **PASS** (40/40 tests pass). |
-| `npm run build` | Đóng gói sản phẩm: tsc cho backend/shared và Vite production build cho frontend. | **PASS** (Vite build hoàn tất trong 377ms, dung lượng JS/CSS chuẩn). |
+| Công cụ / Lệnh         | Mục tiêu kiểm tra                                                                                                              | Kết quả quan sát thực tế                                             |
+| :--------------------- | :----------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------- |
+| `npm run typecheck`    | Kiểm tra kiểu dữ liệu tĩnh TypeScript trên cả 4 workspaces (`@nexora/config`, `@nexora/shared`, `@nexora/api`, `@nexora/web`). | **PASS** (0 lỗi, biên dịch sạch).                                    |
+| `npm run lint`         | Rà soát lỗi cú pháp, quy chuẩn viết code và biến không dùng bằng ESLint.                                                       | **PASS** (0 errors, 0 warnings).                                     |
+| `npm run format:check` | Kiểm tra định dạng mã nguồn theo tiêu chuẩn Prettier trên toàn bộ repo.                                                        | **PASS** (All matched files use Prettier code style).                |
+| `npm run test:unit`    | Chạy bộ test unit không phụ thuộc database (7 files, 40 tests).                                                                | **PASS** (40/40 tests pass).                                         |
+| `npm run build`        | Đóng gói sản phẩm: tsc cho backend/shared và Vite production build cho frontend.                                               | **PASS** (Vite build hoàn tất trong 377ms, dung lượng JS/CSS chuẩn). |
 
 ---
 
@@ -425,6 +444,7 @@ Hệ thống ghi nhận tổng cộng **214 bài test** độc lập (213 tests 
 - **Trạng thái tổng thể:** **SUCCESS** (2/2 Jobs hoàn thành xanh lá cây).
 
 ### Chi tiết trạng thái từng Job:
+
 1. **Job 1: `Typecheck, Lint, Format, Prisma Validate, Unit Tests & Build`**
    - **ID:** `137132708813`
    - **Thời gian thực thi:** 1m 9s.
@@ -464,23 +484,23 @@ Hệ thống ghi nhận tổng cộng **214 bài test** độc lập (213 tests 
 
 ## 16. Bảng Đánh Giá Chi Tiết Từng Tiêu Chí Nghiệm Thu (Acceptance Criteria)
 
-| Mã AC | Tiêu chí nghiệm thu | Kết quả | Bằng chứng kiểm chứng cụ thể |
-| :---: | :--- | :---: | :--- |
-| **AC-01** | Khách hàng tạo yêu cầu đổi trả cho đơn `DELIVERED` trong 7 ngày | **PASS** | Test `RET-01` tạo thành công trả về HTTP 201 kèm mã `RET-...`. Đơn hàng có `deliveredAt = updated_at` hợp lệ. |
-| **AC-02** | Chặn đơn chưa giao thành công (`!= DELIVERED`) | **PASS** | Test `RET-02` gửi yêu cầu trên đơn `PROCESSING` hoặc `SHIPPED`, API trả về HTTP 400 `ORDER_NOT_DELIVERED`. |
-| **AC-03** | Chặn đơn giao quá 7 ngày (`> 7 days`) | **PASS** | Test `RET-03` gửi yêu cầu trên đơn giao cách đây 8 ngày, API trả về HTTP 400 `RETURN_WINDOW_EXPIRED`. |
-| **AC-04** | Chặn truy cập chéo dữ liệu đơn hàng (Anti-IDOR) | **PASS** | Test `RET-04` Customer B cố tình gửi yêu cầu đổi trả đơn hàng của Customer A, API trả về HTTP 403 `FORBIDDEN_ACCESS`. |
-| **AC-05** | Chặn số lượng đổi trả vượt quá số lượng mua hoặc đã yêu cầu trước đó | **PASS** | Test `RET-05` và `RET-06` chặn yêu cầu vượt số lượng mua và chặn yêu cầu lũy kế vượt quá số lượng còn lại hợp lệ (HTTP 400 `RETURN_QUANTITY_EXCEEDED`). |
-| **AC-06** | Phân quyền State Machine đổi trả cho Staff/Admin | **PASS** | Test `RET-15` xác nhận Customer bị chặn 403 khi gọi API admin. Test `RET-16` xác nhận Staff và Admin chuyển trạng thái thành công. |
-| **AC-07** | Bắt buộc có `rejectionReason` khi chuyển sang `REJECTED` | **PASS** | Test `RET-17` thiếu lý do bị từ chối với HTTP 400 `REJECTION_REASON_REQUIRED`. Test `RET-18` có lý do chuyển thành công sang REJECTED và ghi audit log. |
-| **AC-08** | Hoàn kho nguyên tử và ghi `InventoryLog` khi `COMPLETED` & `isResellable: true` | **PASS** | Test `INV-01` xác minh tồn kho trên MySQL tăng chính xác bằng số lượng trả về, bản ghi `InventoryLog` được tạo với `changeType: 'RETURN'`. |
-| **AC-09** | Không hoàn kho khi `isResellable: false` | **PASS** | Test `INV-02` xác minh tồn kho không thay đổi và không tạo `InventoryLog` khi hàng không thể bán lại. |
-| **AC-10** | Chống hoàn kho hai lần khi gọi API đồng thời (Concurrency Lock) | **PASS** | Test `INV-04` thực hiện 2 request đồng thời (`Promise.all`) cố gắng hoàn tất cùng một return request: duy nhất 1 request 200, 1 request 400, kho MySQL chỉ tăng 1 lần. |
-| **AC-11** | Chống xóa danh mục đang có sản phẩm liên kết (`CATEGORY_HAS_PRODUCTS`) | **PASS** | Test `CAT-01` xóa danh mục có sản phẩm, API trả về HTTP 400 `CATEGORY_HAS_PRODUCTS`, dữ liệu không bị xóa cascade. |
-| **AC-12** | Chống xóa danh mục đang có danh mục con (`CATEGORY_HAS_CHILDREN`) | **PASS** | Test `CAT-02` xóa danh mục có danh mục con, API trả về HTTP 400 `CATEGORY_HAS_CHILDREN`. |
-| **AC-13** | Xóa danh mục an toàn khi không có ràng buộc | **PASS** | Test `CAT-03` xóa danh mục rỗng trả về HTTP 200, bản ghi bị xóa sạch khỏi database. |
-| **AC-14** | Tự động ghi nhận `deliveredAt` khi đơn hàng giao thành công | **PASS** | Test `DELV-01` cập nhật đơn hàng sang `DELIVERED`, trường `deliveredAt` được tự động gán thời gian hiện tại trên MySQL. |
-| **AC-15** | Toàn bộ kiểm thử và Quality Gates đạt 100% | **PASS** | 214/214 tests pass, typecheck, lint, format check, build pass sạch. CI 2/2 jobs green. |
+|   Mã AC   | Tiêu chí nghiệm thu                                                             | Kết quả  | Bằng chứng kiểm chứng cụ thể                                                                                                                                           |
+| :-------: | :------------------------------------------------------------------------------ | :------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AC-01** | Khách hàng tạo yêu cầu đổi trả cho đơn `DELIVERED` trong 7 ngày                 | **PASS** | Test `RET-01` tạo thành công trả về HTTP 201 kèm mã `RET-...`. Đơn hàng có `deliveredAt = updated_at` hợp lệ.                                                          |
+| **AC-02** | Chặn đơn chưa giao thành công (`!= DELIVERED`)                                  | **PASS** | Test `RET-02` gửi yêu cầu trên đơn `PROCESSING` hoặc `SHIPPED`, API trả về HTTP 400 `ORDER_NOT_DELIVERED`.                                                             |
+| **AC-03** | Chặn đơn giao quá 7 ngày (`> 7 days`)                                           | **PASS** | Test `RET-03` gửi yêu cầu trên đơn giao cách đây 8 ngày, API trả về HTTP 400 `RETURN_WINDOW_EXPIRED`.                                                                  |
+| **AC-04** | Chặn truy cập chéo dữ liệu đơn hàng (Anti-IDOR)                                 | **PASS** | Test `RET-04` Customer B cố tình gửi yêu cầu đổi trả đơn hàng của Customer A, API trả về HTTP 403 `FORBIDDEN_ACCESS`.                                                  |
+| **AC-05** | Chặn số lượng đổi trả vượt quá số lượng mua hoặc đã yêu cầu trước đó            | **PASS** | Test `RET-05` và `RET-06` chặn yêu cầu vượt số lượng mua và chặn yêu cầu lũy kế vượt quá số lượng còn lại hợp lệ (HTTP 400 `RETURN_QUANTITY_EXCEEDED`).                |
+| **AC-06** | Phân quyền State Machine đổi trả cho Staff/Admin                                | **PASS** | Test `RET-15` xác nhận Customer bị chặn 403 khi gọi API admin. Test `RET-16` xác nhận Staff và Admin chuyển trạng thái thành công.                                     |
+| **AC-07** | Bắt buộc có `rejectionReason` khi chuyển sang `REJECTED`                        | **PASS** | Test `RET-17` thiếu lý do bị từ chối với HTTP 400 `REJECTION_REASON_REQUIRED`. Test `RET-18` có lý do chuyển thành công sang REJECTED và ghi audit log.                |
+| **AC-08** | Hoàn kho nguyên tử và ghi `InventoryLog` khi `COMPLETED` & `isResellable: true` | **PASS** | Test `INV-01` xác minh tồn kho trên MySQL tăng chính xác bằng số lượng trả về, bản ghi `InventoryLog` được tạo với `changeType: 'RETURN'`.                             |
+| **AC-09** | Không hoàn kho khi `isResellable: false`                                        | **PASS** | Test `INV-02` xác minh tồn kho không thay đổi và không tạo `InventoryLog` khi hàng không thể bán lại.                                                                  |
+| **AC-10** | Chống hoàn kho hai lần khi gọi API đồng thời (Concurrency Lock)                 | **PASS** | Test `INV-04` thực hiện 2 request đồng thời (`Promise.all`) cố gắng hoàn tất cùng một return request: duy nhất 1 request 200, 1 request 400, kho MySQL chỉ tăng 1 lần. |
+| **AC-11** | Chống xóa danh mục đang có sản phẩm liên kết (`CATEGORY_HAS_PRODUCTS`)          | **PASS** | Test `CAT-01` xóa danh mục có sản phẩm, API trả về HTTP 400 `CATEGORY_HAS_PRODUCTS`, dữ liệu không bị xóa cascade.                                                     |
+| **AC-12** | Chống xóa danh mục đang có danh mục con (`CATEGORY_HAS_CHILDREN`)               | **PASS** | Test `CAT-02` xóa danh mục có danh mục con, API trả về HTTP 400 `CATEGORY_HAS_CHILDREN`.                                                                               |
+| **AC-13** | Xóa danh mục an toàn khi không có ràng buộc                                     | **PASS** | Test `CAT-03` xóa danh mục rỗng trả về HTTP 200, bản ghi bị xóa sạch khỏi database.                                                                                    |
+| **AC-14** | Tự động ghi nhận `deliveredAt` khi đơn hàng giao thành công                     | **PASS** | Test `DELV-01` cập nhật đơn hàng sang `DELIVERED`, trường `deliveredAt` được tự động gán thời gian hiện tại trên MySQL.                                                |
+| **AC-15** | Toàn bộ kiểm thử và Quality Gates đạt 100%                                      | **PASS** | 214/214 tests pass, typecheck, lint, format check, build pass sạch. CI 2/2 jobs green.                                                                                 |
 
 ---
 
@@ -489,5 +509,6 @@ Hệ thống ghi nhận tổng cộng **214 bài test** độc lập (213 tests 
 Milestone M5 đã hoàn thành toàn diện tất cả các yêu cầu về mặt nghiệp vụ, kiến trúc, cơ sở dữ liệu, an toàn đồng thời và kiểm thử tự động. Mã nguồn đã được đồng bộ lên nhánh chính `main` và vượt qua toàn bộ quy trình kiểm thử CI của GitHub Actions.
 
 Theo đúng quy định nghiêm ngặt về phân chia ranh giới Milestone:
+
 - **Dừng thực hiện:** Không tự ý chuyển tiếp sang Milestone M6 (Frontend UI Integration).
 - **Trạng thái đề xuất:** **CHẤP THUẬN NGHIỆM THU CHÍNH THỨC (FINAL PASS) MILESTONE M5**.
