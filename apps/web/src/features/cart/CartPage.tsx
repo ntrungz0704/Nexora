@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
@@ -24,6 +24,24 @@ export const CartPage: React.FC = () => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  // Passive Retry: Tự động gộp giỏ hàng khách khi user đã đăng nhập mở CartPage
+  useEffect(() => {
+    const token = authService.getToken();
+    if (!token || !cartService.hasGuestSession()) return;
+
+    let mounted = true;
+    cartService.attemptPassiveCartMerge(token).then((merged) => {
+      if (mounted && merged) {
+        queryClient.invalidateQueries({ queryKey: ['cart'] });
+        showToast('Đã tự động đồng bộ giỏ hàng trước đó của bạn.');
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [currentUser, queryClient]);
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],

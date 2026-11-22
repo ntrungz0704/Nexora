@@ -1,18 +1,120 @@
 import { apiClient } from '../lib/apiClient';
-import type { ApiSuccessEnvelope, CartSummaryDto } from '@nexora/shared';
+import type { ApiSuccessEnvelope, CartSummaryDto, MergeCartResultDto } from '@nexora/shared';
 
-function getGuestSessionId(): string {
-  let id = localStorage.getItem('nexora_guest_session');
-  if (!id) {
-    id = 'guest_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-    localStorage.setItem('nexora_guest_session', id);
+export const GUEST_SESSION_KEY = 'nexora_guest_session';
+
+/**
+ * Lấy guestSessionId hiện có trong localStorage (nếu có).
+ * TUYỆT ĐỐI không tự ý sinh mới nếu chưa có, nhằm tránh gửi guest session rác khi login/register.
+ */
+export function getExistingGuestSessionId(): string | null {
+  try {
+    return localStorage.getItem(GUEST_SESSION_KEY) || null;
+  } catch {
+    return null;
   }
-  return id;
+}
+
+/**
+ * Lấy hoặc sinh mới guestSessionId khi khách thực sự tương tác với giỏ hàng.
+ */
+export function getGuestSessionId(): string {
+  try {
+    let id = localStorage.getItem(GUEST_SESSION_KEY);
+    if (!id) {
+      id = 'guest_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+      localStorage.setItem(GUEST_SESSION_KEY, id);
+    }
+    return id;
+  } catch {
+    return 'guest_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+  }
+}
+
+/**
+ * Xóa guestSessionId khỏi localStorage khi merge đã được xác nhận thành công.
+ */
+export function clearGuestSession(): void {
+  try {
+    localStorage.removeItem(GUEST_SESSION_KEY);
+  } catch {
+    // Ignore storage errors in restricted contexts
+  }
+}
+
+/**
+ * Kiểm tra xem client hiện tại có lưu guest session hay không.
+ */
+export function hasGuestSession(): boolean {
+  return Boolean(getExistingGuestSessionId());
+}
+
+// In-flight guard & Deduplication state cho Passive Retry
+let isMergingInFlight = false;
+let lastAttemptedSessionId: string | null = null;
+let lastAttemptFailed = false;
+
+/**
+ * Thử thực hiện Passive Retry khi người dùng đã đăng nhập mở CartPage.
+ * Đảm bảo:
+ * 1. In-flight guard: chống gọi đồng thời.
+ * 2. Deduplication: không gọi lại vô hạn trên mỗi lần component re-render nếu lần trước đã thất bại.
+ * 3. Chỉ xóa session khi nhận kết quả thành công.
+ */
+export async function attemptPassiveCartMerge(
+  token: string | null,
+): Promise<MergeCartResultDto | null> {
+  if (!token) return null;
+  const guestSessionId = getExistingGuestSessionId();
+  if (!guestSessionId) return null;
+
+  // In-flight guard
+  if (isMergingInFlight) return null;
+
+  // Deduplication: nếu session này vừa thử thất bại trong phiên mount hiện tại, không gọi lặp
+  if (lastAttemptedSessionId === guestSessionId && lastAttemptFailed) {
+    return null;
+  }
+
+  isMergingInFlight = true;
+  lastAttemptedSessionId = guestSessionId;
+
+  try {
+    const result = await cartService.mergeCart(guestSessionId);
+    if (result && typeof result.mergedItemsCount === 'number') {
+      clearGuestSession();
+      lastAttemptFailed = false;
+      return result;
+    }
+    lastAttemptFailed = true;
+    return null;
+  } catch {
+    lastAttemptFailed = true;
+    // Tuyệt đối không xóa session khi thất bại
+    return null;
+  } finally {
+    isMergingInFlight = false;
+  }
+}
+
+/**
+ * Reset guard khi cần (ví dụ khi user chủ động bấm thử lại hoặc đăng nhập tài khoản khác).
+ */
+export function resetPassiveMergeGuard(): void {
+  lastAttemptedSessionId = null;
+  lastAttemptFailed = false;
 }
 
 export const cartService = {
+  getExistingGuestSessionId,
+  getGuestSessionId,
+  clearGuestSession,
+  hasGuestSession,
+  attemptPassiveCartMerge,
+  resetPassiveMergeGuard,
+
   async getCart(): Promise<CartSummaryDto> {
-    const guestSessionId = getGuestSessionId();
+    const guestSessionId = getExistingGuestSessionId() || getGuestSessionId();
     const res = await apiClient.get<ApiSuccessEnvelope<CartSummaryDto>>('/cart', {
       headers: { 'x-guest-session-id': guestSessionId },
     });
@@ -34,7 +136,7 @@ export const cartService = {
   },
 
   async updateItem(cartItemId: string, quantity: number): Promise<CartSummaryDto> {
-    const guestSessionId = getGuestSessionId();
+    const guestSessionId = getExistingGuestSessionId() || getGuestSessionId();
     const res = await apiClient.patch<ApiSuccessEnvelope<CartSummaryDto>>(
       `/cart/items/${cartItemId}`,
       { quantity },
@@ -44,11 +146,18 @@ export const cartService = {
   },
 
   async removeItem(cartItemId: string): Promise<CartSummaryDto> {
-    const guestSessionId = getGuestSessionId();
+    const guestSessionId = getExistingGuestSessionId() || getGuestSessionId();
     const res = await apiClient.delete<ApiSuccessEnvelope<CartSummaryDto>>(
       `/cart/items/${cartItemId}`,
       { headers: { 'x-guest-session-id': guestSessionId } },
     );
+    return res.data.data;
+  },
+
+  async mergeCart(guestSessionId: string): Promise<MergeCartResultDto> {
+    const res = await apiClient.post<ApiSuccessEnvelope<MergeCartResultDto>>('/cart/merge', {
+      guestSessionId,
+    });
     return res.data.data;
   },
 };

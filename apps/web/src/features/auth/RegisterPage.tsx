@@ -3,10 +3,11 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { storefrontService } from '../../services/storefrontService';
 
 export const RegisterPage: React.FC = () => {
+  const queryClient = useQueryClient();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -75,6 +76,7 @@ export const RegisterPage: React.FC = () => {
     setIsLoading(true);
     try {
       await authService.register({ fullName, email, phone, password });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
       const redirect = searchParams.get('redirect') || '/';
       navigate(redirect);
     } catch (err: unknown) {

@@ -3,10 +3,11 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { storefrontService } from '../../services/storefrontService';
 
 export const LoginPage: React.FC = () => {
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +27,7 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       const session = await authService.login({ email, password });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
       const redirect = searchParams.get('redirect');
       if (session.user.role === 'ADMIN' || session.user.role === 'STAFF') {
         navigate(redirect && redirect.startsWith('/admin') ? redirect : '/admin');

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { authService } from '../../services/authService';
 import type { AuthUser } from '@nexora/shared';
 
@@ -10,6 +11,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -28,6 +30,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     setIsLoading(true);
     try {
       const session = await authService.login({ email, password });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
       onSuccess(session.user);
       onClose();
       if (session.user.role === 'ADMIN' || session.user.role === 'STAFF') {
@@ -50,6 +53,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     setIsLoading(true);
     try {
       const session = await authService.register({ fullName, email, phone, password });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
       onSuccess(session.user);
       onClose();
     } catch (err: unknown) {
