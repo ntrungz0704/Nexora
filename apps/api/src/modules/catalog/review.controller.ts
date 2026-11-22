@@ -45,8 +45,12 @@ export class ReviewController {
         throw new AppError(400, 'INVALID_PRODUCT_ID', 'ID sản phẩm không hợp lệ.');
       }
 
-      const validated = CreateReviewInputSchema.parse(req.body);
-      const result = await this.service.createOrUpdateReview(userId, productId, validated);
+      const parsed = CreateReviewInputSchema.safeParse(req.body);
+      if (!parsed.success) {
+        const firstMessage = parsed.error.issues[0]?.message || 'Dữ liệu đánh giá không hợp lệ.';
+        throw new AppError(400, 'VALIDATION_ERROR', firstMessage);
+      }
+      const result = await this.service.createOrUpdateReview(userId, productId, parsed.data);
 
       res.status(201).json({
         success: true,
@@ -74,8 +78,12 @@ export class ReviewController {
         throw new AppError(400, 'INVALID_REVIEW_ID', 'ID đánh giá không hợp lệ.');
       }
 
-      const validated = UpdateReviewInputSchema.parse(req.body);
-      const result = await this.service.updateReview(userId, userRole, reviewId, validated);
+      const parsed = UpdateReviewInputSchema.safeParse(req.body);
+      if (!parsed.success) {
+        const firstMessage = parsed.error.issues[0]?.message || 'Dữ liệu đánh giá không hợp lệ.';
+        throw new AppError(400, 'VALIDATION_ERROR', firstMessage);
+      }
+      const result = await this.service.updateReview(userId, userRole, reviewId, parsed.data);
 
       res.json({
         success: true,

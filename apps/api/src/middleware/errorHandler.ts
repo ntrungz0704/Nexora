@@ -1,5 +1,6 @@
 import type { ApiErrorEnvelope } from '@nexora/shared';
 import type { NextFunction, Request, Response } from 'express';
+import { ZodError } from 'zod';
 import { AppError } from '../common/errors.js';
 
 export function errorHandler(
@@ -18,6 +19,20 @@ export function errorHandler(
       },
     };
     res.status(err.statusCode).json(body);
+    return;
+  }
+
+  if (err instanceof ZodError || (err as { name?: string })?.name === 'ZodError') {
+    const zodErr = err as ZodError;
+    const body: ApiErrorEnvelope = {
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: zodErr.issues?.[0]?.message || 'Dữ liệu không hợp lệ.',
+        details: zodErr.issues,
+      },
+    };
+    res.status(400).json(body);
     return;
   }
 

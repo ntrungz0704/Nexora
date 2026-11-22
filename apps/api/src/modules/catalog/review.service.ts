@@ -68,33 +68,60 @@ export class ReviewService {
     const comment = input.comment && input.comment.trim().length > 0 ? input.comment.trim() : null;
 
     // 3. Upsert đánh giá: bảo đảm 1 khách hàng chỉ có tối đa 1 đánh giá cho mỗi sản phẩm
-    const review = await this.db.review.upsert({
-      where: {
-        userId_productId: {
+    let review;
+    try {
+      review = await this.db.review.upsert({
+        where: {
+          userId_productId: {
+            userId,
+            productId,
+          },
+        },
+        create: {
           userId,
           productId,
+          rating: input.rating,
+          comment,
+          isVerifiedPurchase: true,
+          status: 'APPROVED',
         },
-      },
-      create: {
-        userId,
-        productId,
-        rating: input.rating,
-        comment,
-        isVerifiedPurchase: true,
-        status: 'APPROVED',
-      },
-      update: {
-        rating: input.rating,
-        comment,
-        isVerifiedPurchase: true,
-        status: 'APPROVED',
-      },
-      include: {
-        user: {
-          select: { id: true, fullName: true, avatarUrl: true },
+        update: {
+          rating: input.rating,
+          comment,
+          isVerifiedPurchase: true,
+          status: 'APPROVED',
         },
-      },
-    });
+        include: {
+          user: {
+            select: { id: true, fullName: true, avatarUrl: true },
+          },
+        },
+      });
+    } catch (err: unknown) {
+      if ((err as { code?: string })?.code === 'P2002') {
+        review = await this.db.review.update({
+          where: {
+            userId_productId: {
+              userId,
+              productId,
+            },
+          },
+          data: {
+            rating: input.rating,
+            comment,
+            isVerifiedPurchase: true,
+            status: 'APPROVED',
+          },
+          include: {
+            user: {
+              select: { id: true, fullName: true, avatarUrl: true },
+            },
+          },
+        });
+      } else {
+        throw err;
+      }
+    }
 
     return this.mapToDto(review);
   }
