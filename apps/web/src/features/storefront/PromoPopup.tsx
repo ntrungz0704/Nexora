@@ -17,16 +17,14 @@ export const PromoPopup: React.FC = () => {
   useEffect(() => {
     if (!activePopup) return;
     const todayVN = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
-    const hiddenDate =
-      localStorage.getItem('nexora_hide_popup_date') ||
-      localStorage.getItem('techpilot_hide_popup_date');
+    const hiddenDate = localStorage.getItem('nexora_hide_popup_date');
     if (hiddenDate === todayVN) {
       return;
     }
 
     const timer = setTimeout(() => {
       setIsVisible(true);
-      document.body.classList.add('nx-popup-locked', 'tp-popup-locked');
+      document.body.classList.add('nx-popup-locked');
     }, 600);
 
     return () => clearTimeout(timer);
@@ -36,10 +34,9 @@ export const PromoPopup: React.FC = () => {
     if (dontShowAgain) {
       const todayVN = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
       localStorage.setItem('nexora_hide_popup_date', todayVN);
-      localStorage.setItem('techpilot_hide_popup_date', todayVN);
     }
     setIsVisible(false);
-    document.body.classList.remove('nx-popup-locked', 'tp-popup-locked');
+    document.body.classList.remove('nx-popup-locked');
   }, [dontShowAgain]);
 
   useEffect(() => {

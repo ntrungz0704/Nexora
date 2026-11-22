@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { CartService } from './cart.service.js';
 import { sendSuccess } from '../../common/http.js';
+import { AppError } from '../../common/errors.js';
+import { MergeCartInputSchema } from '@nexora/shared';
 
 export class CartController {
   constructor(private readonly service: CartService = new CartService()) {}
@@ -71,6 +73,39 @@ export class CartController {
         guestSessionId,
       });
       sendSuccess(res, data);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  mergeCart = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        throw new AppError(
+          401,
+          'UNAUTHORIZED',
+          'Vui lòng đăng nhập để thực hiện đồng bộ giỏ hàng.',
+        );
+      }
+
+      const guestSessionId =
+        req.body?.guestSessionId || (req.headers['x-guest-session-id'] as string) || '';
+
+      const parseResult = MergeCartInputSchema.safeParse({ guestSessionId });
+      if (!parseResult.success) {
+        throw new AppError(
+          400,
+          'VALIDATION_ERROR',
+          parseResult.error.issues[0]?.message || 'Mã phiên khách không hợp lệ.',
+        );
+      }
+
+      const result = await this.service.mergeGuestCartToUser(
+        parseResult.data.guestSessionId,
+        userId,
+      );
+      sendSuccess(res, result);
     } catch (error) {
       next(error);
     }

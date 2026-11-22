@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="/assets/css/news.css" />
     <script>
       (() => {
-        const stored = localStorage.getItem('nexora-theme') || localStorage.getItem('techpilot-theme');
+        const stored = localStorage.getItem('nexora-theme');
         const useDark = stored === 'dark';
         document.documentElement.classList.toggle('dark-mode', useDark);
         document.documentElement.classList.toggle('dark', useDark);

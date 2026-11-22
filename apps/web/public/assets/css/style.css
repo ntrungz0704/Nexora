@@ -160,17 +160,9 @@ button {
   --nexora-violet: #5b5bff;
   --nexora-graphite: #0e1320;
   --nexora-white: #f6f8fc;
-
-  /* Legacy design token aliases */
-  --techpilot-blue: var(--nexora-blue);
-  --techpilot-cyan: var(--nexora-cyan);
-  --techpilot-violet: var(--nexora-violet);
-  --techpilot-graphite: var(--nexora-graphite);
-  --techpilot-white: var(--nexora-white);
 }
 
-.nexora-topbar,
-.techpilot-topbar {
+.nexora-topbar {
   background-color: var(--nexora-graphite);
   color: var(--nexora-white);
   font-size: 13px;
@@ -179,23 +171,20 @@ button {
   overflow: hidden;
 }
 
-.nexora-topbar__container,
-.techpilot-topbar__container {
+.nexora-topbar__container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 36px;
 }
 
-.nexora-topbar__viewport,
-.techpilot-topbar__viewport {
+.nexora-topbar__viewport {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
 }
 
-.nexora-topbar__track,
-.techpilot-topbar__track {
+.nexora-topbar__track {
   display: flex;
   flex: none;
   width: max-content;
@@ -204,14 +193,11 @@ button {
 }
 
 .nexora-topbar__viewport:hover .nexora-topbar__track,
-.nexora-topbar__viewport:focus-within .nexora-topbar__track,
-.techpilot-topbar__viewport:hover .techpilot-topbar__track,
-.techpilot-topbar__viewport:focus-within .techpilot-topbar__track {
+.nexora-topbar__viewport:focus-within .nexora-topbar__track {
   animation-play-state: paused;
 }
 
-.nexora-topbar__group,
-.techpilot-topbar__group {
+.nexora-topbar__group {
   display: flex;
   flex: none;
   align-items: center;
@@ -220,8 +206,7 @@ button {
   padding-right: 24px;
 }
 
-.nexora-topbar__message,
-.techpilot-topbar__message {
+.nexora-topbar__message {
   position: relative;
   display: flex;
   flex: none;
@@ -235,19 +220,15 @@ button {
 }
 
 .nexora-topbar__message:hover,
-.nexora-topbar__message:focus,
-.techpilot-topbar__message:hover,
-.techpilot-topbar__message:focus {
+.nexora-topbar__message:focus {
   color: var(--nexora-blue);
 }
 
-.nexora-topbar__message i,
-.techpilot-topbar__message i {
+.nexora-topbar__message i {
   color: var(--nexora-cyan);
 }
 
-.nexora-topbar__message::before,
-.techpilot-topbar__message::before {
+.nexora-topbar__message::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -259,8 +240,7 @@ button {
   transform: translateY(-50%);
 }
 
-.nexora-topbar__message:first-child::before,
-.techpilot-topbar__message:first-child::before {
+.nexora-topbar__message:first-child::before {
   display: none;
 }
 
@@ -274,18 +254,7 @@ button {
   }
 }
 
-@keyframes techpilot-topbar-scroll {
-  from {
-    transform: translate3d(-50%, 0, 0);
-  }
-
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-.nexora-topbar__actions,
-.techpilot-topbar__actions {
+.nexora-topbar__actions {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
@@ -294,8 +263,7 @@ button {
   padding-left: 24px;
 }
 
-.nexora-topbar__action,
-.techpilot-topbar__action {
+.nexora-topbar__action {
   position: relative;
   display: flex;
   align-items: center;
@@ -305,20 +273,16 @@ button {
   transition: color 0.2s ease;
 }
 
-.nexora-topbar__action i,
-.techpilot-topbar__action i {
+.nexora-topbar__action i {
   color: var(--nexora-cyan);
 }
 
 .nexora-topbar__action:hover,
-.nexora-topbar__action:focus,
-.techpilot-topbar__action:hover,
-.techpilot-topbar__action:focus {
+.nexora-topbar__action:focus {
   color: var(--nexora-blue);
 }
 
-.nexora-topbar__action::before,
-.techpilot-topbar__action::before {
+.nexora-topbar__action::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -329,63 +293,53 @@ button {
   transform: translateY(-50%);
 }
 
-.nexora-topbar__action:first-child::before,
-.techpilot-topbar__action:first-child::before {
+.nexora-topbar__action:first-child::before {
   display: none;
 }
 
 /* Responsive: Tablet */
 @media (max-width: 1023px) {
-  .nexora-topbar,
-  .techpilot-topbar {
+  .nexora-topbar {
     font-size: 12px;
   }
 
-  .nexora-topbar__container,
-  .techpilot-topbar__container {
+  .nexora-topbar__container {
     height: 32px;
   }
 
-  .nexora-topbar__action-text,
-  .techpilot-topbar__action-text {
+  .nexora-topbar__action-text {
     display: none;
   }
 
-  .nexora-topbar__actions,
-  .techpilot-topbar__actions {
+  .nexora-topbar__actions {
     gap: 16px;
   }
 
-  .nexora-topbar__action::before,
-  .techpilot-topbar__action::before {
+  .nexora-topbar__action::before {
     left: -8px;
   }
 }
 
 /* Responsive: Mobile */
 @media (max-width: 767px) {
-  .nexora-topbar__container,
-  .techpilot-topbar__container {
+  .nexora-topbar__container {
     height: 28px;
     padding: 0;
   }
 
-  .nexora-topbar__actions,
-  .techpilot-topbar__actions {
+  .nexora-topbar__actions {
     display: none;
   }
 }
 
 /* Accessibility: Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .nexora-topbar__track,
-  .techpilot-topbar__track {
+  .nexora-topbar__track {
     animation: none;
     transform: none;
   }
 
-  .nexora-topbar__group[aria-hidden='true'],
-  .techpilot-topbar__group[aria-hidden='true'] {
+  .nexora-topbar__group[aria-hidden='true'] {
     display: none;
   }
 
@@ -400,13 +354,11 @@ button {
 
 /* Mobile + Reduced Motion */
 @media (max-width: 767px) and (prefers-reduced-motion: reduce) {
-  .nexora-topbar__message:not(:first-child),
-  .techpilot-topbar__message:not(:first-child) {
+  .nexora-topbar__message:not(:first-child) {
     display: none;
   }
 
-  .nexora-topbar__message::before,
-  .techpilot-topbar__message::before {
+  .nexora-topbar__message::before {
     display: none;
   }
 }

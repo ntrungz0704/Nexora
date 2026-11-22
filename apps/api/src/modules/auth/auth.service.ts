@@ -4,12 +4,20 @@ import { getPrismaClient } from '../../common/prisma.js';
 import { AppError } from '../../common/errors.js';
 import { getEnv } from '../../config/env.js';
 import { EmailService } from '../email/email.service.js';
-import type { LoginInput, RegisterInput, AuthUser, NexoraRole } from '@nexora/shared';
+import { CartService } from '../cart/cart.service.js';
+import type {
+  LoginInput,
+  RegisterInput,
+  AuthUser,
+  NexoraRole,
+  MergeCartResultDto,
+} from '@nexora/shared';
 import type { PrismaClient } from '@prisma/client';
 
 export interface AuthResult {
   user: AuthUser;
   token: string;
+  cartMerge?: MergeCartResultDto;
 }
 
 function escapeHtml(str: string): string {
@@ -25,6 +33,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaClient = getPrismaClient(),
     private readonly emailService: EmailService = new EmailService(),
+    private readonly cartService: CartService = new CartService(prisma),
   ) {}
 
   private generateToken(user: { id: number; email: string; role: string }): string {
@@ -60,6 +69,15 @@ export class AuthService {
 
     const token = this.generateToken(user);
 
+    let cartMerge: MergeCartResultDto | undefined;
+    if (input.guestSessionId && input.guestSessionId.trim()) {
+      try {
+        cartMerge = await this.cartService.mergeGuestCartToUser(input.guestSessionId, user.id);
+      } catch {
+        // Non-blocking merge error during login
+      }
+    }
+
     return {
       user: {
         id: user.id,
@@ -70,6 +88,7 @@ export class AuthService {
         role: user.role as NexoraRole,
       },
       token,
+      ...(cartMerge ? { cartMerge } : {}),
     };
   }
 
@@ -100,6 +119,15 @@ export class AuthService {
       data: { userId: user.id },
     });
 
+    let cartMerge: MergeCartResultDto | undefined;
+    if (input.guestSessionId && input.guestSessionId.trim()) {
+      try {
+        cartMerge = await this.cartService.mergeGuestCartToUser(input.guestSessionId, user.id);
+      } catch {
+        // Non-blocking merge error during register
+      }
+    }
+
     const token = this.generateToken(user);
 
     return {
@@ -112,6 +140,7 @@ export class AuthService {
         role: user.role as NexoraRole,
       },
       token,
+      ...(cartMerge ? { cartMerge } : {}),
     };
   }
 

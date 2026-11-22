@@ -419,6 +419,38 @@ describe('Phase B: Profile & Addresses Backend Integration Test Suite', () => {
       const dbAddr2 = await prisma.customerAddress.findUnique({ where: { id: addressA2Id } });
       expect(dbAddr2?.isDefault).toBe(true);
     });
+
+    it('ADDR-B9 (CONCURRENCY): Concurrent address creations strictly maintain exactly ONE default address invariant', async () => {
+      // Fire 4 concurrent address creation requests, all requesting isDefault = true
+      const concurrentRequests = [1, 2, 3, 4].map((idx) =>
+        request(app)
+          .post('/api/v1/profile/addresses')
+          .set('Authorization', `Bearer ${customerAToken}`)
+          .send({
+            recipientName: `Concurrent Address ${idx}`,
+            phone: '0901234567',
+            streetAddress: `Số ${idx} Đường Concurrency`,
+            province: 'TP. Hồ Chí Minh',
+            isDefault: true,
+          }),
+      );
+
+      const results = await Promise.all(concurrentRequests);
+
+      // Collect IDs for cleanup
+      for (const res of results) {
+        expect(res.status).toBe(201);
+        if (res.body?.data?.id) {
+          createdAddressIds.push(res.body.data.id);
+        }
+      }
+
+      // Assert strictly on MySQL: exactly ONE address must have isDefault = true for Customer A
+      const defaultAddresses = await prisma.customerAddress.findMany({
+        where: { userId: customerAId, isDefault: true },
+      });
+      expect(defaultAddresses.length).toBe(1);
+    });
   });
 
   // =========================================================================

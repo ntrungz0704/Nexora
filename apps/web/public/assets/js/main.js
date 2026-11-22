@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
   /* ============ DARK MODE TOGGLE ============ */
   const themeToggle = document.getElementById('themeToggle');
-  const savedTheme =
-    localStorage.getItem('nexora-theme') || localStorage.getItem('techpilot-theme');
+  const savedTheme = localStorage.getItem('nexora-theme');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
   function applyTheme(isDark) {
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const isDark = !document.documentElement.classList.contains('dark-mode');
       applyTheme(isDark);
       localStorage.setItem('nexora-theme', isDark ? 'dark' : 'light');
-      localStorage.setItem('techpilot-theme', isDark ? 'dark' : 'light');
     });
   }
 

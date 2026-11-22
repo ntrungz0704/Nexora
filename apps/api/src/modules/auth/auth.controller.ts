@@ -8,7 +8,12 @@ export class AuthController {
 
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const input = LoginInputSchema.parse(req.body);
+      const guestSessionId =
+        req.body?.guestSessionId || (req.headers['x-guest-session-id'] as string) || undefined;
+      const input = LoginInputSchema.parse({
+        ...req.body,
+        guestSessionId,
+      });
       const result = await this.service.login(input);
       sendSuccess(res, result);
     } catch (error) {
@@ -18,7 +23,12 @@ export class AuthController {
 
   register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const input = RegisterInputSchema.parse(req.body);
+      const guestSessionId =
+        req.body?.guestSessionId || (req.headers['x-guest-session-id'] as string) || undefined;
+      const input = RegisterInputSchema.parse({
+        ...req.body,
+        guestSessionId,
+      });
       const result = await this.service.register(input);
       sendSuccess(res, result, 201);
     } catch (error) {

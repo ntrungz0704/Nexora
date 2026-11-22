@@ -53,6 +53,7 @@ export type EchoCheckResult = z.infer<typeof EchoCheckResultSchema>;
 export const LoginInputSchema = z.object({
   email: z.string().trim().email('Email không đúng định dạng.'),
   password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự.'),
+  guestSessionId: z.string().trim().optional(),
 });
 export type LoginInput = z.infer<typeof LoginInputSchema>;
 
@@ -70,6 +71,7 @@ export const RegisterInputSchema = z.object({
     .optional()
     .or(z.literal('')),
   password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự.'),
+  guestSessionId: z.string().trim().optional(),
 });
 export type RegisterInput = z.infer<typeof RegisterInputSchema>;
 

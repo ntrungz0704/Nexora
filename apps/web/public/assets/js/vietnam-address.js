@@ -4009,8 +4009,8 @@
     });
   }
 
-  // Export module ra window (support both NexoraAddress and TechPilotAddress)
-  window.NexoraAddress = window.TechPilotAddress = {
+  // Export module ra window
+  window.NexoraAddress = {
     DATA: VIETNAM_ADDRESS_DATA,
     validatePhone: validateVietnamesePhone,
     initSelector: initVietnamAddressSelector,

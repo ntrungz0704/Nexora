@@ -263,7 +263,6 @@ export const AdminDashboardPage: React.FC = () => {
       document.documentElement.classList.toggle('dark-mode', nextDark);
       document.documentElement.classList.toggle('dark', nextDark);
     }
-    localStorage.setItem('techpilot-theme', nextDark ? 'dark' : 'light');
     localStorage.setItem('nexora-theme', nextDark ? 'dark' : 'light');
   };
 

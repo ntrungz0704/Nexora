@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CartController } from './cart.controller.js';
-import { optionalAuth } from '../auth/auth.middleware.js';
+import { optionalAuth, requireAuth } from '../auth/auth.middleware.js';
 
 export function createCartRouter(): Router {
   const router = Router();
@@ -12,6 +12,7 @@ export function createCartRouter(): Router {
   router.post('/items', controller.addItem);
   router.patch('/items/:id', controller.updateItem);
   router.delete('/items/:id', controller.removeItem);
+  router.post('/merge', requireAuth(), controller.mergeCart);
 
   return router;
 }

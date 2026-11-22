@@ -8,7 +8,7 @@
 .news-page {
   --news-primary: var(--primary, #146ef5);
   --news-cyan: #00c8ff;
-  --news-ai-accent: var(--nexora-violet, var(--techpilot-violet, #5b5bff));
+  --news-ai-accent: var(--nexora-violet, #5b5bff);
   --news-text-main: var(--text-primary, #111827);
   --news-text-light: var(--text-secondary, #6b7280);
   --news-border: var(--border, #e5e7eb);

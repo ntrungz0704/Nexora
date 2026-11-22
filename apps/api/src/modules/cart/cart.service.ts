@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import { getPrismaClient } from '../../common/prisma.js';
 import { AppError } from '../../common/errors.js';
-import type { CartSummaryDto } from '@nexora/shared';
+import type { CartSummaryDto, MergeCartResultDto } from '@nexora/shared';
 
 export class CartService {
   constructor(private readonly prisma: PrismaClient = getPrismaClient()) {}
@@ -197,5 +197,176 @@ export class CartService {
     });
 
     return this.getCartSummary(params.userId, params.guestSessionId);
+  }
+
+  /**
+   * Phase B Milestone M3: Merge Guest Cart into Authenticated User Cart
+   * Strictly resolves all 7 conflict scenarios:
+   * 1. New product -> added to user cart
+   * 2. Duplicate product -> quantity accumulated
+   * 3. Out of stock -> skipped with descriptive warning
+   * 4. Inactive product -> skipped with descriptive warning
+   * 5. Quantity exceeds available stock -> capped to stockQuantity with warning
+   * 6. Empty / non-existent guest cart -> idempotent no-op
+   * 7. Idempotency & Replay protection -> atomic transaction with InnoDB row lock, guest cart deleted
+   */
+  async mergeGuestCartToUser(guestSessionId: string, userId: number): Promise<MergeCartResultDto> {
+    if (!guestSessionId || !guestSessionId.trim()) {
+      const currentCart = await this.getCartSummary(userId);
+      return {
+        cart: currentCart,
+        mergedItemsCount: 0,
+        adjustedItemsCount: 0,
+        warnings: [],
+      };
+    }
+
+    const cleanGuestSessionId = guestSessionId.trim();
+
+    // Atomic transaction with exclusive row lock on the user record in MySQL InnoDB
+    const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Exclusively lock the user record to serialize concurrent merges
+      await tx.$executeRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
+
+      // 2. Fetch the guest cart with items and products
+      const guestCart = await tx.cart.findUnique({
+        where: { guestSessionId: cleanGuestSessionId },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      });
+
+      // Find or create user cart
+      let userCart = await tx.cart.findUnique({
+        where: { userId },
+        include: {
+          items: true,
+        },
+      });
+
+      if (!userCart) {
+        userCart = await tx.cart.create({
+          data: { userId },
+          include: { items: true },
+        });
+      }
+
+      // Scenario 6: Empty or missing guest cart -> clean up if empty record exists and return
+      if (!guestCart || guestCart.items.length === 0) {
+        if (guestCart) {
+          await tx.cart.delete({ where: { id: guestCart.id } });
+        }
+        return {
+          mergedItemsCount: 0,
+          adjustedItemsCount: 0,
+          warnings: [],
+        };
+      }
+
+      let mergedItemsCount = 0;
+      let adjustedItemsCount = 0;
+      const warnings: string[] = [];
+
+      // Map existing user items for fast O(1) lookup
+      const userItemMap = new Map<number, (typeof userCart.items)[0]>();
+      for (const item of userCart.items) {
+        userItemMap.set(item.productId, item);
+      }
+
+      for (const guestItem of guestCart.items) {
+        const product = guestItem.product;
+
+        // Scenario 4: Inactive product
+        if (!product || product.status !== 'ACTIVE') {
+          warnings.push(
+            `Sản phẩm "${product?.name || `ID ${guestItem.productId}`}" đã ngừng kinh doanh, không thể thêm vào giỏ hàng.`,
+          );
+          continue;
+        }
+
+        // Scenario 3: Out of stock product
+        if (product.stockQuantity <= 0) {
+          warnings.push(`Sản phẩm "${product.name}" đã hết hàng, không thể thêm vào giỏ hàng.`);
+          continue;
+        }
+
+        const existingUserItem = userItemMap.get(guestItem.productId);
+
+        if (existingUserItem) {
+          // Scenario 2: Duplicate product
+          const desiredQty = existingUserItem.quantity + guestItem.quantity;
+          let finalQty = desiredQty;
+
+          // Scenario 5: Quantity exceeds available stock
+          if (desiredQty > product.stockQuantity) {
+            finalQty = product.stockQuantity;
+            adjustedItemsCount++;
+            warnings.push(
+              `Số lượng sản phẩm "${product.name}" đã được điều chỉnh về ${product.stockQuantity} do tồn kho không đủ.`,
+            );
+          }
+
+          if (finalQty !== existingUserItem.quantity) {
+            await tx.cartItem.update({
+              where: { id: existingUserItem.id },
+              data: { quantity: finalQty },
+            });
+            existingUserItem.quantity = finalQty;
+          }
+          mergedItemsCount++;
+        } else {
+          // Scenario 1: New product (not yet in user cart)
+          let finalQty = guestItem.quantity;
+
+          // Scenario 5: Quantity exceeds available stock
+          if (finalQty > product.stockQuantity) {
+            finalQty = product.stockQuantity;
+            adjustedItemsCount++;
+            warnings.push(
+              `Số lượng sản phẩm "${product.name}" đã được điều chỉnh về ${product.stockQuantity} do tồn kho không đủ.`,
+            );
+          }
+
+          if (finalQty > 0) {
+            const newItem = await tx.cartItem.create({
+              data: {
+                cartId: userCart.id,
+                productId: guestItem.productId,
+                quantity: finalQty,
+              },
+            });
+            userItemMap.set(guestItem.productId, newItem);
+            mergedItemsCount++;
+          }
+        }
+      }
+
+      // Scenario 7: Idempotency & Replay protection: delete guest cart items and guest cart
+      await tx.cartItem.deleteMany({
+        where: { cartId: guestCart.id },
+      });
+      await tx.cart.delete({
+        where: { id: guestCart.id },
+      });
+
+      return {
+        mergedItemsCount,
+        adjustedItemsCount,
+        warnings,
+      };
+    });
+
+    const currentCartSummary = await this.getCartSummary(userId);
+
+    return {
+      cart: currentCartSummary,
+      mergedItemsCount: result.mergedItemsCount,
+      adjustedItemsCount: result.adjustedItemsCount,
+      warnings: result.warnings,
+    };
   }
 }

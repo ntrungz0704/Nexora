@@ -184,8 +184,8 @@
     });
   }
 
-  // Expose for external use (support both NexoraFilters and TechPilotFilters)
-  window.NexoraFilters = window.TechPilotFilters = {
+  // Expose for external use
+  window.NexoraFilters = {
     applyFilter,
     applyPriceRange,
     toggleMultiFilter,
