@@ -565,13 +565,29 @@ describe('Phase B Milestone M3: Guest Cart Merge Backend Integration Test Suite'
         { expiresIn: '1h' },
       );
 
+      const cat = await prisma.category.findFirst();
+      const br = await prisma.brand.findFirst();
+      const prodCross = await prisma.product.create({
+        data: {
+          name: `Sản phẩm Cross User ${ts}`,
+          slug: `sp-cross-${ts}`,
+          sku: `SKU-CROSS-${ts}`,
+          price: 600000,
+          stockQuantity: 20,
+          status: 'ACTIVE',
+          categoryId: cat?.id || 1,
+          brandId: br?.id || 1,
+        },
+      });
+      createdProductIds.push(prodCross.id);
+
       const guestSessionId = `guest-cross-${ts}`;
       const guestCart = await prisma.cart.create({
         data: {
           guestSessionId,
           items: {
             create: {
-              productId: prodNewId,
+              productId: prodCross.id,
               quantity: 2,
             },
           },
@@ -611,10 +627,10 @@ describe('Phase B Milestone M3: Guest Cart Merge Backend Integration Test Suite'
       });
 
       const hasItemInA = userACart?.items.some(
-        (i) => i.productId === prodNewId && i.quantity === 2,
+        (i) => i.productId === prodCross.id && i.quantity === 2,
       );
       const hasItemInB = userBCart?.items.some(
-        (i) => i.productId === prodNewId && i.quantity === 2,
+        (i) => i.productId === prodCross.id && i.quantity === 2,
       );
 
       expect(Boolean(hasItemInA) !== Boolean(hasItemInB)).toBe(true);
