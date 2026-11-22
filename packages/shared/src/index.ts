@@ -405,4 +405,185 @@ export const AdminDashboardSummarySchema = z.object({
 });
 export type AdminDashboardSummaryDto = z.infer<typeof AdminDashboardSummarySchema>;
 
+// --- Phase B: Profile & Account Management Schemas ---
+export const UpdateProfileInputSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(2, 'Họ tên tối thiểu 2 ký tự.')
+    .max(150, 'Họ tên tối đa 150 ký tự.'),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^0\d{9}$/, 'Số điện thoại phải gồm 10 chữ số (bắt đầu bằng 0).')
+    .optional()
+    .or(z.literal('')),
+  avatarUrl: z
+    .string()
+    .trim()
+    .url('Đường dẫn ảnh đại diện không hợp lệ.')
+    .optional()
+    .or(z.literal('')),
+});
+export type UpdateProfileInput = z.infer<typeof UpdateProfileInputSchema>;
+
+export const ChangePasswordInputSchema = z
+  .object({
+    currentPassword: z.string().min(6, 'Mật khẩu hiện tại phải có ít nhất 6 ký tự.'),
+    newPassword: z
+      .string()
+      .min(8, 'Mật khẩu mới phải có ít nhất 8 ký tự.')
+      .regex(/^(?=.*[A-Za-z])(?=.*\d)/, 'Mật khẩu mới phải bao gồm cả chữ và số.'),
+    confirmPassword: z.string().min(8, 'Xác nhận mật khẩu phải có ít nhất 8 ký tự.'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp.',
+    path: ['confirmPassword'],
+  });
+export type ChangePasswordInput = z.infer<typeof ChangePasswordInputSchema>;
+
+// --- Phase B: Customer Address Schemas (customer_addresses) ---
+export const CustomerAddressDtoSchema = z.object({
+  id: z.number().int().positive(),
+  userId: z.number().int().positive(),
+  recipientName: z.string(),
+  phone: z.string(),
+  streetAddress: z.string(),
+  ward: z.string().nullable().optional(),
+  district: z.string().nullable().optional(),
+  province: z.string(),
+  isDefault: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type CustomerAddressDto = z.infer<typeof CustomerAddressDtoSchema>;
+
+export const CreateAddressInputSchema = z.object({
+  recipientName: z
+    .string()
+    .trim()
+    .min(2, 'Tên người nhận tối thiểu 2 ký tự.')
+    .max(150, 'Tên người nhận tối đa 150 ký tự.'),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^0\d{9}$/, 'Số điện thoại phải gồm 10 chữ số (bắt đầu bằng 0).'),
+  streetAddress: z
+    .string()
+    .trim()
+    .min(5, 'Địa chỉ đường/phố tối thiểu 5 ký tự.')
+    .max(255, 'Địa chỉ tối đa 255 ký tự.'),
+  ward: z.string().trim().max(100).optional().or(z.literal('')),
+  district: z.string().trim().max(100).optional().or(z.literal('')),
+  province: z
+    .string()
+    .trim()
+    .min(2, 'Tỉnh/thành phố không được để trống.')
+    .max(100, 'Tỉnh/thành tối đa 100 ký tự.'),
+  isDefault: z.boolean().optional().default(false),
+});
+export type CreateAddressInput = z.infer<typeof CreateAddressInputSchema>;
+
+export const UpdateAddressInputSchema = CreateAddressInputSchema.partial();
+export type UpdateAddressInput = z.infer<typeof UpdateAddressInputSchema>;
+
+// --- Phase B: Notifications Schemas ---
+export const NotificationDtoSchema = z.object({
+  id: z.string(),
+  userId: z.number().int().positive(),
+  title: z.string(),
+  message: z.string(),
+  type: z.string(),
+  linkUrl: z.string().nullable().optional(),
+  isRead: z.boolean(),
+  createdAt: z.string(),
+});
+export type NotificationDto = z.infer<typeof NotificationDtoSchema>;
+
+export const NotificationListDtoSchema = z.object({
+  notifications: z.array(NotificationDtoSchema),
+  unreadCount: z.number().int().nonnegative(),
+});
+export type NotificationListDto = z.infer<typeof NotificationListDtoSchema>;
+
+// --- Phase B: Return Requests Schemas ---
+export const ReturnRequestStatusEnum = z.enum(['PENDING', 'APPROVED', 'REJECTED', 'COMPLETED']);
+export type ReturnRequestStatus = z.infer<typeof ReturnRequestStatusEnum>;
+
+export const ReturnRequestDtoSchema = z.object({
+  id: z.number().int().positive(),
+  orderId: z.string(),
+  orderCode: z.string().optional(),
+  userId: z.number().int().positive(),
+  reason: z.string(),
+  status: ReturnRequestStatusEnum,
+  notes: z.string().nullable().optional(),
+  images: z.any().nullable().optional(),
+  resolvedAt: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type ReturnRequestDto = z.infer<typeof ReturnRequestDtoSchema>;
+
+export const CreateReturnRequestInputSchema = z.object({
+  orderCode: z.string().trim().min(3, 'Mã đơn hàng không hợp lệ.'),
+  reason: z
+    .string()
+    .trim()
+    .min(5, 'Lý do đổi trả tối thiểu 5 ký tự.')
+    .max(255, 'Lý do đổi trả tối đa 255 ký tự.'),
+  notes: z
+    .string()
+    .trim()
+    .min(10, 'Mô tả chi tiết tình trạng lỗi tối thiểu 10 ký tự.')
+    .max(2000, 'Mô tả chi tiết tối đa 2000 ký tự.'),
+  returnAction: z.enum(['replace', 'refund', 'repair']).optional().default('replace'),
+  images: z.array(z.string().url('Đường dẫn ảnh không hợp lệ.')).optional(),
+});
+export type CreateReturnRequestInput = z.infer<typeof CreateReturnRequestInputSchema>;
+
+// --- Phase B: Customer Reviews Schemas ---
+export const ReviewDtoSchema = z.object({
+  id: z.number().int().positive(),
+  productId: z.number().int().positive(),
+  userId: z.number().int().positive(),
+  userName: z.string(),
+  userAvatar: z.string().nullable().optional(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().nullable().optional(),
+  isVerifiedPurchase: z.boolean(),
+  createdAt: z.string(),
+});
+export type ReviewDto = z.infer<typeof ReviewDtoSchema>;
+
+export const CreateReviewInputSchema = z.object({
+  rating: z
+    .number()
+    .int('Số sao phải là số nguyên.')
+    .min(1, 'Số sao tối thiểu là 1.')
+    .max(5, 'Số sao tối đa là 5.'),
+  comment: z
+    .string()
+    .trim()
+    .min(5, 'Nhận xét đánh giá tối thiểu 5 ký tự.')
+    .max(1000, 'Nhận xét đánh giá tối đa 1000 ký tự.')
+    .optional()
+    .or(z.literal('')),
+});
+export type CreateReviewInput = z.infer<typeof CreateReviewInputSchema>;
+
+// --- Phase B: Cart Merge Schemas ---
+export const MergeCartInputSchema = z.object({
+  guestSessionId: z.string().trim().min(5, 'Mã phiên khách không hợp lệ.'),
+});
+export type MergeCartInput = z.infer<typeof MergeCartInputSchema>;
+
+export const MergeCartResultDtoSchema = z.object({
+  cart: CartSummarySchema,
+  mergedItemsCount: z.number().int().nonnegative(),
+  adjustedItemsCount: z.number().int().nonnegative(),
+  warnings: z.array(z.string()).optional(),
+});
+export type MergeCartResultDto = z.infer<typeof MergeCartResultDtoSchema>;
+
 export * from './personaScoring.js';

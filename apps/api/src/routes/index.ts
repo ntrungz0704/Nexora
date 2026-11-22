@@ -11,6 +11,7 @@ import { createMarketingRouter } from '../modules/marketing/marketing.routes.js'
 import { createAiRouter } from '../modules/ai/ai.routes.js';
 import { createAdminRouter } from '../modules/admin/admin.routes.js';
 import { createWishlistRouter } from '../modules/wishlist/wishlist.routes.js';
+import { createProfileRouter } from '../modules/profile/profile.routes.js';
 
 export function createV1Router(
   systemRepository?: SystemRepository,
@@ -24,6 +25,7 @@ export function createV1Router(
   // Storefront & Catalog routes
   router.use('/catalog', createCatalogRouter());
   router.use('/auth', createAuthRouter(rateLimiters));
+  router.use('/profile', createProfileRouter(rateLimiters));
   router.use('/cart', createCartRouter());
   router.use('/wishlist', createWishlistRouter());
 
