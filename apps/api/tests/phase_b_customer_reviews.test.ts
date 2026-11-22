@@ -638,6 +638,22 @@ describe('Phase B Milestone M4: Customer Reviews Backend Integration Test Suite'
       expect(res.body.error?.code).toBe('FORBIDDEN');
     });
 
+    it('REV-RBAC-STAFF-NO-EDIT: STAFF attempting to edit customer review content via PUT /api/v1/catalog/reviews/:id is rejected with 403 FORBIDDEN', async () => {
+      const reviewA = await prisma.review.findFirst({
+        where: { userId: userAId, productId: prodAId },
+      });
+      expect(reviewA).not.toBeNull();
+
+      const res = await request(app)
+        .put(`/api/v1/catalog/reviews/${reviewA!.id}`)
+        .set('Authorization', `Bearer ${staffToken}`)
+        .send({ rating: 1, comment: 'Staff mạo danh sửa đánh giá của khách hàng' });
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error?.code).toBe('FORBIDDEN');
+    });
+
     it('REV-OWNER-UPDATE: Customer A successfully updates their own review via PUT /api/v1/catalog/reviews/:id', async () => {
       const reviewA = await prisma.review.findFirst({
         where: { userId: userAId, productId: prodAId },

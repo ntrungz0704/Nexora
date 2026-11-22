@@ -98,28 +98,7 @@ export class ReviewService {
         },
       });
     } catch (err: unknown) {
-      const isPrismaP2002 = (err as { code?: string })?.code === 'P2002';
-      const metaTarget = (err as { meta?: { target?: unknown } })?.meta?.target;
-
-      // Xác minh P2002 liên quan trực tiếp đến unique constraint uq_reviews_user_product
-      const isTargetUniqueConstraint =
-        !metaTarget ||
-        (typeof metaTarget === 'string' &&
-          (metaTarget.includes('uq_reviews_user_product') ||
-            metaTarget.includes('user_id') ||
-            metaTarget.includes('product_id') ||
-            metaTarget.includes('userId') ||
-            metaTarget.includes('productId'))) ||
-        (Array.isArray(metaTarget) &&
-          metaTarget.some(
-            (t: unknown) =>
-              typeof t === 'string' &&
-              (t.includes('user') ||
-                t.includes('product') ||
-                t.includes('uq_reviews_user_product')),
-          ));
-
-      if (isPrismaP2002 && isTargetUniqueConstraint) {
+      if (this.isUserProductUniqueCollision(err)) {
         // Race condition: request đồng thời đã tạo bản ghi trước đó -> Cập nhật bản ghi hiện hữu
         review = await this.db.review.update({
           where: {
@@ -320,6 +299,36 @@ export class ReviewService {
       canReview: !!deliveredItem,
       existingReview: existingReview ? this.mapToDto(existingReview) : null,
     };
+  }
+
+  public isUserProductUniqueCollision(err: unknown): boolean {
+    if ((err as { code?: string })?.code !== 'P2002') {
+      return false;
+    }
+    const metaTarget = (err as { meta?: { target?: unknown } })?.meta?.target;
+    if (!metaTarget) {
+      return false;
+    }
+    if (typeof metaTarget === 'string') {
+      const lower = metaTarget.toLowerCase();
+      return (
+        lower === 'uq_reviews_user_product' ||
+        lower === 'reviews_user_id_product_id_key' ||
+        lower === 'userid_productid' ||
+        lower === 'user_id_product_id'
+      );
+    }
+    if (Array.isArray(metaTarget)) {
+      if (metaTarget.length === 0) return false;
+      const targets = metaTarget.map((t) => String(t).toLowerCase());
+      const hasConstraintName =
+        targets.includes('uq_reviews_user_product') ||
+        targets.includes('reviews_user_id_product_id_key');
+      const hasUserId = targets.includes('user_id') || targets.includes('userid');
+      const hasProductId = targets.includes('product_id') || targets.includes('productid');
+      return hasConstraintName || (hasUserId && hasProductId);
+    }
+    return false;
   }
 
   private async resolveProductId(productIdOrSlug: string | number): Promise<number> {
