@@ -50,6 +50,12 @@ describe('Phase B Milestone M5: Returns Workflow & Admin CRUD Backend Integratio
   let order4Cust2DeliveredId: bigint;
   let order4ItemCId: bigint;
 
+  let order5NoDeliveredAtId: bigint;
+  let order5ItemAId: bigint;
+
+  let order6OldDeliveredRecentlyUpdatedId: bigint;
+  let order6ItemAId: bigint;
+
   // Tracking for clean teardown
   const createdReturnIds: number[] = [];
   const createdOrderIds: bigint[] = [];
@@ -360,6 +366,80 @@ describe('Phase B Milestone M5: Returns Workflow & Admin CRUD Backend Integratio
       },
     });
     order4ItemCId = item4C.id;
+
+    // Order 5: DELIVERED but deliveredAt is null (missing authentic delivery timestamp)
+    const order5 = await prisma.order.create({
+      data: {
+        orderCode: `ORD-RET5-NODATE-${ts}`,
+        userId: customer1Id,
+        customerName: 'Nguyễn Văn Đổi Trả 1',
+        customerEmail: cust1.email,
+        customerPhone: '0901112222',
+        shippingAddress: '123 Lê Lợi, Q1, TP.HCM',
+        subtotal: 2500000,
+        totalAmount: 2500000,
+        orderStatus: 'DELIVERED',
+        paymentStatus: 'PAID',
+        paidAt: twoDaysAgo,
+        deliveredAt: null,
+      },
+    });
+    order5NoDeliveredAtId = order5.id;
+    createdOrderIds.push(order5.id);
+
+    const item5A = await prisma.orderItem.create({
+      data: {
+        orderId: order5.id,
+        productId: prodAId,
+        productName: prodA.name,
+        productSku: prodA.sku,
+        unitPrice: 2500000,
+        quantity: 1,
+        subtotal: 2500000,
+      },
+    });
+    order5ItemAId = item5A.id;
+
+    // Order 6: Delivered 10 days ago (expired window), but updatedAt was modified just now
+    const order6 = await prisma.order.create({
+      data: {
+        orderCode: `ORD-RET6-OLDUPD-${ts}`,
+        userId: customer1Id,
+        customerName: 'Nguyễn Văn Đổi Trả 1',
+        customerEmail: cust1.email,
+        customerPhone: '0901112222',
+        shippingAddress: '123 Lê Lợi, Q1, TP.HCM',
+        subtotal: 2500000,
+        totalAmount: 2500000,
+        orderStatus: 'DELIVERED',
+        paymentStatus: 'PAID',
+        paidAt: tenDaysAgo,
+        deliveredAt: tenDaysAgo,
+      },
+    });
+    order6OldDeliveredRecentlyUpdatedId = order6.id;
+    createdOrderIds.push(order6.id);
+
+    const item6A = await prisma.orderItem.create({
+      data: {
+        orderId: order6.id,
+        productId: prodAId,
+        productName: prodA.name,
+        productSku: prodA.sku,
+        unitPrice: 2500000,
+        quantity: 1,
+        subtotal: 2500000,
+      },
+    });
+    order6ItemAId = item6A.id;
+
+    // Force an update on order6 so updatedAt is recent (now), verifying that updatedAt does NOT extend the return window
+    await prisma.order.update({
+      where: { id: order6.id },
+      data: {
+        customerNotes: 'Ghi chú cập nhật gần đây để test regression updatedAt',
+      },
+    });
   });
 
   afterAll(async () => {
@@ -500,6 +580,37 @@ describe('Phase B Milestone M5: Returns Workflow & Admin CRUD Backend Integratio
           orderId: order2OldDeliveredId.toString(),
           reason: 'Đổi trả sau 10 ngày nhận hàng',
           items: [{ orderItemId: order2ItemAId.toString(), quantity: 1 }],
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('RETURN_WINDOW_EXPIRED');
+    });
+
+    it('RET-04B: Should reject return request if order has null deliveredAt (400 ORDER_MISSING_DELIVERED_DATE)', async () => {
+      const res = await request(app)
+        .post('/api/v1/profile/returns')
+        .set('Authorization', `Bearer ${customer1Token}`)
+        .send({
+          orderId: order5NoDeliveredAtId.toString(),
+          reason: 'Thử đổi trả đơn hàng thiếu mốc thời gian giao hàng thực tế',
+          items: [{ orderItemId: order5ItemAId.toString(), quantity: 1 }],
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('ORDER_MISSING_DELIVERED_DATE');
+    });
+
+    it('RET-04C: Should reject return request when exceeding 7 days from deliveredAt even if updatedAt was recently updated (400 RETURN_WINDOW_EXPIRED)', async () => {
+      // Order 6 was delivered 10 days ago, but its updatedAt is current
+      const res = await request(app)
+        .post('/api/v1/profile/returns')
+        .set('Authorization', `Bearer ${customer1Token}`)
+        .send({
+          orderId: order6OldDeliveredRecentlyUpdatedId.toString(),
+          reason: 'Thử đổi trả đơn hàng giao 10 ngày trước nhưng vừa cập nhật ghi chú',
+          items: [{ orderItemId: order6ItemAId.toString(), quantity: 1 }],
         });
 
       expect(res.status).toBe(400);

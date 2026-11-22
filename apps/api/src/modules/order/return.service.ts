@@ -142,8 +142,16 @@ export class ReturnService {
       );
     }
 
-    // 5. Kiểm tra thời hạn đổi/trả 7 ngày tính từ deliveredAt (fallback updatedAt)
-    const deliveryDate = order.deliveredAt || order.updatedAt;
+    // 5. Kiểm tra thời hạn đổi/trả 7 ngày tính từ deliveredAt (bắt buộc deliveredAt xác thực, không fallback)
+    if (!order.deliveredAt) {
+      throw new AppError(
+        400,
+        'ORDER_MISSING_DELIVERED_DATE',
+        'Đơn hàng chưa có mốc thời gian giao hàng xác thực (deliveredAt) để đối soát thời hạn đổi/trả 7 ngày.',
+      );
+    }
+
+    const deliveryDate = order.deliveredAt;
     const now = new Date();
     const diffMs = now.getTime() - deliveryDate.getTime();
     const diffDays = diffMs / (1000 * 60 * 60 * 24);

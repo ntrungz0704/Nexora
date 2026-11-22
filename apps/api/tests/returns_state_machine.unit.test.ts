@@ -17,7 +17,11 @@ function isValidTransition(from: ReturnRequestStatus, to: ReturnRequestStatus): 
   return ALLOWED_TRANSITIONS[from]?.includes(to) ?? false;
 }
 
-function isWithinReturnWindow(deliveredAt: Date, now: Date = new Date()): boolean {
+function isWithinReturnWindow(
+  deliveredAt: Date | null | undefined,
+  now: Date = new Date(),
+): boolean {
+  if (!deliveredAt) return false;
   const diffMs = now.getTime() - deliveredAt.getTime();
   const diffDays = diffMs / (1000 * 60 * 60 * 24);
   return diffDays <= 7 && diffDays >= 0;
@@ -104,6 +108,11 @@ describe('Return State Machine & Policy Unit Tests (Isolated)', () => {
       // Future delivery date (negative diff)
       const futureDate = new Date('2026-11-23T12:00:00Z');
       expect(isWithinReturnWindow(futureDate, now)).toBe(false);
+    });
+
+    it('WIN-03: Missing or null deliveredAt is strictly rejected', () => {
+      expect(isWithinReturnWindow(null)).toBe(false);
+      expect(isWithinReturnWindow(undefined)).toBe(false);
     });
   });
 
