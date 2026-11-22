@@ -365,7 +365,9 @@ button {
 
 /* ===== BODY CLASSES ===== */
 html.category-scroll-locked,
-body.category-scroll-locked {
+body.category-scroll-locked,
+html.nx-popup-locked,
+body.nx-popup-locked {
   overflow: hidden !important;
   padding-right: var(--scrollbar-width, 0px) !important;
 }

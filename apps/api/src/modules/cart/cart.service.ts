@@ -223,14 +223,31 @@ export class CartService {
 
     const cleanGuestSessionId = guestSessionId.trim();
 
-    // Atomic transaction with exclusive row lock on the user record in MySQL InnoDB
+    // Atomic transaction with exclusive row lock on both Guest Cart and User record in MySQL InnoDB
     const result = await this.prisma.$transaction(async (tx) => {
-      // 1. Exclusively lock the user record to serialize concurrent merges
-      await tx.$executeRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
+      // 1. Exclusively lock the GUEST CART record first using tx.$queryRaw FOR UPDATE
+      // This strictly prevents two concurrent requests (even across DIFFERENT users) from merging the same guest cart simultaneously
+      const lockedGuestCarts = await tx.$queryRaw<Array<{ id: bigint; guest_session_id: string }>>`
+        SELECT id, guest_session_id FROM carts WHERE guest_session_id = ${cleanGuestSessionId} FOR UPDATE
+      `;
 
-      // 2. Fetch the guest cart with items and products
+      const firstLockedCart =
+        lockedGuestCarts && lockedGuestCarts.length > 0 ? lockedGuestCarts[0] : null;
+
+      // Scenario 6: Empty, missing or already merged & deleted guest cart -> idempotent no-op
+      if (!firstLockedCart) {
+        return {
+          mergedItemsCount: 0,
+          adjustedItemsCount: 0,
+          warnings: [],
+        };
+      }
+
+      const guestCartId = firstLockedCart.id;
+
+      // 2. Fetch the guest cart with its items and products
       const guestCart = await tx.cart.findUnique({
-        where: { guestSessionId: cleanGuestSessionId },
+        where: { id: guestCartId },
         include: {
           items: {
             include: {
@@ -239,6 +256,11 @@ export class CartService {
           },
         },
       });
+
+      // 3. Exclusively lock the target user record using tx.$queryRaw FOR UPDATE
+      await tx.$queryRaw<Array<{ id: number }>>`
+        SELECT id FROM users WHERE id = ${userId} FOR UPDATE
+      `;
 
       // Find or create user cart
       let userCart = await tx.cart.findUnique({
@@ -255,7 +277,7 @@ export class CartService {
         });
       }
 
-      // Scenario 6: Empty or missing guest cart -> clean up if empty record exists and return
+      // If guest cart exists but has 0 items: delete empty record and return
       if (!guestCart || guestCart.items.length === 0) {
         if (guestCart) {
           await tx.cart.delete({ where: { id: guestCart.id } });

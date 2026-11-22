@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { createApp } from '../src/app.js';
 import { getEnv } from '../src/config/env.js';
+import { CartService } from '../src/modules/cart/cart.service.js';
 import type { Express } from 'express';
 
 const prisma = new PrismaClient();
@@ -543,6 +544,118 @@ describe('Phase B Milestone M3: Guest Cart Merge Backend Integration Test Suite'
         0,
       );
       expect(totalMerged).toBe(1);
+    });
+
+    it('MERGE-CONC-CROSS-USER: Two concurrent requests merging the same guestSessionId into DIFFERENT users strictly serializes and prevents double-merge', async () => {
+      const ts = Date.now();
+      const userB = await prisma.user.create({
+        data: {
+          email: `cart-merge-user-b-${ts}@nexora.local`,
+          fullName: 'Nguyễn Văn B (Cross User)',
+          passwordHash: await bcrypt.hash('TestPassword123!', 10),
+          role: 'CUSTOMER',
+          status: 'ACTIVE',
+        },
+      });
+      createdUserIds.push(userB.id);
+
+      const userBToken = jwt.sign(
+        { sub: userB.id, email: userB.email, role: userB.role },
+        getEnv().AUTH_SECRET,
+        { expiresIn: '1h' },
+      );
+
+      const guestSessionId = `guest-cross-${ts}`;
+      const guestCart = await prisma.cart.create({
+        data: {
+          guestSessionId,
+          items: {
+            create: {
+              productId: prodNewId,
+              quantity: 2,
+            },
+          },
+        },
+      });
+      createdCartIds.push(guestCart.id);
+
+      // Fire 2 concurrent merge requests: User A and User B simultaneously requesting the SAME guestSessionId
+      const [resA, resB] = await Promise.all([
+        request(app)
+          .post('/api/v1/cart/merge')
+          .set('Authorization', `Bearer ${userToken}`)
+          .send({ guestSessionId }),
+        request(app)
+          .post('/api/v1/cart/merge')
+          .set('Authorization', `Bearer ${userBToken}`)
+          .send({ guestSessionId }),
+      ]);
+
+      expect(resA.status).toBe(200);
+      expect(resB.status).toBe(200);
+
+      const countA = resA.body.data.mergedItemsCount || 0;
+      const countB = resB.body.data.mergedItemsCount || 0;
+
+      // Invariant: Exactly one user got the items (1), the other got 0
+      expect(countA + countB).toBe(1);
+
+      // Verify on MySQL: only ONE user's cart has the item with quantity 2
+      const userACart = await prisma.cart.findUnique({
+        where: { userId },
+        include: { items: true },
+      });
+      const userBCart = await prisma.cart.findUnique({
+        where: { userId: userB.id },
+        include: { items: true },
+      });
+
+      const hasItemInA = userACart?.items.some(
+        (i) => i.productId === prodNewId && i.quantity === 2,
+      );
+      const hasItemInB = userBCart?.items.some(
+        (i) => i.productId === prodNewId && i.quantity === 2,
+      );
+
+      expect(Boolean(hasItemInA) !== Boolean(hasItemInB)).toBe(true);
+
+      // Verify guest cart is cleanly deleted
+      const checkGuestCart = await prisma.cart.findUnique({ where: { guestSessionId } });
+      expect(checkGuestCart).toBeNull();
+    });
+
+    it('MERGE-ROLLBACK: When transaction fails or is aborted, guest cart and items are preserved (atomic rollback)', async () => {
+      const ts = Date.now();
+      const guestSessionId = `guest-rollback-${ts}`;
+
+      const guestCart = await prisma.cart.create({
+        data: {
+          guestSessionId,
+          items: {
+            create: {
+              productId: prodDupId,
+              quantity: 2,
+            },
+          },
+        },
+      });
+      createdCartIds.push(guestCart.id);
+
+      const cartService = new CartService(prisma);
+
+      // Attempt merge with a non-existent userId that causes foreign key constraint failure
+      await expect(cartService.mergeGuestCartToUser(guestSessionId, 999999999)).rejects.toThrow();
+
+      // Invariant: Guest cart and guest items MUST still exist intact in MySQL
+      const preservedGuestCart = await prisma.cart.findUnique({
+        where: { guestSessionId },
+        include: { items: true },
+      });
+
+      expect(preservedGuestCart).not.toBeNull();
+      expect(preservedGuestCart?.items.length).toBe(1);
+      expect(preservedGuestCart?.items[0].productId).toBe(prodDupId);
+      expect(preservedGuestCart?.items[0].quantity).toBe(2);
     });
   });
 

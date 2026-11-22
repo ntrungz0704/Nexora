@@ -169,7 +169,9 @@ export class ProfileService {
 
     const created = await this.prisma.$transaction(async (tx) => {
       // Exclusively lock the user record in MySQL InnoDB to strictly serialize concurrent address operations
-      await tx.$executeRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
+      await tx.$queryRaw<
+        Array<{ id: number }>
+      >`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
 
       const existingCount = await tx.customerAddress.count({
         where: { userId },
@@ -242,7 +244,9 @@ export class ProfileService {
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
+      await tx.$queryRaw<
+        Array<{ id: number }>
+      >`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
 
       if (input.isDefault) {
         await tx.customerAddress.updateMany({
@@ -294,7 +298,9 @@ export class ProfileService {
     }
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
+      await tx.$queryRaw<
+        Array<{ id: number }>
+      >`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
 
       await tx.customerAddress.delete({
         where: { id: addressId },
@@ -332,7 +338,9 @@ export class ProfileService {
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
+      await tx.$queryRaw<
+        Array<{ id: number }>
+      >`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
 
       await tx.customerAddress.updateMany({
         where: { userId },

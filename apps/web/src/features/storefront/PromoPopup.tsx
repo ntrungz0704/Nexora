@@ -58,8 +58,8 @@ export const PromoPopup: React.FC = () => {
 
   return (
     <div
-      id="tpPromoPopup"
-      className="tp-popup-overlay tp-popup-active"
+      id="nxPromoPopup"
+      className="nx-popup-overlay nx-popup-active"
       role="dialog"
       aria-modal="true"
       aria-label={activePopup.title}
@@ -81,7 +81,7 @@ export const PromoPopup: React.FC = () => {
       }}
     >
       <div
-        className="tp-popup-card"
+        className="nx-popup-card"
         style={{
           position: 'relative',
           width: '90vw',
@@ -96,8 +96,8 @@ export const PromoPopup: React.FC = () => {
       >
         <button
           type="button"
-          id="tpClosePopupBtn"
-          className="tp-popup-close-btn"
+          id="nxClosePopupBtn"
+          className="nx-popup-close-btn"
           onClick={handleClose}
           aria-label="Đóng quảng cáo"
           style={{
@@ -127,7 +127,7 @@ export const PromoPopup: React.FC = () => {
         <Link
           to={activePopup.linkUrl || '/search'}
           onClick={handleClose}
-          className="tp-popup-link"
+          className="nx-popup-link"
           title={activePopup.title}
           style={{
             display: 'block',
@@ -140,7 +140,7 @@ export const PromoPopup: React.FC = () => {
           <img
             src={imgSrc}
             alt={activePopup.title}
-            className="tp-popup-img"
+            className="nx-popup-img"
             style={{
               width: '100%',
               height: 'auto',
@@ -156,7 +156,7 @@ export const PromoPopup: React.FC = () => {
         </Link>
 
         <div
-          className="tp-popup-footer"
+          className="nx-popup-footer"
           style={{
             padding: '12px 18px',
             background: 'var(--surface-card, #f8fafc)',
@@ -169,7 +169,7 @@ export const PromoPopup: React.FC = () => {
           }}
         >
           <label
-            className="tp-popup-dont-show"
+            className="nx-popup-dont-show"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -183,7 +183,7 @@ export const PromoPopup: React.FC = () => {
           >
             <input
               type="checkbox"
-              id="tpDontShowToday"
+              id="nxDontShowToday"
               checked={dontShowAgain}
               onChange={(e) => setDontShowAgain(e.target.checked)}
               style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#0A5BFF' }}
