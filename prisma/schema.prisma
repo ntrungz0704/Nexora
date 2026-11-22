@@ -273,7 +273,7 @@ model Review {
   userId             Int          @map("user_id") @db.UnsignedInt
   rating             Int          @db.TinyInt
   comment            String?      @db.Text
-  isVerifiedPurchase Boolean      @default(true) @map("is_verified_purchase")
+  isVerifiedPurchase Boolean      @default(false) @map("is_verified_purchase")
   status             ReviewStatus @default(APPROVED)
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")

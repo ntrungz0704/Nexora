@@ -98,7 +98,29 @@ export class ReviewService {
         },
       });
     } catch (err: unknown) {
-      if ((err as { code?: string })?.code === 'P2002') {
+      const isPrismaP2002 = (err as { code?: string })?.code === 'P2002';
+      const metaTarget = (err as { meta?: { target?: unknown } })?.meta?.target;
+
+      // Xác minh P2002 liên quan trực tiếp đến unique constraint uq_reviews_user_product
+      const isTargetUniqueConstraint =
+        !metaTarget ||
+        (typeof metaTarget === 'string' &&
+          (metaTarget.includes('uq_reviews_user_product') ||
+            metaTarget.includes('user_id') ||
+            metaTarget.includes('product_id') ||
+            metaTarget.includes('userId') ||
+            metaTarget.includes('productId'))) ||
+        (Array.isArray(metaTarget) &&
+          metaTarget.some(
+            (t: unknown) =>
+              typeof t === 'string' &&
+              (t.includes('user') ||
+                t.includes('product') ||
+                t.includes('uq_reviews_user_product')),
+          ));
+
+      if (isPrismaP2002 && isTargetUniqueConstraint) {
+        // Race condition: request đồng thời đã tạo bản ghi trước đó -> Cập nhật bản ghi hiện hữu
         review = await this.db.review.update({
           where: {
             userId_productId: {
@@ -210,8 +232,9 @@ export class ReviewService {
       throw new AppError(404, 'REVIEW_NOT_FOUND', 'Không tìm thấy đánh giá.');
     }
 
-    if (existing.userId !== userId && userRole !== 'ADMIN') {
-      throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền chỉnh sửa đánh giá này.');
+    // Khách hàng chỉ có quyền chỉnh sửa đánh giá của chính mình (chống IDOR).
+    if (existing.userId !== userId) {
+      throw new AppError(403, 'FORBIDDEN', 'Bạn chỉ có quyền chỉnh sửa đánh giá của chính mình.');
     }
 
     const comment = input.comment && input.comment.trim().length > 0 ? input.comment.trim() : null;

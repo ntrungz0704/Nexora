@@ -542,11 +542,14 @@ describe('Phase B Milestone M4: Customer Reviews Backend Integration Test Suite'
         expect(res.body.success).toBe(true);
       }
 
-      // Verify strictly 1 review record persists in MySQL
-      const count = await prisma.review.count({
+      // Verify strictly 1 review record persists in MySQL with verified purchase and approved status
+      const dbReviews = await prisma.review.findMany({
         where: { userId: userBId, productId: prodBId },
       });
-      expect(count).toBe(1);
+      expect(dbReviews.length).toBe(1);
+      expect(dbReviews[0].rating).toBe(5);
+      expect(dbReviews[0].isVerifiedPurchase).toBe(true);
+      expect(dbReviews[0].status).toBe('APPROVED');
     });
   });
 
@@ -736,15 +739,16 @@ describe('Phase B Milestone M4: Customer Reviews Backend Integration Test Suite'
       expect(resSlug.body.data.reviews.length).toBe(0);
     });
 
-    it('REV-ADMIN-DELETE: ADMIN permanently deletes review via DELETE /api/v1/admin/reviews/:id', async () => {
+    it('REV-ADMIN-DELETE: STAFF and ADMIN can permanently delete violating review via DELETE /api/v1/admin/reviews/:id', async () => {
       const reviewA = await prisma.review.findFirst({
         where: { userId: userAId, productId: prodAId },
       });
       expect(reviewA).not.toBeNull();
 
+      // Test STAFF deletion capability on admin moderation route
       const res = await request(app)
         .delete(`/api/v1/admin/reviews/${reviewA!.id}`)
-        .set('Authorization', `Bearer ${adminToken}`);
+        .set('Authorization', `Bearer ${staffToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
