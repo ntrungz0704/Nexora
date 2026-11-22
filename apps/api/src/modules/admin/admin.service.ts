@@ -1052,8 +1052,9 @@ export class AdminService {
   }
 
   // --- Reviews Moderation ---
-  async getReviews() {
+  async getReviews(status?: 'APPROVED' | 'HIDDEN') {
     return prisma.review.findMany({
+      where: status ? { status } : undefined,
       include: {
         product: { select: { id: true, name: true, thumbnailUrl: true } },
         user: { select: { id: true, fullName: true, email: true } },
@@ -1062,8 +1063,28 @@ export class AdminService {
     });
   }
 
+  async updateReviewStatus(id: number, status: 'APPROVED' | 'HIDDEN') {
+    const existing = await prisma.review.findUnique({ where: { id } });
+    if (!existing) {
+      throw new AppError(404, 'REVIEW_NOT_FOUND', 'Không tìm thấy đánh giá.');
+    }
+    return prisma.review.update({
+      where: { id },
+      data: { status },
+      include: {
+        product: { select: { id: true, name: true, thumbnailUrl: true } },
+        user: { select: { id: true, fullName: true, email: true } },
+      },
+    });
+  }
+
   async deleteReview(id: number) {
-    return prisma.review.delete({ where: { id } });
+    const existing = await prisma.review.findUnique({ where: { id } });
+    if (!existing) {
+      throw new AppError(404, 'REVIEW_NOT_FOUND', 'Không tìm thấy đánh giá.');
+    }
+    await prisma.review.delete({ where: { id } });
+    return { success: true, message: 'Đã xóa đánh giá thành công.' };
   }
 
   private slugify(str: string): string {

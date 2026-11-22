@@ -4,6 +4,7 @@ import { OrderService } from '../order/order.service.js';
 import { sendSuccess } from '../../common/http.js';
 import { AppError } from '../../common/errors.js';
 import type { OrderStatus } from '@prisma/client';
+import { UpdateReviewStatusInputSchema } from '@nexora/shared';
 
 export class AdminController {
   constructor(
@@ -491,10 +492,22 @@ export class AdminController {
   };
 
   // Reviews
-  getReviews = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  getReviews = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const reviews = await this.service.getReviews();
+      const status = req.query.status as 'APPROVED' | 'HIDDEN' | undefined;
+      const reviews = await this.service.getReviews(status);
       sendSuccess(res, reviews);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateReviewStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id as string, 10);
+      const validated = UpdateReviewStatusInputSchema.parse(req.body);
+      const result = await this.service.updateReviewStatus(id, validated.status);
+      sendSuccess(res, result);
     } catch (error) {
       next(error);
     }

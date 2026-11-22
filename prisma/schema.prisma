@@ -69,6 +69,11 @@ enum ReturnRequestStatus {
   COMPLETED
 }
 
+enum ReviewStatus {
+  APPROVED
+  HIDDEN
+}
+
 model User {
   id              Int               @id @default(autoincrement()) @db.UnsignedInt
   email           String            @unique @db.VarChar(150)
@@ -263,17 +268,21 @@ model Wishlist {
 }
 
 model Review {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  productId Int      @map("product_id") @db.UnsignedInt
-  userId    Int      @map("user_id") @db.UnsignedInt
-  rating    Int      @db.TinyInt
-  comment   String?  @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
+  id                 Int          @id @default(autoincrement()) @db.UnsignedInt
+  productId          Int          @map("product_id") @db.UnsignedInt
+  userId             Int          @map("user_id") @db.UnsignedInt
+  rating             Int          @db.TinyInt
+  comment            String?      @db.Text
+  isVerifiedPurchase Boolean      @default(true) @map("is_verified_purchase")
+  status             ReviewStatus @default(APPROVED)
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@index([productId, rating], map: "idx_reviews_product_rating")
+  @@unique([userId, productId], map: "uq_reviews_user_product")
+  @@index([productId, status, rating], map: "idx_reviews_product_status_rating")
   @@index([userId], map: "idx_reviews_user")
   @@map("reviews")
 }

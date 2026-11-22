@@ -75,6 +75,7 @@ export function createAdminRouter(): Router {
 
   // Reviews
   router.get('/reviews', controller.getReviews);
+  router.patch('/reviews/:id/status', controller.updateReviewStatus);
   router.delete('/reviews/:id', controller.deleteReview);
 
   return router;

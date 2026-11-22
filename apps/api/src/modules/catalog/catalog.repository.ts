@@ -135,6 +135,7 @@ export class CatalogRepository {
         brand: { select: { id: true, name: true, slug: true } },
         images: { orderBy: { sortOrder: 'asc' } },
         reviews: {
+          where: { status: 'APPROVED' },
           include: {
             user: { select: { id: true, fullName: true, avatarUrl: true } },
           },

@@ -545,6 +545,9 @@ export const CreateReturnRequestInputSchema = z.object({
 export type CreateReturnRequestInput = z.infer<typeof CreateReturnRequestInputSchema>;
 
 // --- Phase B: Customer Reviews Schemas ---
+export const ReviewStatusSchema = z.enum(['APPROVED', 'HIDDEN']);
+export type ReviewStatus = z.infer<typeof ReviewStatusSchema>;
+
 export const ReviewDtoSchema = z.object({
   id: z.number().int().positive(),
   productId: z.number().int().positive(),
@@ -554,7 +557,9 @@ export const ReviewDtoSchema = z.object({
   rating: z.number().int().min(1).max(5),
   comment: z.string().nullable().optional(),
   isVerifiedPurchase: z.boolean(),
+  status: ReviewStatusSchema.default('APPROVED'),
   createdAt: z.string(),
+  updatedAt: z.string().optional(),
 });
 export type ReviewDto = z.infer<typeof ReviewDtoSchema>;
 
@@ -573,6 +578,27 @@ export const CreateReviewInputSchema = z.object({
     .or(z.literal('')),
 });
 export type CreateReviewInput = z.infer<typeof CreateReviewInputSchema>;
+
+export const UpdateReviewInputSchema = CreateReviewInputSchema;
+export type UpdateReviewInput = CreateReviewInput;
+
+export const UpdateReviewStatusInputSchema = z.object({
+  status: ReviewStatusSchema,
+});
+export type UpdateReviewStatusInput = z.infer<typeof UpdateReviewStatusInputSchema>;
+
+export const ProductReviewsSummarySchema = z.object({
+  averageRating: z.number(),
+  totalReviews: z.number(),
+  ratingBreakdown: z.object({
+    1: z.number(),
+    2: z.number(),
+    3: z.number(),
+    4: z.number(),
+    5: z.number(),
+  }),
+});
+export type ProductReviewsSummary = z.infer<typeof ProductReviewsSummarySchema>;
 
 // --- Phase B: Cart Merge Schemas ---
 export const MergeCartInputSchema = z.object({

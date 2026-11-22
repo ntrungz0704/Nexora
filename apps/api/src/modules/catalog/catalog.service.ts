@@ -128,6 +128,7 @@ export class CatalogService {
         id: r.id,
         rating: r.rating,
         comment: r.comment,
+        isVerifiedPurchase: r.isVerifiedPurchase,
         createdAt: r.createdAt.toISOString(),
         user: r.user,
       })),
