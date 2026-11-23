@@ -36,7 +36,7 @@ export const WishlistPage: React.FC = () => {
 
   // Fetch Real User Wishlist from API / MySQL Database
   const { data: wishlistEntries = [], isLoading } = useQuery({
-    queryKey: ['wishlist'],
+    queryKey: ['wishlist', currentUser?.id],
     queryFn: () => wishlistService.getWishlist(),
     enabled: !!currentUser,
   });

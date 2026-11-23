@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storefrontService } from '../../services/storefrontService';
 import { getProductImage } from '../../lib/productImage';
+import { useAuthQueryCacheSync } from '../../lib/authQueryCache';
 import { CategorySidebar } from './CategorySidebar';
 import type { AuthUser, CategoryDto } from '@nexora/shared';
 
@@ -47,6 +48,8 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   onToggleCategoryMenu,
   isCategoryMenuOpen: controlledCategoryMenuOpen,
 }) => {
+  useAuthQueryCacheSync();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedCat, setSelectedCat] = useState('');

@@ -1,4 +1,5 @@
 import { apiClient } from '../lib/apiClient';
+import { emitAuthSessionChange } from '../lib/authQueryCache';
 import { cartService } from './cartService';
 import {
   type ApiSuccessEnvelope,
@@ -25,8 +26,17 @@ function validateMergeResult(data: unknown): MergeCartResultDto | null {
   return parsed.success ? parsed.data : null;
 }
 
+function clearSensitiveSessionStorage(): void {
+  try {
+    sessionStorage.removeItem('lastOrder');
+  } catch {
+    // Ignore storage errors in restricted contexts
+  }
+}
+
 export const authService = {
   async login(input: LoginInput): Promise<AuthSession> {
+    const previousUserId = this.getCurrentUser()?.id ?? null;
     const existingGuestSessionId = cartService.getExistingGuestSessionId();
     const guestSessionId = input.guestSessionId ?? (existingGuestSessionId || undefined);
 
@@ -42,6 +52,10 @@ export const authService = {
     // 1. Lưu JWT token và thông tin user vào localStorage
     localStorage.setItem('nexora_token', session.token);
     localStorage.setItem('nexora_user', JSON.stringify(session.user));
+    if (previousUserId !== null && previousUserId !== session.user.id) {
+      clearSensitiveSessionStorage();
+    }
+    cartService.resetPassiveMergeGuard();
 
     // 2. Xử lý Failure-Safety cho Cart Merge nếu client có gửi guestSessionId
     if (guestSessionId) {
@@ -66,10 +80,18 @@ export const authService = {
       }
     }
 
+    // 3. Cô lập private cache của phiên trước (kể cả login-over-session trực tiếp)
+    emitAuthSessionChange({
+      type: 'LOGIN',
+      previousUserId,
+      nextUserId: session.user.id,
+    });
+
     return session;
   },
 
   async register(input: RegisterInput): Promise<AuthSession> {
+    const previousUserId = this.getCurrentUser()?.id ?? null;
     const existingGuestSessionId = cartService.getExistingGuestSessionId();
     const guestSessionId = input.guestSessionId ?? (existingGuestSessionId || undefined);
 
@@ -86,6 +108,10 @@ export const authService = {
 
     localStorage.setItem('nexora_token', session.token);
     localStorage.setItem('nexora_user', JSON.stringify(session.user));
+    if (previousUserId !== null && previousUserId !== session.user.id) {
+      clearSensitiveSessionStorage();
+    }
+    cartService.resetPassiveMergeGuard();
 
     if (guestSessionId) {
       const validMergeResult = validateMergeResult(session.cartMerge);
@@ -106,6 +132,12 @@ export const authService = {
         }
       }
     }
+
+    emitAuthSessionChange({
+      type: 'REGISTER',
+      previousUserId,
+      nextUserId: session.user.id,
+    });
 
     return session;
   },
@@ -136,8 +168,16 @@ export const authService = {
   },
 
   logout(): void {
+    const previousUserId = this.getCurrentUser()?.id ?? null;
     localStorage.removeItem('nexora_token');
     localStorage.removeItem('nexora_user');
+    clearSensitiveSessionStorage();
+    cartService.resetPassiveMergeGuard();
+    emitAuthSessionChange({
+      type: 'LOGOUT',
+      previousUserId,
+      nextUserId: null,
+    });
   },
 
   getToken(): string | null {

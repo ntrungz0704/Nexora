@@ -158,10 +158,11 @@ export const CheckoutPage: React.FC = () => {
       const json = await res.json();
       const order = json.data;
 
-      // 2. Sync Cart, Catalog Stock & Admin Dashboard
+      // 2. Sync Cart, Catalog Stock, Admin Dashboard & Customer Orders
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-data'] });
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
 
       // Save order info for success page
       sessionStorage.setItem(

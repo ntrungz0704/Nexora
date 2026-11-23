@@ -81,14 +81,20 @@ test.describe('Nexora E2E Storefront & Commerce User Journeys', () => {
     await expect(page.locator('input').first()).toBeVisible();
   });
 
-  test('Journey 8: Admin Dashboard renders operational overview and navigation tabs', async ({
+  test('Journey 8: Unauthenticated access to /admin is blocked by Admin Authentication Gate', async ({
     page,
   }) => {
     await page.goto('/admin');
 
-    // Verify Admin Dashboard view
-    await expect(page.getByText(/Quản trị viên|Dashboard|Tổng quan/i).first()).toBeVisible();
-    await expect(page.getByText('Sản phẩm').first()).toBeVisible();
-    await expect(page.getByText('Đơn hàng').first()).toBeVisible();
+    // 1. Verify Admin Authentication Gate is presented
+    await expect(page.getByText('Hệ Thống Quản Trị Cửa Hàng')).toBeVisible();
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Đăng nhập Quản trị/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Quay lại Website/i })).toBeVisible();
+
+    // 2. Verify internal Admin Dashboard & navigation tabs are NOT exposed to unauthenticated users
+    await expect(page.locator('aside.admin-sidebar')).not.toBeVisible();
+    await expect(page.getByText('Tổng quan hoạt động')).not.toBeVisible();
   });
 });
