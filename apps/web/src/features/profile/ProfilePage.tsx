@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { StorefrontHeader } from '../storefront/StorefrontHeader';
 import { StorefrontFooter } from '../storefront/StorefrontFooter';
@@ -8,6 +8,8 @@ import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import { profileService } from '../../services/profileService';
+import { checkOrderReturnEligibility, returnService } from '../../services/returnService';
+import { CustomerReturnsTab } from './components/CustomerReturnsTab';
 import {
   type AuthUser,
   type OrderDto,
@@ -24,6 +26,7 @@ export type ProfileTab =
 export const ProfilePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { id: routeParamId } = useParams<{ id?: string }>();
   const queryClient = useQueryClient();
 
   const getTabFromPath = (): ProfileTab => {
@@ -39,7 +42,13 @@ export const ProfilePage: React.FC = () => {
     authService.getCurrentUser(),
   );
   const [activeTab, setActiveTab] = useState<ProfileTab>(getTabFromPath);
+  const [preselectedReturnOrderId, setPreselectedReturnOrderId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const initialReturnId =
+    location.pathname.includes('/return') && routeParamId && /^\d+$/.test(routeParamId)
+      ? Number(routeParamId)
+      : null;
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -48,7 +57,13 @@ export const ProfilePage: React.FC = () => {
 
   const handleTabChange = (tabId: ProfileTab) => {
     setActiveTab(tabId);
-    navigate(tabId === 'profile' ? '/profile' : `/profile/${tabId}`);
+    if (tabId === 'profile') {
+      navigate('/profile');
+    } else if (tabId === 'returns') {
+      navigate('/profile/return');
+    } else {
+      navigate(`/profile/${tabId}`);
+    }
   };
 
   // =========================================================================
@@ -421,21 +436,9 @@ export const ProfilePage: React.FC = () => {
   // =========================================================================
   // 5. OTHER STOREFRONT QUERIES
   // =========================================================================
-  const { data: userOrders = [] } = useQuery<OrderDto[]>({
+  const { data: userOrders = [], isLoading: isOrdersLoading } = useQuery<OrderDto[]>({
     queryKey: ['my-orders', currentUser?.id],
-    queryFn: async () => {
-      const token = authService.getToken();
-      if (!token) return [];
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
-      const res = await fetch(`${apiUrl}/orders/my-orders`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const json = await res.json();
-        return json.data;
-      }
-      return [];
-    },
+    queryFn: () => returnService.getMyOrders(),
     enabled: !!currentUser,
   });
 
@@ -458,6 +461,10 @@ export const ProfilePage: React.FC = () => {
   const handleLogout = () => {
     authService.logout();
     setCurrentUser(null);
+    setPreselectedReturnOrderId(null);
+    queryClient.removeQueries({ queryKey: ['customer-returns'] });
+    queryClient.removeQueries({ queryKey: ['customer-return-detail'] });
+    queryClient.removeQueries({ queryKey: ['my-orders'] });
     navigate('/');
   };
 
@@ -983,6 +990,28 @@ export const ProfilePage: React.FC = () => {
                           <div style={{ fontSize: '15px', fontWeight: 800, color: '#EF4444' }}>
                             {Number(order.totalAmount).toLocaleString('vi-VN')}đ
                           </div>
+                          {checkOrderReturnEligibility(order).eligible && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPreselectedReturnOrderId(String(order.id));
+                                handleTabChange('returns');
+                              }}
+                              style={{
+                                marginTop: '8px',
+                                padding: '5px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid #0A5BFF',
+                                backgroundColor: '#FFFFFF',
+                                color: '#0A5BFF',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Yêu cầu đổi trả
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))
@@ -1906,164 +1935,21 @@ export const ProfilePage: React.FC = () => {
             )}
 
             {/* ============================================================= */}
-            {/* TAB: RETURNS (PRESERVED)                                      */}
+            {/* TAB: RETURNS (M6.4 CUSTOMER RETURNS INTEGRATION)              */}
             {/* ============================================================= */}
             {activeTab === 'returns' && (
-              <div>
-                <h3
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: 800,
-                    color: '#0F172A',
-                    margin: '0 0 20px 0',
-                    borderBottom: '1px solid #F1F5F9',
-                    paddingBottom: '12px',
-                  }}
-                >
-                  Yêu Cầu Đổi Trả & Hoàn Tiền
-                </h3>
-                <div
-                  style={{
-                    marginBottom: '24px',
-                    padding: '16px 20px',
-                    borderRadius: '12px',
-                    backgroundColor: '#F8FAFC',
-                    border: '1px solid #E2E8F0',
-                  }}
-                >
-                  <p style={{ margin: 0, fontSize: '13.5px', color: '#475569', lineHeight: '1.6' }}>
-                    Nexora hỗ trợ đổi trả sản phẩm miễn phí trong vòng <strong>7 ngày</strong> kể từ
-                    khi nhận hàng đối với lỗi kỹ thuật phần cứng hoặc hư hại trong quá trình vận
-                    chuyển.
-                  </p>
-                </div>
-
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    showToast(
-                      'Đã gửi yêu cầu đổi trả thành công! Kỹ thuật viên sẽ liên hệ trong 24h.',
-                    );
-                  }}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '18px',
-                    maxWidth: '600px',
-                  }}
-                >
-                  <div>
-                    <label
-                      style={{
-                        display: 'block',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        color: '#475569',
-                        marginBottom: '6px',
-                      }}
-                    >
-                      Chọn đơn hàng cần đổi trả
-                    </label>
-                    <select
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        borderRadius: '8px',
-                        border: '1px solid #CBD5E1',
-                        fontSize: '13.5px',
-                        outline: 'none',
-                        backgroundColor: '#FFF',
-                      }}
-                      required
-                    >
-                      <option value="">-- Chọn đơn hàng của bạn --</option>
-                      {userOrders.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.orderCode} - {new Date(o.createdAt).toLocaleDateString('vi-VN')} (
-                          {Number(o.totalAmount).toLocaleString('vi-VN')}đ)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label
-                      style={{
-                        display: 'block',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        color: '#475569',
-                        marginBottom: '6px',
-                      }}
-                    >
-                      Hình thức mong muốn
-                    </label>
-                    <select
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        borderRadius: '8px',
-                        border: '1px solid #CBD5E1',
-                        fontSize: '13.5px',
-                        outline: 'none',
-                        backgroundColor: '#FFF',
-                      }}
-                      required
-                    >
-                      <option value="replace">Đổi sản phẩm mới (Lỗi do nhà sản xuất)</option>
-                      <option value="refund">Hoàn tiền vào tài khoản ngân hàng</option>
-                      <option value="repair">Gửi bảo hành sửa chữa chính hãng</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label
-                      style={{
-                        display: 'block',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        color: '#475569',
-                        marginBottom: '6px',
-                      }}
-                    >
-                      Mô tả tình trạng lỗi chi tiết
-                    </label>
-                    <textarea
-                      rows={4}
-                      placeholder="Vui lòng mô tả cụ thể hiện tượng lỗi, ví dụ: máy không lên nguồn, sọc màn hình, quạt kêu to..."
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        borderRadius: '8px',
-                        border: '1px solid #CBD5E1',
-                        fontSize: '13.5px',
-                        outline: 'none',
-                        resize: 'vertical',
-                      }}
-                      required
-                    ></textarea>
-                  </div>
-
-                  <button
-                    type="submit"
-                    style={{
-                      marginTop: '8px',
-                      alignSelf: 'flex-start',
-                      padding: '12px 28px',
-                      borderRadius: '10px',
-                      border: 'none',
-                      backgroundColor: '#0A5BFF',
-                      color: '#FFFFFF',
-                      fontSize: '14px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(10, 91, 255, 0.25)',
-                    }}
-                  >
-                    Gửi Yêu Cầu Đổi Trả
-                  </button>
-                </form>
-              </div>
+              <CustomerReturnsTab
+                currentUser={currentUser}
+                orders={userOrders}
+                isLoadingOrders={isOrdersLoading}
+                initialReturnId={initialReturnId}
+                preselectedOrderId={preselectedReturnOrderId}
+                onClearPreselectedOrder={() => setPreselectedReturnOrderId(null)}
+                onNavigateReturnDetail={(returnId) => {
+                  navigate(returnId ? `/profile/return/${returnId}` : '/profile/return');
+                }}
+                onNotify={showToast}
+              />
             )}
 
             {/* ============================================================= */}
