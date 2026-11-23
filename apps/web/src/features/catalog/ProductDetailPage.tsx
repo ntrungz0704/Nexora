@@ -8,8 +8,11 @@ import { storefrontService } from '../../services/storefrontService';
 import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
+import { extractReviewErrorMessage, reviewService } from '../../services/reviewService';
 import { getProductImage } from '../../lib/productImage';
-import type { AuthUser, ProductDto } from '@nexora/shared';
+import { ReviewList } from './components/ReviewList';
+import { ReviewFormModal } from './components/ReviewFormModal';
+import type { AuthUser, CreateReviewInput, ProductDto, ReviewDto } from '@nexora/shared';
 
 interface FormattedSpec {
   label: string;
@@ -207,9 +210,35 @@ export const ProductDetailPage: React.FC = () => {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  // Customer Reviews State
+  const [reviewPageState, setReviewPageState] = useState<{ slug?: string; page: number }>({
+    slug,
+    page: 1,
+  });
+  const reviewPage = reviewPageState.slug === slug ? reviewPageState.page : 1;
+  const setReviewPage = (nextPage: number) => {
+    setReviewPageState({ slug, page: nextPage });
+  };
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewModalMode, setReviewModalMode] = useState<'create' | 'edit'>('create');
+  const [editingReview, setEditingReview] = useState<ReviewDto | null>(null);
+  const [reviewSubmitError, setReviewSubmitError] = useState<string | null>(null);
+  const [reviewDeleteError, setReviewDeleteError] = useState<string | null>(null);
+
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: () => storefrontService.getCategories(),
+  });
+
+  const {
+    data: product,
+    isLoading: isProductLoading,
+    isError: isProductError,
+  } = useQuery({
+    queryKey: ['product-detail', slug],
+    queryFn: () => storefrontService.getProductBySlug(slug!),
+    enabled: Boolean(slug),
+    retry: false,
   });
 
   const { data: productsData } = useQuery({
@@ -218,9 +247,127 @@ export const ProductDetailPage: React.FC = () => {
   });
   const allProducts = productsData?.products || [];
 
-  // Find product by slug or id
-  const product =
-    allProducts.find((p) => p.slug === slug || String(p.id) === slug) || allProducts[0];
+  const productId = product?.id;
+
+  const {
+    data: reviewsData,
+    isLoading: isLoadingReviews,
+    isError: isErrorReviews,
+    refetch: refetchReviews,
+  } = useQuery({
+    queryKey: ['product-reviews', productId, reviewPage, 10],
+    queryFn: () => reviewService.getProductReviews(productId!, { page: reviewPage, limit: 10 }),
+    enabled: Boolean(productId),
+  });
+
+  const {
+    data: eligibilityData,
+    isLoading: isLoadingEligibility,
+    isError: isErrorEligibility,
+    refetch: refetchEligibility,
+  } = useQuery({
+    queryKey: ['review-eligibility', productId, currentUser?.id],
+    queryFn: () => reviewService.getReviewEligibility(productId!),
+    enabled: Boolean(productId && currentUser),
+  });
+
+  const createReviewMutation = useMutation({
+    mutationFn: (input: CreateReviewInput) => {
+      if (!productId) {
+        return Promise.reject(new Error('Không xác định được sản phẩm.'));
+      }
+      return reviewService.createReview(productId, input);
+    },
+    onSuccess: () => {
+      if (productId) {
+        queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
+        queryClient.invalidateQueries({ queryKey: ['review-eligibility', productId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'home'] });
+      setReviewPage(1);
+      setIsReviewModalOpen(false);
+      setEditingReview(null);
+      setReviewSubmitError(null);
+      showToast('Gửi đánh giá thành công!');
+    },
+    onError: (err: unknown) => {
+      setReviewSubmitError(extractReviewErrorMessage(err, 'Gửi đánh giá thất bại.'));
+    },
+  });
+
+  const updateReviewMutation = useMutation({
+    mutationFn: ({ reviewId, input }: { reviewId: number; input: CreateReviewInput }) =>
+      reviewService.updateReview(reviewId, input),
+    onSuccess: () => {
+      if (productId) {
+        queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
+        queryClient.invalidateQueries({ queryKey: ['review-eligibility', productId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'home'] });
+      setIsReviewModalOpen(false);
+      setEditingReview(null);
+      setReviewSubmitError(null);
+      showToast('Cập nhật đánh giá thành công!');
+    },
+    onError: (err: unknown) => {
+      setReviewSubmitError(extractReviewErrorMessage(err, 'Cập nhật đánh giá thất bại.'));
+    },
+  });
+
+  const deleteReviewMutation = useMutation({
+    mutationFn: (reviewId: number) => reviewService.deleteReview(reviewId),
+    onSuccess: (res) => {
+      if (productId) {
+        queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
+        queryClient.invalidateQueries({ queryKey: ['review-eligibility', productId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'home'] });
+      if ((reviewsData?.reviews.length ?? 0) <= 1 && reviewPage > 1) {
+        setReviewPage(Math.max(1, reviewPage - 1));
+      }
+      setReviewDeleteError(null);
+      showToast(res.message || 'Đã xóa đánh giá thành công.');
+    },
+    onError: (err: unknown) => {
+      setReviewDeleteError(extractReviewErrorMessage(err, 'Xóa đánh giá thất bại.'));
+    },
+  });
+
+  const handleOpenCreateReviewModal = () => {
+    setReviewModalMode('create');
+    setEditingReview(null);
+    setReviewSubmitError(null);
+    setIsReviewModalOpen(true);
+  };
+
+  const handleOpenEditReviewModal = (review: ReviewDto) => {
+    setReviewModalMode('edit');
+    setEditingReview(review);
+    setReviewSubmitError(null);
+    setIsReviewModalOpen(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    if (createReviewMutation.isPending || updateReviewMutation.isPending) {
+      return;
+    }
+    setIsReviewModalOpen(false);
+    setEditingReview(null);
+    setReviewSubmitError(null);
+  };
+
+  const handleSubmitReviewForm = (payload: CreateReviewInput) => {
+    if (reviewModalMode === 'edit' && editingReview) {
+      updateReviewMutation.mutate({ reviewId: editingReview.id, input: payload });
+      return;
+    }
+    createReviewMutation.mutate(payload);
+  };
+
+  const handleConfirmDeleteReview = async (reviewId: number) => {
+    setReviewDeleteError(null);
+    await deleteReviewMutation.mutateAsync(reviewId);
+  };
 
   const { data: cart } = useQuery({
     queryKey: ['cart'],
@@ -251,11 +398,58 @@ export const ProductDetailPage: React.FC = () => {
     navigate('/checkout');
   };
 
-  if (!product) {
+  if (isProductLoading) {
     return (
       <div style={{ padding: '60px', textAlign: 'center' }}>Đang tải thông tin sản phẩm...</div>
     );
   }
+
+  if (isProductError || !product) {
+    return (
+      <div className="home-page-wrapper">
+        <StorefrontHeader
+          categories={categories}
+          cartCount={cart?.totalItems || 0}
+          wishlistCount={currentUser ? wishlistCount : 0}
+          currentUser={currentUser}
+          onLogout={() => {
+            authService.logout();
+            setCurrentUser(null);
+            queryClient.invalidateQueries({ queryKey: ['cart'] });
+            queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
+            queryClient.removeQueries({ queryKey: ['review-eligibility'] });
+          }}
+        />
+        <main style={{ minHeight: '420px', padding: '64px 16px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '12px' }}>
+            Không tìm thấy sản phẩm
+          </h1>
+          <p style={{ color: 'var(--text-secondary, #6B7280)', marginBottom: '20px' }}>
+            Sản phẩm bạn tìm kiếm không tồn tại hoặc đã ngừng kinh doanh.
+          </p>
+          <Link
+            to="/"
+            style={{
+              display: 'inline-block',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              backgroundColor: 'var(--primary, #0A5BFF)',
+              color: '#FFFFFF',
+              textDecoration: 'none',
+              fontWeight: 700,
+              fontSize: '14px',
+            }}
+          >
+            Quay về trang chủ
+          </Link>
+        </main>
+        <StorefrontFooter />
+      </div>
+    );
+  }
+
+  const averageRating = reviewsData?.stats.averageRating ?? 0;
+  const totalReviews = reviewsData?.stats.totalReviews ?? 0;
 
   const p = Number(product.price);
   const sp = product.salePrice ? Number(product.salePrice) : null;
@@ -307,8 +501,11 @@ export const ProductDetailPage: React.FC = () => {
         onLogout={() => {
           authService.logout();
           setCurrentUser(null);
+          setIsReviewModalOpen(false);
+          setEditingReview(null);
           queryClient.invalidateQueries({ queryKey: ['cart'] });
           queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
+          queryClient.removeQueries({ queryKey: ['review-eligibility'] });
         }}
       />
 
@@ -461,16 +658,34 @@ export const ProductDetailPage: React.FC = () => {
               <div
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
               >
-                <div style={{ color: '#FACC15', fontSize: '13px' }}>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
-                  <i className="fa-solid fa-star"></i>
+                <div
+                  style={{ color: '#FACC15', fontSize: '13px', display: 'inline-flex', gap: '2px' }}
+                >
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <i
+                      key={star}
+                      className={
+                        star <= Math.round(averageRating)
+                          ? 'fa-solid fa-star'
+                          : 'fa-regular fa-star'
+                      }
+                      style={{
+                        color: star <= Math.round(averageRating) ? '#FACC15' : '#D1D5DB',
+                      }}
+                    ></i>
+                  ))}
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: 700 }}>5.0</span>
-                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                  (24 đánh giá)
+                <span
+                  data-testid="product-header-rating"
+                  style={{ fontSize: '13px', fontWeight: 700 }}
+                >
+                  {averageRating.toFixed(1)}
+                </span>
+                <span
+                  data-testid="product-header-review-count"
+                  style={{ fontSize: '12px', color: 'var(--text-secondary)' }}
+                >
+                  ({totalReviews} đánh giá)
                 </span>
                 <span style={{ color: 'var(--border)' }}>|</span>
                 {isOutOfStock ? (
@@ -740,7 +955,7 @@ export const ProductDetailPage: React.FC = () => {
               {[
                 { id: 'specs', label: 'Thông số kỹ thuật chi tiết' },
                 { id: 'desc', label: 'Mô tả sản phẩm' },
-                { id: 'reviews', label: 'Đánh giá & Nhận xét (24)' },
+                { id: 'reviews', label: `Đánh giá & Nhận xét (${totalReviews})` },
                 { id: 'aiChat', label: '⚡ Hỏi Đáp AI Về Sản Phẩm Này' },
               ].map((tab) => (
                 <button
@@ -828,62 +1043,28 @@ export const ProductDetailPage: React.FC = () => {
 
             {/* Tab 3: Reviews */}
             {activeTab === 'reviews' && (
-              <div>
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '30px',
-                    alignItems: 'center',
-                    marginBottom: '24px',
-                  }}
-                >
-                  <div style={{ textAlign: 'center' }}>
-                    <div
-                      style={{
-                        fontSize: '48px',
-                        fontWeight: 900,
-                        color: 'var(--primary, #0A5BFF)',
-                      }}
-                    >
-                      5.0
-                    </div>
-                    <div style={{ color: '#FACC15', fontSize: '16px' }}>
-                      <i className="fa-solid fa-star"></i>
-                      <i className="fa-solid fa-star"></i>
-                      <i className="fa-solid fa-star"></i>
-                      <i className="fa-solid fa-star"></i>
-                      <i className="fa-solid fa-star"></i>
-                    </div>
-                    <div
-                      style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}
-                    >
-                      Dựa trên 24 đánh giá
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <strong>Trần Văn Nam</strong>
-                      <span style={{ fontSize: '11px', color: '#16A34A' }}>
-                        <i className="fa-solid fa-badge-check"></i> Đã mua hàng
-                      </span>
-                    </div>
-                    <div style={{ color: '#FACC15', fontSize: '11px', margin: '2px 0 4px 0' }}>
-                      <i className="fa-solid fa-star"></i>
-                      <i className="fa-solid fa-star"></i>
-                      <i className="fa-solid fa-star"></i>
-                      <i className="fa-solid fa-star"></i>
-                      <i className="fa-solid fa-star"></i>
-                    </div>
-                    <p style={{ fontSize: '13px', margin: 0 }}>
-                      Sản phẩm đóng gói rất cẩn thận, full box nguyên seal chính hãng. Giao hàng hỏa
-                      tốc trong 2h siêu nhanh!
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <ReviewList
+                currentUser={currentUser}
+                reviewsData={reviewsData}
+                isLoadingReviews={isLoadingReviews}
+                isErrorReviews={isErrorReviews}
+                onRetryReviews={() => {
+                  void refetchReviews();
+                }}
+                page={reviewPage}
+                onPageChange={setReviewPage}
+                eligibility={eligibilityData}
+                isLoadingEligibility={isLoadingEligibility}
+                isErrorEligibility={isErrorEligibility}
+                onRetryEligibility={() => {
+                  void refetchEligibility();
+                }}
+                onOpenCreateModal={handleOpenCreateReviewModal}
+                onOpenEditModal={handleOpenEditReviewModal}
+                onConfirmDelete={handleConfirmDeleteReview}
+                isDeleting={deleteReviewMutation.isPending}
+                deleteError={reviewDeleteError}
+              />
             )}
 
             {/* Tab 4: AI Product Q&A */}
@@ -1078,6 +1259,18 @@ export const ProductDetailPage: React.FC = () => {
           )}
         </section>
       </main>
+
+      <ReviewFormModal
+        key={`${reviewModalMode}-${editingReview?.id ?? 'new'}-${isReviewModalOpen ? 'open' : 'closed'}`}
+        isOpen={isReviewModalOpen}
+        mode={reviewModalMode}
+        productName={product.name}
+        existingReview={editingReview}
+        isSubmitting={createReviewMutation.isPending || updateReviewMutation.isPending}
+        serverError={reviewSubmitError}
+        onClose={handleCloseReviewModal}
+        onSubmit={handleSubmitReviewForm}
+      />
 
       <StorefrontFooter />
     </div>
