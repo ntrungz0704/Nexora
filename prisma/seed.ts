@@ -173,7 +173,7 @@ async function main(): Promise<void> {
     {
       name: 'Apple',
       slug: 'apple',
-      logoUrl: '/assets/images/brands/apple.png',
+      logoUrl: '/assets/images/brands/apple.svg',
       description: 'Hệ sinh thái Mac, MacBook cao cấp dùng chip Apple Silicon.',
     },
     {

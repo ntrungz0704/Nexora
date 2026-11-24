@@ -3535,12 +3535,12 @@ export const AdminDashboardPage: React.FC = () => {
                         setBrandSearch(e.target.value);
                         setBrandPage(1);
                       }}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
+                      className="w-full h-10 px-3 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
                     />
                   </div>
                   <button
                     type="button"
-                    className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer admin-input-control"
+                    className="h-10 px-4 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer admin-input-control"
                   >
                     <i className="fa-solid fa-magnifying-glass text-gray-500"></i>
                     <span>Tìm kiếm</span>
@@ -3551,61 +3551,79 @@ export const AdminDashboardPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head">
-                        <th className="py-3 px-3 w-12 text-center">STT</th>
-                        <th className="py-3 px-3 text-center">Logo</th>
-                        <th className="py-3 px-3">Tên thương hiệu</th>
-                        <th className="py-3 px-3">Slug</th>
-                        <th className="py-3 px-3">Mô tả</th>
-                        <th className="py-3 px-3 text-center">Số sản phẩm</th>
-                        <th className="py-3 px-3 text-center">Trạng thái</th>
-                        <th className="py-3 px-3 text-right">Hành động</th>
+                      <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head h-12">
+                        <th className="py-3 px-3 w-12 text-center whitespace-nowrap">STT</th>
+                        <th className="py-3 px-3 w-32 text-center whitespace-nowrap">Logo</th>
+                        <th className="py-3 px-3 whitespace-nowrap">Tên thương hiệu</th>
+                        <th className="py-3 px-3 whitespace-nowrap">Slug</th>
+                        <th className="py-3 px-3 min-w-[200px]">Mô tả</th>
+                        <th className="py-3 px-3 text-center whitespace-nowrap">Số sản phẩm</th>
+                        <th className="py-3 px-3 text-center whitespace-nowrap">Trạng thái</th>
+                        <th className="py-3 px-3 text-right whitespace-nowrap">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
                       {paginatedBrands.map((b, idx) => (
                         <tr
                           key={b.id}
-                          className="hover:bg-slate-50/60 transition-colors admin-table-row"
+                          className="hover:bg-slate-50/60 transition-colors admin-table-row h-16"
                         >
-                          <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">
+                          <td className="py-2.5 px-3 text-center text-gray-400 font-semibold align-middle whitespace-nowrap">
                             {(brandPage - 1) * 10 + idx + 1}
                           </td>
-                          <td className="py-3.5 px-3 text-center">
+                          <td className="py-2.5 px-3 text-center align-middle">
                             {b.logoUrl ? (
-                              <div className="inline-flex items-center justify-center bg-white rounded-lg px-2.5 py-1.5 border border-[#E5E7EB] dark:border-[#334155]">
+                              <div className="w-24 h-10 mx-auto flex items-center justify-center bg-white rounded-lg p-1.5 border border-[#E5E7EB] dark:border-[#334155] shadow-xs overflow-hidden">
                                 <img
                                   src={normalizeImgUrl(b.logoUrl)}
                                   alt={b.name}
-                                  className="h-5 max-w-[76px] object-contain"
+                                  className="max-h-7 max-w-[80px] w-auto h-auto object-contain"
+                                  onError={(e) => {
+                                    const target = e.currentTarget;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent && !parent.querySelector('.brand-fallback')) {
+                                      const fallback = document.createElement('span');
+                                      fallback.className = 'brand-fallback font-bold text-xs text-blue-600 tracking-wider';
+                                      fallback.textContent = b.name.slice(0, 4).toUpperCase();
+                                      parent.appendChild(fallback);
+                                    }
+                                  }}
                                 />
                               </div>
                             ) : (
-                              <span className="text-gray-400 italic text-[11px] admin-text-muted">
-                                Không có logo
-                              </span>
+                              <div className="w-24 h-10 mx-auto flex items-center justify-center bg-gray-50 dark:bg-slate-800 rounded-lg border border-dashed border-gray-200 dark:border-slate-700">
+                                <span className="text-gray-400 font-semibold text-[11px] admin-text-muted">
+                                  {b.name.slice(0, 4).toUpperCase()}
+                                </span>
+                              </div>
                             )}
                           </td>
-                          <td className="py-3.5 px-3 font-bold text-gray-900 admin-text-title">
+                          <td className="py-2.5 px-3 font-bold text-gray-900 admin-text-title whitespace-nowrap align-middle">
                             {b.name}
                           </td>
-                          <td className="py-3.5 px-3 font-mono text-gray-500 admin-text-muted">
+                          <td className="py-2.5 px-3 font-mono text-gray-500 admin-text-muted whitespace-nowrap align-middle">
                             {b.slug}
                           </td>
-                          <td className="py-3.5 px-3 text-gray-500 text-[11px] max-w-sm truncate admin-text-muted">
-                            {b.description ||
-                              `Thương hiệu công nghệ chính hãng ${b.name} phân phối tại Nexora.`}
+                          <td className="py-2.5 px-3 text-gray-500 text-[11px] max-w-xs align-middle">
+                            <span
+                              className="block truncate admin-text-muted"
+                              title={b.description || `Thương hiệu công nghệ chính hãng ${b.name} phân phối tại Nexora.`}
+                            >
+                              {b.description ||
+                                `Thương hiệu công nghệ chính hãng ${b.name} phân phối tại Nexora.`}
+                            </span>
                           </td>
-                          <td className="py-3.5 px-3 text-center">
-                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30">
+                          <td className="py-2.5 px-3 text-center whitespace-nowrap align-middle">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30 whitespace-nowrap">
                               {b._count?.products ?? 0} sản phẩm
                             </span>
                           </td>
-                          <td className="py-3.5 px-3 text-center">
+                          <td className="py-2.5 px-3 text-center whitespace-nowrap align-middle">
                             <button
                               type="button"
                               onClick={() => handleToggleBrandStatus(b.id, b.isActive !== false)}
-                              className="text-[11px] font-bold text-emerald-600 flex items-center justify-center gap-1 mx-auto cursor-pointer"
+                              className="text-[11px] font-bold text-emerald-600 inline-flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                               title="Bấm để bật/tắt hoạt động"
                             >
                               <i
@@ -3626,7 +3644,7 @@ export const AdminDashboardPage: React.FC = () => {
                               </span>
                             </button>
                           </td>
-                          <td className="py-3.5 px-3 text-right">
+                          <td className="py-2.5 px-3 text-right whitespace-nowrap align-middle">
                             <button
                               onClick={() => handleOpenEditBrand(b)}
                               className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200 cursor-pointer admin-input-control"
