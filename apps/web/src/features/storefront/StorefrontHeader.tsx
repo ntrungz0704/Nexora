@@ -688,7 +688,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                 </Link>
               </li>
               <li className="desktop-only-link">
-                <Link to="/search?cat=man-hinh" className={isMonitorActive ? 'is-active' : ''}>
+                <Link to="/search?cat=monitor" className={isMonitorActive ? 'is-active' : ''}>
                   Màn hình
                 </Link>
               </li>
@@ -709,7 +709,7 @@ export const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               </li>
               <li className="desktop-only-link">
                 <Link
-                  to="/search?cat=thiet-bi-van-phong"
+                  to="/search?cat=office-equipment"
                   className={isOfficeActive ? 'is-active' : ''}
                 >
                   Thiết bị văn phòng

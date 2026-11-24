@@ -59,16 +59,27 @@ export class CatalogRepository {
         'pc-dong-bo': ['pc'],
         'pc-nexora': ['pc'],
         'pc-techpilot': ['pc'],
-        laptop: ['laptop'],
+        laptop: ['laptop', 'laptop-gaming'],
+        'laptop-gaming': ['laptop-gaming'],
         'man-hinh': ['monitor'],
         monitor: ['monitor'],
       };
       const cleanSlug = options.categorySlug.toLowerCase().replace(/\s+/g, '-');
       if (VIRTUAL_GROUPS[cleanSlug]) {
-        where.category = { slug: { in: VIRTUAL_GROUPS[cleanSlug] } };
+        where.category = {
+          slug: { in: VIRTUAL_GROUPS[cleanSlug] },
+          isActive: true,
+        };
       } else {
-        where.category = { slug: options.categorySlug };
+        where.category = {
+          slug: options.categorySlug,
+          isActive: true,
+        };
       }
+    } else {
+      where.category = {
+        isActive: true,
+      };
     }
 
     if (options.brandSlug) {

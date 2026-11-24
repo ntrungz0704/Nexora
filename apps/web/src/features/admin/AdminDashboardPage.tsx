@@ -3290,12 +3290,12 @@ export const AdminDashboardPage: React.FC = () => {
                         setCategorySearch(e.target.value);
                         setCategoryPage(1);
                       }}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
+                      className="w-full h-10 px-3 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 font-medium admin-input-control"
                     />
                   </div>
                   <button
                     type="button"
-                    className="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer admin-input-control"
+                    className="h-10 px-4 bg-white hover:bg-gray-100 text-gray-700 font-bold rounded-lg border border-gray-200 shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer admin-input-control"
                   >
                     <i className="fa-solid fa-magnifying-glass text-gray-500"></i>
                     <span>Tìm kiếm</span>
@@ -3306,7 +3306,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head">
+                      <tr className="h-12 border-b border-gray-200 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50 admin-table-head whitespace-nowrap">
                         <th className="py-3 px-3 w-12 text-center">STT</th>
                         <th className="py-3 px-3">Tên danh mục</th>
                         <th className="py-3 px-3">Slug</th>
@@ -3321,22 +3321,22 @@ export const AdminDashboardPage: React.FC = () => {
                       {paginatedCategories.map((c, idx) => (
                         <tr
                           key={c.id}
-                          className="hover:bg-slate-50/60 transition-colors admin-table-row"
+                          className="h-14 hover:bg-slate-50/60 transition-colors admin-table-row"
                         >
-                          <td className="py-3.5 px-3 text-center text-gray-400 font-semibold">
+                          <td className="py-3 px-3 text-center text-gray-400 font-semibold">
                             {(categoryPage - 1) * 10 + idx + 1}
                           </td>
-                          <td className="py-3.5 px-3 font-bold text-gray-900 admin-text-title">
+                          <td className="py-3 px-3 font-bold text-gray-900 admin-text-title whitespace-nowrap">
                             {c.name}
                           </td>
-                          <td className="py-3.5 px-3 font-mono text-gray-500 admin-text-muted">
+                          <td className="py-3 px-3 font-mono text-gray-500 admin-text-muted whitespace-nowrap">
                             {c.slug}
                           </td>
-                          <td className="py-3.5 px-3 text-center text-gray-600 font-semibold admin-text-muted">
+                          <td className="py-3 px-3 text-center text-gray-600 font-semibold admin-text-muted">
                             {c.sortOrder || 0}
                           </td>
-                          <td className="py-3.5 px-3 text-center">
-                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
+                          <td className="py-3 px-3 text-center">
+                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 whitespace-nowrap inline-flex items-center justify-center">
                               {(
                                 c.productsCount ??
                                 products.filter((p) => p.categoryId === c.id).length
@@ -3344,8 +3344,8 @@ export const AdminDashboardPage: React.FC = () => {
                               mẫu
                             </span>
                           </td>
-                          <td className="py-3.5 px-3 text-center">
-                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30">
+                          <td className="py-3 px-3 text-center">
+                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30 whitespace-nowrap inline-flex items-center justify-center">
                               {(
                                 c.totalStock ??
                                 products
@@ -3355,8 +3355,8 @@ export const AdminDashboardPage: React.FC = () => {
                               đơn vị
                             </span>
                           </td>
-                          <td className="py-3.5 px-3 text-center">
-                            <div className="flex items-center justify-center gap-1.5">
+                          <td className="py-3 px-3 text-center">
+                            <div className="flex items-center justify-center gap-2 whitespace-nowrap">
                               <button
                                 type="button"
                                 onClick={() =>
@@ -3384,10 +3384,10 @@ export const AdminDashboardPage: React.FC = () => {
                               </span>
                             </div>
                           </td>
-                          <td className="py-3.5 px-3 text-right">
+                          <td className="py-3 px-3 text-right">
                             <button
                               onClick={() => handleOpenEditCategory(c)}
-                              className="px-2.5 py-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 border border-gray-200 cursor-pointer admin-input-control"
+                              className="h-8 px-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1.5 border border-gray-200 cursor-pointer admin-input-control whitespace-nowrap"
                             >
                               <i className="fa-regular fa-pen-to-square"></i>
                               <span>Sửa</span>

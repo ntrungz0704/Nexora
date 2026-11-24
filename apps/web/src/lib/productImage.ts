@@ -30,8 +30,93 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
   const slug = (product.slug || '').toLowerCase();
   const catSlug = (product.category?.slug || '').toLowerCase();
   const searchStr = `${name} ${slug} ${catSlug}`;
+  const isLaptop =
+    searchStr.includes('laptop') ||
+    catSlug === 'laptop' ||
+    catSlug === 'laptop-gaming' ||
+    slug.startsWith('lap-') ||
+    (product.sku || '').toLowerCase().startsWith('lap-');
 
-  // 1. Specific High-Res Product Match
+  // 1. Laptop Dedicated High-Res Matching (CRITICAL: Never fall through to desktop PC cases)
+  if (isLaptop) {
+    // Apple MacBooks
+    if (searchStr.includes('macbook-air') || (searchStr.includes('macbook') && searchStr.includes('air'))) {
+      return '/assets/images/review/unlinked/macbook-air.jpg';
+    }
+    if (searchStr.includes('macbook') || searchStr.includes('apple') || slug.includes('mbp')) {
+      return '/assets/images/review/unlinked/macbook-pro.jpg';
+    }
+
+    // MSI Laptops (Creator, Vector, Katana, Raider, Modern, Stealth, Cyborg)
+    if (searchStr.includes('msi') || slug.includes('msi')) {
+      return '/assets/images/review/unlinked/msi-vector.jpg';
+    }
+
+    // ASUS Laptops
+    if (searchStr.includes('vivobook') || searchStr.includes('zenbook')) {
+      return '/assets/images/review/unlinked/asus-vivobook.jpg';
+    }
+    if (searchStr.includes('zephyrus') || searchStr.includes('rog') || searchStr.includes('strix')) {
+      return '/assets/images/review/unlinked/rog-zephyrus.jpg';
+    }
+    if (searchStr.includes('asus') && (searchStr.includes('tuf') || searchStr.includes('gaming'))) {
+      return '/assets/images/review/unlinked/rog-zephyrus.jpg';
+    }
+    if (searchStr.includes('asus')) {
+      return '/assets/images/review/unlinked/asus-vivobook.jpg';
+    }
+
+    // Dell Laptops
+    if (searchStr.includes('xps')) {
+      return '/assets/images/review/unlinked/dell-xps-13.jpg';
+    }
+    if (searchStr.includes('dell g15') || searchStr.includes('dell g16') || searchStr.includes('g15') || searchStr.includes('g16')) {
+      return '/assets/images/review/unlinked/dell-g16.jpg';
+    }
+    if (searchStr.includes('dell') || searchStr.includes('latitude') || searchStr.includes('inspiron')) {
+      return '/assets/images/review/unlinked/dell-inspiron.jpg';
+    }
+
+    // Lenovo Laptops
+    if (searchStr.includes('thinkpad')) {
+      return '/assets/images/review/unlinked/lenovo-thinkpad.jpg';
+    }
+    if (searchStr.includes('legion')) {
+      return '/assets/images/review/unlinked/lenovo-legion.jpg';
+    }
+    if (searchStr.includes('ideapad') || searchStr.includes('yoga') || searchStr.includes('lenovo')) {
+      return '/assets/images/review/unlinked/lenovo-ideapad.jpg';
+    }
+
+    // Acer Laptops
+    if (searchStr.includes('predator') || searchStr.includes('nitro')) {
+      return '/assets/images/review/unlinked/acer-predator.jpg';
+    }
+    if (searchStr.includes('aspire') || searchStr.includes('swift') || searchStr.includes('acer')) {
+      return '/assets/images/review/unlinked/acer-aspire.jpg';
+    }
+
+    // HP Laptops
+    if (searchStr.includes('omen')) {
+      return '/assets/images/review/unlinked/hp-omen.jpg';
+    }
+    if (searchStr.includes('pavilion') || searchStr.includes('victus') || searchStr.includes('envy') || searchStr.includes('hp')) {
+      return '/assets/images/review/unlinked/hp-pavilion.jpg';
+    }
+
+    // LG Laptops
+    if (searchStr.includes('gram') || searchStr.includes('lg')) {
+      return '/assets/images/review/unlinked/lg-gram.jpg';
+    }
+
+    // Fallback based on Gaming vs Office laptop
+    if (searchStr.includes('gaming') || searchStr.includes('rtx') || searchStr.includes('gtx')) {
+      return '/assets/images/review/unlinked/laptop-gaming.png';
+    }
+    return '/assets/images/review/unlinked/laptop-van-phong.png';
+  }
+
+  // 2. Specific High-Res Product Match (Non-Laptop)
   if (
     searchStr.includes('superlight') ||
     (searchStr.includes('chuột') && searchStr.includes('logitech'))
@@ -72,18 +157,6 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
   }
   if (searchStr.includes('990 pro') || searchStr.includes('ssd-samsung')) {
     return '/assets/images/review/unlinked/ssd-samsung.jpg';
-  }
-  if (searchStr.includes('zephyrus') || searchStr.includes('rog')) {
-    return '/assets/images/review/unlinked/rog-zephyrus.jpg';
-  }
-  if (searchStr.includes('macbook')) {
-    return '/assets/images/review/unlinked/macbook-pro.jpg';
-  }
-  if (searchStr.includes('nitro') || searchStr.includes('predator')) {
-    return '/assets/images/review/unlinked/acer-predator.jpg';
-  }
-  if (searchStr.includes('legion') || searchStr.includes('lenovo')) {
-    return '/assets/images/review/unlinked/lenovo-legion.jpg';
   }
   if (searchStr.includes('ultra 4090') || searchStr.includes('pc-gaming')) {
     return '/assets/images/review/unlinked/pc-advanced.jpg';
