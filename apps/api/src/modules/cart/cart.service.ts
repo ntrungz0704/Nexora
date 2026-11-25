@@ -1,38 +1,163 @@
-import type { PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { getPrismaClient } from '../../common/prisma.js';
 import { AppError } from '../../common/errors.js';
 import type { CartSummaryDto, MergeCartResultDto } from '@nexora/shared';
 
+type CartProductEligibility = {
+  id: number;
+  name: string;
+  status: string;
+  stockQuantity: number;
+  brandId: number | null;
+  category: { id: number; name: string; isActive: boolean } | null;
+  brand: { id: number; name: string; isActive: boolean } | null;
+};
+
 export class CartService {
   constructor(private readonly prisma: PrismaClient = getPrismaClient()) {}
 
+  private assertProductEligibleForCart(
+    product: CartProductEligibility | null,
+  ): CartProductEligibility {
+    if (!product) {
+      throw new AppError(404, 'PRODUCT_NOT_AVAILABLE', 'Sản phẩm không tồn tại.');
+    }
+
+    if (product.status !== 'ACTIVE') {
+      throw new AppError(
+        400,
+        'PRODUCT_UNAVAILABLE',
+        product.status === 'INACTIVE'
+          ? `Sản phẩm "${product.name}" hiện đã ngừng kinh doanh hoặc tạm ẩn.`
+          : `Sản phẩm "${product.name}" hiện không khả dụng.`,
+      );
+    }
+
+    if (!product.category || !product.category.isActive) {
+      throw new AppError(
+        400,
+        'PRODUCT_UNAVAILABLE',
+        `Danh mục của sản phẩm "${product.name}" hiện đang tạm ẩn.`,
+      );
+    }
+
+    if (product.brandId !== null && (!product.brand || !product.brand.isActive)) {
+      throw new AppError(
+        400,
+        'PRODUCT_UNAVAILABLE',
+        `Thương hiệu của sản phẩm "${product.name}" hiện đang tạm ẩn.`,
+      );
+    }
+
+    return product;
+  }
+
+  private getMergeIneligibilityReason(
+    product: CartProductEligibility | null | undefined,
+    fallbackProductId: number,
+  ): string | null {
+    if (!product || product.status !== 'ACTIVE') {
+      return `Sản phẩm "${product?.name || `ID ${fallbackProductId}`}" đã ngừng kinh doanh, không thể thêm vào giỏ hàng.`;
+    }
+    if (!product.category || !product.category.isActive) {
+      return `Danh mục của sản phẩm "${product.name}" hiện đang tạm ẩn, không thể thêm vào giỏ hàng.`;
+    }
+    if (product.brandId !== null && (!product.brand || !product.brand.isActive)) {
+      return `Thương hiệu của sản phẩm "${product.name}" hiện đang tạm ẩn, không thể thêm vào giỏ hàng.`;
+    }
+    if (product.stockQuantity <= 0) {
+      return `Sản phẩm "${product.name}" đã hết hàng, không thể thêm vào giỏ hàng.`;
+    }
+    return null;
+  }
+
+  private async lockProductDependenciesShare(tx: Prisma.TransactionClient, productId: number) {
+    await tx.$queryRaw`
+      SELECT p.id
+      FROM products p
+      INNER JOIN categories c ON c.id = p.category_id
+      LEFT JOIN brands b ON b.id = p.brand_id
+      WHERE p.id = ${productId}
+      FOR SHARE
+    `;
+  }
+
+  private isCallerCartOwner(
+    cart: { userId: number | null; guestSessionId: string | null },
+    userId?: number,
+    guestSessionId?: string,
+  ): boolean {
+    if (userId !== undefined) {
+      return cart.userId !== null && Number(cart.userId) === Number(userId);
+    }
+    const cleanGuest = guestSessionId?.trim();
+    return Boolean(cleanGuest && cart.userId === null && cart.guestSessionId === cleanGuest);
+  }
+
+  private async assertRequestedCartOwned(
+    requestedCartId: bigint | undefined,
+    userId?: number,
+    guestSessionId?: string,
+  ): Promise<void> {
+    if (requestedCartId === undefined) return;
+    const targetCart = await this.prisma.cart.findUnique({
+      where: { id: requestedCartId },
+      select: { id: true, userId: true, guestSessionId: true },
+    });
+    if (!targetCart || !this.isCallerCartOwner(targetCart, userId, guestSessionId)) {
+      throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền thao tác trên giỏ hàng này.');
+    }
+  }
+
   private async getOrCreateCart(userId?: number, guestSessionId?: string) {
-    if (userId) {
+    if (userId !== undefined) {
       const userExists = await this.prisma.user.findUnique({
         where: { id: userId },
         select: { id: true },
       });
-      if (userExists) {
-        let cart = await this.prisma.cart.findUnique({
-          where: { userId },
-        });
-        if (!cart) {
+      if (!userExists) {
+        throw new AppError(401, 'UNAUTHORIZED', 'Tài khoản người dùng không hợp lệ.');
+      }
+      let cart = await this.prisma.cart.findUnique({
+        where: { userId },
+      });
+      if (!cart) {
+        try {
           cart = await this.prisma.cart.create({
             data: { userId },
           });
+        } catch (err: unknown) {
+          const code = (err as { code?: string })?.code;
+          if (code === 'P2002') {
+            cart = await this.prisma.cart.findUniqueOrThrow({ where: { userId } });
+          } else {
+            throw err;
+          }
         }
-        return cart;
       }
+      return cart;
     }
 
-    if (guestSessionId) {
+    const cleanGuest = guestSessionId?.trim();
+    if (cleanGuest) {
       let cart = await this.prisma.cart.findUnique({
-        where: { guestSessionId },
+        where: { guestSessionId: cleanGuest },
       });
       if (!cart) {
-        cart = await this.prisma.cart.create({
-          data: { guestSessionId },
-        });
+        try {
+          cart = await this.prisma.cart.create({
+            data: { guestSessionId: cleanGuest },
+          });
+        } catch (err: unknown) {
+          const code = (err as { code?: string })?.code;
+          if (code === 'P2002') {
+            cart = await this.prisma.cart.findUniqueOrThrow({
+              where: { guestSessionId: cleanGuest },
+            });
+          } else {
+            throw err;
+          }
+        }
       }
       return cart;
     }
@@ -116,55 +241,119 @@ export class CartService {
     guestSessionId?: string;
     productId: number;
     quantity?: number;
+    requestedCartId?: bigint;
   }): Promise<CartSummaryDto> {
-    const qty = Math.max(1, params.quantity ?? 1);
-    const cart = await this.getOrCreateCart(params.userId, params.guestSessionId);
+    if (!Number.isInteger(params.productId) || params.productId <= 0) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'Mã sản phẩm không hợp lệ.');
+    }
 
-    const product = await this.prisma.product.findUnique({
-      where: { id: params.productId },
-    });
-
-    if (!product || product.status !== 'ACTIVE') {
+    const qty = params.quantity === undefined ? 1 : params.quantity;
+    if (!Number.isInteger(qty) || qty <= 0) {
       throw new AppError(
-        404,
-        'PRODUCT_NOT_AVAILABLE',
-        'Sản phẩm không tồn tại hoặc đã ngừng kinh doanh.',
+        400,
+        'INVALID_QUANTITY',
+        'Số lượng sản phẩm phải là số nguyên dương lớn hơn 0.',
       );
     }
 
-    if (product.stockQuantity < qty) {
+    const cleanGuest = params.guestSessionId?.trim() || undefined;
+    if (params.userId === undefined && !cleanGuest) {
+      throw new AppError(
+        400,
+        'CART_IDENTIFIER_REQUIRED',
+        'Yêu cầu định danh giỏ hàng (người dùng hoặc phiên khách).',
+      );
+    }
+
+    if (params.userId !== undefined) {
+      const userExists = await this.prisma.user.findUnique({
+        where: { id: params.userId },
+        select: { id: true },
+      });
+      if (!userExists) {
+        throw new AppError(401, 'UNAUTHORIZED', 'Tài khoản người dùng không hợp lệ.');
+      }
+    }
+
+    await this.assertRequestedCartOwned(params.requestedCartId, params.userId, cleanGuest);
+
+    // Fast fail eligibility/stock pre-check before creating an empty cart shell
+    const precheckProduct = await this.prisma.product.findUnique({
+      where: { id: params.productId },
+      include: {
+        category: { select: { id: true, name: true, isActive: true } },
+        brand: { select: { id: true, name: true, isActive: true } },
+      },
+    });
+    const validatedPrecheck = this.assertProductEligibleForCart(precheckProduct);
+    if (validatedPrecheck.stockQuantity <= 0 || qty > validatedPrecheck.stockQuantity) {
       throw new AppError(
         400,
         'INSUFFICIENT_STOCK',
-        `Số lượng trong kho không đủ (chỉ còn ${product.stockQuantity} sản phẩm).`,
+        `Số lượng trong kho không đủ (chỉ còn ${validatedPrecheck.stockQuantity} sản phẩm).`,
       );
     }
 
-    const existingItem = await this.prisma.cartItem.findUnique({
-      where: {
-        cartId_productId: {
-          cartId: cart.id,
-          productId: params.productId,
-        },
-      },
-    });
-
-    if (existingItem) {
-      await this.prisma.cartItem.update({
-        where: { id: existingItem.id },
-        data: { quantity: existingItem.quantity + qty },
-      });
-    } else {
-      await this.prisma.cartItem.create({
-        data: {
-          cartId: cart.id,
-          productId: params.productId,
-          quantity: qty,
-        },
-      });
+    const cart = await this.getOrCreateCart(params.userId, cleanGuest);
+    if (params.requestedCartId !== undefined && cart.id !== params.requestedCartId) {
+      throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền thao tác trên giỏ hàng này.');
     }
 
-    return this.getCartSummary(params.userId, params.guestSessionId);
+    await this.prisma.$transaction(async (tx) => {
+      const lockedCart = await tx.$queryRaw<Array<{ id: bigint }>>`
+        SELECT id FROM carts WHERE id = ${cart.id} FOR UPDATE
+      `;
+      if (!lockedCart || lockedCart.length === 0) {
+        throw new AppError(409, 'CART_MODIFIED', 'Giỏ hàng đã thay đổi, vui lòng thử lại.');
+      }
+
+      // Lock product + category + brand in shared mode BEFORE snapshot read so concurrent admin deactivation is visible
+      await this.lockProductDependenciesShare(tx, params.productId);
+
+      const product = await tx.product.findUnique({
+        where: { id: params.productId },
+        include: {
+          category: { select: { id: true, name: true, isActive: true } },
+          brand: { select: { id: true, name: true, isActive: true } },
+        },
+      });
+      const eligibleProduct = this.assertProductEligibleForCart(product);
+
+      const existingItem = await tx.cartItem.findUnique({
+        where: {
+          cartId_productId: {
+            cartId: cart.id,
+            productId: params.productId,
+          },
+        },
+      });
+
+      const desiredQuantity = (existingItem?.quantity ?? 0) + qty;
+      if (eligibleProduct.stockQuantity <= 0 || desiredQuantity > eligibleProduct.stockQuantity) {
+        throw new AppError(
+          400,
+          'INSUFFICIENT_STOCK',
+          `Số lượng trong kho không đủ (chỉ còn ${eligibleProduct.stockQuantity} sản phẩm).`,
+        );
+      }
+
+      if (existingItem) {
+        await tx.cartItem.update({
+          where: { id: existingItem.id },
+          data: { quantity: desiredQuantity },
+        });
+      } else {
+        await tx.cartItem.create({
+          data: {
+            cartId: cart.id,
+            productId: params.productId,
+            quantity: desiredQuantity,
+          },
+        });
+      }
+    });
+
+    return this.getCartSummary(params.userId, cleanGuest);
   }
 
   async updateItem(params: {
@@ -172,19 +361,99 @@ export class CartService {
     quantity: number;
     userId?: number;
     guestSessionId?: string;
+    requestedCartId?: bigint;
   }): Promise<CartSummaryDto> {
-    if (params.quantity <= 0) {
-      await this.prisma.cartItem.delete({
-        where: { id: params.cartItemId },
+    if (!Number.isInteger(params.quantity) || params.quantity <= 0) {
+      throw new AppError(
+        400,
+        'INVALID_QUANTITY',
+        'Số lượng sản phẩm phải là số nguyên dương lớn hơn 0.',
+      );
+    }
+
+    const cleanGuest = params.guestSessionId?.trim() || undefined;
+    if (params.userId === undefined && !cleanGuest) {
+      throw new AppError(
+        401,
+        'UNAUTHORIZED',
+        'Vui lòng đăng nhập hoặc cung cấp phiên giỏ hàng hợp lệ.',
+      );
+    }
+
+    await this.assertRequestedCartOwned(params.requestedCartId, params.userId, cleanGuest);
+
+    await this.prisma.$transaction(async (tx) => {
+      const lockedRows = await tx.$queryRaw<
+        Array<{
+          id: bigint;
+          cart_id: bigint;
+          product_id: number;
+          quantity: number;
+          user_id: number | null;
+          guest_session_id: string | null;
+        }>
+      >`
+        SELECT ci.id, ci.cart_id, ci.product_id, ci.quantity, c.user_id, c.guest_session_id
+        FROM cart_items ci
+        INNER JOIN carts c ON c.id = ci.cart_id
+        WHERE ci.id = ${params.cartItemId}
+        FOR UPDATE
+      `;
+
+      if (!lockedRows || lockedRows.length === 0) {
+        throw new AppError(404, 'CART_ITEM_NOT_FOUND', 'Không tìm thấy sản phẩm trong giỏ hàng.');
+      }
+
+      const row = lockedRows[0]!;
+      const rowCartId = BigInt(row.cart_id);
+      if (params.requestedCartId !== undefined && rowCartId !== params.requestedCartId) {
+        throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền thao tác trên giỏ hàng này.');
+      }
+
+      if (
+        !this.isCallerCartOwner(
+          {
+            userId: row.user_id !== null ? Number(row.user_id) : null,
+            guestSessionId: row.guest_session_id,
+          },
+          params.userId,
+          cleanGuest,
+        )
+      ) {
+        throw new AppError(
+          403,
+          'FORBIDDEN',
+          'Bạn không có quyền chỉnh sửa sản phẩm trong giỏ hàng này.',
+        );
+      }
+
+      const productId = Number(row.product_id);
+      await this.lockProductDependenciesShare(tx, productId);
+
+      const product = await tx.product.findUnique({
+        where: { id: productId },
+        include: {
+          category: { select: { id: true, name: true, isActive: true } },
+          brand: { select: { id: true, name: true, isActive: true } },
+        },
       });
-    } else {
-      await this.prisma.cartItem.update({
+      const eligibleProduct = this.assertProductEligibleForCart(product);
+
+      if (eligibleProduct.stockQuantity <= 0 || params.quantity > eligibleProduct.stockQuantity) {
+        throw new AppError(
+          400,
+          'INSUFFICIENT_STOCK',
+          `Số lượng trong kho không đủ (chỉ còn ${eligibleProduct.stockQuantity} sản phẩm).`,
+        );
+      }
+
+      await tx.cartItem.update({
         where: { id: params.cartItemId },
         data: { quantity: params.quantity },
       });
-    }
+    });
 
-    return this.getCartSummary(params.userId, params.guestSessionId);
+    return this.getCartSummary(params.userId, cleanGuest);
   }
 
   async removeItem(params: {
@@ -245,22 +514,41 @@ export class CartService {
 
       const guestCartId = firstLockedCart.id;
 
-      // 2. Fetch the guest cart with its items and products
+      // 2. Exclusively lock target user record & existing user cart BEFORE reading products to maintain deadlock-free lock order
+      await tx.$queryRaw<Array<{ id: number }>>`
+        SELECT id FROM users WHERE id = ${userId} FOR UPDATE
+      `;
+      await tx.$queryRaw<Array<{ id: bigint }>>`
+        SELECT id FROM carts WHERE user_id = ${userId} FOR UPDATE
+      `;
+
+      // Lock product, category, and brand rows of guest items in shared mode so concurrent admin deactivations are observed cleanly
+      await tx.$queryRaw`
+        SELECT p.id
+        FROM products p
+        INNER JOIN cart_items ci ON ci.product_id = p.id
+        INNER JOIN categories c ON c.id = p.category_id
+        LEFT JOIN brands b ON b.id = p.brand_id
+        WHERE ci.cart_id = ${guestCartId}
+        FOR SHARE
+      `;
+
+      // 3. Fetch the guest cart with current product, category, and brand visibility from DB
       const guestCart = await tx.cart.findUnique({
         where: { id: guestCartId },
         include: {
           items: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  category: { select: { id: true, name: true, isActive: true } },
+                  brand: { select: { id: true, name: true, isActive: true } },
+                },
+              },
             },
           },
         },
       });
-
-      // 3. Exclusively lock the target user record using tx.$queryRaw FOR UPDATE
-      await tx.$queryRaw<Array<{ id: number }>>`
-        SELECT id FROM users WHERE id = ${userId} FOR UPDATE
-      `;
 
       // Find or create user cart
       let userCart = await tx.cart.findUnique({
@@ -300,19 +588,17 @@ export class CartService {
       }
 
       for (const guestItem of guestCart.items) {
-        const product = guestItem.product;
-
-        // Scenario 4: Inactive product
-        if (!product || product.status !== 'ACTIVE') {
-          warnings.push(
-            `Sản phẩm "${product?.name || `ID ${guestItem.productId}`}" đã ngừng kinh doanh, không thể thêm vào giỏ hàng.`,
-          );
+        if (guestItem.quantity <= 0) {
           continue;
         }
 
-        // Scenario 3: Out of stock product
-        if (product.stockQuantity <= 0) {
-          warnings.push(`Sản phẩm "${product.name}" đã hết hàng, không thể thêm vào giỏ hàng.`);
+        const product = guestItem.product;
+        const skipReason = this.getMergeIneligibilityReason(product, guestItem.productId);
+        if (skipReason || !product) {
+          warnings.push(
+            skipReason ||
+              `Sản phẩm ID ${guestItem.productId} không khả dụng, không thể thêm vào giỏ hàng.`,
+          );
           continue;
         }
 

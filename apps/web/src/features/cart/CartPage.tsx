@@ -8,7 +8,13 @@ import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import { getProductImage } from '../../lib/productImage';
-import type { AuthUser } from '@nexora/shared';
+import {
+  clampQuantity,
+  extractQuantityErrorMessage,
+  normalizeStockLimit,
+  resolveCommittedQuantity,
+} from '../../lib/quantity';
+import type { AuthUser, CartItemDto } from '@nexora/shared';
 
 export const CartPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -19,9 +25,13 @@ export const CartPage: React.FC = () => {
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [draftQuantities, setDraftQuantities] = useState<Record<string, string>>({});
+  const [pendingItemIds, setPendingItemIds] = useState<Record<string, boolean>>({});
+  const [cartActionError, setCartActionError] = useState<string | null>(null);
 
   const passiveAttemptedRef = useRef(false);
   const isMountedRef = useRef(true);
+  const inFlightTargetRef = useRef<Record<string, number>>({});
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -72,10 +82,106 @@ export const CartPage: React.FC = () => {
   const updateQuantityMutation = useMutation({
     mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
       cartService.updateItem(id, quantity),
-    onSuccess: () => {
+    onMutate: ({ id, quantity }) => {
+      inFlightTargetRef.current[id] = quantity;
+      setPendingItemIds((prev) => ({ ...prev, [id]: true }));
+      setCartActionError(null);
+    },
+    onSuccess: (updatedCart, { id }) => {
+      delete inFlightTargetRef.current[id];
+      setPendingItemIds((prev) => {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setDraftQuantities((prev) => {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      if (updatedCart) {
+        queryClient.setQueryData(['cart'], updatedCart);
+      }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
+    onError: (err: unknown, { id }) => {
+      delete inFlightTargetRef.current[id];
+      setPendingItemIds((prev) => {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      // Revert back to last server-confirmed quantity on API failure
+      setDraftQuantities((prev) => {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      const msg = extractQuantityErrorMessage(err, 'Không thể cập nhật số lượng sản phẩm.');
+      setCartActionError(msg);
+      showToast(msg);
+    },
   });
+
+  const clearItemDraft = (itemId: string) => {
+    setDraftQuantities((prev) => {
+      if (!(itemId in prev)) return prev;
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
+  };
+
+  const commitCartItemQuantity = (item: CartItemDto, rawDraft: string) => {
+    const stockLimit = normalizeStockLimit(item.product.stockQuantity);
+    if (stockLimit <= 0 || pendingItemIds[item.id]) {
+      clearItemDraft(item.id);
+      return;
+    }
+
+    const trimmed = rawDraft.trim();
+    const parsedRaw = trimmed !== '' ? Number(trimmed) : NaN;
+    const targetQty = resolveCommittedQuantity(rawDraft, stockLimit, item.quantity);
+
+    if (Number.isFinite(parsedRaw) && Math.trunc(parsedRaw) > stockLimit) {
+      showToast(`Số lượng tối đa còn lại trong kho là ${stockLimit}.`);
+    }
+
+    if (targetQty === item.quantity) {
+      clearItemDraft(item.id);
+      return;
+    }
+
+    if (inFlightTargetRef.current[item.id] === targetQty) {
+      return;
+    }
+
+    setDraftQuantities((prev) => ({ ...prev, [item.id]: String(targetQty) }));
+    updateQuantityMutation.mutate({ id: item.id, quantity: targetQty });
+  };
+
+  const stepCartItemQuantity = (item: CartItemDto, delta: number) => {
+    const stockLimit = normalizeStockLimit(item.product.stockQuantity);
+    if (stockLimit <= 0 || pendingItemIds[item.id]) {
+      return;
+    }
+
+    const currentDraft = draftQuantities[item.id] ?? String(item.quantity);
+    const baseQty = resolveCommittedQuantity(currentDraft, stockLimit, item.quantity);
+    const nextQty = clampQuantity(baseQty + delta, stockLimit);
+
+    if (nextQty === item.quantity) {
+      clearItemDraft(item.id);
+      return;
+    }
+
+    setDraftQuantities((prev) => ({ ...prev, [item.id]: String(nextQty) }));
+    updateQuantityMutation.mutate({ id: item.id, quantity: nextQty });
+  };
 
   const removeItemMutation = useMutation({
     mutationFn: (id: string) => cartService.removeItem(id),
@@ -221,14 +327,7 @@ export const CartPage: React.FC = () => {
           </h1>
 
           {items.length > 0 ? (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'minmax(0, 1fr) 360px',
-                gap: '24px',
-                alignItems: 'flex-start',
-              }}
-            >
+            <div className="nexora-cart-layout">
               {/* Left Column: Items Table */}
               <div
                 style={{
@@ -265,24 +364,60 @@ export const CartPage: React.FC = () => {
                   </span>
                 </div>
 
+                {cartActionError && (
+                  <div
+                    role="alert"
+                    style={{
+                      backgroundColor: '#FEF2F2',
+                      borderBottom: '1px solid #FECACA',
+                      color: '#B91C1C',
+                      padding: '10px 20px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <i className="fa-solid fa-circle-exclamation"></i>
+                    <span>{cartActionError}</span>
+                  </div>
+                )}
+
                 {/* Items List */}
                 <div style={{ padding: '0 20px' }}>
                   {items.map((item) => {
                     const img = getProductImage(item.product);
+                    const stockLimit = normalizeStockLimit(item.product.stockQuantity);
+                    const isItemOutOfStock = stockLimit <= 0;
+                    const isItemPending = Boolean(pendingItemIds[item.id]);
+                    const displayedValue = draftQuantities[item.id] ?? String(item.quantity);
+                    const trimmedDraft = displayedValue.trim();
+                    const parsedDraftNum = trimmedDraft !== '' ? Number(trimmedDraft) : NaN;
+                    const minusDisabled =
+                      isItemOutOfStock ||
+                      isItemPending ||
+                      (Number.isFinite(parsedDraftNum) && trimmedDraft !== ''
+                        ? parsedDraftNum <= 1
+                        : item.quantity <= 1);
+                    const plusDisabled =
+                      isItemOutOfStock ||
+                      isItemPending ||
+                      (Number.isFinite(parsedDraftNum) && trimmedDraft !== ''
+                        ? parsedDraftNum >= stockLimit
+                        : item.quantity >= stockLimit);
+
                     return (
                       <div
                         key={item.id}
+                        className="nexora-cart-item-row"
                         style={{
-                          display: 'grid',
-                          gridTemplateColumns: '80px minmax(0, 1fr) 140px 120px 40px',
-                          gap: '16px',
-                          alignItems: 'center',
-                          padding: '20px 0',
                           borderBottom: '1px solid var(--border, #E5E7EB)',
                         }}
                       >
                         {/* Thumbnail */}
                         <div
+                          className="nexora-cart-thumb"
                           style={{
                             width: '80px',
                             height: '80px',
@@ -307,7 +442,7 @@ export const CartPage: React.FC = () => {
                         </div>
 
                         {/* Name & Slug */}
-                        <div>
+                        <div className="nexora-cart-info">
                           <Link
                             to={`/product/detail/${item.product.slug}`}
                             style={{
@@ -326,63 +461,112 @@ export const CartPage: React.FC = () => {
                             Đơn giá:{' '}
                             {formatPrice(Number(item.product.salePrice || item.product.price))}
                           </span>
+                          {isItemOutOfStock ? (
+                            <div
+                              style={{
+                                marginTop: '4px',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                color: '#EF4444',
+                              }}
+                            >
+                              Tạm hết hàng
+                            </div>
+                          ) : (
+                            <div
+                              style={{
+                                marginTop: '2px',
+                                fontSize: '11px',
+                                color: 'var(--text-secondary)',
+                              }}
+                            >
+                              Còn {stockLimit} sản phẩm
+                            </div>
+                          )}
                         </div>
 
                         {/* Quantity controls */}
                         <div
+                          className="nexora-cart-qty"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
                             border: '1px solid var(--border)',
                             borderRadius: '8px',
-                            width: '100px',
+                            width: '108px',
+                            height: '34px',
                             overflow: 'hidden',
+                            opacity: isItemOutOfStock ? 0.5 : 1,
                           }}
                         >
                           <button
                             type="button"
-                            onClick={() =>
-                              updateQuantityMutation.mutate({
-                                id: item.id,
-                                quantity: Math.max(1, item.quantity - 1),
-                              })
-                            }
+                            title="Giảm số lượng"
+                            disabled={minusDisabled}
+                            onClick={() => stepCartItemQuantity(item, -1)}
                             style={{
                               width: '30px',
-                              height: '32px',
+                              height: '100%',
                               border: 'none',
-                              background: '#F3F4F6',
-                              cursor: 'pointer',
+                              background: 'var(--surface-muted, #F3F4F6)',
+                              color: 'var(--text-primary)',
+                              cursor: minusDisabled ? 'not-allowed' : 'pointer',
                               fontWeight: 700,
+                              opacity: minusDisabled ? 0.5 : 1,
                             }}
                           >
                             -
                           </button>
-                          <span
+                          <input
+                            type="number"
+                            className="nexora-qty-input"
+                            aria-label={`Số lượng cho ${item.product.name}`}
+                            min={1}
+                            max={isItemOutOfStock ? undefined : stockLimit}
+                            step={1}
+                            inputMode="numeric"
+                            disabled={isItemOutOfStock}
+                            value={displayedValue}
+                            onChange={(e) => {
+                              const nextVal = e.target.value;
+                              setDraftQuantities((prev) => ({ ...prev, [item.id]: nextVal }));
+                            }}
+                            onBlur={() => commitCartItemQuantity(item, displayedValue)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                commitCartItemQuantity(item, displayedValue);
+                              } else if (e.key === 'Escape') {
+                                clearItemDraft(item.id);
+                              }
+                            }}
                             style={{
                               flex: 1,
+                              minWidth: 0,
+                              width: '100%',
+                              height: '100%',
+                              border: 'none',
                               textAlign: 'center',
                               fontSize: '13px',
                               fontWeight: 700,
+                              color: 'var(--text-primary)',
+                              background: 'transparent',
                             }}
-                          >
-                            {item.quantity}
-                          </span>
+                          />
                           <button
                             type="button"
-                            onClick={() =>
-                              updateQuantityMutation.mutate({
-                                id: item.id,
-                                quantity: item.quantity + 1,
-                              })
-                            }
+                            title="Tăng số lượng"
+                            disabled={plusDisabled}
+                            onClick={() => stepCartItemQuantity(item, 1)}
                             style={{
                               width: '30px',
-                              height: '32px',
+                              height: '100%',
                               border: 'none',
-                              background: '#F3F4F6',
-                              cursor: 'pointer',
+                              background: 'var(--surface-muted, #F3F4F6)',
+                              color: 'var(--text-primary)',
+                              cursor: plusDisabled ? 'not-allowed' : 'pointer',
                               fontWeight: 700,
+                              opacity: plusDisabled ? 0.5 : 1,
                             }}
                           >
                             +
@@ -390,7 +574,7 @@ export const CartPage: React.FC = () => {
                         </div>
 
                         {/* Subtotal */}
-                        <div style={{ textAlign: 'right' }}>
+                        <div className="nexora-cart-subtotal" style={{ textAlign: 'right' }}>
                           <span
                             style={{
                               fontWeight: 800,
@@ -405,7 +589,7 @@ export const CartPage: React.FC = () => {
                         </div>
 
                         {/* Delete button */}
-                        <div style={{ textAlign: 'right' }}>
+                        <div className="nexora-cart-delete" style={{ textAlign: 'right' }}>
                           <button
                             type="button"
                             onClick={() => removeItemMutation.mutate(item.id)}

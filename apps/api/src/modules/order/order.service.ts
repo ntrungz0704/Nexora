@@ -8,10 +8,59 @@ type OrderWithItems = Prisma.OrderGetPayload<{
   include: { items: true };
 }>;
 
+type ProductEligibilitySnapshot = {
+  id: number;
+  name: string;
+  status: string;
+  stockQuantity: number;
+  brandId: number | null;
+  category: { id: number; name: string; isActive: boolean } | null;
+  brand: { id: number; name: string; isActive: boolean } | null;
+};
+
 export class OrderService {
+  private assertProductEligibleForOrder(
+    prod: ProductEligibilitySnapshot,
+    requestedQuantity: number,
+  ): void {
+    if (prod.status !== 'ACTIVE') {
+      throw new AppError(
+        400,
+        'PRODUCT_UNAVAILABLE',
+        prod.status === 'INACTIVE'
+          ? `Sản phẩm "${prod.name}" hiện đã ngừng kinh doanh hoặc tạm ẩn.`
+          : `Sản phẩm "${prod.name}" hiện không khả dụng để đặt hàng.`,
+      );
+    }
+
+    if (!prod.category || !prod.category.isActive) {
+      throw new AppError(
+        400,
+        'PRODUCT_UNAVAILABLE',
+        `Danh mục của sản phẩm "${prod.name}" hiện đang tạm ẩn.`,
+      );
+    }
+
+    if (prod.brandId !== null && (!prod.brand || !prod.brand.isActive)) {
+      throw new AppError(
+        400,
+        'PRODUCT_UNAVAILABLE',
+        `Thương hiệu của sản phẩm "${prod.name}" hiện đang tạm ẩn.`,
+      );
+    }
+
+    if (prod.stockQuantity < requestedQuantity) {
+      throw new AppError(
+        400,
+        'INSUFFICIENT_STOCK',
+        `Sản phẩm "${prod.name}" không đủ số lượng trong kho (còn ${prod.stockQuantity}).`,
+      );
+    }
+  }
+
   async createOrder(userId: number | undefined, input: CreateOrderInput): Promise<OrderDto> {
     // 1. Resolve items
-    let rawItems: { productId: number; quantity: number }[] = [];
+    let rawItems: { productId: number; quantity: number }[];
 
     if (input.items && input.items.length > 0) {
       rawItems = input.items;
@@ -28,13 +77,32 @@ export class OrderService {
       throw new AppError(400, 'EMPTY_ITEMS', 'Đơn hàng phải có ít nhất một sản phẩm.');
     }
 
-    // 2. Fetch products & validate stock
-    const productIds = rawItems.map((i) => i.productId);
+    // Aggregate duplicate productId entries while keeping deterministic first-seen order
+    const aggregatedItemMap = new Map<number, number>();
+    for (const item of rawItems) {
+      aggregatedItemMap.set(
+        item.productId,
+        (aggregatedItemMap.get(item.productId) ?? 0) + item.quantity,
+      );
+    }
+    const aggregatedItems = Array.from(aggregatedItemMap.entries()).map(
+      ([productId, quantity]) => ({
+        productId,
+        quantity,
+      }),
+    );
+
+    // 2. Fetch products & validate business eligibility + stock
+    const productIds = aggregatedItems.map((i) => i.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
+      include: {
+        category: { select: { id: true, name: true, isActive: true } },
+        brand: { select: { id: true, name: true, isActive: true } },
+      },
     });
 
-    if (products.length !== rawItems.length) {
+    if (products.length !== aggregatedItems.length) {
       throw new AppError(400, 'PRODUCT_NOT_FOUND', 'Một số sản phẩm trong đơn hàng không tồn tại.');
     }
 
@@ -52,17 +120,11 @@ export class OrderService {
       subtotal: number;
     }[] = [];
 
-    for (const item of rawItems) {
+    for (const item of aggregatedItems) {
       const prod = productMap.get(item.productId);
       if (!prod) continue;
 
-      if (prod.stockQuantity < item.quantity) {
-        throw new AppError(
-          400,
-          'INSUFFICIENT_STOCK',
-          `Sản phẩm "${prod.name}" không đủ số lượng trong kho (còn ${prod.stockQuantity}).`,
-        );
-      }
+      this.assertProductEligibleForOrder(prod, item.quantity);
 
       const unitPrice = Number(prod.salePrice || prod.price);
       const itemSubtotal = unitPrice * item.quantity;
@@ -129,6 +191,63 @@ export class OrderService {
       try {
         createdOrder = await prisma.$transaction(
           async (tx) => {
+            // Atomically enforce business eligibility and decrement stock in sorted order before creating the order
+            const sortedItems = [...aggregatedItems].sort((a, b) => a.productId - b.productId);
+            const inventoryMovements: {
+              productId: number;
+              quantity: number;
+              balanceBefore: number;
+              balanceAfter: number;
+            }[] = [];
+
+            for (const item of sortedItems) {
+              const updateResult = await tx.product.updateMany({
+                where: {
+                  id: item.productId,
+                  status: 'ACTIVE',
+                  category: { isActive: true },
+                  OR: [{ brandId: null }, { brand: { isActive: true } }],
+                  stockQuantity: { gte: item.quantity },
+                },
+                data: {
+                  stockQuantity: { decrement: item.quantity },
+                },
+              });
+
+              if (updateResult.count === 0) {
+                const currentProd = await tx.product.findUnique({
+                  where: { id: item.productId },
+                  include: {
+                    category: { select: { id: true, name: true, isActive: true } },
+                    brand: { select: { id: true, name: true, isActive: true } },
+                  },
+                });
+                if (!currentProd) {
+                  throw new AppError(
+                    400,
+                    'PRODUCT_NOT_FOUND',
+                    'Một số sản phẩm trong đơn hàng không tồn tại.',
+                  );
+                }
+                this.assertProductEligibleForOrder(currentProd, item.quantity);
+                throw new AppError(
+                  400,
+                  'INSUFFICIENT_STOCK',
+                  `Sản phẩm "${currentProd.name}" không đủ số lượng trong kho (còn ${currentProd.stockQuantity}).`,
+                );
+              }
+
+              const refreshed = await tx.product.findUniqueOrThrow({
+                where: { id: item.productId },
+              });
+              inventoryMovements.push({
+                productId: item.productId,
+                quantity: item.quantity,
+                balanceBefore: refreshed.stockQuantity + item.quantity,
+                balanceAfter: refreshed.stockQuantity,
+              });
+            }
+
             const order = await tx.order.create({
               data: {
                 orderCode,
@@ -175,42 +294,15 @@ export class OrderService {
               });
             }
 
-            // Decrement stock & record inventory log in deterministic sorted order to prevent MySQL deadlocks
-            const sortedItems = [...rawItems].sort((a, b) => a.productId - b.productId);
-            for (const item of sortedItems) {
-              // Atomic conditional decrement: strictly check stockQuantity >= item.quantity directly in MySQL InnoDB
-              const updateResult = await tx.product.updateMany({
-                where: {
-                  id: item.productId,
-                  stockQuantity: { gte: item.quantity },
-                },
-                data: {
-                  stockQuantity: { decrement: item.quantity },
-                },
-              });
-
-              if (updateResult.count === 0) {
-                const currentProd = await tx.product.findUnique({ where: { id: item.productId } });
-                throw new AppError(
-                  400,
-                  'INSUFFICIENT_STOCK',
-                  `Sản phẩm "${currentProd?.name || 'Sản phẩm'}" không đủ số lượng trong kho (còn ${currentProd?.stockQuantity ?? 0}).`,
-                );
-              }
-
-              const refreshed = await tx.product.findUniqueOrThrow({
-                where: { id: item.productId },
-              });
-              const balanceBefore = refreshed.stockQuantity + item.quantity;
-              const balanceAfter = refreshed.stockQuantity;
-
+            // Record inventory movement logs inside the same atomic transaction
+            for (const movement of inventoryMovements) {
               await tx.inventoryLog.create({
                 data: {
-                  productId: item.productId,
+                  productId: movement.productId,
                   changeType: 'SALE',
-                  quantity: -item.quantity,
-                  balanceBefore,
-                  balanceAfter,
+                  quantity: -movement.quantity,
+                  balanceBefore: movement.balanceBefore,
+                  balanceAfter: movement.balanceAfter,
                   referenceType: 'ORDER',
                   referenceId: orderCode,
                   note: `Bán lẻ qua đơn hàng ${orderCode}`,
@@ -229,7 +321,7 @@ export class OrderService {
                   await tx.cartItem.deleteMany({
                     where: {
                       cartId: cart.id,
-                      productId: { in: rawItems.map((i) => i.productId) },
+                      productId: { in: aggregatedItems.map((i) => i.productId) },
                     },
                   });
                 }
@@ -251,15 +343,17 @@ export class OrderService {
           errorRecord?.message?.includes('deadlock') ||
           errorRecord?.message?.includes('write conflict')
         ) {
-          // Check if any product was exhausted by the competing concurrent transaction
-          for (const item of rawItems) {
-            const currentProd = await prisma.product.findUnique({ where: { id: item.productId } });
-            if (currentProd && currentProd.stockQuantity < item.quantity) {
-              throw new AppError(
-                400,
-                'INSUFFICIENT_STOCK',
-                `Sản phẩm "${currentProd.name}" không đủ số lượng trong kho (còn ${currentProd.stockQuantity}).`,
-              );
+          // Check if any product became ineligible or ran out of stock in the competing concurrent transaction
+          for (const item of aggregatedItems) {
+            const currentProd = await prisma.product.findUnique({
+              where: { id: item.productId },
+              include: {
+                category: { select: { id: true, name: true, isActive: true } },
+                brand: { select: { id: true, name: true, isActive: true } },
+              },
+            });
+            if (currentProd) {
+              this.assertProductEligibleForOrder(currentProd, item.quantity);
             }
           }
 

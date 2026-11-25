@@ -10,6 +10,12 @@ import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import { extractReviewErrorMessage, reviewService } from '../../services/reviewService';
 import { getProductImage } from '../../lib/productImage';
+import {
+  clampQuantity,
+  extractQuantityErrorMessage,
+  normalizeStockLimit,
+  resolveCommittedQuantity,
+} from '../../lib/quantity';
 import { ReviewList } from './components/ReviewList';
 import { ReviewFormModal } from './components/ReviewFormModal';
 import type { AuthUser, CreateReviewInput, ProductDto, ReviewDto } from '@nexora/shared';
@@ -158,10 +164,15 @@ function parseSpecs(rawSpecs: unknown, product?: ProductDto): FormattedSpec[] {
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  return <ProductDetailContent key={slug || 'unknown'} slug={slug} />;
+};
+
+const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [quantity, setQuantity] = useState(1);
+  const [quantityDraft, setQuantityDraft] = useState('1');
   const [activeTab, setActiveTab] = useState<'specs' | 'desc' | 'reviews' | 'aiChat'>('specs');
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
     authService.getCurrentUser(),
@@ -380,22 +391,57 @@ export const ProductDetailPage: React.FC = () => {
     enabled: !!currentUser,
   });
 
+  const stockLimit = normalizeStockLimit(product?.stockQuantity);
+  const isOutOfStock = stockLimit <= 0;
+  const committedQuantity = isOutOfStock ? 1 : clampQuantity(quantity, stockLimit);
+
+  const commitQuantityInput = (raw = quantityDraft): number => {
+    const trimmed = raw.trim();
+    const parsedRaw = trimmed !== '' ? Number(trimmed) : NaN;
+    const nextQty = resolveCommittedQuantity(raw, stockLimit, committedQuantity);
+    if (!isOutOfStock && Number.isFinite(parsedRaw) && Math.trunc(parsedRaw) > stockLimit) {
+      showToast(`Số lượng tối đa còn lại trong kho là ${stockLimit}.`);
+    }
+    setQuantity(nextQty);
+    setQuantityDraft(String(nextQty));
+    return nextQty;
+  };
+
+  const handleStepQuantity = (delta: number): void => {
+    if (isOutOfStock) return;
+    const baseQty = resolveCommittedQuantity(quantityDraft, stockLimit, committedQuantity);
+    const nextQty = clampQuantity(baseQty + delta, stockLimit);
+    setQuantity(nextQty);
+    setQuantityDraft(String(nextQty));
+  };
+
   const addToCartMutation = useMutation({
     mutationFn: (qty: number) => {
-      if (!product) return Promise.reject();
-      return cartService.addItem(product.id, qty);
+      if (!product || normalizeStockLimit(product.stockQuantity) <= 0) {
+        return Promise.reject(new Error('Sản phẩm hiện đã tạm hết hàng.'));
+      }
+      const safeQty = clampQuantity(qty, product.stockQuantity);
+      return cartService.addItem(product.id, safeQty);
     },
-    onSuccess: () => {
+    onSuccess: (_data, addedQty) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      showToast(`Đã thêm "${product?.name}" (${quantity} sản phẩm) vào giỏ!`);
+      showToast(`Đã thêm "${product?.name}" (${addedQty} sản phẩm) vào giỏ!`);
+    },
+    onError: (err: unknown) => {
+      showToast(extractQuantityErrorMessage(err, 'Không thể thêm sản phẩm vào giỏ hàng.'));
     },
   });
 
   const handleBuyNow = async () => {
-    if (!product) return;
-    await cartService.addItem(product.id, quantity);
-    queryClient.invalidateQueries({ queryKey: ['cart'] });
-    navigate('/checkout');
+    if (!product || isOutOfStock) return;
+    const committed = commitQuantityInput();
+    try {
+      await cartService.addItem(product.id, committed);
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      navigate('/checkout');
+    } catch (err: unknown) {
+      showToast(extractQuantityErrorMessage(err, 'Không thể thêm sản phẩm để mua ngay.'));
+    }
   };
 
   if (isProductLoading) {
@@ -464,7 +510,6 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const specsList = parseSpecs(product.specs, product);
-  const isOutOfStock = Number(product.stockQuantity ?? 0) <= 0;
   const relatedProducts = allProducts.filter((item) => item.id !== product.id).slice(0, 4);
 
   return (
@@ -541,16 +586,12 @@ export const ProductDetailPage: React.FC = () => {
         {/* Product Showcase */}
         <section className="container">
           <div
+            className="nexora-product-showcase"
             style={{
               backgroundColor: 'var(--surface-card, #FFFFFF)',
               borderRadius: '20px',
               border: '1px solid var(--border, #E5E7EB)',
-              padding: '32px',
               boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-              display: 'grid',
-              gridTemplateColumns: '460px minmax(0, 1fr)',
-              gap: '40px',
-              alignItems: 'flex-start',
               marginBottom: '36px',
             }}
           >
@@ -783,108 +824,159 @@ export const ProductDetailPage: React.FC = () => {
               )}
 
               {/* Quantity & Buy Buttons */}
-              <div
-                style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    border: '1.5px solid var(--border)',
-                    borderRadius: '10px',
-                    overflow: 'hidden',
-                    height: '48px',
-                    opacity: isOutOfStock ? 0.5 : 1,
-                  }}
-                >
-                  <button
-                    type="button"
-                    disabled={isOutOfStock}
-                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                    style={{
-                      width: '38px',
-                      height: '100%',
-                      border: 'none',
-                      background: 'var(--surface-muted, #F3F4F6)',
-                      fontWeight: 700,
-                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    -
-                  </button>
-                  <span
-                    style={{
-                      width: '44px',
-                      textAlign: 'center',
-                      fontWeight: 700,
-                      fontSize: '14px',
-                      color: 'var(--text-primary)',
-                    }}
-                  >
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={isOutOfStock}
-                    onClick={() => setQuantity((prev) => prev + 1)}
-                    style={{
-                      width: '38px',
-                      height: '100%',
-                      border: 'none',
-                      background: 'var(--surface-muted, #F3F4F6)',
-                      fontWeight: 700,
-                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
+              {(() => {
+                const trimmedQtyDraft = quantityDraft.trim();
+                const parsedDraftQty = trimmedQtyDraft !== '' ? Number(trimmedQtyDraft) : NaN;
+                const minusDisabled =
+                  isOutOfStock ||
+                  (Number.isFinite(parsedDraftQty) && trimmedQtyDraft !== ''
+                    ? parsedDraftQty <= 1
+                    : committedQuantity <= 1);
+                const plusDisabled =
+                  isOutOfStock ||
+                  (Number.isFinite(parsedDraftQty) && trimmedQtyDraft !== ''
+                    ? parsedDraftQty >= stockLimit
+                    : committedQuantity >= stockLimit);
 
-                <button
-                  type="button"
-                  disabled={isOutOfStock || addToCartMutation.isPending}
-                  onClick={() => addToCartMutation.mutate(quantity)}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    borderRadius: '10px',
-                    border: isOutOfStock ? '1px solid var(--border, #D1D5DB)' : '2px solid #0A5BFF',
-                    backgroundColor: isOutOfStock ? 'var(--surface-muted, #F3F4F6)' : '#EFF6FF',
-                    color: isOutOfStock ? 'var(--text-secondary, #9CA3AF)' : '#0A5BFF',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  <i className={isOutOfStock ? 'fa-solid fa-ban' : 'fa-solid fa-cart-plus'}></i>
-                  {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ hàng'}
-                </button>
+                return (
+                  <div className="nexora-product-actions">
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        border: '1.5px solid var(--border)',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        height: '48px',
+                        opacity: isOutOfStock ? 0.5 : 1,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <button
+                        type="button"
+                        title="Giảm số lượng"
+                        disabled={minusDisabled}
+                        onClick={() => handleStepQuantity(-1)}
+                        style={{
+                          width: '38px',
+                          height: '100%',
+                          border: 'none',
+                          background: 'var(--surface-muted, #F3F4F6)',
+                          color: 'var(--text-primary)',
+                          fontWeight: 700,
+                          cursor: minusDisabled ? 'not-allowed' : 'pointer',
+                          opacity: minusDisabled ? 0.5 : 1,
+                        }}
+                      >
+                        -
+                      </button>
+                      <input
+                        id="qtyInput"
+                        type="number"
+                        className="nexora-qty-input"
+                        aria-label="Số lượng sản phẩm"
+                        min={1}
+                        max={isOutOfStock ? undefined : stockLimit}
+                        step={1}
+                        inputMode="numeric"
+                        disabled={isOutOfStock}
+                        value={quantityDraft}
+                        onChange={(e) => setQuantityDraft(e.target.value)}
+                        onBlur={() => {
+                          commitQuantityInput();
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            commitQuantityInput();
+                          } else if (e.key === 'Escape') {
+                            setQuantityDraft(String(committedQuantity));
+                          }
+                        }}
+                        style={{
+                          width: '52px',
+                          height: '100%',
+                          border: 'none',
+                          textAlign: 'center',
+                          fontWeight: 700,
+                          fontSize: '14px',
+                          color: 'var(--text-primary)',
+                          background: 'transparent',
+                        }}
+                      />
+                      <button
+                        type="button"
+                        title="Tăng số lượng"
+                        disabled={plusDisabled}
+                        onClick={() => handleStepQuantity(1)}
+                        style={{
+                          width: '38px',
+                          height: '100%',
+                          border: 'none',
+                          background: 'var(--surface-muted, #F3F4F6)',
+                          color: 'var(--text-primary)',
+                          fontWeight: 700,
+                          cursor: plusDisabled ? 'not-allowed' : 'pointer',
+                          opacity: plusDisabled ? 0.5 : 1,
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
 
-                <button
-                  type="button"
-                  disabled={isOutOfStock}
-                  onClick={handleBuyNow}
-                  className={isOutOfStock ? '' : 'auth-btn-primary'}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    fontSize: '14px',
-                    margin: 0,
-                    borderRadius: '10px',
-                    border: 'none',
-                    backgroundColor: isOutOfStock ? 'var(--border, #E5E7EB)' : undefined,
-                    color: isOutOfStock ? 'var(--text-secondary, #9CA3AF)' : undefined,
-                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  {isOutOfStock ? 'Tạm hết hàng' : 'Mua ngay'}
-                </button>
-              </div>
+                    <button
+                      type="button"
+                      disabled={isOutOfStock || addToCartMutation.isPending}
+                      onClick={() => {
+                        if (isOutOfStock || addToCartMutation.isPending) return;
+                        const committed = commitQuantityInput();
+                        addToCartMutation.mutate(committed);
+                      }}
+                      style={{
+                        flex: 1,
+                        height: '48px',
+                        borderRadius: '10px',
+                        border: isOutOfStock
+                          ? '1px solid var(--border, #D1D5DB)'
+                          : '2px solid #0A5BFF',
+                        backgroundColor: isOutOfStock ? 'var(--surface-muted, #F3F4F6)' : '#EFF6FF',
+                        color: isOutOfStock ? 'var(--text-secondary, #9CA3AF)' : '#0A5BFF',
+                        fontWeight: 700,
+                        fontSize: '14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      <i className={isOutOfStock ? 'fa-solid fa-ban' : 'fa-solid fa-cart-plus'}></i>
+                      {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ hàng'}
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isOutOfStock}
+                      onClick={handleBuyNow}
+                      className={isOutOfStock ? '' : 'auth-btn-primary'}
+                      style={{
+                        flex: 1,
+                        height: '48px',
+                        fontSize: '14px',
+                        margin: 0,
+                        borderRadius: '10px',
+                        border: 'none',
+                        backgroundColor: isOutOfStock ? 'var(--border, #E5E7EB)' : undefined,
+                        color: isOutOfStock ? 'var(--text-secondary, #9CA3AF)' : undefined,
+                        cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {isOutOfStock ? 'Tạm hết hàng' : 'Mua ngay'}
+                    </button>
+                  </div>
+                );
+              })()}
 
               {/* Commitments Box */}
               <div
