@@ -392,14 +392,26 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
   });
 
   const stockLimit = normalizeStockLimit(product?.stockQuantity);
-  const isOutOfStock = stockLimit <= 0;
-  const committedQuantity = isOutOfStock ? 1 : clampQuantity(quantity, stockLimit);
+  const isDiscontinued = product?.status === 'INACTIVE';
+  const isCategoryHidden = product?.category?.isActive === false;
+  const isBrandHidden = product?.brandId !== null && product?.brand?.isActive === false;
+  const isUnavailable =
+    Boolean(product) &&
+    (isDiscontinued ||
+      isCategoryHidden ||
+      isBrandHidden ||
+      product?.unavailableReason === 'DISCONTINUED' ||
+      product?.unavailableReason === 'CATEGORY_INACTIVE' ||
+      product?.unavailableReason === 'BRAND_INACTIVE');
+  const isOutOfStock = !isUnavailable && stockLimit <= 0;
+  const isPurchaseDisabled = isUnavailable || isOutOfStock;
+  const committedQuantity = isPurchaseDisabled ? 1 : clampQuantity(quantity, stockLimit);
 
   const commitQuantityInput = (raw = quantityDraft): number => {
     const trimmed = raw.trim();
     const parsedRaw = trimmed !== '' ? Number(trimmed) : NaN;
     const nextQty = resolveCommittedQuantity(raw, stockLimit, committedQuantity);
-    if (!isOutOfStock && Number.isFinite(parsedRaw) && Math.trunc(parsedRaw) > stockLimit) {
+    if (!isPurchaseDisabled && Number.isFinite(parsedRaw) && Math.trunc(parsedRaw) > stockLimit) {
       showToast(`Số lượng tối đa còn lại trong kho là ${stockLimit}.`);
     }
     setQuantity(nextQty);
@@ -408,7 +420,7 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
   };
 
   const handleStepQuantity = (delta: number): void => {
-    if (isOutOfStock) return;
+    if (isPurchaseDisabled) return;
     const baseQty = resolveCommittedQuantity(quantityDraft, stockLimit, committedQuantity);
     const nextQty = clampQuantity(baseQty + delta, stockLimit);
     setQuantity(nextQty);
@@ -417,7 +429,10 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
 
   const addToCartMutation = useMutation({
     mutationFn: (qty: number) => {
-      if (!product || normalizeStockLimit(product.stockQuantity) <= 0) {
+      if (!product || isUnavailable) {
+        return Promise.reject(new Error('Sản phẩm hiện đã ngừng kinh doanh.'));
+      }
+      if (normalizeStockLimit(product.stockQuantity) <= 0) {
         return Promise.reject(new Error('Sản phẩm hiện đã tạm hết hàng.'));
       }
       const safeQty = clampQuantity(qty, product.stockQuantity);
@@ -433,7 +448,7 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
   });
 
   const handleBuyNow = async () => {
-    if (!product || isOutOfStock) return;
+    if (!product || isPurchaseDisabled) return;
     const committed = commitQuantityInput();
     try {
       await cartService.addItem(product.id, committed);
@@ -510,7 +525,9 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
   };
 
   const specsList = parseSpecs(product.specs, product);
-  const relatedProducts = allProducts.filter((item) => item.id !== product.id).slice(0, 4);
+  const relatedProducts = allProducts
+    .filter((item) => item.id !== product.id && item.status === 'ACTIVE')
+    .slice(0, 4);
 
   return (
     <div className="home-page-wrapper">
@@ -729,8 +746,24 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
                   ({totalReviews} đánh giá)
                 </span>
                 <span style={{ color: 'var(--border)' }}>|</span>
-                {isOutOfStock ? (
+                {isUnavailable ? (
                   <span
+                    data-testid="product-status-badge"
+                    style={{
+                      fontSize: '13px',
+                      color: '#DC2626',
+                      fontWeight: 700,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                    }}
+                  >
+                    <i className="fa-solid fa-ban"></i>{' '}
+                    {isDiscontinued ? 'Ngừng kinh doanh' : 'Tạm ngừng kinh doanh'}
+                  </span>
+                ) : isOutOfStock ? (
+                  <span
+                    data-testid="product-status-badge"
                     style={{
                       fontSize: '13px',
                       color: '#EF4444',
@@ -744,6 +777,7 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
                   </span>
                 ) : (
                   <span
+                    data-testid="product-status-badge"
                     style={{
                       fontSize: '12px',
                       color: '#16A34A',
@@ -758,6 +792,45 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
                   </span>
                 )}
               </div>
+
+              {isUnavailable && (
+                <div
+                  data-testid="product-unavailable-banner"
+                  role="status"
+                  style={{
+                    backgroundColor: '#FEF2F2',
+                    border: '1px solid #FECACA',
+                    borderRadius: '12px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                    color: '#991B1B',
+                  }}
+                >
+                  <i
+                    className="fa-solid fa-circle-exclamation"
+                    style={{ marginTop: '2px', fontSize: '16px' }}
+                  ></i>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '14px' }}>
+                      {isDiscontinued
+                        ? 'Sản phẩm đã ngừng kinh doanh'
+                        : 'Sản phẩm hiện tạm ngừng kinh doanh'}
+                    </div>
+                    <div style={{ fontSize: '12.5px', color: '#7F1D1D', marginTop: '2px' }}>
+                      {isCategoryHidden
+                        ? 'Danh mục sản phẩm hiện đang tạm ẩn trên cửa hàng.'
+                        : isBrandHidden
+                          ? 'Thương hiệu sản phẩm hiện đang tạm ẩn trên cửa hàng.'
+                          : 'Sản phẩm này hiện không còn mở bán trực tuyến.'}{' '}
+                      Đơn hàng lịch sử và quyền bảo hành/đổi trả đã mua trước đó vẫn được giữ
+                      nguyên.
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Price Box */}
               <div
@@ -828,12 +901,12 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
                 const trimmedQtyDraft = quantityDraft.trim();
                 const parsedDraftQty = trimmedQtyDraft !== '' ? Number(trimmedQtyDraft) : NaN;
                 const minusDisabled =
-                  isOutOfStock ||
+                  isPurchaseDisabled ||
                   (Number.isFinite(parsedDraftQty) && trimmedQtyDraft !== ''
                     ? parsedDraftQty <= 1
                     : committedQuantity <= 1);
                 const plusDisabled =
-                  isOutOfStock ||
+                  isPurchaseDisabled ||
                   (Number.isFinite(parsedDraftQty) && trimmedQtyDraft !== ''
                     ? parsedDraftQty >= stockLimit
                     : committedQuantity >= stockLimit);
@@ -848,7 +921,7 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
                         borderRadius: '10px',
                         overflow: 'hidden',
                         height: '48px',
-                        opacity: isOutOfStock ? 0.5 : 1,
+                        opacity: isPurchaseDisabled ? 0.5 : 1,
                         flexShrink: 0,
                       }}
                     >
@@ -876,10 +949,10 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
                         className="nexora-qty-input"
                         aria-label="Số lượng sản phẩm"
                         min={1}
-                        max={isOutOfStock ? undefined : stockLimit}
+                        max={isPurchaseDisabled ? undefined : stockLimit}
                         step={1}
                         inputMode="numeric"
-                        disabled={isOutOfStock}
+                        disabled={isPurchaseDisabled}
                         value={quantityDraft}
                         onChange={(e) => setQuantityDraft(e.target.value)}
                         onBlur={() => {
@@ -926,9 +999,9 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
 
                     <button
                       type="button"
-                      disabled={isOutOfStock || addToCartMutation.isPending}
+                      disabled={isPurchaseDisabled || addToCartMutation.isPending}
                       onClick={() => {
-                        if (isOutOfStock || addToCartMutation.isPending) return;
+                        if (isPurchaseDisabled || addToCartMutation.isPending) return;
                         const committed = commitQuantityInput();
                         addToCartMutation.mutate(committed);
                       }}
@@ -936,30 +1009,38 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
                         flex: 1,
                         height: '48px',
                         borderRadius: '10px',
-                        border: isOutOfStock
+                        border: isPurchaseDisabled
                           ? '1px solid var(--border, #D1D5DB)'
                           : '2px solid #0A5BFF',
-                        backgroundColor: isOutOfStock ? 'var(--surface-muted, #F3F4F6)' : '#EFF6FF',
-                        color: isOutOfStock ? 'var(--text-secondary, #9CA3AF)' : '#0A5BFF',
+                        backgroundColor: isPurchaseDisabled
+                          ? 'var(--surface-muted, #F3F4F6)'
+                          : '#EFF6FF',
+                        color: isPurchaseDisabled ? 'var(--text-secondary, #9CA3AF)' : '#0A5BFF',
                         fontWeight: 700,
                         fontSize: '14px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                        cursor: isPurchaseDisabled ? 'not-allowed' : 'pointer',
                         transition: 'all 0.15s',
                       }}
                     >
-                      <i className={isOutOfStock ? 'fa-solid fa-ban' : 'fa-solid fa-cart-plus'}></i>
-                      {isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ hàng'}
+                      <i
+                        className={isPurchaseDisabled ? 'fa-solid fa-ban' : 'fa-solid fa-cart-plus'}
+                      ></i>
+                      {isUnavailable
+                        ? 'Ngừng kinh doanh'
+                        : isOutOfStock
+                          ? 'Tạm hết hàng'
+                          : 'Thêm vào giỏ hàng'}
                     </button>
 
                     <button
                       type="button"
-                      disabled={isOutOfStock}
+                      disabled={isPurchaseDisabled}
                       onClick={handleBuyNow}
-                      className={isOutOfStock ? '' : 'auth-btn-primary'}
+                      className={isPurchaseDisabled ? '' : 'auth-btn-primary'}
                       style={{
                         flex: 1,
                         height: '48px',
@@ -967,12 +1048,16 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
                         margin: 0,
                         borderRadius: '10px',
                         border: 'none',
-                        backgroundColor: isOutOfStock ? 'var(--border, #E5E7EB)' : undefined,
-                        color: isOutOfStock ? 'var(--text-secondary, #9CA3AF)' : undefined,
-                        cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                        backgroundColor: isPurchaseDisabled ? 'var(--border, #E5E7EB)' : undefined,
+                        color: isPurchaseDisabled ? 'var(--text-secondary, #9CA3AF)' : undefined,
+                        cursor: isPurchaseDisabled ? 'not-allowed' : 'pointer',
                       }}
                     >
-                      {isOutOfStock ? 'Tạm hết hàng' : 'Mua ngay'}
+                      {isUnavailable
+                        ? 'Ngừng kinh doanh'
+                        : isOutOfStock
+                          ? 'Tạm hết hàng'
+                          : 'Mua ngay'}
                     </button>
                   </div>
                 );

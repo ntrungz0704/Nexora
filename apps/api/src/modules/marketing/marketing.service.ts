@@ -1,12 +1,14 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
+import { getPrismaClient } from '../../common/prisma.js';
 import { AppError } from '../../common/errors.js';
+import { PUBLIC_PRODUCT_ELIGIBILITY_WHERE } from '../catalog/catalog.repository.js';
 import type { CouponDto, FlashSaleDto, PostDto } from '@nexora/shared';
 
-const prisma = new PrismaClient();
-
 export class MarketingService {
+  constructor(private readonly db: PrismaClient = getPrismaClient()) {}
+
   async getActiveCoupons(): Promise<CouponDto[]> {
-    const coupons = await prisma.coupon.findMany({
+    const coupons = await this.db.coupon.findMany({
       where: {
         isActive: true,
         OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
@@ -36,7 +38,7 @@ export class MarketingService {
     discountAmount: number;
     finalTotal: number;
   }> {
-    const coupon = await prisma.coupon.findUnique({
+    const coupon = await this.db.coupon.findUnique({
       where: { code: code.toUpperCase().trim() },
     });
 
@@ -94,7 +96,7 @@ export class MarketingService {
 
   async getActiveFlashSale(): Promise<FlashSaleDto | null> {
     const now = new Date();
-    const flashSale = await prisma.flashSale.findFirst({
+    const flashSale = await this.db.flashSale.findFirst({
       where: {
         isActive: true,
         startTime: { lte: now },
@@ -102,11 +104,14 @@ export class MarketingService {
       },
       include: {
         items: {
+          where: {
+            product: PUBLIC_PRODUCT_ELIGIBILITY_WHERE,
+          },
           include: {
             product: {
               include: {
-                category: { select: { id: true, name: true, slug: true } },
-                brand: { select: { id: true, name: true, slug: true } },
+                category: { select: { id: true, name: true, slug: true, isActive: true } },
+                brand: { select: { id: true, name: true, slug: true, isActive: true } },
               },
             },
           },
@@ -124,7 +129,13 @@ export class MarketingService {
       endTime: flashSale.endTime.toISOString(),
       isActive: flashSale.isActive,
       items: flashSale.items
-        .filter((item) => item.product && item.product.status === 'ACTIVE')
+        .filter(
+          (item) =>
+            item.product &&
+            item.product.status === 'ACTIVE' &&
+            item.product.category?.isActive === true &&
+            (item.product.brandId === null || item.product.brand?.isActive === true),
+        )
         .map((item) => ({
           id: item.id,
           productId: item.productId,
@@ -155,7 +166,7 @@ export class MarketingService {
   }
 
   async getPublishedPosts(limit = 10): Promise<PostDto[]> {
-    const posts = await prisma.post.findMany({
+    const posts = await this.db.post.findMany({
       where: { isPublished: true },
       orderBy: { createdAt: 'desc' },
       take: limit,
@@ -175,7 +186,7 @@ export class MarketingService {
   }
 
   async getPostBySlug(slug: string): Promise<PostDto> {
-    const post = await prisma.post.findUnique({
+    const post = await this.db.post.findUnique({
       where: { slug },
     });
 
@@ -184,7 +195,7 @@ export class MarketingService {
     }
 
     // Increment views
-    await prisma.post.update({
+    await this.db.post.update({
       where: { id: post.id },
       data: { views: { increment: 1 } },
     });
@@ -203,7 +214,7 @@ export class MarketingService {
   }
 
   async getPublicReviews(limit = 8) {
-    const reviews = await prisma.review.findMany({
+    const reviews = await this.db.review.findMany({
       where: { rating: { gte: 4 } },
       include: {
         user: { select: { id: true, fullName: true, avatarUrl: true } },

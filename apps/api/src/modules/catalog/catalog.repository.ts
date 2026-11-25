@@ -15,6 +15,12 @@ export interface ProductFilterOptions {
   offset?: number;
 }
 
+export const PUBLIC_PRODUCT_ELIGIBILITY_WHERE: Prisma.ProductWhereInput = {
+  status: 'ACTIVE',
+  category: { isActive: true },
+  OR: [{ brandId: null }, { brand: { isActive: true } }],
+};
+
 export class CatalogRepository {
   constructor(private readonly prisma: PrismaClient = getPrismaClient()) {}
 
@@ -43,9 +49,7 @@ export class CatalogRepository {
   }
 
   async getProducts(options: ProductFilterOptions = {}) {
-    const where: Prisma.ProductWhereInput = {
-      status: 'ACTIVE',
-    };
+    const andConditions: Prisma.ProductWhereInput[] = [PUBLIC_PRODUCT_ELIGIBILITY_WHERE];
 
     if (options.categorySlug) {
       const VIRTUAL_GROUPS: Record<string, string[]> = {
@@ -66,32 +70,43 @@ export class CatalogRepository {
       };
       const cleanSlug = options.categorySlug.toLowerCase().replace(/\s+/g, '-');
       if (VIRTUAL_GROUPS[cleanSlug]) {
-        where.category = {
-          slug: { in: VIRTUAL_GROUPS[cleanSlug] },
-          isActive: true,
-        };
+        andConditions.push({
+          category: {
+            slug: { in: VIRTUAL_GROUPS[cleanSlug] },
+            isActive: true,
+          },
+        });
       } else {
-        where.category = {
-          slug: options.categorySlug,
-          isActive: true,
-        };
+        andConditions.push({
+          category: {
+            slug: options.categorySlug,
+            isActive: true,
+          },
+        });
       }
-    } else {
-      where.category = {
-        isActive: true,
-      };
     }
 
     if (options.brandSlug) {
-      where.brand = { slug: options.brandSlug };
+      andConditions.push({
+        brand: {
+          slug: options.brandSlug,
+          isActive: true,
+        },
+      });
     }
 
     if (options.search) {
-      where.OR = [
-        { name: { contains: options.search } },
-        { shortDescription: { contains: options.search } },
-      ];
+      andConditions.push({
+        OR: [
+          { name: { contains: options.search } },
+          { shortDescription: { contains: options.search } },
+        ],
+      });
     }
+
+    const where: Prisma.ProductWhereInput = {
+      AND: andConditions,
+    };
 
     if (options.isFeatured !== undefined) {
       where.isFeatured = options.isFeatured;
@@ -124,8 +139,8 @@ export class CatalogRepository {
       this.prisma.product.findMany({
         where,
         include: {
-          category: { select: { id: true, name: true, slug: true } },
-          brand: { select: { id: true, name: true, slug: true } },
+          category: { select: { id: true, name: true, slug: true, isActive: true } },
+          brand: { select: { id: true, name: true, slug: true, isActive: true } },
           images: { orderBy: { sortOrder: 'asc' } },
         },
         take: options.limit ?? 24,
@@ -142,8 +157,8 @@ export class CatalogRepository {
     return this.prisma.product.findUnique({
       where: { slug },
       include: {
-        category: { select: { id: true, name: true, slug: true } },
-        brand: { select: { id: true, name: true, slug: true } },
+        category: { select: { id: true, name: true, slug: true, isActive: true } },
+        brand: { select: { id: true, name: true, slug: true, isActive: true } },
         images: { orderBy: { sortOrder: 'asc' } },
         reviews: {
           where: { status: 'APPROVED' },

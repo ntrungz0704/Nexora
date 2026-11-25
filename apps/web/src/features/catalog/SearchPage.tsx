@@ -10,20 +10,6 @@ import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import type { AuthUser, ProductDto } from '@nexora/shared';
 
-const BRANDS = [
-  'ASUS',
-  'ACER',
-  'MSI',
-  'LENOVO',
-  'LG',
-  'SAMSUNG',
-  'INTEL',
-  'AMD',
-  'LOGITECH',
-  'CORSAIR',
-  'GIGABYTE',
-];
-
 const PRICE_RANGES = [
   { id: 'all', label: 'Tất cả mức giá', min: 0, max: 0 },
   { id: 'under-15m', label: 'Dưới 15 triệu', min: 0, max: 15000000 },
@@ -218,7 +204,20 @@ export const SearchPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [userKeyword, searchParams, setSearchParams]);
 
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const queryBrand = searchParams.get('brand') || '';
+  const [userSelectedBrands, setUserSelectedBrands] = useState<string[] | null>(null);
+  const selectedBrands = useMemo(
+    () =>
+      userSelectedBrands !== null
+        ? userSelectedBrands
+        : queryBrand
+          ? queryBrand
+              .split(',')
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [],
+    [userSelectedBrands, queryBrand],
+  );
   const [priceRange, setPriceRange] = useState<string>('all');
   const [sortBy, setSortBy] = useState<
     'newest' | 'price-asc' | 'price-desc' | 'title-asc' | 'title-desc'
@@ -261,6 +260,11 @@ export const SearchPage: React.FC = () => {
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: () => storefrontService.getCategories(),
+  });
+
+  const { data: brands = [] } = useQuery({
+    queryKey: ['brands'],
+    queryFn: () => storefrontService.getBrands(),
   });
 
   // Filter sidebar categories to avoid duplicate aliases (e.g. ban-phim vs keyboard, chuot-lot-chuot vs mouse)
@@ -455,11 +459,14 @@ export const SearchPage: React.FC = () => {
           return false;
         }
 
-        // 6. Brand filter
+        // 6. Brand filter (matches live active brands from DB by slug or name)
         if (selectedBrands.length > 0) {
-          const pName = product.name.toUpperCase();
-          const bName = (product.brand?.name || '').toUpperCase();
-          const matchesBrand = selectedBrands.some((b) => pName.includes(b) || bName.includes(b));
+          const bSlug = (product.brand?.slug || '').toLowerCase();
+          const bName = (product.brand?.name || '').toLowerCase();
+          const matchesBrand = selectedBrands.some((sel) => {
+            const target = sel.toLowerCase();
+            return (bSlug !== '' && bSlug === target) || (bName !== '' && bName === target);
+          });
           if (!matchesBrand) return false;
         }
 
@@ -523,7 +530,7 @@ export const SearchPage: React.FC = () => {
   };
 
   const handleClearAllFilters = () => {
-    setSelectedBrands([]);
+    setUserSelectedBrands([]);
     setPriceRange('all');
     setInStockOnly(false);
     setUserPromoOnly(false);
@@ -574,10 +581,16 @@ export const SearchPage: React.FC = () => {
   }, [priceRange]);
 
   const activeBrandLabel = useMemo(() => {
-    if (selectedBrands.length === 1) return selectedBrands[0];
+    if (selectedBrands.length === 1) {
+      const target = selectedBrands[0]!.toLowerCase();
+      const matched = brands.find(
+        (b) => b.slug.toLowerCase() === target || b.name.toLowerCase() === target,
+      );
+      return matched ? matched.name : selectedBrands[0];
+    }
     if (selectedBrands.length > 1) return `Thương hiệu (${selectedBrands.length})`;
     return 'Thương hiệu';
-  }, [selectedBrands]);
+  }, [brands, selectedBrands]);
 
   // Pagination
   const PAGE_SIZE = 24;
@@ -1010,25 +1023,37 @@ export const SearchPage: React.FC = () => {
                     <div
                       className={`filter-chip__dropdown-item ${selectedBrands.length === 0 ? 'is-selected' : ''}`}
                       onClick={() => {
-                        setSelectedBrands([]);
+                        setUserSelectedBrands([]);
                         setIsBrandDropdownOpen(false);
                       }}
                     >
                       Tất cả thương hiệu
                     </div>
-                    {BRANDS.map((b) => {
-                      const isSel = selectedBrands.includes(b);
+                    {brands.map((b) => {
+                      const isSel = selectedBrands.some(
+                        (sel) =>
+                          sel.toLowerCase() === b.slug.toLowerCase() ||
+                          sel.toLowerCase() === b.name.toLowerCase(),
+                      );
                       return (
                         <div
-                          key={b}
+                          key={b.id}
                           className={`filter-chip__dropdown-item ${isSel ? 'is-selected' : ''}`}
                           onClick={() => {
-                            setSelectedBrands((prev) =>
-                              prev.includes(b) ? prev.filter((item) => item !== b) : [...prev, b],
-                            );
+                            setUserSelectedBrands((prev) => {
+                              const current = prev !== null ? prev : selectedBrands;
+                              const next = isSel
+                                ? current.filter(
+                                    (item) =>
+                                      item.toLowerCase() !== b.slug.toLowerCase() &&
+                                      item.toLowerCase() !== b.name.toLowerCase(),
+                                  )
+                                : [...current, b.slug];
+                              return next;
+                            });
                           }}
                         >
-                          {b}
+                          {b.name}
                         </div>
                       );
                     })}

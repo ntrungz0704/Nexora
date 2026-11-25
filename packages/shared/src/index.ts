@@ -129,6 +129,7 @@ export const ProductSchema = z.object({
       id: z.number(),
       name: z.string(),
       slug: z.string(),
+      isActive: z.boolean().optional(),
     })
     .optional(),
   brand: z
@@ -136,9 +137,12 @@ export const ProductSchema = z.object({
       id: z.number(),
       name: z.string(),
       slug: z.string(),
+      isActive: z.boolean().optional(),
     })
     .nullable()
     .optional(),
+  isPurchasable: z.boolean().optional(),
+  unavailableReason: z.string().nullable().optional(),
 });
 export type ProductDto = z.infer<typeof ProductSchema>;
 

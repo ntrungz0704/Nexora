@@ -193,35 +193,6 @@ const BEST_SELLER_TABS = [
   { id: 'gear', label: 'Gaming Gear' },
 ];
 
-const BRAND_LOGOS = [
-  { name: 'ASUS', file: 'asus.svg' },
-  { name: 'MSI', file: 'msi.svg' },
-  { name: 'GIGABYTE', file: 'gigabyte.svg' },
-  { name: 'INTEL', file: 'intel.svg' },
-  { name: 'AMD', file: 'amd.svg' },
-  { name: 'NVIDIA', file: 'nvidia.svg' },
-  { name: 'SAMSUNG', file: 'samsung.svg' },
-  { name: 'CORSAIR', file: 'corsair.svg' },
-  { name: 'ACER', file: 'acer.svg' },
-  { name: 'DELL', file: 'dell.svg' },
-  { name: 'HP', file: 'hp.svg' },
-  { name: 'LENOVO', file: 'lenovo.svg' },
-  { name: 'LG', file: 'lg.svg' },
-  { name: 'LOGITECH', file: 'logitech.svg' },
-  { name: 'RAZER', file: 'razer.svg' },
-  { name: 'KINGSTON', file: 'kingston.svg' },
-  { name: 'ASROCK', file: 'asrock.svg' },
-  { name: 'ZOTAC', file: 'zotac.svg' },
-  { name: 'CRUCIAL', file: 'crucial.svg' },
-  { name: 'WESTERN DIGITAL', file: 'wd.svg' },
-  { name: 'G.SKILL', file: 'g-skill.svg' },
-  { name: 'COOLER MASTER', file: 'cooler-master.svg' },
-  { name: 'DEEPCOOL', file: 'deepcool.svg' },
-  { name: 'LIAN LI', file: 'lian-li.svg' },
-  { name: 'THERMALRIGHT', file: 'thermalright.svg' },
-  { name: 'NZXT', file: 'nzxt.svg' },
-];
-
 const CUSTOMER_REVIEWS = [
   {
     name: 'Nguyễn Minh Tuấn',
@@ -263,22 +234,15 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
   // Always use the 20 official category icons matching TechPilot Image 4
   const categoryItems = POPULAR_CATEGORIES;
 
-  const brandItems =
-    brands.length > 0
-      ? brands.map((b) => ({
-          name: b.name,
-          slug: b.slug,
-          logoUrl: b.logoUrl
-            ? b.logoUrl.startsWith('/') || b.logoUrl.startsWith('http')
-              ? b.logoUrl
-              : `/${b.logoUrl}`
-            : `/assets/images/brands/${b.slug}.svg`,
-        }))
-      : BRAND_LOGOS.map((b) => ({
-          name: b.name,
-          slug: b.name.toLowerCase(),
-          logoUrl: `/assets/images/brands/${b.file}`,
-        }));
+  const brandItems = brands.map((b) => ({
+    name: b.name,
+    slug: b.slug,
+    logoUrl: b.logoUrl
+      ? b.logoUrl.startsWith('/') || b.logoUrl.startsWith('http')
+        ? b.logoUrl
+        : `/${b.logoUrl}`
+      : `/assets/images/brands/${b.slug}.svg`,
+  }));
 
   // Filter products for Best Sellers tab
   const getFilteredBestSellers = () => {
@@ -969,7 +933,8 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
                     },
                     {
                       slug: 'danh-gia-chi-tiet-intel-core-ultra-9-285k',
-                      title: 'Đánh giá chi tiết Intel Core Ultra 9 285K: Bước tiến kiến trúc Arrow Lake',
+                      title:
+                        'Đánh giá chi tiết Intel Core Ultra 9 285K: Bước tiến kiến trúc Arrow Lake',
                       img: '/assets/images/news/news-intel-ultra.jpg',
                       fallbackImg: '/assets/images/news/news-intel-ultra.jpg',
                       date: '22/11/2026',
@@ -1172,40 +1137,42 @@ export const ProductCatalogSection: React.FC<ProductCatalogSectionProps> = ({
       </section>
 
       {/* ===== 16. STRATEGIC PARTNER BRANDS ===== */}
-      <section className="container section" style={{ marginTop: '40px' }}>
-        <div className="section__head section__head--brand-partners">
-          <h2>ĐỐI TÁC CHIẾN LƯỢC</h2>
-        </div>
-        <div className="brand-slider">
-          <div className="brand-slider__track">
-            {[...brandItems, ...brandItems].map((b, idx) => (
-              <Link
-                key={`${b.slug}-${idx}`}
-                to={`/search?brand=${b.slug}`}
-                className="brand-logo-card"
-                title={b.name}
-                style={{ textDecoration: 'none' }}
-              >
-                <img
-                  src={b.logoUrl}
-                  alt={b.name}
-                  loading="lazy"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    if (target.nextElementSibling) {
-                      (target.nextElementSibling as HTMLElement).style.display = 'block';
-                    }
-                  }}
-                />
-                <span className="brand-logo-text-fallback" style={{ display: 'none' }}>
-                  {b.name}
-                </span>
-              </Link>
-            ))}
+      {brandItems.length > 0 && (
+        <section className="container section" style={{ marginTop: '40px' }}>
+          <div className="section__head section__head--brand-partners">
+            <h2>ĐỐI TÁC CHIẾN LƯỢC</h2>
           </div>
-        </div>
-      </section>
+          <div className="brand-slider">
+            <div className="brand-slider__track">
+              {[...brandItems, ...brandItems].map((b, idx) => (
+                <Link
+                  key={`${b.slug}-${idx}`}
+                  to={`/search?brand=${b.slug}`}
+                  className="brand-logo-card"
+                  title={b.name}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <img
+                    src={b.logoUrl}
+                    alt={b.name}
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      if (target.nextElementSibling) {
+                        (target.nextElementSibling as HTMLElement).style.display = 'block';
+                      }
+                    }}
+                  />
+                  <span className="brand-logo-text-fallback" style={{ display: 'none' }}>
+                    {b.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ===== 17. CUSTOMER REVIEWS ===== */}
       <section className="container section" style={{ marginTop: '36px', marginBottom: '36px' }}>

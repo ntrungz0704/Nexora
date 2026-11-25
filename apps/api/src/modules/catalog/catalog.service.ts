@@ -5,8 +5,8 @@ import type { Prisma } from '@prisma/client';
 
 type ProductWithRelations = Prisma.ProductGetPayload<{
   include: {
-    category: { select: { id: true; name: true; slug: true } };
-    brand: { select: { id: true; name: true; slug: true } };
+    category: { select: { id: true; name: true; slug: true; isActive: true } };
+    brand: { select: { id: true; name: true; slug: true; isActive: true } };
     images: true;
   };
 }>;
@@ -54,6 +54,23 @@ export class CatalogService {
   }
 
   private mapProductToDto(p: ProductWithRelations): ProductDto {
+    const isCategoryActive = p.category ? p.category.isActive : true;
+    const isBrandActive = p.brandId !== null ? (p.brand ? p.brand.isActive : false) : true;
+
+    let unavailableReason: string | null = null;
+    if (p.status === 'INACTIVE') {
+      unavailableReason = 'DISCONTINUED';
+    } else if (!isCategoryActive) {
+      unavailableReason = 'CATEGORY_INACTIVE';
+    } else if (!isBrandActive) {
+      unavailableReason = 'BRAND_INACTIVE';
+    } else if (p.status === 'OUT_OF_STOCK' || p.stockQuantity <= 0) {
+      unavailableReason = 'OUT_OF_STOCK';
+    }
+
+    const isPurchasable =
+      p.status === 'ACTIVE' && isCategoryActive && isBrandActive && p.stockQuantity > 0;
+
     return {
       id: p.id,
       categoryId: p.categoryId,
@@ -70,11 +87,14 @@ export class CatalogService {
       isFeatured: p.isFeatured,
       isHot: p.isHot,
       status: p.status,
+      isPurchasable,
+      unavailableReason,
       category: p.category
         ? {
             id: p.category.id,
             name: p.category.name,
             slug: p.category.slug,
+            isActive: p.category.isActive,
           }
         : undefined,
       brand: p.brand
@@ -82,6 +102,7 @@ export class CatalogService {
             id: p.brand.id,
             name: p.brand.name,
             slug: p.brand.slug,
+            isActive: p.brand.isActive,
           }
         : null,
     };
