@@ -107,6 +107,9 @@ export class AdminController {
   updateCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
+      if (isNaN(id) || id <= 0) {
+        throw new AppError(400, 'INVALID_ID', 'ID danh mục không hợp lệ.');
+      }
       const category = await this.service.updateCategory(id, req.body);
       sendSuccess(res, category);
     } catch (error) {
@@ -448,6 +451,9 @@ export class AdminController {
   updateBrand = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
+      if (isNaN(id) || id <= 0) {
+        throw new AppError(400, 'INVALID_ID', 'ID thương hiệu không hợp lệ.');
+      }
       const brand = await this.service.updateBrand(id, req.body);
       sendSuccess(res, brand);
     } catch (error) {
@@ -458,6 +464,9 @@ export class AdminController {
   deleteBrand = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
+      if (isNaN(id) || id <= 0) {
+        throw new AppError(400, 'INVALID_ID', 'ID thương hiệu không hợp lệ.');
+      }
       const result = await this.service.deleteBrand(id);
       sendSuccess(res, result);
     } catch (error) {

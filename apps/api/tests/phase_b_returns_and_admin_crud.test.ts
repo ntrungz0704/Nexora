@@ -1139,50 +1139,55 @@ describe('Phase B Milestone M5: Returns Workflow & Admin CRUD Backend Integratio
       expect(res.body.error.code).toBe('CATEGORY_NOT_FOUND');
     });
 
-    it('CAT-02: Reject deleting category with associated products (400 CATEGORY_HAS_PRODUCTS)', async () => {
-      // catWithProd has prodA, prodB, prodC associated
+    it('CAT-02: Soft-delete category with associated products (200) sets isActive=false without deleting products', async () => {
       const res = await request(app)
         .delete(`/api/v1/admin/categories/${catWithProdId}`)
         .set('Authorization', `Bearer ${adminToken}`);
 
-      expect(res.status).toBe(400);
-      expect(res.body.success).toBe(false);
-      expect(res.body.error.code).toBe('CATEGORY_HAS_PRODUCTS');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.isActive).toBe(false);
 
-      // Verify category and products still exist in DB (no cascade deletion)
+      // Verify category still exists with isActive=false and associated products keep intact status & categoryId
       const cat = await prisma.category.findUnique({ where: { id: catWithProdId } });
       expect(cat).not.toBeNull();
-      const prodsCount = await prisma.product.count({ where: { categoryId: catWithProdId } });
-      expect(prodsCount).toBeGreaterThanOrEqual(1);
+      expect(cat?.isActive).toBe(false);
+      const prodsCount = await prisma.product.count({
+        where: { categoryId: catWithProdId, status: 'ACTIVE' },
+      });
+      expect(prodsCount).toBeGreaterThanOrEqual(3);
     });
 
-    it('CAT-03: Reject deleting parent category that has child categories (400 CATEGORY_HAS_CHILDREN)', async () => {
-      // parentCat has childCat
+    it('CAT-03: Soft-delete parent category (200) syncs child categories to isActive=false without deleting hierarchy', async () => {
       const res = await request(app)
         .delete(`/api/v1/admin/categories/${parentCatId}`)
         .set('Authorization', `Bearer ${adminToken}`);
 
-      expect(res.status).toBe(400);
-      expect(res.body.success).toBe(false);
-      expect(res.body.error.code).toBe('CATEGORY_HAS_CHILDREN');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
 
-      // Verify parent category still exists in MySQL
       const parent = await prisma.category.findUnique({ where: { id: parentCatId } });
+      const child = await prisma.category.findUnique({ where: { id: childCatId } });
       expect(parent).not.toBeNull();
+      expect(parent?.isActive).toBe(false);
+      expect(child).not.toBeNull();
+      expect(child?.parentId).toBe(parentCatId);
+      expect(child?.isActive).toBe(false);
     });
 
-    it('CAT-04: Successfully delete empty category (200) without cascade effects', async () => {
-      // emptyCat has 0 products and 0 child categories
+    it('CAT-04: Soft-delete empty category (200) retains database row with isActive=false (no physical delete)', async () => {
       const res = await request(app)
         .delete(`/api/v1/admin/categories/${emptyCatId}`)
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
+      expect(res.body.data.isActive).toBe(false);
 
-      // Verify deleted from MySQL
-      const deletedCat = await prisma.category.findUnique({ where: { id: emptyCatId } });
-      expect(deletedCat).toBeNull();
+      // Verify row still exists in MySQL with isActive = false (B-05 soft delete policy)
+      const softDeletedCat = await prisma.category.findUnique({ where: { id: emptyCatId } });
+      expect(softDeletedCat).not.toBeNull();
+      expect(softDeletedCat?.isActive).toBe(false);
     });
 
     it('CAT-05: Customer should be blocked from deleting categories (403)', async () => {

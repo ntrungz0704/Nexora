@@ -400,59 +400,93 @@ export class AdminService {
     });
   }
 
+  private async deactivateCategoryWithDescendants(
+    tx: Prisma.TransactionClient,
+    rootCategoryId: number,
+  ): Promise<number[]> {
+    const targetIds = new Set<number>([rootCategoryId]);
+    let frontier: number[] = [rootCategoryId];
+
+    while (frontier.length > 0) {
+      const children = await tx.category.findMany({
+        where: { parentId: { in: frontier } },
+        select: { id: true },
+      });
+      const nextFrontier: number[] = [];
+      for (const child of children) {
+        if (!targetIds.has(child.id)) {
+          targetIds.add(child.id);
+          nextFrontier.push(child.id);
+        }
+      }
+      frontier = nextFrontier;
+    }
+
+    const idsToDeactivate = Array.from(targetIds);
+    await tx.category.updateMany({
+      where: { id: { in: idsToDeactivate } },
+      data: { isActive: false },
+    });
+
+    return idsToDeactivate;
+  }
+
   async updateCategory(id: number, data: UpdateCategoryInput) {
-    return prisma.category.update({
-      where: { id },
-      data: {
-        name: data.name,
-        slug: data.slug,
-        icon: data.icon,
-        description: data.description,
-        sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : undefined,
-        isActive: data.isActive !== undefined ? Boolean(data.isActive) : undefined,
-      },
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.category.findUnique({ where: { id } });
+      if (!existing) {
+        throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Không tìm thấy danh mục.');
+      }
+
+      const nextIsActive = data.isActive !== undefined ? Boolean(data.isActive) : undefined;
+      const updated = await tx.category.update({
+        where: { id },
+        data: {
+          name: data.name,
+          slug: data.slug,
+          icon: data.icon,
+          description: data.description,
+          sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : undefined,
+          isActive: nextIsActive,
+        },
+      });
+
+      if (nextIsActive === false) {
+        await this.deactivateCategoryWithDescendants(tx, id);
+      }
+
+      return updated;
     });
   }
 
-  async deleteCategory(id: number): Promise<{ success: boolean; message: string }> {
+  async deleteCategory(id: number): Promise<{
+    success: boolean;
+    id: number;
+    isActive: boolean;
+    deactivatedIds: number[];
+    message: string;
+  }> {
     return prisma.$transaction(async (tx) => {
       const category = await tx.category.findUnique({
         where: { id },
-        include: {
-          _count: {
-            select: {
-              products: true,
-              children: true,
-            },
-          },
-        },
       });
 
       if (!category) {
         throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Không tìm thấy danh mục.');
       }
 
-      if (category._count.products > 0) {
-        throw new AppError(
-          400,
-          'CATEGORY_HAS_PRODUCTS',
-          `Không thể xóa danh mục đang có ${category._count.products} sản phẩm liên kết.`,
-        );
-      }
+      const deactivatedIds = await this.deactivateCategoryWithDescendants(tx, id);
 
-      if (category._count.children > 0) {
-        throw new AppError(
-          400,
-          'CATEGORY_HAS_CHILDREN',
-          `Không thể xóa danh mục đang có ${category._count.children} danh mục con.`,
-        );
-      }
-
-      await tx.category.delete({
-        where: { id },
-      });
-
-      return { success: true, message: 'Xóa danh mục thành công.' };
+      return {
+        success: true,
+        id,
+        isActive: false,
+        deactivatedIds,
+        message:
+          deactivatedIds.length > 1
+            ? `Đã chuyển danh mục và ${deactivatedIds.length - 1} danh mục con sang trạng thái tạm ẩn.`
+            : 'Đã chuyển danh mục sang trạng thái tạm ẩn.',
+      };
     });
   }
 
@@ -989,14 +1023,41 @@ export class AdminService {
       isActive: boolean;
     }>,
   ) {
+    const existing = await prisma.brand.findUnique({ where: { id } });
+    if (!existing) {
+      throw new AppError(404, 'BRAND_NOT_FOUND', 'Không tìm thấy thương hiệu.');
+    }
+
     return prisma.brand.update({
       where: { id },
       data,
     });
   }
 
-  async deleteBrand(id: number) {
-    return prisma.brand.delete({ where: { id } });
+  async deleteBrand(id: number): Promise<{
+    success: boolean;
+    id: number;
+    isActive: boolean;
+    message: string;
+  }> {
+    return prisma.$transaction(async (tx) => {
+      const brand = await tx.brand.findUnique({ where: { id } });
+      if (!brand) {
+        throw new AppError(404, 'BRAND_NOT_FOUND', 'Không tìm thấy thương hiệu.');
+      }
+
+      const updated = await tx.brand.update({
+        where: { id },
+        data: { isActive: false },
+      });
+
+      return {
+        success: true,
+        id: updated.id,
+        isActive: updated.isActive,
+        message: 'Đã chuyển thương hiệu sang trạng thái tạm ẩn.',
+      };
+    });
   }
 
   // --- Users / Customers Management ---
