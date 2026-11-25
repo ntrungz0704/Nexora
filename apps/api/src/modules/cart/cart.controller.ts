@@ -113,12 +113,19 @@ export class CartController {
   removeItem = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { userId, guestSessionId } = this.getSessionIds(req);
-      const cartItemId = BigInt(req.params.id as string);
+      const cartItemId = this.parsePositiveBigInt(req.params.id, 'Mã sản phẩm trong giỏ hàng');
+      const rawRequestedCartId =
+        req.body?.cartId !== undefined ? req.body.cartId : req.query?.cartId;
+      const requestedCartId =
+        rawRequestedCartId !== undefined
+          ? this.parsePositiveBigInt(rawRequestedCartId, 'Mã giỏ hàng')
+          : undefined;
 
       const data = await this.service.removeItem({
         cartItemId,
         userId,
         guestSessionId,
+        requestedCartId,
       });
       sendSuccess(res, data);
     } catch (error) {

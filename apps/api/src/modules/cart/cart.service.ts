@@ -460,12 +460,79 @@ export class CartService {
     cartItemId: bigint;
     userId?: number;
     guestSessionId?: string;
+    requestedCartId?: bigint;
   }): Promise<CartSummaryDto> {
-    await this.prisma.cartItem.delete({
-      where: { id: params.cartItemId },
+    if (params.cartItemId <= 0n) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'Mã sản phẩm trong giỏ hàng không hợp lệ.');
+    }
+
+    const cleanGuest = params.guestSessionId?.trim() || undefined;
+    if (params.userId === undefined && !cleanGuest) {
+      throw new AppError(
+        401,
+        'UNAUTHORIZED',
+        'Vui lòng đăng nhập hoặc cung cấp phiên giỏ hàng hợp lệ.',
+      );
+    }
+
+    await this.assertRequestedCartOwned(params.requestedCartId, params.userId, cleanGuest);
+
+    await this.prisma.$transaction(async (tx) => {
+      const lockedRows = await tx.$queryRaw<
+        Array<{
+          id: bigint;
+          cart_id: bigint;
+          user_id: number | null;
+          guest_session_id: string | null;
+        }>
+      >`
+        SELECT ci.id, ci.cart_id, c.user_id, c.guest_session_id
+        FROM cart_items ci
+        INNER JOIN carts c ON c.id = ci.cart_id
+        WHERE ci.id = ${params.cartItemId}
+        FOR UPDATE
+      `;
+
+      if (!lockedRows || lockedRows.length === 0) {
+        throw new AppError(404, 'CART_ITEM_NOT_FOUND', 'Không tìm thấy sản phẩm trong giỏ hàng.');
+      }
+
+      const row = lockedRows[0]!;
+      const rowCartId = BigInt(row.cart_id);
+      if (params.requestedCartId !== undefined && rowCartId !== params.requestedCartId) {
+        throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền thao tác trên giỏ hàng này.');
+      }
+
+      if (
+        !this.isCallerCartOwner(
+          {
+            userId: row.user_id !== null ? Number(row.user_id) : null,
+            guestSessionId: row.guest_session_id,
+          },
+          params.userId,
+          cleanGuest,
+        )
+      ) {
+        throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền xóa sản phẩm khỏi giỏ hàng này.');
+      }
+
+      const deleteResult = await tx.cartItem.deleteMany({
+        where: {
+          id: params.cartItemId,
+          cartId: rowCartId,
+          cart:
+            params.userId !== undefined
+              ? { userId: params.userId }
+              : { userId: null, guestSessionId: cleanGuest! },
+        },
+      });
+
+      if (deleteResult.count !== 1) {
+        throw new AppError(409, 'CART_MODIFIED', 'Giỏ hàng đã thay đổi, vui lòng thử lại.');
+      }
     });
 
-    return this.getCartSummary(params.userId, params.guestSessionId);
+    return this.getCartSummary(params.userId, cleanGuest);
   }
 
   /**
