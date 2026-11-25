@@ -1,0 +1,38 @@
+﻿[
+    {
+        "Suite":  "Unit \u0026 Frontend RTL",
+        "Command":  "npm run test:unit",
+        "Cwd":  "D:\\Nexora",
+        "Start":  "2026-11-25T17:51:04.2776897+07:00",
+        "DurationSec":  22.2,
+        "ExitCode":  0,
+        "Log":  "03_test_unit_rtl.log"
+    },
+    {
+        "Suite":  "Backend Integration \u0026 Security (Tier 2A)",
+        "Command":  "npx vitest run --no-file-parallelism \u003c11 backend integration files\u003e",
+        "Cwd":  "D:\\Nexora",
+        "Start":  "2026-11-25T17:51:40.1485908+07:00",
+        "DurationSec":  12.84,
+        "ExitCode":  0,
+        "Log":  "03_test_tier2a_backend.log"
+    },
+    {
+        "Suite":  "DB Connectivity (Tier 2B)",
+        "Command":  "npm run test:integration -w @nexora/api",
+        "Cwd":  "D:\\Nexora",
+        "Start":  "2026-11-25T17:51:52.9924687+07:00",
+        "DurationSec":  1.21,
+        "ExitCode":  0,
+        "Log":  "03_test_tier2b_db.log"
+    },
+    {
+        "Suite":  "Playwright E2E (Tier 3 - Isolated 3001/5174/3307)",
+        "Command":  "npx playwright test --config=C:\\Users\\ntrun\\.gemini\\antigravity\\brain\\cbb56898-9b1b-457a-94eb-b95f7f50979c\\scratch\\playwright.isolated.config.mjs --reporter=list",
+        "Cwd":  "D:\\Nexora",
+        "Start":  "2026-11-25T17:51:54.2030820+07:00",
+        "DurationSec":  1.22,
+        "ExitCode":  1,
+        "Log":  "03_test_tier3_playwright.log"
+    }
+]

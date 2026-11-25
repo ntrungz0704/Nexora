@@ -1,0 +1,38 @@
+{
+  "meta": [
+    {
+      "db": "nexora",
+      "port": 3306,
+      "hostname": "7ffc1a14a558"
+    }
+  ],
+  "counts": {
+    "_prisma_migrations": 8,
+    "ai_assistant_logs": 12,
+    "audit_logs": 2,
+    "banners": 9,
+    "brands": 31,
+    "cart_items": 2,
+    "carts": 20,
+    "categories": 22,
+    "coupons": 5,
+    "customer_addresses": 1,
+    "flash_sale_items": 1,
+    "flash_sales": 1,
+    "inventory_logs": 0,
+    "notifications": 2,
+    "order_items": 2,
+    "orders": 2,
+    "posts": 8,
+    "product_ai_chat_histories": 0,
+    "product_images": 23,
+    "products": 674,
+    "return_audit_logs": 0,
+    "return_items": 0,
+    "return_requests": 0,
+    "reviews": 0,
+    "store_settings": 5,
+    "users": 3,
+    "wishlists": 1
+  }
+}

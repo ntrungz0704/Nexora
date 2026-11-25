@@ -1,0 +1,416 @@
+{
+  "timestamp": "2026-11-25T04:53:45.645Z",
+  "apiSecurityChecks": [
+    {
+      "name": "Unauth GET /admin/dashboard/summary -> 401",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/dashboard/summary",
+      "status": 401,
+      "ms": 16.3,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth GET /admin/users -> 401",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/users",
+      "status": 401,
+      "ms": 2.5,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth GET /admin/orders -> 401",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/orders",
+      "status": 401,
+      "ms": 1.4,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth GET /admin/returns -> 401",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/returns",
+      "status": 401,
+      "ms": 1.3,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth GET /profile -> 401",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/profile",
+      "status": 401,
+      "ms": 1.3,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth GET /orders/my-orders -> 401",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/orders/my-orders",
+      "status": 401,
+      "ms": 0.8,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Invalid Bearer JWT GET /profile -> 401",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/profile",
+      "status": 401,
+      "ms": 1.5,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Phiên đăng nhập đã hết hạn hoặc không hợp lệ.\"}}"
+    },
+    {
+      "name": "Order IDOR unauthenticated GET /orders/detail/NX-2026-0001 -> 401/403",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/orders/detail/NX-2026-0001",
+      "status": 401,
+      "ms": 1.3,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Vui lòng đăng nhập hoặc cung cấp số điện thoại/email đặt hàng để xem chi tiết đơn hàng.\"}}"
+    },
+    {
+      "name": "Order Track wrong phone -> 403/404",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/orders/track?code=NX-2026-0001&phone=0000000000",
+      "status": 404,
+      "ms": 92.3,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"ORDER_NOT_FOUND\",\"message\":\"Không tìm thấy thông tin đơn hàng phù hợp.\"}}"
+    },
+    {
+      "name": "Invalid Product Slug -> clean 404 (no stack trace)",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/catalog/products/non-existent-slug-999999",
+      "status": 404,
+      "ms": 238.9,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"PRODUCT_NOT_FOUND\",\"message\":\"Không tìm thấy sản phẩm với slug: non-existent-slug-999999\"}}"
+    },
+    {
+      "name": "SQLi attempt search -> safe parameterized query",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/catalog/products?q='%20OR%201%3D1%20--",
+      "status": 200,
+      "ms": 7.1,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":true,\"data\":{\"products\":[],\"total\":0},\"meta\":{\"timestamp\":\"2026-11-25T04:53:46.013Z\"}}"
+    },
+    {
+      "name": "Invalid JSON / Validation Error -> 400 (no stack)",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/login",
+      "status": 400,
+      "ms": 14.6,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Email không đúng định dạng.\",\"details\":[{\"origin\":\"string\",\"code\":\"invalid_format\",\"format\":\"email\",\"pattern\":\"/^(?:[A-Za-z0-9_'+\\\\-]+\\\\.)*[A-Za-z0-9_'+\\\\-]*"
+    },
+    {
+      "name": "CORS disallowed origin check",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/catalog/categories",
+      "status": 500,
+      "ms": 0.8,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected internal server error occurred.\"}}"
+    }
+  ],
+  "bundleSecretScan": {
+    "jsFilesScanned": [
+      "index-iG3JJKO1.js"
+    ],
+    "findings": []
+  },
+  "adminTabsAudit": [
+    {
+      "tab": "dashboard",
+      "path": "/admin",
+      "textLen": 1492,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "products",
+      "path": "/admin/products",
+      "textLen": 2215,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "orders",
+      "path": "/admin/orders",
+      "textLen": 698,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "users",
+      "path": "/admin/users",
+      "textLen": 684,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "categories",
+      "path": "/admin/categories",
+      "textLen": 915,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "brands",
+      "path": "/admin/brands",
+      "textLen": 1490,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "coupons",
+      "path": "/admin/coupons",
+      "textLen": 1006,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "flash-sales",
+      "path": "/admin/flash-sales",
+      "textLen": 427,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "posts",
+      "path": "/admin/posts",
+      "textLen": 1698,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "reviews",
+      "path": "/admin/reviews",
+      "textLen": 419,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "banners",
+      "path": "/admin/banners",
+      "textLen": 1189,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "inventory",
+      "path": "/admin/inventory",
+      "textLen": 439,
+      "brokenImgs": [],
+      "overflow": false
+    },
+    {
+      "tab": "settings",
+      "path": "/admin/settings",
+      "textLen": 503,
+      "brokenImgs": [],
+      "overflow": false
+    }
+  ],
+  "customerRbacCheck": {},
+  "performanceApiTimings": [
+    {
+      "endpoint": "/health",
+      "status": 200,
+      "samplesMs": [
+        3.4,
+        3.2,
+        2.1,
+        1.7,
+        1.6
+      ],
+      "avgMs": 2.4,
+      "maxMs": 3.4
+    },
+    {
+      "endpoint": "/system/meta",
+      "status": 200,
+      "samplesMs": [
+        2.4,
+        1.5,
+        1.8,
+        1.7,
+        1.5
+      ],
+      "avgMs": 1.8,
+      "maxMs": 2.4
+    },
+    {
+      "endpoint": "/catalog/categories",
+      "status": 200,
+      "samplesMs": [
+        2.1,
+        2,
+        2.2,
+        2.1,
+        1.9
+      ],
+      "avgMs": 2.1,
+      "maxMs": 2.2
+    },
+    {
+      "endpoint": "/catalog/brands",
+      "status": 200,
+      "samplesMs": [
+        2.7,
+        1.9,
+        1.8,
+        1.8,
+        1.8
+      ],
+      "avgMs": 2,
+      "maxMs": 2.7
+    },
+    {
+      "endpoint": "/catalog/banners?placement=hero",
+      "status": 200,
+      "samplesMs": [
+        2.3,
+        1.9,
+        1.7,
+        1.7,
+        1.5
+      ],
+      "avgMs": 1.8,
+      "maxMs": 2.3
+    },
+    {
+      "endpoint": "/catalog/products?limit=24",
+      "status": 200,
+      "samplesMs": [
+        7.1,
+        7.4,
+        9.6,
+        6.9,
+        7.7
+      ],
+      "avgMs": 7.7,
+      "maxMs": 9.6
+    },
+    {
+      "endpoint": "/catalog/products/macbook-pro-16-m3-max",
+      "status": 200,
+      "samplesMs": [
+        6.9,
+        3.7,
+        3.8,
+        3.4,
+        3.2
+      ],
+      "avgMs": 4.2,
+      "maxMs": 6.9
+    },
+    {
+      "endpoint": "/marketing/posts",
+      "status": 200,
+      "samplesMs": [
+        4.5,
+        1.8,
+        1.7,
+        1.6,
+        1.5
+      ],
+      "avgMs": 2.2,
+      "maxMs": 4.5
+    }
+  ],
+  "adminLoginSuccess": true,
+  "adminConsoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ],
+  "adminHttpErrors": [
+    {
+      "url": "http://localhost:3000/api/v1/auth/login",
+      "status": 401
+    }
+  ]
+}

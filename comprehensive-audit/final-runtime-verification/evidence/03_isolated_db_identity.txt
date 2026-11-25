@@ -1,0 +1,1 @@
+﻿[   {     "db": "nexora_test",     "port": 3306,     "hostname": "48dc62fd9cb6",     "ver": "8.4.13"   } ]

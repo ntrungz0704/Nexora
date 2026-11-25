@@ -1,0 +1,70 @@
+﻿
+
+ProcessId       : 26380
+ParentProcessId : 25184
+CommandLine     : "C:\Program Files\nodejs\\node.exe"  "C:\Program Files\nodejs\\node_modules\npm\bin\npx-cli.js" -y 
+                  chrome-devtools-mcp@latest --browserUrl http://127.0.0.1:9222
+
+ProcessId       : 26396
+ParentProcessId : 25176
+CommandLine     : "C:\Program Files\nodejs\\node.exe"  "C:\Program Files\nodejs\\node_modules\npm\bin\npx-cli.js" -y 
+                  firebase-tools@latest mcp
+
+ProcessId       : 27972
+ParentProcessId : 27924
+CommandLine     : "node"   "C:\Users\ntrun\AppData\Local\npm-cache\_npx\15c61037b1978c83\node_modules\.bin\\..\chrome-d
+                  evtools-mcp\out\Default\gen\src\bin\chrome-devtools-mcp.js" --browserUrl http://127.0.0.1:9222
+
+ProcessId       : 28160
+ParentProcessId : 28136
+CommandLine     : "node"   "C:\Users\ntrun\AppData\Local\npm-cache\_npx\ba4f1959e38407b5\node_modules\.bin\\..\firebase
+                  -tools\lib\bin\firebase.js" mcp
+
+ProcessId       : 28464
+ParentProcessId : 8360
+CommandLine     : node mcp/dist/index.js --mode=notebook
+
+ProcessId       : 11964
+ParentProcessId : 8360
+CommandLine     : node mcp/dist/index.js --mode=data-agent-kit
+
+ProcessId       : 16460
+ParentProcessId : 8796
+CommandLine     : "C:\Program Files\Adobe\Adobe Creative Cloud Experience\libs\node.exe" "C:\Program Files\Adobe\Adobe 
+                  Creative Cloud Experience\js\main.js"
+
+ProcessId       : 16932
+ParentProcessId : 19596
+CommandLine     : "C:\Program Files\nodejs\node.exe" "C:\Program Files\nodejs/node_modules/npm/bin/npm-cli.js" run 
+                  dev:web
+
+ProcessId       : 13048
+ParentProcessId : 29328
+CommandLine     : "C:\Program Files\nodejs\\node.exe"  "C:\Program Files\nodejs\\node_modules\npm\bin\npm-cli.js" run 
+                  dev -w @nexora/web
+
+ProcessId       : 32852
+ParentProcessId : 3180
+CommandLine     : "node"   "D:\Nexora\node_modules\.bin\\..\vite\bin\vite.js" --port 5173
+
+ProcessId       : 11684
+ParentProcessId : 34880
+CommandLine     : "C:\Program Files\nodejs\node.exe" "C:\Program Files\nodejs/node_modules/npm/bin/npm-cli.js" run 
+                  dev:api
+
+ProcessId       : 33524
+ParentProcessId : 35132
+CommandLine     : "C:\Program Files\nodejs\\node.exe"  "C:\Program Files\nodejs\\node_modules\npm\bin\npm-cli.js" run 
+                  dev -w @nexora/api
+
+ProcessId       : 35208
+ParentProcessId : 15512
+CommandLine     : "node"   "D:\Nexora\node_modules\.bin\\..\tsx\dist\cli.mjs" watch src/server.ts
+
+ProcessId       : 13588
+ParentProcessId : 35208
+CommandLine     : "C:\Program Files\nodejs\node.exe" --require D:\Nexora\node_modules\tsx\dist\preflight.cjs --import 
+                  file:///D:/Nexora/node_modules/tsx/dist/loader.mjs src/server.ts
+
+
+

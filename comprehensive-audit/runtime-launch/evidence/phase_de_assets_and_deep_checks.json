@@ -1,0 +1,450 @@
+{
+  "homeMissingAssetsOnDisk": [],
+  "homeScrolledBrokenImgs": [
+    {
+      "src": "/assets/images/review/unlinked/acer-aspire.jpg",
+      "alt": "Laptop Acer Model-L3 AMD Ryzen 7 8845HS 32GB SSD 1TB",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/review/unlinked/macbook-pro.jpg",
+      "alt": "Laptop Lenovo Model-L4 Apple M3 Pro 16GB SSD 1TB",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/hp-pavilion.jpg",
+      "alt": "Laptop HP Model-L5 Intel Core Ultra 7 155H 16GB SSD 1TB",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/dell-inspiron.jpg",
+      "alt": "Laptop Dell Model-L6 Intel Core i5-13420H 32GB SSD 1TB",
+      "complete": false,
+      "naturalWidth": 480
+    },
+    {
+      "src": "/assets/images/review/unlinked/acer-predator.jpg",
+      "alt": "Laptop Gaming Acer Nitro V 15 ANV15-51-55CA",
+      "complete": false,
+      "naturalWidth": 1024
+    },
+    {
+      "src": "/assets/images/review/unlinked/msi-vector.jpg",
+      "alt": "Laptop Gaming MSI Cyborg 15 A12VF-462VN",
+      "complete": false,
+      "naturalWidth": 1024
+    },
+    {
+      "src": "/assets/images/review/unlinked/lenovo-ideapad.jpg",
+      "alt": "Laptop Gaming Lenovo LOQ 15IRX9 83DV00ERVN",
+      "complete": false,
+      "naturalWidth": 480
+    },
+    {
+      "src": "/assets/images/review/unlinked/rog-zephyrus.jpg",
+      "alt": "Laptop Gaming ASUS ROG Strix G16 G614JVR-N4003W",
+      "complete": false,
+      "naturalWidth": 1024
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Tản nhiệt DeepCool Frost-CL17 Air Cooling RGB",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Tản nhiệt DeepCool Frost-CL12 AIO Cooling RGB",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Tản nhiệt DeepCool Frost-CL7 Air Cooling RGB",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Tản nhiệt DeepCool Frost-CL2 AIO Cooling RGB",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+      "alt": "Máy chơi game cầm tay MSI Console-CN26 Ryzen Z1 Extreme 1TB",
+      "complete": false,
+      "naturalWidth": 480
+    },
+    {
+      "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+      "alt": "Máy chơi game cầm tay ASUS Console-CN25 Ryzen Z1 Extreme 1TB",
+      "complete": false,
+      "naturalWidth": 480
+    },
+    {
+      "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+      "alt": "Máy chơi game cầm tay Razer Console-CN24 Ryzen Z1 Extreme 1TB",
+      "complete": false,
+      "naturalWidth": 480
+    },
+    {
+      "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+      "alt": "Máy chơi game cầm tay Lenovo Console-CN23 Ryzen Z1 Extreme 1TB",
+      "complete": false,
+      "naturalWidth": 480
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Màn hình AOC Model-M23 27 inch 2560x1440 2K 144Hz",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Màn hình Gigabyte Model-M22 27 inch 2560x1440 2K 180Hz",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Màn hình Acer Model-M21 32 inch 3840x2160 4K 144Hz",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Màn hình Dell Model-M20 27 inch 2560x1440 2K 180Hz",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Loa vi tính LG Bass-SP23 2.1 Bluetooth 60W",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Loa vi tính Razer Bass-SP22 2.1 Bluetooth 60W",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Loa vi tính Logitech Bass-SP21 2.1 Bluetooth 60W",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/review/unlinked/printer-canon.jpg",
+      "alt": "Loa vi tính Samsung Bass-SP20 2.1 Bluetooth 60W",
+      "complete": false,
+      "naturalWidth": 400
+    },
+    {
+      "src": "/assets/images/brands/apple.svg",
+      "alt": "Apple",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/asrock.svg",
+      "alt": "ASRock",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/colorful.svg",
+      "alt": "Colorful",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/cooler-master.svg",
+      "alt": "Cooler Master",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/crucial.svg",
+      "alt": "Crucial",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/deepcool.svg",
+      "alt": "DeepCool",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/g-skill.svg",
+      "alt": "G.Skill",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/kingston.svg",
+      "alt": "Kingston",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/lexar.svg",
+      "alt": "Lexar",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/lian-li.svg",
+      "alt": "Lian Li",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/logitech.svg",
+      "alt": "Logitech",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/montech.svg",
+      "alt": "Montech",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/nzxt.svg",
+      "alt": "NZXT",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/razer.svg",
+      "alt": "Razer",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/teamgroup.svg",
+      "alt": "TeamGroup",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/thermalright.svg",
+      "alt": "Thermalright",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/wd.svg",
+      "alt": "WD",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/xigmatek.svg",
+      "alt": "Xigmatek",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/zotac.svg",
+      "alt": "Zotac",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/apple.svg",
+      "alt": "Apple",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/asrock.svg",
+      "alt": "ASRock",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/colorful.svg",
+      "alt": "Colorful",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/cooler-master.svg",
+      "alt": "Cooler Master",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/crucial.svg",
+      "alt": "Crucial",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/deepcool.svg",
+      "alt": "DeepCool",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/g-skill.svg",
+      "alt": "G.Skill",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/kingston.svg",
+      "alt": "Kingston",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/lexar.svg",
+      "alt": "Lexar",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/lian-li.svg",
+      "alt": "Lian Li",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/logitech.svg",
+      "alt": "Logitech",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/montech.svg",
+      "alt": "Montech",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/nzxt.svg",
+      "alt": "NZXT",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/razer.svg",
+      "alt": "Razer",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/teamgroup.svg",
+      "alt": "TeamGroup",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/thermalright.svg",
+      "alt": "Thermalright",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/wd.svg",
+      "alt": "WD",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/xigmatek.svg",
+      "alt": "Xigmatek",
+      "complete": false,
+      "naturalWidth": 0
+    },
+    {
+      "src": "/assets/images/brands/zotac.svg",
+      "alt": "Zotac",
+      "complete": false,
+      "naturalWidth": 0
+    }
+  ],
+  "tabletOverflowElements": [
+    {
+      "tag": "DIV",
+      "className": "nexora-topbar__track",
+      "right": 860,
+      "width": 1529,
+      "text": "Sản phẩm chính hãng – Xuất VAT đầy đủ\nGiao nhanh –"
+    },
+    {
+      "tag": "DIV",
+      "className": "nexora-topbar__group",
+      "right": 860,
+      "width": 765,
+      "text": "Sản phẩm chính hãng – Xuất VAT đầy đủ\nGiao nhanh –"
+    },
+    {
+      "tag": "A",
+      "className": "nexora-topbar__message",
+      "right": 836,
+      "width": 201,
+      "text": "Thu cũ giá tốt – Lên đời tiết kiệm"
+    },
+    {
+      "tag": "SPAN",
+      "className": "nexora-topbar__text",
+      "right": 836,
+      "width": 185,
+      "text": "Thu cũ giá tốt – Lên đời tiết kiệm"
+    },
+    {
+      "tag": "SPAN",
+      "className": "",
+      "right": 775,
+      "width": 54,
+      "text": "Còn hàng (10 sản phẩm)"
+    },
+    {
+      "tag": "SPAN",
+      "className": "",
+      "right": 876,
+      "width": 98,
+      "text": "94.990.000đ"
+    },
+    {
+      "tag": "SPAN",
+      "className": "",
+      "right": 920,
+      "width": 30,
+      "text": "(Đã bao gồm VAT 10%)"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "right": 808,
+      "width": 120,
+      "text": "Card đồ họa (VGA):\nApple 30-core GPU"
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "right": 808,
+      "width": 120,
+      "text": "Trọng lượng:\n2.16 kg"
+    }
+  ],
+  "pcBuilderFlow": {
+    "slotsFound": 12,
+    "pickedCpu": true,
+    "summaryText": "not matched"
+  },
+  "compareFlow": {
+    "suggestionsVisible": 0
+  }
+}

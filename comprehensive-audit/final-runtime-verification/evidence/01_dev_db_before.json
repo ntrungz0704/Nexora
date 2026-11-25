@@ -1,0 +1,381 @@
+{
+  "timestamp": "2026-11-25T10:50:23.893Z",
+  "meta": [
+    {
+      "db": "nexora",
+      "host": "7ffc1a14a558",
+      "port": 3306,
+      "ver": "8.4.13"
+    }
+  ],
+  "tableCount": 27,
+  "totalRows": 842,
+  "counts": {
+    "_prisma_migrations": 8,
+    "ai_assistant_logs": 12,
+    "audit_logs": 2,
+    "banners": 9,
+    "brands": 31,
+    "cart_items": 2,
+    "carts": 28,
+    "categories": 22,
+    "coupons": 5,
+    "customer_addresses": 1,
+    "flash_sale_items": 1,
+    "flash_sales": 1,
+    "inventory_logs": 0,
+    "notifications": 2,
+    "order_items": 2,
+    "orders": 2,
+    "posts": 8,
+    "product_ai_chat_histories": 0,
+    "product_images": 23,
+    "products": 674,
+    "return_audit_logs": 0,
+    "return_items": 0,
+    "return_requests": 0,
+    "reviews": 0,
+    "store_settings": 5,
+    "users": 3,
+    "wishlists": 1
+  },
+  "migrations": [
+    {
+      "migration_name": "20261118162807_init_foundation",
+      "finished_at": "2026-11-22T06:47:26.345Z",
+      "rolled_back_at": null
+    },
+    {
+      "migration_name": "20261118175000_rename_user_role_seller_to_staff",
+      "finished_at": "2026-11-22T06:47:34.852Z",
+      "rolled_back_at": null
+    },
+    {
+      "migration_name": "20261119044649_init_storefront_and_catalog",
+      "finished_at": "2026-11-22T06:49:10.167Z",
+      "rolled_back_at": null
+    },
+    {
+      "migration_name": "20261119070000_add_orders_coupons_inventory_ai_models",
+      "finished_at": "2026-11-22T06:50:19.895Z",
+      "rolled_back_at": null
+    },
+    {
+      "migration_name": "20261122110000_add_reviews_moderation_and_unique",
+      "finished_at": "2026-11-22T06:50:25.425Z",
+      "rolled_back_at": null
+    },
+    {
+      "migration_name": "20261122120000_fix_review_verified_purchase_default",
+      "finished_at": "2026-11-22T06:50:26.346Z",
+      "rolled_back_at": null
+    },
+    {
+      "migration_name": "20261122140000_add_returns_workflow_and_order_delivered_at",
+      "finished_at": "2026-11-22T06:59:42.443Z",
+      "rolled_back_at": null
+    },
+    {
+      "migration_name": "20261122160000_sanitize_unverified_delivered_at",
+      "finished_at": "2026-11-22T08:34:02.285Z",
+      "rolled_back_at": null
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@nexora.local",
+      "full_name": "Quản Trị Viên Nexora (Re-seeded)",
+      "role": "ADMIN",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 2,
+      "email": "staff@nexora.local",
+      "full_name": "Kỹ Thuật Viên Nexora",
+      "role": "STAFF",
+      "status": "ACTIVE"
+    },
+    {
+      "id": 3,
+      "email": "customer@nexora.local",
+      "full_name": "Nguyễn Văn An",
+      "role": "CUSTOMER",
+      "status": "ACTIVE"
+    }
+  ],
+  "settings": [
+    {
+      "setting_key": "store.business_model",
+      "setting_value": "single-vendor"
+    },
+    {
+      "setting_key": "store.currency",
+      "setting_value": "VND"
+    },
+    {
+      "setting_key": "store.email",
+      "setting_value": "hotro@nexora.vn"
+    },
+    {
+      "setting_key": "store.hotline",
+      "setting_value": "1800 2097"
+    },
+    {
+      "setting_key": "store.name",
+      "setting_value": "Nexora Tech Store"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "order_code": "NX-2026-0001",
+      "user_id": 3,
+      "order_status": "DELIVERED",
+      "payment_method": "COD",
+      "payment_status": "PAID",
+      "total_amount": 3790000,
+      "delivered_at": null,
+      "created_at": "2026-11-22T06:51:10.628Z"
+    },
+    {
+      "id": 2,
+      "order_code": "NX-2026-0002",
+      "user_id": 3,
+      "order_status": "SHIPPING",
+      "payment_method": "VNPAY",
+      "payment_status": "PAID",
+      "total_amount": 3920000,
+      "delivered_at": null,
+      "created_at": "2026-11-22T06:51:10.766Z"
+    }
+  ],
+  "recentCarts": [
+    {
+      "id": 224,
+      "user_id": null,
+      "session_prefix": "guest_jey2ovobovmw",
+      "created_at": "2026-11-25T04:50:24.145Z",
+      "item_count": 0
+    },
+    {
+      "id": 223,
+      "user_id": null,
+      "session_prefix": "guest_jhzkgosc5qfm",
+      "created_at": "2026-11-25T04:49:17.724Z",
+      "item_count": 0
+    },
+    {
+      "id": 222,
+      "user_id": null,
+      "session_prefix": "guest_8wrb70d7pb8m",
+      "created_at": "2026-11-25T04:49:11.193Z",
+      "item_count": 0
+    },
+    {
+      "id": 221,
+      "user_id": null,
+      "session_prefix": "guest_q54sxve85jmw",
+      "created_at": "2026-11-25T04:49:04.630Z",
+      "item_count": 0
+    },
+    {
+      "id": 220,
+      "user_id": null,
+      "session_prefix": "guest_n27j0ilaqu8m",
+      "created_at": "2026-11-25T04:48:58.203Z",
+      "item_count": 0
+    },
+    {
+      "id": 219,
+      "user_id": null,
+      "session_prefix": "guest_m2v4fumfr1im",
+      "created_at": "2026-11-25T04:48:51.817Z",
+      "item_count": 0
+    },
+    {
+      "id": 218,
+      "user_id": null,
+      "session_prefix": "guest_i95mu4waszmw",
+      "created_at": "2026-11-25T04:48:17.293Z",
+      "item_count": 0
+    },
+    {
+      "id": 217,
+      "user_id": null,
+      "session_prefix": "guest_7z282hja3ixm",
+      "created_at": "2026-11-25T04:46:53.472Z",
+      "item_count": 0
+    },
+    {
+      "id": 216,
+      "user_id": null,
+      "session_prefix": "guest_58av4wejjc4m",
+      "created_at": "2026-11-24T08:39:46.175Z",
+      "item_count": 0
+    },
+    {
+      "id": 215,
+      "user_id": null,
+      "session_prefix": "guest_3vdvg8zos03m",
+      "created_at": "2026-11-24T08:39:45.499Z",
+      "item_count": 0
+    },
+    {
+      "id": 214,
+      "user_id": null,
+      "session_prefix": "guest_9alel0y4nscm",
+      "created_at": "2026-11-24T08:39:44.950Z",
+      "item_count": 0
+    },
+    {
+      "id": 213,
+      "user_id": null,
+      "session_prefix": "guest_mqp84wwtqxmw",
+      "created_at": "2026-11-24T08:39:44.376Z",
+      "item_count": 0
+    }
+  ],
+  "techPilotProducts": [
+    {
+      "id": 5,
+      "name": "PC TechPilot Ultra RTX 4090 i9-14900K",
+      "slug": "pc-gaming-techpilot-ultra-4090",
+      "sku": "PC-TP-ULTRA-4090",
+      "stock_quantity": 5
+    },
+    {
+      "id": 6,
+      "name": "PC TechPilot Creator i7-14700K RTX 4070 Super",
+      "slug": "pc-techpilot-creator-4070s",
+      "sku": "PC-TP-CREATOR-4070S",
+      "stock_quantity": 8
+    },
+    {
+      "id": 196,
+      "name": "PC Nexora Gaming P1 AMD Ryzen 5 7600X RTX 4070 Super 12GB 16GB",
+      "slug": "pc-nexora-gaming-p1-amd-ryzen-5-7600x-rtx-4070-super-12gb-16gb",
+      "sku": "PC-TP-P1",
+      "stock_quantity": 11
+    },
+    {
+      "id": 197,
+      "name": "PC Nexora Gaming P2 Intel Core i5-14400F RTX 4060 8GB 16GB",
+      "slug": "pc-nexora-gaming-p2-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+      "sku": "PC-TP-P2",
+      "stock_quantity": 12
+    },
+    {
+      "id": 198,
+      "name": "PC Nexora Gaming P3 AMD Ryzen 5 7600X RTX 4070 Super 12GB 32GB",
+      "slug": "pc-nexora-gaming-p3-amd-ryzen-5-7600x-rtx-4070-super-12gb-32gb",
+      "sku": "PC-TP-P3",
+      "stock_quantity": 13
+    },
+    {
+      "id": 199,
+      "name": "PC Nexora Gaming P4 Intel Core i5-14400F RTX 4060 8GB 16GB",
+      "slug": "pc-nexora-gaming-p4-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+      "sku": "PC-TP-P4",
+      "stock_quantity": 14
+    },
+    {
+      "id": 200,
+      "name": "PC Nexora Gaming P5 AMD Ryzen 5 7600X RTX 4070 Super 12GB 16GB",
+      "slug": "pc-nexora-gaming-p5-amd-ryzen-5-7600x-rtx-4070-super-12gb-16gb",
+      "sku": "PC-TP-P5",
+      "stock_quantity": 10
+    },
+    {
+      "id": 201,
+      "name": "PC Nexora Gaming P6 Intel Core i5-14400F RTX 4060 8GB 32GB",
+      "slug": "pc-nexora-gaming-p6-intel-core-i5-14400f-rtx-4060-8gb-32gb",
+      "sku": "PC-TP-P6",
+      "stock_quantity": 11
+    },
+    {
+      "id": 202,
+      "name": "PC Nexora Gaming P7 AMD Ryzen 5 7600X RTX 4070 Super 12GB 16GB",
+      "slug": "pc-nexora-gaming-p7-amd-ryzen-5-7600x-rtx-4070-super-12gb-16gb",
+      "sku": "PC-TP-P7",
+      "stock_quantity": 12
+    },
+    {
+      "id": 203,
+      "name": "PC Nexora Gaming P8 Intel Core i5-14400F RTX 4060 8GB 16GB",
+      "slug": "pc-nexora-gaming-p8-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+      "sku": "PC-TP-P8",
+      "stock_quantity": 13
+    },
+    {
+      "id": 204,
+      "name": "PC Nexora Gaming P9 AMD Ryzen 5 7600X RTX 4070 Super 12GB 32GB",
+      "slug": "pc-nexora-gaming-p9-amd-ryzen-5-7600x-rtx-4070-super-12gb-32gb",
+      "sku": "PC-TP-P9",
+      "stock_quantity": 14
+    },
+    {
+      "id": 205,
+      "name": "PC Nexora Gaming P10 Intel Core i5-14400F RTX 4060 8GB 16GB",
+      "slug": "pc-nexora-gaming-p10-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+      "sku": "PC-TP-P10",
+      "stock_quantity": 10
+    },
+    {
+      "id": 206,
+      "name": "PC Nexora Gaming P11 AMD Ryzen 5 7600X RTX 4070 Super 12GB 16GB",
+      "slug": "pc-nexora-gaming-p11-amd-ryzen-5-7600x-rtx-4070-super-12gb-16gb",
+      "sku": "PC-TP-P11",
+      "stock_quantity": 11
+    },
+    {
+      "id": 207,
+      "name": "PC Nexora Gaming P12 Intel Core i5-14400F RTX 4060 8GB 32GB",
+      "slug": "pc-nexora-gaming-p12-intel-core-i5-14400f-rtx-4060-8gb-32gb",
+      "sku": "PC-TP-P12",
+      "stock_quantity": 12
+    },
+    {
+      "id": 208,
+      "name": "PC Nexora Gaming P13 AMD Ryzen 5 7600X RTX 4070 Super 12GB 16GB",
+      "slug": "pc-nexora-gaming-p13-amd-ryzen-5-7600x-rtx-4070-super-12gb-16gb",
+      "sku": "PC-TP-P13",
+      "stock_quantity": 13
+    },
+    {
+      "id": 209,
+      "name": "PC Nexora Gaming P14 Intel Core i5-14400F RTX 4060 8GB 16GB",
+      "slug": "pc-nexora-gaming-p14-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+      "sku": "PC-TP-P14",
+      "stock_quantity": 14
+    },
+    {
+      "id": 210,
+      "name": "PC Nexora Gaming P15 AMD Ryzen 5 7600X RTX 4070 Super 12GB 32GB",
+      "slug": "pc-nexora-gaming-p15-amd-ryzen-5-7600x-rtx-4070-super-12gb-32gb",
+      "sku": "PC-TP-P15",
+      "stock_quantity": 10
+    },
+    {
+      "id": 211,
+      "name": "PC Nexora Gaming P16 Intel Core i5-14400F RTX 4060 8GB 16GB",
+      "slug": "pc-nexora-gaming-p16-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+      "sku": "PC-TP-P16",
+      "stock_quantity": 11
+    },
+    {
+      "id": 212,
+      "name": "PC Nexora Gaming P17 AMD Ryzen 5 7600X RTX 4070 Super 12GB 16GB",
+      "slug": "pc-nexora-gaming-p17-amd-ryzen-5-7600x-rtx-4070-super-12gb-16gb",
+      "sku": "PC-TP-P17",
+      "stock_quantity": 12
+    },
+    {
+      "id": 213,
+      "name": "PC Nexora Gaming P18 Intel Core i5-14400F RTX 4060 8GB 32GB",
+      "slug": "pc-nexora-gaming-p18-intel-core-i5-14400f-rtx-4060-8gb-32gb",
+      "sku": "PC-TP-P18",
+      "stock_quantity": 13
+    }
+  ]
+}

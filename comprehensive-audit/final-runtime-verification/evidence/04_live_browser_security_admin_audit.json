@@ -1,0 +1,1316 @@
+{
+  "timestamp": "2026-11-25T10:57:23.746Z",
+  "apiCountPerHomeLoad": 10,
+  "routeChecks": [
+    {
+      "path": "/",
+      "label": "Home",
+      "loadMs": 1157,
+      "textLen": 18229,
+      "totalImgs": 219,
+      "brokenImgs": 62,
+      "overflowPx": -15,
+      "h1Count": 0,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/search",
+      "label": "Search",
+      "loadMs": 958,
+      "textLen": 4334,
+      "totalImgs": 27,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/product/detail/macbook-pro-16-m3-max",
+      "label": "ProductDetailReal",
+      "loadMs": 897,
+      "textLen": 2938,
+      "totalImgs": 11,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/product/detail/laptop-msi-creator-z16-hx-studio-b13vfto-211vn",
+      "label": "ProductDetailFallback",
+      "loadMs": 875,
+      "textLen": 2663,
+      "totalImgs": 11,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/pc-builder",
+      "label": "PcBuilder",
+      "loadMs": 900,
+      "textLen": 2852,
+      "totalImgs": 3,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/compare",
+      "label": "Compare",
+      "loadMs": 906,
+      "textLen": 2159,
+      "totalImgs": 3,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 0,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/ai-assistant",
+      "label": "AiAssistant",
+      "loadMs": 888,
+      "textLen": 2065,
+      "totalImgs": 3,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 0,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/order-tracking",
+      "label": "OrderTracking",
+      "loadMs": 838,
+      "textLen": 1810,
+      "totalImgs": 3,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/stores",
+      "label": "Stores",
+      "loadMs": 866,
+      "textLen": 3170,
+      "totalImgs": 3,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/post",
+      "label": "TechNews",
+      "loadMs": 918,
+      "textLen": 4440,
+      "totalImgs": 14,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/cart",
+      "label": "Cart",
+      "loadMs": 853,
+      "textLen": 1797,
+      "totalImgs": 3,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/login",
+      "label": "Login",
+      "loadMs": 845,
+      "textLen": 1928,
+      "totalImgs": 3,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/register",
+      "label": "Register",
+      "loadMs": 858,
+      "textLen": 1899,
+      "totalImgs": 3,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 1,
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "A"
+    },
+    {
+      "path": "/admin",
+      "label": "AdminGate",
+      "loadMs": 847,
+      "textLen": 111,
+      "totalImgs": 1,
+      "brokenImgs": 0,
+      "overflowPx": -15,
+      "h1Count": 0,
+      "hasHeader": false,
+      "hasMain": false,
+      "hasFooter": false,
+      "unnamedBtns": 0,
+      "unnamedInputs": 0,
+      "activeTagAfterTab": "INPUT"
+    }
+  ],
+  "responsiveCustomerChecks": [
+    {
+      "viewport": "Mobile 375x812",
+      "route": "/",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile 375x812",
+      "route": "/search",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile 375x812",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile 375x812",
+      "route": "/cart",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile 375x812",
+      "route": "/pc-builder",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile Large 430x932",
+      "route": "/",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile Large 430x932",
+      "route": "/search",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile Large 430x932",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile Large 430x932",
+      "route": "/cart",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "overflow": false
+    },
+    {
+      "viewport": "Mobile Large 430x932",
+      "route": "/pc-builder",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "overflow": false
+    },
+    {
+      "viewport": "Tablet 768x1024",
+      "route": "/",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "overflow": false
+    },
+    {
+      "viewport": "Tablet 768x1024",
+      "route": "/search",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "overflow": false
+    },
+    {
+      "viewport": "Tablet 768x1024",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 920,
+      "clientWidth": 768,
+      "overflow": true
+    },
+    {
+      "viewport": "Tablet 768x1024",
+      "route": "/cart",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "overflow": false
+    },
+    {
+      "viewport": "Tablet 768x1024",
+      "route": "/pc-builder",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "overflow": false
+    },
+    {
+      "viewport": "Laptop 1366x768",
+      "route": "/",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "overflow": false
+    },
+    {
+      "viewport": "Laptop 1366x768",
+      "route": "/search",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "overflow": false
+    },
+    {
+      "viewport": "Laptop 1366x768",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "overflow": false
+    },
+    {
+      "viewport": "Laptop 1366x768",
+      "route": "/cart",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "overflow": false
+    },
+    {
+      "viewport": "Laptop 1366x768",
+      "route": "/pc-builder",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "overflow": false
+    },
+    {
+      "viewport": "Desktop 1440x900",
+      "route": "/",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "overflow": false
+    },
+    {
+      "viewport": "Desktop 1440x900",
+      "route": "/search",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "overflow": false
+    },
+    {
+      "viewport": "Desktop 1440x900",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "overflow": false
+    },
+    {
+      "viewport": "Desktop 1440x900",
+      "route": "/cart",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "overflow": false
+    },
+    {
+      "viewport": "Desktop 1440x900",
+      "route": "/pc-builder",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "overflow": false
+    }
+  ],
+  "responsiveAdminChecks": [
+    {
+      "viewport": "Tablet 768x1024",
+      "route": "/admin",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "overflow": false
+    },
+    {
+      "viewport": "Tablet 768x1024",
+      "route": "/admin/products",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "overflow": false
+    },
+    {
+      "viewport": "Tablet 768x1024",
+      "route": "/admin/brands",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "overflow": false
+    },
+    {
+      "viewport": "Laptop 1366x768",
+      "route": "/admin",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "overflow": false
+    },
+    {
+      "viewport": "Laptop 1366x768",
+      "route": "/admin/products",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "overflow": false
+    },
+    {
+      "viewport": "Laptop 1366x768",
+      "route": "/admin/brands",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "overflow": false
+    }
+  ],
+  "defRt06SidebarSync": {
+    "sidebarItemCount": 16,
+    "sidebarItems": [
+      "Laptop",
+      "Laptop Gaming",
+      "PC Nexora",
+      "Main, CPU, VGA",
+      "Case, Nguồn, Tản",
+      "Ổ cứng SSD & HDD",
+      "Loa, Micro, Webcam",
+      "Màn hình",
+      "Bàn phím",
+      "Chuột + Lót chuột",
+      "Tai Nghe",
+      "Ghế - Bàn Gaming",
+      "Phần mềm, mạng",
+      "Phụ kiện (Hub, sạc, cáp..)",
+      "Thiết bị văn phòng",
+      "Sạc dự phòng"
+    ],
+    "apiCategoryCount": 22
+  },
+  "defRt07TabletProductOverflow": {
+    "scrollWidth": 920,
+    "clientWidth": 768,
+    "overflow": true,
+    "offending": [
+      {
+        "tag": "DIV",
+        "right": 815,
+        "text": "Sản phẩm chính hãng – Xuất VAT đầy đủGiao nhanh – "
+      },
+      {
+        "tag": "DIV",
+        "right": 815,
+        "text": "Sản phẩm chính hãng – Xuất VAT đầy đủGiao nhanh – "
+      },
+      {
+        "tag": "A",
+        "right": 791,
+        "text": "Thu cũ giá tốt – Lên đời tiết kiệm"
+      },
+      {
+        "tag": "SPAN",
+        "right": 791,
+        "text": "Thu cũ giá tốt – Lên đời tiết kiệm"
+      },
+      {
+        "tag": "SPAN",
+        "right": 775,
+        "text": "Còn hàng (10 sản phẩm)"
+      },
+      {
+        "tag": "SPAN",
+        "right": 876,
+        "text": "94.990.000đ"
+      },
+      {
+        "tag": "SPAN",
+        "right": 920,
+        "text": "(Đã bao gồm VAT 10%)"
+      },
+      {
+        "tag": "DIV",
+        "right": 808,
+        "text": "Card đồ họa (VGA): Apple 30-core GPU"
+      }
+    ]
+  },
+  "defRt08AdminBrands1440": {
+    "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+    "textLen": 311,
+    "brokenImgs": 0,
+    "docOverflow": false,
+    "tableClipped": false,
+    "tableScrollWidth": 1065,
+    "tableClientWidth": 1065,
+    "wrapRight": 1370,
+    "actionThRight": 1370,
+    "firstBtnRight": null,
+    "actionClippedBeyondWrap": false
+  },
+  "defRt09CopyAudit": {
+    "has300kTopbar": true,
+    "has500kBottom": true,
+    "has19001234": true,
+    "has18002097": true,
+    "aiStep1HasUnder10m": true
+  },
+  "defRt10ZIndexAndClick": {
+    "launcherVisible": true,
+    "clickStableError": "locator.click: Timeout 2500ms exceeded.",
+    "zIndexInfo": {
+      "launcher": null,
+      "chatbotDrawer": null,
+      "promoOverlay": {
+        "zIndex": "99999",
+        "position": "fixed",
+        "display": "flex"
+      }
+    }
+  },
+  "defRt12A11yKeyboard": [],
+  "admin13Tabs": [
+    {
+      "id": "dashboard",
+      "path": "/admin",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 1492,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 609,
+      "tableClientWidth": 609
+    },
+    {
+      "id": "products",
+      "path": "/admin/products",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 2215,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1065,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "orders",
+      "path": "/admin/orders",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 698,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": true,
+      "tableScrollWidth": 1112,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "users",
+      "path": "/admin/users",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 684,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1065,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "categories",
+      "path": "/admin/categories",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 315,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1065,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "brands",
+      "path": "/admin/brands",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 311,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1065,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "coupons",
+      "path": "/admin/coupons",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 355,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": true,
+      "tableScrollWidth": 1074,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "flash-sales",
+      "path": "/admin/flash-sales",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 327,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1065,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "posts",
+      "path": "/admin/posts",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 436,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1065,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "reviews",
+      "path": "/admin/reviews",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 419,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1065,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "banners",
+      "path": "/admin/banners",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 427,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1063,
+      "tableClientWidth": 1063
+    },
+    {
+      "id": "inventory",
+      "path": "/admin/inventory",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 439,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 1065,
+      "tableClientWidth": 1065
+    },
+    {
+      "id": "settings",
+      "path": "/admin/settings",
+      "heading": "Xin chào, Quản Trị Viên Nexora (Re-seeded)",
+      "textLen": 503,
+      "brokenImgs": 0,
+      "docOverflow": false,
+      "tableClipped": false,
+      "tableScrollWidth": 0,
+      "tableClientWidth": 0
+    }
+  ],
+  "apiSecurityChecks": [
+    {
+      "name": "Unauth /admin/dashboard/summary",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/dashboard/summary",
+      "status": 401,
+      "ms": 15.7,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth /admin/users",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/users",
+      "status": 401,
+      "ms": 2.3,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth /admin/orders",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/orders",
+      "status": 401,
+      "ms": 1,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth /admin/returns",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/returns",
+      "status": 401,
+      "ms": 0.9,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth /profile",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/profile",
+      "status": 401,
+      "ms": 1,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Unauth /orders/my-orders",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/orders/my-orders",
+      "status": 401,
+      "ms": 0.9,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Yêu cầu đăng nhập để thực hiện chức năng này.\"}}"
+    },
+    {
+      "name": "Forged JWT /profile",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/profile",
+      "status": 401,
+      "ms": 1.5,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"INVALID_TOKEN\",\"message\":\"Phiên đăng nhập đã hết hạn hoặc không hợp lệ.\"}}"
+    },
+    {
+      "name": "Order IDOR /orders/detail/NX-2026-0001",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/orders/detail/NX-2026-0001",
+      "status": 401,
+      "ms": 1.3,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"Vui lòng đăng nhập hoặc cung cấp số điện thoại/email đặt hàng để xem chi tiết đơn hàng.\"}}"
+    },
+    {
+      "name": "Order Track wrong phone",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/orders/track?code=NX-2026-0001&phone=0000000000",
+      "status": 404,
+      "ms": 32.6,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"ORDER_NOT_FOUND\",\"message\":\"Không tìm thấy thông tin đơn hàng phù hợp.\"}}"
+    },
+    {
+      "name": "Invalid Slug 404",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/catalog/products/nonexistent-final49-999",
+      "status": 404,
+      "ms": 40.5,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"PRODUCT_NOT_FOUND\",\"message\":\"Không tìm thấy sản phẩm với slug: nonexistent-final49-999\"}}"
+    },
+    {
+      "name": "SQLi attempt search",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/catalog/products?q='%20OR%201%3D1%20--",
+      "status": 200,
+      "ms": 11,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":true,\"data\":{\"products\":[],\"total\":0},\"meta\":{\"timestamp\":\"2026-11-25T10:57:23.858Z\"}}"
+    },
+    {
+      "name": "Validation Error 400 /auth/login",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/login",
+      "status": 400,
+      "ms": 15.4,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Email không đúng định dạng.\",\"details\":[{\"origin\":\"string\",\"code\":\"invalid_format\",\"format\":\"email\",\"pattern\":\"/^(?:["
+    },
+    {
+      "name": "CORS disallowed origin",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/catalog/categories",
+      "status": 500,
+      "ms": 0.8,
+      "hasStackLeak": false,
+      "headers": {
+        "xContentTypeOptions": "nosniff",
+        "xPoweredBy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "acao": null
+      },
+      "snippet": "{\"success\":false,\"error\":{\"code\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected internal server error occurred.\"}}"
+    }
+  ],
+  "bundleSecretScan": {
+    "jsFilesScanned": [
+      "index-iG3JJKO1.js"
+    ],
+    "findings": []
+  },
+  "performanceApiTimings": [
+    {
+      "endpoint": "/health",
+      "status": 200,
+      "samplesMs": [
+        2.9,
+        1.4,
+        1.2
+      ],
+      "avgMs": 1.8
+    },
+    {
+      "endpoint": "/system/meta",
+      "status": 200,
+      "samplesMs": [
+        2.2,
+        1.9,
+        1.3
+      ],
+      "avgMs": 1.8
+    },
+    {
+      "endpoint": "/catalog/categories",
+      "status": 200,
+      "samplesMs": [
+        2.2,
+        1.8,
+        1.6
+      ],
+      "avgMs": 1.9
+    },
+    {
+      "endpoint": "/catalog/products?limit=24",
+      "status": 200,
+      "samplesMs": [
+        9.5,
+        8,
+        5.9
+      ],
+      "avgMs": 7.8
+    },
+    {
+      "endpoint": "/catalog/products/macbook-pro-16-m3-max",
+      "status": 200,
+      "samplesMs": [
+        41.1,
+        4.2,
+        3.7
+      ],
+      "avgMs": 16.3
+    }
+  ],
+  "consoleErrors": [
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    },
+    {
+      "route": "AdminLive",
+      "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+    }
+  ],
+  "consoleWarnings": [],
+  "pageErrors": [],
+  "httpErrors": [],
+  "failedNetwork": []
+}

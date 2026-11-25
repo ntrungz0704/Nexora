@@ -1,0 +1,42 @@
+﻿[
+    {
+        "Gate":  "typecheck",
+        "Command":  "npm run typecheck",
+        "Cwd":  "D:\\Nexora",
+        "Start":  "2026-11-25T17:47:34.5797564+07:00",
+        "End":  "2026-11-25T17:47:44.9677651+07:00",
+        "DurationSec":  10.36,
+        "ExitCode":  0,
+        "Log":  "02_typecheck.log"
+    },
+    {
+        "Gate":  "lint",
+        "Command":  "npm run lint",
+        "Cwd":  "D:\\Nexora",
+        "Start":  "2026-11-25T17:47:44.9879638+07:00",
+        "End":  "2026-11-25T17:48:21.4378325+07:00",
+        "DurationSec":  36.45,
+        "ExitCode":  0,
+        "Log":  "02_lint.log"
+    },
+    {
+        "Gate":  "format:check",
+        "Command":  "npm run format:check",
+        "Cwd":  "D:\\Nexora",
+        "Start":  "2026-11-25T17:48:21.4382542+07:00",
+        "End":  "2026-11-25T17:48:28.0149159+07:00",
+        "DurationSec":  6.58,
+        "ExitCode":  1,
+        "Log":  "02_prettier.log"
+    },
+    {
+        "Gate":  "build",
+        "Command":  "npm run build",
+        "Cwd":  "D:\\Nexora",
+        "Start":  "2026-11-25T17:48:28.0159168+07:00",
+        "End":  "2026-11-25T17:48:43.7040480+07:00",
+        "DurationSec":  15.69,
+        "ExitCode":  0,
+        "Log":  "02_build.log"
+    }
+]

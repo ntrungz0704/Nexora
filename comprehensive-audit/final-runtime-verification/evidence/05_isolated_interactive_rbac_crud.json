@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-11-25T10:54:52.030Z",
+  "target": {
+    "API_URL": "http://127.0.0.1:3001/api/v1",
+    "WEB_URL": "http://127.0.0.1:5174"
+  },
+  "dbIdentityCheck": {
+    "db": "nexora_test",
+    "host": "55f3a7144c28",
+    "port": 3306
+  },
+  "defRt01ProductImages": {
+    "totalProductsChecked": 23,
+    "monitorsHittingPrinterRule": 0,
+    "coolersHittingPrinterRule": 0,
+    "pcsHittingPrinterRule": 0,
+    "speakersHittingPrinterRule": 0,
+    "consolesHittingCpuRule": 0,
+    "exampleMonitor": null,
+    "exampleCooler": null,
+    "exampleConsole": null
+  },
+  "defRt02PcBuilderSlots": {},
+  "d3Compare": {},
+  "d4CartMerge": {
+    "productSlug": "chuot-logitech-g-pro-x-superlight-2",
+    "overstockStatus": 400,
+    "overstockCode": "INSUFFICIENT_STOCK",
+    "mergedPresent": true,
+    "duplicateRows": 1
+  },
+  "d5AuthSessionAndAccountSwitch": {
+    "defRt03RegisterGoogle": {
+      "apiCalls": [
+        {
+          "status": 401,
+          "url": "http://127.0.0.1:3001/api/v1/auth/login"
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:5174/auth/login"
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:5174/auth/login"
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3001/api/v1/auth/login"
+        }
+      ],
+      "unhandledErrors": [
+        "Request failed with status code 401"
+      ]
+    },
+    "loginGoogleButton": {
+      "messageShown": "Đăng nhập qua Google hiện đang được nâng cấp bảo mật SSO.",
+      "extraErrorsAfterLoginClick": 0
+    },
+    "defRt04ForgotExisting": {
+      "status": 500,
+      "code": "EMAIL_DELIVERY_FAILED"
+    },
+    "defRt04ForgotNonExisting": {
+      "status": 200,
+      "message": "Nếu email tồn tại trên hệ thống, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu."
+    },
+    "badJwtStatus": 401,
+    "crossTabLogoutIsolation": {
+      "tabBSawUser1": true,
+      "tabBClearedUser1": true
+    },
+    "accountSwitchClean": true
+  },
+  "d6Profile": {
+    "nameUpdated": true,
+    "addrCreated": true,
+    "editAddrStatus": 200,
+    "delAddrStatus": 200,
+    "notifTabOk": true
+  },
+  "d7ReviewsFull": {
+    "nonPurchaserStatus": 403,
+    "uiReviewCreated": true,
+    "duplicateStatus": 201,
+    "putEditStatus": 200,
+    "adminModerateHiddenStatus": 200,
+    "deleteStatus": 200
+  },
+  "d8ReturnsFull": {
+    "nullDeliveredAtBlockedStatus": 400,
+    "nullDeliveredAtBlockedCode": "ORDER_MISSING_DELIVERED_DATE",
+    "createReturnStatus": 201,
+    "exceedQtyStatus": 400,
+    "exceedQtyCode": "RETURN_QUANTITY_EXCEEDED",
+    "adminApproveStatus": 200,
+    "returnAuditLogsCount": 2
+  },
+  "d9CheckoutAndInventoryTx": {
+    "orderStatus": 201,
+    "orderCode": "NX-183759-3861",
+    "stockBefore": 28,
+    "stockAfterOrder": 26,
+    "inventoryDecrementedCorrectly": true,
+    "lowestActiveProductPrice": 690000
+  },
+  "d10VnpaySandbox": {
+    "vnpOrderCode": "NX-183788-5128",
+    "createUrlStatus": 200,
+    "host": "sandbox.vnpayment.vn",
+    "tmnCode": "NEXORATM",
+    "hasHash": true,
+    "tamperedCallbackResult": {
+      "isSuccess": false,
+      "orderCode": "NX-183788-5128",
+      "message": "Chữ ký checksum VNPay không hợp lệ."
+    },
+    "simulatePaymentStatus": 200
+  },
+  "d11RbacFourRolesAndAdminCrud": {
+    "guestAdminApiStatus": 401,
+    "customerAdminApiStatus": 403,
+    "customerAdminUiBlocked": true,
+    "staffAdminApiStatus": 200,
+    "staffEscalationBlockedStatus": 403,
+    "staffAdminUiLoggedIn": false,
+    "adminDashboardApiStatus": 200,
+    "adminInvalidProdStatus": 500,
+    "adminCreateProdStatus": 201,
+    "adminUpdateProdStatus": 200,
+    "adminDeleteProdStatus": 200
+  },
+  "d12AiAssistant": {
+    "surveyLogDelta": 1,
+    "chatbotStatus": 200,
+    "chatbotHasReply": false
+  },
+  "rateLimitEnforcement": {
+    "statuses": [
+      200,
+      200,
+      200,
+      429,
+      429,
+      429
+    ],
+    "triggered429": true
+  },
+  "sectionErrors": {
+    "d3PcBuilder": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /\\+ Chọn mua/i }).nth(1)\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"btn-select-part\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"pc-modal-item\">…</div> from <div class=\"pc-modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"pc-modal-body\">…</div> from <div class=\"pc-modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  2 × retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"pc-modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  13 × retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"pc-modal-item\">…</div> from <div class=\"pc-modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"pc-modal-body\">…</div> from <div class=\"pc-modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"pc-modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"pc-modal-backdrop\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"pc-modal-item\">…</div> from <div class=\"pc-modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"pc-modal-body\">…</div> from <div class=\"pc-modal-backdrop\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n"
+  }
+}

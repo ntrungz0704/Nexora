@@ -1,0 +1,129 @@
+{
+  "staffUiCheck": {
+    "sidebarVisible": true,
+    "sidebarLabels": [
+      "Nexora",
+      "Tổng quan",
+      "Sản phẩm",
+      "Đơn hàng",
+      "Khách hàng",
+      "Danh mục",
+      "Thương hiệu",
+      "Mã giảm giá",
+      "Flash Sale",
+      "Bài viết",
+      "Đánh giá",
+      "Banner",
+      "Cài đặt",
+      "Đăng xuất"
+    ]
+  },
+  "pcBuilderAllSlots": {
+    "totalSlots": 12,
+    "escClosesModal": false,
+    "slots": [
+      {
+        "slotIndex": 0,
+        "title": "Chọn Bộ vi xử lý (CPU)",
+        "countShown": 2,
+        "firstItem": "Card màn hình ASUS TUF Gaming GeForce RTX 4070 Ti SUPER 16GB\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 1,
+        "title": "Chọn Bo mạch chủ (Mainboard)",
+        "countShown": 0,
+        "firstItem": null,
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 2,
+        "title": "Chọn Bộ nhớ trong (RAM)",
+        "countShown": 0,
+        "firstItem": null,
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 3,
+        "title": "Chọn Card màn hình (VGA)",
+        "countShown": 4,
+        "firstItem": "Card màn hình ASUS TUF Gaming GeForce RTX 4070 Ti SUPER 16GB\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 4,
+        "title": "Chọn Ổ cứng (SSD/HDD)",
+        "countShown": 1,
+        "firstItem": "Ổ cứng SSD Samsung 990 PRO 2TB PCIe 4.0 M.2 NVMe\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 5,
+        "title": "Chọn Nguồn máy tính (PSU)",
+        "countShown": 1,
+        "firstItem": "Nguồn máy tính Corsair RM850e 850W 80 Plus Gold ATX 3.0\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 6,
+        "title": "Chọn Vỏ máy tính (Case)",
+        "countShown": 2,
+        "firstItem": "Tản nhiệt nước AIO DeepCool LT720 360mm ARGB\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 7,
+        "title": "Chọn Tản nhiệt PC",
+        "countShown": 1,
+        "firstItem": "Tản nhiệt nước AIO DeepCool LT720 360mm ARGB\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 8,
+        "title": "Chọn Màn hình",
+        "countShown": 3,
+        "firstItem": "Màn hình LG UltraGear 27GR95QE-B 27 inch OLED 240Hz\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 9,
+        "title": "Chọn Chuột",
+        "countShown": 1,
+        "firstItem": "Chuột Gaming không dây Logitech G Pro X Superlight 2\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 10,
+        "title": "Chọn Bàn phím",
+        "countShown": 1,
+        "firstItem": "Bàn phím cơ không dây Logitech G913 TKL Lightspeed RGB\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      },
+      {
+        "slotIndex": 11,
+        "title": "Chọn Ghế Gaming",
+        "countShown": 1,
+        "firstItem": "Ghế công thái học Ergonomic Sihoo Doro C300\nTương thích tốt",
+        "hasConsoleLeak": false,
+        "hasLaptopLeak": false
+      }
+    ]
+  },
+  "chatbotVerify": {
+    "status": 200,
+    "intent": "PRODUCT_RECOMMENDATION",
+    "hasAnswer": true,
+    "answerSnippet": "Dưới đây là một số sản phẩm phù hợp nhất với nhu cầu của bạn tại Nexora:"
+  }
+}

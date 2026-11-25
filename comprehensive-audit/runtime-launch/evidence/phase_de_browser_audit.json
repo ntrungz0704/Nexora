@@ -1,0 +1,1603 @@
+{
+  "timestamp": "2026-11-25T04:48:16.608Z",
+  "routesChecked": [
+    {
+      "path": "/",
+      "label": "Home",
+      "loadMs": 1891,
+      "textLength": 18229,
+      "totalImages": 219,
+      "brokenImagesCount": 133,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/search",
+      "label": "Catalog Search",
+      "loadMs": 1197,
+      "textLength": 4334,
+      "totalImages": 27,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/search?cat=laptop",
+      "label": "Category Laptop",
+      "loadMs": 1141,
+      "textLength": 4403,
+      "totalImages": 27,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/search?cat=pc",
+      "label": "Category PC",
+      "loadMs": 1129,
+      "textLength": 4965,
+      "totalImages": 27,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/search?cat=monitor",
+      "label": "Category Monitor",
+      "loadMs": 1121,
+      "textLength": 3939,
+      "totalImages": 27,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/product/detail/macbook-pro-16-m3-max",
+      "label": "Product Detail (Real Thumbnail)",
+      "loadMs": 1077,
+      "textLength": 2938,
+      "totalImages": 11,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/product/detail/laptop-msi-creator-z16-hx-studio-b13vfto-211vn",
+      "label": "Product Detail (Placeholder Fallback)",
+      "loadMs": 1095,
+      "textLength": 2663,
+      "totalImages": 11,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/pc-builder",
+      "label": "PC Builder",
+      "loadMs": 1098,
+      "textLength": 2852,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/compare",
+      "label": "Compare Products",
+      "loadMs": 1098,
+      "textLength": 2159,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/ai-assistant",
+      "label": "AI Assistant Survey",
+      "loadMs": 1061,
+      "textLength": 2065,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/order-tracking",
+      "label": "Order Tracking",
+      "loadMs": 1049,
+      "textLength": 1810,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/stores",
+      "label": "Stores Page",
+      "loadMs": 1036,
+      "textLength": 3170,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/post",
+      "label": "Tech News",
+      "loadMs": 1134,
+      "textLength": 4440,
+      "totalImages": 14,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/about",
+      "label": "About Policy",
+      "loadMs": 1062,
+      "textLength": 3393,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/warranty",
+      "label": "Warranty Policy",
+      "loadMs": 1078,
+      "textLength": 3010,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/login",
+      "label": "Customer Login",
+      "loadMs": 1052,
+      "textLength": 1928,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/register",
+      "label": "Customer Register",
+      "loadMs": 1049,
+      "textLength": 1899,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/auth/forgot",
+      "label": "Forgot Password",
+      "loadMs": 1026,
+      "textLength": 191,
+      "totalImages": 2,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/cart",
+      "label": "Cart Page (Guest Empty)",
+      "loadMs": 1079,
+      "textLength": 1797,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/admin",
+      "label": "Admin Gate (Unauthenticated)",
+      "loadMs": 1045,
+      "textLength": 111,
+      "totalImages": 1,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/foundation",
+      "label": "Foundation Dashboard",
+      "loadMs": 1020,
+      "textLength": 741,
+      "totalImages": 1,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    },
+    {
+      "path": "/non-existent-route-xyz",
+      "label": "404 NotFound Page",
+      "loadMs": 1050,
+      "textLength": 1755,
+      "totalImages": 3,
+      "brokenImagesCount": 0,
+      "overflowPx": -15,
+      "hasUndefinedText": false
+    }
+  ],
+  "responsiveChecks": [
+    {
+      "viewport": "Mobile (375x812)",
+      "route": "/",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Mobile (375x812)",
+      "route": "/search",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Mobile (375x812)",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Mobile (375x812)",
+      "route": "/cart",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Mobile (375x812)",
+      "route": "/login",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Mobile (375x812)",
+      "route": "/admin",
+      "scrollWidth": 360,
+      "clientWidth": 375,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "MobileLarge (430x932)",
+      "route": "/",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "MobileLarge (430x932)",
+      "route": "/search",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "MobileLarge (430x932)",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "MobileLarge (430x932)",
+      "route": "/cart",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "MobileLarge (430x932)",
+      "route": "/login",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "MobileLarge (430x932)",
+      "route": "/admin",
+      "scrollWidth": 415,
+      "clientWidth": 430,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Tablet (768x1024)",
+      "route": "/",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Tablet (768x1024)",
+      "route": "/search",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Tablet (768x1024)",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 920,
+      "clientWidth": 768,
+      "hasHorizontalOverflow": true
+    },
+    {
+      "viewport": "Tablet (768x1024)",
+      "route": "/cart",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Tablet (768x1024)",
+      "route": "/login",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Tablet (768x1024)",
+      "route": "/admin",
+      "scrollWidth": 753,
+      "clientWidth": 768,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Laptop (1366x768)",
+      "route": "/",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Laptop (1366x768)",
+      "route": "/search",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Laptop (1366x768)",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Laptop (1366x768)",
+      "route": "/cart",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Laptop (1366x768)",
+      "route": "/login",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Laptop (1366x768)",
+      "route": "/admin",
+      "scrollWidth": 1351,
+      "clientWidth": 1366,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Desktop (1440x900)",
+      "route": "/",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Desktop (1440x900)",
+      "route": "/search",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Desktop (1440x900)",
+      "route": "/product/detail/macbook-pro-16-m3-max",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Desktop (1440x900)",
+      "route": "/cart",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Desktop (1440x900)",
+      "route": "/login",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "hasHorizontalOverflow": false
+    },
+    {
+      "viewport": "Desktop (1440x900)",
+      "route": "/admin",
+      "scrollWidth": 1425,
+      "clientWidth": 1440,
+      "hasHorizontalOverflow": false
+    }
+  ],
+  "functionalFlows": {
+    "orderTrackingInvalidHandled": true,
+    "searchFilterLaptop": {
+      "initialCountText": "Tất cả sản phẩm\n\nTìm thấy 674 mẫu sản phẩm phù hợp\n\nXếp theo:\nMới nhất\nGiá từ thấp đến cao\nGiá từ cao đến thấp\nTên từ A-Z\nTên từ Z-A",
+      "laptopCountText": "Laptop & Laptop Gaming\n\nTìm thấy 63 mẫu sản phẩm phù hợp\n\nXếp theo:\nMới nhất\nGiá từ thấp đến cao\nGiá từ cao đến thấp\nTên từ A-Z\nTên từ Z-A"
+    },
+    "pcBuilderPickPart": false,
+    "loginInvalidHandled": true,
+    "floatingChatbotPolicy": true,
+    "comparePageLoaded": true
+  },
+  "a11yChecks": [
+    {
+      "route": "Home",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 0,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 124,
+      "inputsWithoutLabel": 1
+    },
+    {
+      "route": "Catalog Search",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 24,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Category Laptop",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 24,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Category PC",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 24,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Category Monitor",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 24,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Product Detail (Real Thumbnail)",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 4,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Product Detail (Placeholder Fallback)",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 4,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "PC Builder",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Compare Products",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 0,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "AI Assistant Survey",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 0,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 1,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Order Tracking",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Stores Page",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Tech News",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "About Policy",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Warranty Policy",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Customer Login",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 1
+    },
+    {
+      "route": "Customer Register",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 1
+    },
+    {
+      "route": "Forgot Password",
+      "lang": "vi",
+      "hasHeader": false,
+      "hasMain": false,
+      "hasFooter": false,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Cart Page (Guest Empty)",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Admin Gate (Unauthenticated)",
+      "lang": "vi",
+      "hasHeader": false,
+      "hasMain": false,
+      "hasFooter": false,
+      "h1Count": 0,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "Foundation Dashboard",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    },
+    {
+      "route": "404 NotFound Page",
+      "lang": "vi",
+      "hasHeader": true,
+      "hasMain": true,
+      "hasFooter": true,
+      "h1Count": 1,
+      "missingAltCount": 0,
+      "buttonsWithoutLabel": 0,
+      "inputsWithoutLabel": 0
+    }
+  ],
+  "consoleErrors": [
+    {
+      "route": "Interactive: Login Invalid Credentials",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    }
+  ],
+  "consoleWarnings": [],
+  "pageErrors": [],
+  "failedNetwork": [],
+  "httpErrors": [
+    {
+      "route": "Interactive: Login Invalid Credentials",
+      "url": "http://localhost:3000/api/v1/auth/login",
+      "status": 401
+    }
+  ],
+  "brokenImages": [
+    {
+      "route": "Home",
+      "broken": [
+        {
+          "src": "/assets/images/review/unlinked/case2.jpg",
+          "alt": "Tản nhiệt nước AIO DeepCool LT720 360mm ARGB",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Máy in Laser trắng đen Canon LBP2900",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/rtx-4070-super.jpg",
+          "alt": "Card màn hình ASUS TUF Gaming GeForce RTX 4070 Ti SUPER 16GB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/pc-workstation.jpg",
+          "alt": "PC TechPilot Creator i7-14700K RTX 4070 Super",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/pc-advanced.jpg",
+          "alt": "PC TechPilot Ultra RTX 4090 i9-14900K",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_14.png",
+          "alt": "CPU Intel Core i9-14900K (Up to 6.0GHz, 24 nhân 32 luồng)",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Máy in phun màu đa năng Epson EcoTank L3250 Wi-Fi",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/case1.jpg",
+          "alt": "Nguồn máy tính Corsair RM850e 850W 80 Plus Gold ATX 3.0",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/camera.jpg",
+          "alt": "Webcam 4K Logitech Brio Ultra HD RightLight 3",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/chair-warrior.jpg",
+          "alt": "Ghế công thái học Ergonomic Sihoo Doro C300",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/router-tplink.jpg",
+          "alt": "Router Wi-Fi 6 ASUS RT-AX88U Pro AX6000 Dual Band",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/prod_632.jpg",
+          "alt": "Pin sạc dự phòng Anker 737 Power Bank 24.000mAh 140W",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/prod_625.png",
+          "alt": "Hub chuyển đổi Baseus Metal Glam Series 8-in-1 Type-C",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/ssd-samsung.jpg",
+          "alt": "Ổ cứng SSD Samsung 990 PRO 2TB PCIe 4.0 M.2 NVMe",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/asus-vivobook.jpg",
+          "alt": "Laptop ASUS Model-L1 Intel Core i5-13420H 16GB SSD 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/msi-vector.jpg",
+          "alt": "Laptop MSI Model-L2 Intel Core i7-14650HX 16GB SSD 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/acer-aspire.jpg",
+          "alt": "Laptop Acer Model-L3 AMD Ryzen 7 8845HS 32GB SSD 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/macbook-pro.jpg",
+          "alt": "Laptop Lenovo Model-L4 Apple M3 Pro 16GB SSD 1TB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/hp-pavilion.jpg",
+          "alt": "Laptop HP Model-L5 Intel Core Ultra 7 155H 16GB SSD 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/dell-inspiron.jpg",
+          "alt": "Laptop Dell Model-L6 Intel Core i5-13420H 32GB SSD 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/lenovo-legion.jpg",
+          "alt": "Lenovo Legion Pro 5 16IRX9",
+          "complete": false,
+          "naturalWidth": 1024
+        },
+        {
+          "src": "/assets/images/review/unlinked/acer-predator.jpg",
+          "alt": "Acer Nitro 16 Phoenix (2024)",
+          "complete": false,
+          "naturalWidth": 1024
+        },
+        {
+          "src": "/assets/images/review/unlinked/macbook-pro.jpg",
+          "alt": "MacBook Pro 16 inch M3 Max",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/rog-zephyrus.jpg",
+          "alt": "ASUS ROG Zephyrus G16 (2024)",
+          "complete": false,
+          "naturalWidth": 1024
+        },
+        {
+          "src": "/assets/images/review/unlinked/msi-vector.jpg",
+          "alt": "Laptop MSI Creator Z16 HX Studio B13VFTO-211VN",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/dell-inspiron.jpg",
+          "alt": "Laptop Dell Latitude 3540 (L3540-i5-1335U)",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/lenovo-ideapad.jpg",
+          "alt": "Laptop Lenovo Yoga Slim 7 14IMH9 83CV001VVN",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/asus-vivobook.jpg",
+          "alt": "Laptop ASUS Vivobook S 16 OLED S5606MA-MX051W",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/hp-pavilion.jpg",
+          "alt": "Laptop Gaming HP Victus 16-r0011TX (7D5R2PA)",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/dell-g16.jpg",
+          "alt": "Laptop Gaming Dell G15 5530 i7-13650HX 16GB SSD 512GB RTX 4050",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/laptop-gaming.png",
+          "alt": "Laptop Gaming Gigabyte G5 KF5-53VN353SH",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/acer-predator.jpg",
+          "alt": "Laptop Gaming Acer Nitro V 15 ANV15-51-55CA",
+          "complete": false,
+          "naturalWidth": 1024
+        },
+        {
+          "src": "/assets/images/review/unlinked/msi-vector.jpg",
+          "alt": "Laptop Gaming MSI Cyborg 15 A12VF-462VN",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/lenovo-ideapad.jpg",
+          "alt": "Laptop Gaming Lenovo LOQ 15IRX9 83DV00ERVN",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/rog-zephyrus.jpg",
+          "alt": "Laptop Gaming ASUS ROG Strix G16 G614JVR-N4003W",
+          "complete": false,
+          "naturalWidth": 1024
+        },
+        {
+          "src": "/assets/images/review/unlinked/case2.jpg",
+          "alt": "Tản nhiệt nước AIO DeepCool LT720 360mm ARGB",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/pc-workstation.jpg",
+          "alt": "PC TechPilot Creator i7-14700K RTX 4070 Super",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/pc-advanced.jpg",
+          "alt": "PC TechPilot Ultra RTX 4090 i9-14900K",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/case1.jpg",
+          "alt": "Nguồn PSU DeepCool Power-PS28 850W 80 Plus Gold",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/case1.jpg",
+          "alt": "Nguồn PSU DeepCool Power-PS23 850W 80 Plus Gold",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/case1.jpg",
+          "alt": "Nguồn PSU DeepCool Power-PS18 850W 80 Plus Gold",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/case1.jpg",
+          "alt": "Nguồn PSU DeepCool Power-PS13 850W 80 Plus Gold",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/case1.jpg",
+          "alt": "Nguồn PSU DeepCool Power-PS8 850W 80 Plus Gold",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/case1.jpg",
+          "alt": "Nguồn PSU DeepCool Power-PS3 850W 80 Plus Gold",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Tản nhiệt DeepCool Frost-CL27 Air Cooling RGB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Tản nhiệt DeepCool Frost-CL22 AIO Cooling RGB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Tản nhiệt DeepCool Frost-CL17 Air Cooling RGB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Tản nhiệt DeepCool Frost-CL12 AIO Cooling RGB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Tản nhiệt DeepCool Frost-CL7 Air Cooling RGB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Tản nhiệt DeepCool Frost-CL2 AIO Cooling RGB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/case2.jpg",
+          "alt": "Tản nhiệt nước AIO DeepCool LT720 360mm ARGB",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/rtx-4070-super.jpg",
+          "alt": "Card màn hình ASUS TUF Gaming GeForce RTX 4070 Ti SUPER 16GB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/pc-workstation.jpg",
+          "alt": "PC TechPilot Creator i7-14700K RTX 4070 Super",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/pc-advanced.jpg",
+          "alt": "PC TechPilot Ultra RTX 4090 i9-14900K",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/dell-g16.jpg",
+          "alt": "Laptop Gaming Dell G15 5530 i7-13650HX 16GB SSD 512GB RTX 4050",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/dell-xps-13.jpg",
+          "alt": "Laptop Dell XPS 15 9530 i7-13700H 16GB SSD 512GB RTX 4050",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay Lenovo Console-CN31 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay MSI Console-CN30 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay ASUS Console-CN29 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay Razer Console-CN28 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay Lenovo Console-CN27 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay MSI Console-CN26 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay ASUS Console-CN25 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay Razer Console-CN24 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/cpu_ryzen7.jpg",
+          "alt": "Máy chơi game cầm tay Lenovo Console-CN23 Ryzen Z1 Extreme 1TB",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/review/unlinked/display1.png",
+          "alt": "Màn hình LG UltraGear 27GR95QE-B 27 inch OLED 240Hz",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/display.png",
+          "alt": "Màn hình cong Samsung Odyssey OLED G9 49 inch 240Hz 0.03ms",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/rtx-4070-super.jpg",
+          "alt": "Card màn hình ASUS TUF Gaming GeForce RTX 4070 Ti SUPER 16GB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình AOC Model-M31 27 inch 2560x1440 2K 144Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình Gigabyte Model-M30 32 inch 3840x2160 4K 180Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình Acer Model-M29 27 inch 2560x1440 2K 144Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình Dell Model-M28 27 inch 2560x1440 2K 180Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/display.png",
+          "alt": "Màn hình Samsung Model-M27 32 inch 3840x2160 4K 144Hz",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/display1.png",
+          "alt": "Màn hình LG Model-M26 27 inch 2560x1440 2K 180Hz",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình ASUS Model-M25 27 inch 2560x1440 2K 144Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình ViewSonic Model-M24 32 inch 3840x2160 4K 180Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình AOC Model-M23 27 inch 2560x1440 2K 144Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình Gigabyte Model-M22 27 inch 2560x1440 2K 180Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình Acer Model-M21 32 inch 3840x2160 4K 144Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Màn hình Dell Model-M20 27 inch 2560x1440 2K 180Hz",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/logitech-g-pro-x-wireless.jpg",
+          "alt": "Chuột Gaming không dây Logitech G Pro X Superlight 2",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/logitech-g213.jpg",
+          "alt": "Bàn phím cơ không dây Logitech G913 TKL Lightspeed RGB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính LG Bass-SP31 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Razer Bass-SP30 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Logitech Bass-SP29 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Samsung Bass-SP28 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính LG Bass-SP27 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Razer Bass-SP26 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Logitech Bass-SP25 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Samsung Bass-SP24 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính LG Bass-SP23 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Razer Bass-SP22 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Logitech Bass-SP21 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "Loa vi tính Samsung Bass-SP20 2.1 Bluetooth 60W",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/pc-workstation.jpg",
+          "alt": "PC TechPilot Creator i7-14700K RTX 4070 Super",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/pc-advanced.jpg",
+          "alt": "PC TechPilot Ultra RTX 4090 i9-14900K",
+          "complete": false,
+          "naturalWidth": 480
+        },
+        {
+          "src": "/assets/images/review/unlinked/macbook-pro.jpg",
+          "alt": "MacBook Pro 16 inch M3 Max",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/rtx-4070-super.jpg",
+          "alt": "PC Nexora Gaming P31 AMD Ryzen 5 7600X RTX 4070 Super 12GB 16GB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "PC Nexora Gaming P30 Intel Core i5-14400F RTX 4060 8GB 32GB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/rtx-4070-super.jpg",
+          "alt": "PC Nexora Gaming P29 AMD Ryzen 5 7600X RTX 4070 Super 12GB 16GB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/printer-canon.jpg",
+          "alt": "PC Nexora Gaming P28 Intel Core i5-14400F RTX 4060 8GB 16GB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/review/unlinked/rtx-4070-super.jpg",
+          "alt": "PC Nexora Gaming P27 AMD Ryzen 5 7600X RTX 4070 Super 12GB 32GB",
+          "complete": false,
+          "naturalWidth": 400
+        },
+        {
+          "src": "/assets/images/brands/kingston.svg",
+          "alt": "Kingston",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/lexar.svg",
+          "alt": "Lexar",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/lian-li.svg",
+          "alt": "Lian Li",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/logitech.svg",
+          "alt": "Logitech",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/montech.svg",
+          "alt": "Montech",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/nzxt.svg",
+          "alt": "NZXT",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/razer.svg",
+          "alt": "Razer",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/teamgroup.svg",
+          "alt": "TeamGroup",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/thermalright.svg",
+          "alt": "Thermalright",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/wd.svg",
+          "alt": "WD",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/xigmatek.svg",
+          "alt": "Xigmatek",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/zotac.svg",
+          "alt": "Zotac",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/apple.svg",
+          "alt": "Apple",
+          "complete": false,
+          "naturalWidth": 150
+        },
+        {
+          "src": "/assets/images/brands/asrock.svg",
+          "alt": "ASRock",
+          "complete": false,
+          "naturalWidth": 1000
+        },
+        {
+          "src": "/assets/images/brands/colorful.svg",
+          "alt": "Colorful",
+          "complete": false,
+          "naturalWidth": 240
+        },
+        {
+          "src": "/assets/images/brands/cooler-master.svg",
+          "alt": "Cooler Master",
+          "complete": false,
+          "naturalWidth": 150
+        },
+        {
+          "src": "/assets/images/brands/crucial.svg",
+          "alt": "Crucial",
+          "complete": false,
+          "naturalWidth": 300
+        },
+        {
+          "src": "/assets/images/brands/deepcool.svg",
+          "alt": "DeepCool",
+          "complete": false,
+          "naturalWidth": 500
+        },
+        {
+          "src": "/assets/images/brands/g-skill.svg",
+          "alt": "G.Skill",
+          "complete": false,
+          "naturalWidth": 2500
+        },
+        {
+          "src": "/assets/images/brands/kingston.svg",
+          "alt": "Kingston",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/lexar.svg",
+          "alt": "Lexar",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/lian-li.svg",
+          "alt": "Lian Li",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/logitech.svg",
+          "alt": "Logitech",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/montech.svg",
+          "alt": "Montech",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/nzxt.svg",
+          "alt": "NZXT",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/razer.svg",
+          "alt": "Razer",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/teamgroup.svg",
+          "alt": "TeamGroup",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/thermalright.svg",
+          "alt": "Thermalright",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/wd.svg",
+          "alt": "WD",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/xigmatek.svg",
+          "alt": "Xigmatek",
+          "complete": false,
+          "naturalWidth": 0
+        },
+        {
+          "src": "/assets/images/brands/zotac.svg",
+          "alt": "Zotac",
+          "complete": false,
+          "naturalWidth": 0
+        }
+      ]
+    }
+  ],
+  "performanceMetrics": [
+    {
+      "route": "Home",
+      "loadMs": 1891
+    },
+    {
+      "route": "Catalog Search",
+      "loadMs": 1197
+    },
+    {
+      "route": "Category Laptop",
+      "loadMs": 1141
+    },
+    {
+      "route": "Category PC",
+      "loadMs": 1129
+    },
+    {
+      "route": "Category Monitor",
+      "loadMs": 1121
+    },
+    {
+      "route": "Product Detail (Real Thumbnail)",
+      "loadMs": 1077
+    },
+    {
+      "route": "Product Detail (Placeholder Fallback)",
+      "loadMs": 1095
+    },
+    {
+      "route": "PC Builder",
+      "loadMs": 1098
+    },
+    {
+      "route": "Compare Products",
+      "loadMs": 1098
+    },
+    {
+      "route": "AI Assistant Survey",
+      "loadMs": 1061
+    },
+    {
+      "route": "Order Tracking",
+      "loadMs": 1049
+    },
+    {
+      "route": "Stores Page",
+      "loadMs": 1036
+    },
+    {
+      "route": "Tech News",
+      "loadMs": 1134
+    },
+    {
+      "route": "About Policy",
+      "loadMs": 1062
+    },
+    {
+      "route": "Warranty Policy",
+      "loadMs": 1078
+    },
+    {
+      "route": "Customer Login",
+      "loadMs": 1052
+    },
+    {
+      "route": "Customer Register",
+      "loadMs": 1049
+    },
+    {
+      "route": "Forgot Password",
+      "loadMs": 1026
+    },
+    {
+      "route": "Cart Page (Guest Empty)",
+      "loadMs": 1079
+    },
+    {
+      "route": "Admin Gate (Unauthenticated)",
+      "loadMs": 1045
+    },
+    {
+      "route": "Foundation Dashboard",
+      "loadMs": 1020
+    },
+    {
+      "route": "404 NotFound Page",
+      "loadMs": 1050
+    }
+  ]
+}

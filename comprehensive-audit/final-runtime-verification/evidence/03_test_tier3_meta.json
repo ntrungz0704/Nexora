@@ -1,0 +1,9 @@
+﻿{
+    "Suite":  "Playwright E2E (Tier 3 Isolated)",
+    "Command":  "npx playwright test --config=C:\\Users\\ntrun\\.gemini\\antigravity\\brain\\cbb56898-9b1b-457a-94eb-b95f7f50979c\\scratch\\playwright.isolated.config.mjs --reporter=list",
+    "Cwd":  "D:\\Nexora",
+    "Start":  "2026-11-25T17:54:37.3317462+07:00",
+    "DurationSec":  11.78,
+    "ExitCode":  0,
+    "Log":  "03_test_tier3_playwright.log"
+}

@@ -1,0 +1,12 @@
+=== PHASE C4 STARTUP VERIFICATION (2026-11-25T11:03:15.855Z) ===
+GET /api/v1/health -> HTTP 200 (25.0 ms)
+  body: {"success":true,"data":{"status":"ok","service":"nexora-api","database":"up","uptimeSeconds":111,"timestamp":"2026-11-25T11:03:15.878Z"},"meta":{"timestamp":"2026-11-25T11:03:15.878Z"}}
+GET /api/v1/system/meta -> HTTP 200 (12.4 ms)
+  body: {"success":true,"data":{"name":"Nexora","businessModel":"single-vendor","roles":["CUSTOMER","STAFF","ADMIN"],"storeSettingsCount":5,"usersCount":3},"meta":{"timestamp":"2026-11-25T11:03:15.896Z"}}
+GET /api/docs.json -> HTTP 200 (2.9 ms), bytes=1136
+GET http://127.0.0.1:5173/ -> HTTP 200 (4.2 ms), bytes=1950
+  contains Vite/root: true
+GET /api/v1/catalog/categories (CORS Origin http://localhost:5173) -> HTTP 200 (18.4 ms), ACAO=http://localhost:5173
+  categories count: 22
+GET /api/v1/catalog/products?limit=24 -> HTTP 200 (29.2 ms)
+  total products: 674, returned: 24

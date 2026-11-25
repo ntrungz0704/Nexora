@@ -1,0 +1,124 @@
+{
+  "timestamp": "2026-11-25T10:25:07.617Z",
+  "target": {
+    "API_URL": "http://127.0.0.1:3001/api/v1",
+    "WEB_URL": "http://127.0.0.1:5174"
+  },
+  "dbIdentityCheck": {
+    "db": "nexora_test",
+    "host": "d74308bfc9b8",
+    "port": 3306
+  },
+  "d3Compare": {
+    "initialAddBtns": 4,
+    "categoryLockTriggered": true,
+    "aiBtnVisible": true,
+    "aiBtnEnabled": true,
+    "verdictVisible": true,
+    "pageErrors": []
+  },
+  "d4CartMerge": {
+    "testedProduct": "chuot-logitech-g-pro-x-superlight-2",
+    "guestItemAdded": true,
+    "overstockApiStatus": 400,
+    "overstockApiCode": "INSUFFICIENT_STOCK",
+    "mergedContainsProduct": true,
+    "duplicateEntriesCount": 1,
+    "pageErrors": []
+  },
+  "d5AuthAndCrossTab": {
+    "googleButtonClicked": {
+      "responses": [
+        {
+          "status": 401,
+          "url": "http://127.0.0.1:3001/api/v1/auth/login"
+        }
+      ],
+      "unhandledErrors": [
+        "Request failed with status code 401"
+      ]
+    },
+    "registerEmail": "audit.e2e.1795602317552@nexora.local",
+    "urlAfterRegister": "http://127.0.0.1:5174/",
+    "freshUserTokenIssued": true,
+    "invalidLoginStatus": 401,
+    "forgotPasswordExistingEmailInDev": {
+      "status": 500,
+      "code": "EMAIL_DELIVERY_FAILED"
+    },
+    "crossTabIsolation": {
+      "tabBLoggedInBefore": true,
+      "tabBUrlAfterTabALogout": "http://127.0.0.1:5174/profile",
+      "tabBPrivateDataCleared": true
+    }
+  },
+  "d6Profile": {
+    "profileNameUpdated": true,
+    "addressDialogClosed": true,
+    "addressCreatedVisible": true,
+    "notifTabLoaded": true,
+    "passwordChangeVerifiedLoginStatus": 200
+  },
+  "d7Reviews": {
+    "testedOrderCode": "NX-2026-0001",
+    "testedProductSlug": "ban-phim-logitech-g913-tkl",
+    "nonPurchaserReviewStatus": 403,
+    "reviewSubmittedUi": true,
+    "createdReviewId": 1,
+    "editReviewStatus": 404,
+    "deleteReviewStatus": 200
+  },
+  "d8Returns": {
+    "eligibleOrderVisibleInUi": true,
+    "createReturnStatus": 201,
+    "createdReturnId": 1,
+    "auditLogsCreated": 1,
+    "customerAdminReturnsBlockedStatus": 403,
+    "adminReturnsApiStatus": 200,
+    "adminApproveReturnStatus": 200
+  },
+  "d9CheckoutAndCod": {
+    "couponCodeTested": "NEXORA10",
+    "couponAppliedInUi": true,
+    "codSuccessUrl": "http://127.0.0.1:5174/checkout/success?code=NX-345752-2891",
+    "codOrderCode": "NX-345752-2891",
+    "myOrdersShowsNew": true,
+    "cheapProductTested": null,
+    "below500kShippingFee": null
+  },
+  "d10VnpaySandbox": {
+    "vnpayOrderCode": "NX-349250-4800",
+    "createUrlStatus": 200,
+    "host": "sandbox.vnpayment.vn",
+    "vnpTmnCode": "NEXORATM",
+    "hasSecureHash": true,
+    "tamperedCallbackStatus": 200,
+    "tamperedCallbackCode": null
+  },
+  "d11AdminAndRbac": {
+    "customerAdminUiBlocked": true,
+    "customerAdminApiStatus": 403,
+    "adminInventoryAdjustStatus": 200,
+    "inventoryLogsAfterAdjust": 6
+  },
+  "d12AiAssistant": {
+    "surveyResultsRendered": true,
+    "aiLogsBefore": 0,
+    "aiLogsAfter": 1,
+    "floatingChatApiStatus": 200,
+    "floatingChatHasReply": true
+  },
+  "fRateLimitEnforcement": {
+    "limiter": "passwordResetRequest (5 per 15 min)",
+    "statusesObserved": [
+      200,
+      200,
+      200,
+      200,
+      429,
+      429
+    ],
+    "triggered429": true
+  },
+  "sectionErrors": {}
+}

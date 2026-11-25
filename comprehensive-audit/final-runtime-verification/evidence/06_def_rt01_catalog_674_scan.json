@@ -1,0 +1,1651 @@
+{
+  "totalProducts": 674,
+  "withRealNonCategoryThumb": 22,
+  "usingFallbackOrCategoryThumb": 652,
+  "falsePositivesToPrinterByInSubstring": {
+    "monitor": [
+      {
+        "id": 227,
+        "name": "Màn hình ASUS Model-M1 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-asus-model-m1-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 230,
+        "name": "Màn hình Dell Model-M4 27 inch 2560x1440 2K 180Hz",
+        "slug": "man-hinh-dell-model-m4-27-inch-2560x1440-2k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 231,
+        "name": "Màn hình Acer Model-M5 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-acer-model-m5-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 232,
+        "name": "Màn hình Gigabyte Model-M6 32 inch 3840x2160 4K 180Hz",
+        "slug": "man-hinh-gigabyte-model-m6-32-inch-3840x2160-4k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 233,
+        "name": "Màn hình AOC Model-M7 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-aoc-model-m7-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 234,
+        "name": "Màn hình ViewSonic Model-M8 27 inch 2560x1440 2K 180Hz",
+        "slug": "man-hinh-viewsonic-model-m8-27-inch-2560x1440-2k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 235,
+        "name": "Màn hình ASUS Model-M9 32 inch 3840x2160 4K 144Hz",
+        "slug": "man-hinh-asus-model-m9-32-inch-3840x2160-4k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 238,
+        "name": "Màn hình Dell Model-M12 32 inch 3840x2160 4K 180Hz",
+        "slug": "man-hinh-dell-model-m12-32-inch-3840x2160-4k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 239,
+        "name": "Màn hình Acer Model-M13 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-acer-model-m13-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 240,
+        "name": "Màn hình Gigabyte Model-M14 27 inch 2560x1440 2K 180Hz",
+        "slug": "man-hinh-gigabyte-model-m14-27-inch-2560x1440-2k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 241,
+        "name": "Màn hình AOC Model-M15 32 inch 3840x2160 4K 144Hz",
+        "slug": "man-hinh-aoc-model-m15-32-inch-3840x2160-4k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 242,
+        "name": "Màn hình ViewSonic Model-M16 27 inch 2560x1440 2K 180Hz",
+        "slug": "man-hinh-viewsonic-model-m16-27-inch-2560x1440-2k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 243,
+        "name": "Màn hình ASUS Model-M17 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-asus-model-m17-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 246,
+        "name": "Màn hình Dell Model-M20 27 inch 2560x1440 2K 180Hz",
+        "slug": "man-hinh-dell-model-m20-27-inch-2560x1440-2k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 247,
+        "name": "Màn hình Acer Model-M21 32 inch 3840x2160 4K 144Hz",
+        "slug": "man-hinh-acer-model-m21-32-inch-3840x2160-4k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 248,
+        "name": "Màn hình Gigabyte Model-M22 27 inch 2560x1440 2K 180Hz",
+        "slug": "man-hinh-gigabyte-model-m22-27-inch-2560x1440-2k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 249,
+        "name": "Màn hình AOC Model-M23 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-aoc-model-m23-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 250,
+        "name": "Màn hình ViewSonic Model-M24 32 inch 3840x2160 4K 180Hz",
+        "slug": "man-hinh-viewsonic-model-m24-32-inch-3840x2160-4k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 251,
+        "name": "Màn hình ASUS Model-M25 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-asus-model-m25-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 254,
+        "name": "Màn hình Dell Model-M28 27 inch 2560x1440 2K 180Hz",
+        "slug": "man-hinh-dell-model-m28-27-inch-2560x1440-2k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 255,
+        "name": "Màn hình Acer Model-M29 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-acer-model-m29-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 256,
+        "name": "Màn hình Gigabyte Model-M30 32 inch 3840x2160 4K 180Hz",
+        "slug": "man-hinh-gigabyte-model-m30-32-inch-3840x2160-4k-180hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      },
+      {
+        "id": 257,
+        "name": "Màn hình AOC Model-M31 27 inch 2560x1440 2K 144Hz",
+        "slug": "man-hinh-aoc-model-m31-27-inch-2560x1440-2k-144hz",
+        "catSlug": "monitor",
+        "thumb": ""
+      }
+    ],
+    "cooler": [
+      {
+        "id": 444,
+        "name": "Tản nhiệt Thermalright Frost-CL1 Air Cooling RGB",
+        "slug": "tan-nhiet-thermalright-frost-cl1-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 445,
+        "name": "Tản nhiệt DeepCool Frost-CL2 AIO Cooling RGB",
+        "slug": "tan-nhiet-deepcool-frost-cl2-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 446,
+        "name": "Tản nhiệt NZXT Frost-CL3 Air Cooling RGB",
+        "slug": "tan-nhiet-nzxt-frost-cl3-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 447,
+        "name": "Tản nhiệt Corsair Frost-CL4 AIO Cooling RGB",
+        "slug": "tan-nhiet-corsair-frost-cl4-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 448,
+        "name": "Tản nhiệt MSI Frost-CL5 Air Cooling RGB",
+        "slug": "tan-nhiet-msi-frost-cl5-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 449,
+        "name": "Tản nhiệt Thermalright Frost-CL6 AIO Cooling RGB",
+        "slug": "tan-nhiet-thermalright-frost-cl6-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 450,
+        "name": "Tản nhiệt DeepCool Frost-CL7 Air Cooling RGB",
+        "slug": "tan-nhiet-deepcool-frost-cl7-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 451,
+        "name": "Tản nhiệt NZXT Frost-CL8 AIO Cooling RGB",
+        "slug": "tan-nhiet-nzxt-frost-cl8-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 452,
+        "name": "Tản nhiệt Corsair Frost-CL9 Air Cooling RGB",
+        "slug": "tan-nhiet-corsair-frost-cl9-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 453,
+        "name": "Tản nhiệt MSI Frost-CL10 AIO Cooling RGB",
+        "slug": "tan-nhiet-msi-frost-cl10-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 454,
+        "name": "Tản nhiệt Thermalright Frost-CL11 Air Cooling RGB",
+        "slug": "tan-nhiet-thermalright-frost-cl11-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 455,
+        "name": "Tản nhiệt DeepCool Frost-CL12 AIO Cooling RGB",
+        "slug": "tan-nhiet-deepcool-frost-cl12-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 456,
+        "name": "Tản nhiệt NZXT Frost-CL13 Air Cooling RGB",
+        "slug": "tan-nhiet-nzxt-frost-cl13-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 457,
+        "name": "Tản nhiệt Corsair Frost-CL14 AIO Cooling RGB",
+        "slug": "tan-nhiet-corsair-frost-cl14-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 458,
+        "name": "Tản nhiệt MSI Frost-CL15 Air Cooling RGB",
+        "slug": "tan-nhiet-msi-frost-cl15-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 459,
+        "name": "Tản nhiệt Thermalright Frost-CL16 AIO Cooling RGB",
+        "slug": "tan-nhiet-thermalright-frost-cl16-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 460,
+        "name": "Tản nhiệt DeepCool Frost-CL17 Air Cooling RGB",
+        "slug": "tan-nhiet-deepcool-frost-cl17-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 461,
+        "name": "Tản nhiệt NZXT Frost-CL18 AIO Cooling RGB",
+        "slug": "tan-nhiet-nzxt-frost-cl18-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 462,
+        "name": "Tản nhiệt Corsair Frost-CL19 Air Cooling RGB",
+        "slug": "tan-nhiet-corsair-frost-cl19-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 463,
+        "name": "Tản nhiệt MSI Frost-CL20 AIO Cooling RGB",
+        "slug": "tan-nhiet-msi-frost-cl20-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 464,
+        "name": "Tản nhiệt Thermalright Frost-CL21 Air Cooling RGB",
+        "slug": "tan-nhiet-thermalright-frost-cl21-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 465,
+        "name": "Tản nhiệt DeepCool Frost-CL22 AIO Cooling RGB",
+        "slug": "tan-nhiet-deepcool-frost-cl22-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 466,
+        "name": "Tản nhiệt NZXT Frost-CL23 Air Cooling RGB",
+        "slug": "tan-nhiet-nzxt-frost-cl23-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 467,
+        "name": "Tản nhiệt Corsair Frost-CL24 AIO Cooling RGB",
+        "slug": "tan-nhiet-corsair-frost-cl24-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 468,
+        "name": "Tản nhiệt MSI Frost-CL25 Air Cooling RGB",
+        "slug": "tan-nhiet-msi-frost-cl25-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 469,
+        "name": "Tản nhiệt Thermalright Frost-CL26 AIO Cooling RGB",
+        "slug": "tan-nhiet-thermalright-frost-cl26-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 470,
+        "name": "Tản nhiệt DeepCool Frost-CL27 Air Cooling RGB",
+        "slug": "tan-nhiet-deepcool-frost-cl27-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 471,
+        "name": "Tản nhiệt NZXT Frost-CL28 AIO Cooling RGB",
+        "slug": "tan-nhiet-nzxt-frost-cl28-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 472,
+        "name": "Tản nhiệt Corsair Frost-CL29 Air Cooling RGB",
+        "slug": "tan-nhiet-corsair-frost-cl29-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 473,
+        "name": "Tản nhiệt MSI Frost-CL30 AIO Cooling RGB",
+        "slug": "tan-nhiet-msi-frost-cl30-aio-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      },
+      {
+        "id": 474,
+        "name": "Tản nhiệt Thermalright Frost-CL31 Air Cooling RGB",
+        "slug": "tan-nhiet-thermalright-frost-cl31-air-cooling-rgb",
+        "catSlug": "cooling",
+        "thumb": ""
+      }
+    ],
+    "pcOrGaming": [
+      {
+        "id": 14,
+        "name": "Tai nghe Gaming không dây HyperX Cloud II Wireless",
+        "slug": "tai-nghe-hyperx-cloud-ii-wireless",
+        "catSlug": "headset",
+        "thumb": "/assets/images/review/unlinked/headset-g733.jpg"
+      },
+      {
+        "id": 197,
+        "name": "PC Nexora Gaming P2 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p2-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 199,
+        "name": "PC Nexora Gaming P4 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p4-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 201,
+        "name": "PC Nexora Gaming P6 Intel Core i5-14400F RTX 4060 8GB 32GB",
+        "slug": "pc-nexora-gaming-p6-intel-core-i5-14400f-rtx-4060-8gb-32gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 203,
+        "name": "PC Nexora Gaming P8 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p8-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 205,
+        "name": "PC Nexora Gaming P10 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p10-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 207,
+        "name": "PC Nexora Gaming P12 Intel Core i5-14400F RTX 4060 8GB 32GB",
+        "slug": "pc-nexora-gaming-p12-intel-core-i5-14400f-rtx-4060-8gb-32gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 209,
+        "name": "PC Nexora Gaming P14 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p14-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 211,
+        "name": "PC Nexora Gaming P16 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p16-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 213,
+        "name": "PC Nexora Gaming P18 Intel Core i5-14400F RTX 4060 8GB 32GB",
+        "slug": "pc-nexora-gaming-p18-intel-core-i5-14400f-rtx-4060-8gb-32gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 215,
+        "name": "PC Nexora Gaming P20 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p20-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 217,
+        "name": "PC Nexora Gaming P22 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p22-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 219,
+        "name": "PC Nexora Gaming P24 Intel Core i5-14400F RTX 4060 8GB 32GB",
+        "slug": "pc-nexora-gaming-p24-intel-core-i5-14400f-rtx-4060-8gb-32gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 221,
+        "name": "PC Nexora Gaming P26 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p26-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 223,
+        "name": "PC Nexora Gaming P28 Intel Core i5-14400F RTX 4060 8GB 16GB",
+        "slug": "pc-nexora-gaming-p28-intel-core-i5-14400f-rtx-4060-8gb-16gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 225,
+        "name": "PC Nexora Gaming P30 Intel Core i5-14400F RTX 4060 8GB 32GB",
+        "slug": "pc-nexora-gaming-p30-intel-core-i5-14400f-rtx-4060-8gb-32gb",
+        "catSlug": "pc",
+        "thumb": ""
+      },
+      {
+        "id": 599,
+        "name": "Tai nghe Gaming Logitech Sound-HS1 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-logitech-sound-hs1-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 600,
+        "name": "Tai nghe Gaming Razer Sound-HS2 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-razer-sound-hs2-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 601,
+        "name": "Tai nghe Gaming Corsair Sound-HS3 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-corsair-sound-hs3-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 602,
+        "name": "Tai nghe Gaming MSI Sound-HS4 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-msi-sound-hs4-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 603,
+        "name": "Tai nghe Gaming ASUS Sound-HS5 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-asus-sound-hs5-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 604,
+        "name": "Tai nghe Gaming Logitech Sound-HS6 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-logitech-sound-hs6-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 605,
+        "name": "Tai nghe Gaming Razer Sound-HS7 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-razer-sound-hs7-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 606,
+        "name": "Tai nghe Gaming Corsair Sound-HS8 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-corsair-sound-hs8-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 607,
+        "name": "Tai nghe Gaming MSI Sound-HS9 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-msi-sound-hs9-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 608,
+        "name": "Tai nghe Gaming ASUS Sound-HS10 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-asus-sound-hs10-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 609,
+        "name": "Tai nghe Gaming Logitech Sound-HS11 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-logitech-sound-hs11-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 610,
+        "name": "Tai nghe Gaming Razer Sound-HS12 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-razer-sound-hs12-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 611,
+        "name": "Tai nghe Gaming Corsair Sound-HS13 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-corsair-sound-hs13-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 612,
+        "name": "Tai nghe Gaming MSI Sound-HS14 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-msi-sound-hs14-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 613,
+        "name": "Tai nghe Gaming ASUS Sound-HS15 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-asus-sound-hs15-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 614,
+        "name": "Tai nghe Gaming Logitech Sound-HS16 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-logitech-sound-hs16-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 615,
+        "name": "Tai nghe Gaming Razer Sound-HS17 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-razer-sound-hs17-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 616,
+        "name": "Tai nghe Gaming Corsair Sound-HS18 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-corsair-sound-hs18-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 617,
+        "name": "Tai nghe Gaming MSI Sound-HS19 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-msi-sound-hs19-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 618,
+        "name": "Tai nghe Gaming ASUS Sound-HS20 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-asus-sound-hs20-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 619,
+        "name": "Tai nghe Gaming Logitech Sound-HS21 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-logitech-sound-hs21-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 620,
+        "name": "Tai nghe Gaming Razer Sound-HS22 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-razer-sound-hs22-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 621,
+        "name": "Tai nghe Gaming Corsair Sound-HS23 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-corsair-sound-hs23-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 622,
+        "name": "Tai nghe Gaming MSI Sound-HS24 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-msi-sound-hs24-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 623,
+        "name": "Tai nghe Gaming ASUS Sound-HS25 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-asus-sound-hs25-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 624,
+        "name": "Tai nghe Gaming Logitech Sound-HS26 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-logitech-sound-hs26-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 625,
+        "name": "Tai nghe Gaming Razer Sound-HS27 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-razer-sound-hs27-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 626,
+        "name": "Tai nghe Gaming Corsair Sound-HS28 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-corsair-sound-hs28-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 627,
+        "name": "Tai nghe Gaming MSI Sound-HS29 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-msi-sound-hs29-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 628,
+        "name": "Tai nghe Gaming ASUS Sound-HS30 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-asus-sound-hs30-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      },
+      {
+        "id": 629,
+        "name": "Tai nghe Gaming Logitech Sound-HS31 7.1 Virtual Wireless",
+        "slug": "tai-nghe-gaming-logitech-sound-hs31-71-virtual-wireless",
+        "catSlug": "headset",
+        "thumb": ""
+      }
+    ],
+    "speakerOrMic": [
+      {
+        "id": 630,
+        "name": "Loa vi tính Logitech Bass-SP1 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-logitech-bass-sp1-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 631,
+        "name": "Loa vi tính Razer Bass-SP2 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-razer-bass-sp2-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 632,
+        "name": "Loa vi tính LG Bass-SP3 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-lg-bass-sp3-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 633,
+        "name": "Loa vi tính Samsung Bass-SP4 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-samsung-bass-sp4-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 634,
+        "name": "Loa vi tính Logitech Bass-SP5 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-logitech-bass-sp5-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 635,
+        "name": "Loa vi tính Razer Bass-SP6 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-razer-bass-sp6-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 636,
+        "name": "Loa vi tính LG Bass-SP7 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-lg-bass-sp7-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 637,
+        "name": "Loa vi tính Samsung Bass-SP8 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-samsung-bass-sp8-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 638,
+        "name": "Loa vi tính Logitech Bass-SP9 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-logitech-bass-sp9-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 639,
+        "name": "Loa vi tính Razer Bass-SP10 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-razer-bass-sp10-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 640,
+        "name": "Loa vi tính LG Bass-SP11 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-lg-bass-sp11-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 641,
+        "name": "Loa vi tính Samsung Bass-SP12 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-samsung-bass-sp12-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 642,
+        "name": "Loa vi tính Logitech Bass-SP13 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-logitech-bass-sp13-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 643,
+        "name": "Loa vi tính Razer Bass-SP14 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-razer-bass-sp14-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 644,
+        "name": "Loa vi tính LG Bass-SP15 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-lg-bass-sp15-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 645,
+        "name": "Loa vi tính Samsung Bass-SP16 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-samsung-bass-sp16-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 646,
+        "name": "Loa vi tính Logitech Bass-SP17 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-logitech-bass-sp17-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 647,
+        "name": "Loa vi tính Razer Bass-SP18 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-razer-bass-sp18-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 648,
+        "name": "Loa vi tính LG Bass-SP19 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-lg-bass-sp19-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 649,
+        "name": "Loa vi tính Samsung Bass-SP20 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-samsung-bass-sp20-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 650,
+        "name": "Loa vi tính Logitech Bass-SP21 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-logitech-bass-sp21-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 651,
+        "name": "Loa vi tính Razer Bass-SP22 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-razer-bass-sp22-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 652,
+        "name": "Loa vi tính LG Bass-SP23 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-lg-bass-sp23-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 653,
+        "name": "Loa vi tính Samsung Bass-SP24 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-samsung-bass-sp24-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 654,
+        "name": "Loa vi tính Logitech Bass-SP25 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-logitech-bass-sp25-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 655,
+        "name": "Loa vi tính Razer Bass-SP26 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-razer-bass-sp26-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 656,
+        "name": "Loa vi tính LG Bass-SP27 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-lg-bass-sp27-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 657,
+        "name": "Loa vi tính Samsung Bass-SP28 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-samsung-bass-sp28-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 658,
+        "name": "Loa vi tính Logitech Bass-SP29 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-logitech-bass-sp29-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 659,
+        "name": "Loa vi tính Razer Bass-SP30 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-razer-bass-sp30-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      },
+      {
+        "id": 660,
+        "name": "Loa vi tính LG Bass-SP31 2.1 Bluetooth 60W",
+        "slug": "loa-vi-tinh-lg-bass-sp31-21-bluetooth-60w",
+        "catSlug": "speaker",
+        "thumb": ""
+      }
+    ],
+    "keyboardOrMouse": [],
+    "other": [
+      {
+        "id": 258,
+        "name": "Mainboard ASUS B650 Model-MB1 WiFi DDR5",
+        "slug": "mainboard-asus-b650-model-mb1-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 259,
+        "name": "Mainboard MSI B760 Model-MB2 WiFi DDR5",
+        "slug": "mainboard-msi-b760-model-mb2-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 260,
+        "name": "Mainboard Gigabyte B650 Model-MB3 WiFi DDR5",
+        "slug": "mainboard-gigabyte-b650-model-mb3-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 261,
+        "name": "Mainboard ASRock B760 Model-MB4 WiFi DDR4",
+        "slug": "mainboard-asrock-b760-model-mb4-wifi-ddr4",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 262,
+        "name": "Mainboard ASUS B650 Model-MB5 WiFi DDR5",
+        "slug": "mainboard-asus-b650-model-mb5-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 263,
+        "name": "Mainboard MSI B760 Model-MB6 WiFi DDR5",
+        "slug": "mainboard-msi-b760-model-mb6-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 264,
+        "name": "Mainboard Gigabyte B650 Model-MB7 WiFi DDR5",
+        "slug": "mainboard-gigabyte-b650-model-mb7-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 265,
+        "name": "Mainboard ASRock B760 Model-MB8 WiFi DDR4",
+        "slug": "mainboard-asrock-b760-model-mb8-wifi-ddr4",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 266,
+        "name": "Mainboard ASUS B650 Model-MB9 WiFi DDR5",
+        "slug": "mainboard-asus-b650-model-mb9-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 267,
+        "name": "Mainboard MSI B760 Model-MB10 WiFi DDR5",
+        "slug": "mainboard-msi-b760-model-mb10-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 268,
+        "name": "Mainboard Gigabyte B650 Model-MB11 WiFi DDR5",
+        "slug": "mainboard-gigabyte-b650-model-mb11-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 269,
+        "name": "Mainboard ASRock B760 Model-MB12 WiFi DDR4",
+        "slug": "mainboard-asrock-b760-model-mb12-wifi-ddr4",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 270,
+        "name": "Mainboard ASUS B650 Model-MB13 WiFi DDR5",
+        "slug": "mainboard-asus-b650-model-mb13-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 271,
+        "name": "Mainboard MSI B760 Model-MB14 WiFi DDR5",
+        "slug": "mainboard-msi-b760-model-mb14-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 272,
+        "name": "Mainboard Gigabyte B650 Model-MB15 WiFi DDR5",
+        "slug": "mainboard-gigabyte-b650-model-mb15-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 273,
+        "name": "Mainboard ASRock B760 Model-MB16 WiFi DDR4",
+        "slug": "mainboard-asrock-b760-model-mb16-wifi-ddr4",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 274,
+        "name": "Mainboard ASUS B650 Model-MB17 WiFi DDR5",
+        "slug": "mainboard-asus-b650-model-mb17-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 275,
+        "name": "Mainboard MSI B760 Model-MB18 WiFi DDR5",
+        "slug": "mainboard-msi-b760-model-mb18-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 276,
+        "name": "Mainboard Gigabyte B650 Model-MB19 WiFi DDR5",
+        "slug": "mainboard-gigabyte-b650-model-mb19-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 277,
+        "name": "Mainboard ASRock B760 Model-MB20 WiFi DDR4",
+        "slug": "mainboard-asrock-b760-model-mb20-wifi-ddr4",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 278,
+        "name": "Mainboard ASUS B650 Model-MB21 WiFi DDR5",
+        "slug": "mainboard-asus-b650-model-mb21-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 279,
+        "name": "Mainboard MSI B760 Model-MB22 WiFi DDR5",
+        "slug": "mainboard-msi-b760-model-mb22-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 280,
+        "name": "Mainboard Gigabyte B650 Model-MB23 WiFi DDR5",
+        "slug": "mainboard-gigabyte-b650-model-mb23-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 281,
+        "name": "Mainboard ASRock B760 Model-MB24 WiFi DDR4",
+        "slug": "mainboard-asrock-b760-model-mb24-wifi-ddr4",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 282,
+        "name": "Mainboard ASUS B650 Model-MB25 WiFi DDR5",
+        "slug": "mainboard-asus-b650-model-mb25-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 283,
+        "name": "Mainboard MSI B760 Model-MB26 WiFi DDR5",
+        "slug": "mainboard-msi-b760-model-mb26-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 284,
+        "name": "Mainboard Gigabyte B650 Model-MB27 WiFi DDR5",
+        "slug": "mainboard-gigabyte-b650-model-mb27-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 285,
+        "name": "Mainboard ASRock B760 Model-MB28 WiFi DDR4",
+        "slug": "mainboard-asrock-b760-model-mb28-wifi-ddr4",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 286,
+        "name": "Mainboard ASUS B650 Model-MB29 WiFi DDR5",
+        "slug": "mainboard-asus-b650-model-mb29-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 287,
+        "name": "Mainboard MSI B760 Model-MB30 WiFi DDR5",
+        "slug": "mainboard-msi-b760-model-mb30-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 288,
+        "name": "Mainboard Gigabyte B650 Model-MB31 WiFi DDR5",
+        "slug": "mainboard-gigabyte-b650-model-mb31-wifi-ddr5",
+        "catSlug": "mainboard",
+        "thumb": ""
+      },
+      {
+        "id": 352,
+        "name": "RAM Kingston Vengeance-R2 16GB (2x8GB) DDR5 6000MHz",
+        "slug": "ram-kingston-vengeance-r2-16gb-2x8gb-ddr5-6000mhz",
+        "catSlug": "ram",
+        "thumb": ""
+      },
+      {
+        "id": 357,
+        "name": "RAM Kingston Vengeance-R7 16GB (2x8GB) DDR5 6000MHz",
+        "slug": "ram-kingston-vengeance-r7-16gb-2x8gb-ddr5-6000mhz",
+        "catSlug": "ram",
+        "thumb": ""
+      },
+      {
+        "id": 362,
+        "name": "RAM Kingston Vengeance-R12 32GB (2x16GB) DDR4 3200MHz",
+        "slug": "ram-kingston-vengeance-r12-32gb-2x16gb-ddr4-3200mhz",
+        "catSlug": "ram",
+        "thumb": ""
+      },
+      {
+        "id": 367,
+        "name": "RAM Kingston Vengeance-R17 16GB (2x8GB) DDR5 6000MHz",
+        "slug": "ram-kingston-vengeance-r17-16gb-2x8gb-ddr5-6000mhz",
+        "catSlug": "ram",
+        "thumb": ""
+      },
+      {
+        "id": 372,
+        "name": "RAM Kingston Vengeance-R22 16GB (2x8GB) DDR5 6000MHz",
+        "slug": "ram-kingston-vengeance-r22-16gb-2x8gb-ddr5-6000mhz",
+        "catSlug": "ram",
+        "thumb": ""
+      },
+      {
+        "id": 377,
+        "name": "RAM Kingston Vengeance-R27 32GB (2x16GB) DDR5 6000MHz",
+        "slug": "ram-kingston-vengeance-r27-32gb-2x16gb-ddr5-6000mhz",
+        "catSlug": "ram",
+        "thumb": ""
+      },
+      {
+        "id": 383,
+        "name": "SSD Kingston Pro-S2 1000GB PCIe 4.0 NVMe",
+        "slug": "ssd-kingston-pro-s2-1000gb-pcie-40-nvme",
+        "catSlug": "storage",
+        "thumb": ""
+      },
+      {
+        "id": 388,
+        "name": "SSD Kingston Pro-S7 1000GB PCIe 4.0 NVMe",
+        "slug": "ssd-kingston-pro-s7-1000gb-pcie-40-nvme",
+        "catSlug": "storage",
+        "thumb": ""
+      },
+      {
+        "id": 393,
+        "name": "SSD Kingston Pro-S12 2000GB PCIe 4.0 NVMe",
+        "slug": "ssd-kingston-pro-s12-2000gb-pcie-40-nvme",
+        "catSlug": "storage",
+        "thumb": ""
+      },
+      {
+        "id": 398,
+        "name": "SSD Kingston Pro-S17 1000GB PCIe 4.0 NVMe",
+        "slug": "ssd-kingston-pro-s17-1000gb-pcie-40-nvme",
+        "catSlug": "storage",
+        "thumb": ""
+      },
+      {
+        "id": 403,
+        "name": "SSD Kingston Pro-S22 1000GB PCIe 4.0 NVMe",
+        "slug": "ssd-kingston-pro-s22-1000gb-pcie-40-nvme",
+        "catSlug": "storage",
+        "thumb": ""
+      },
+      {
+        "id": 408,
+        "name": "SSD Kingston Pro-S27 2000GB PCIe 4.0 NVMe",
+        "slug": "ssd-kingston-pro-s27-2000gb-pcie-40-nvme",
+        "catSlug": "storage",
+        "thumb": ""
+      }
+    ]
+  },
+  "falsePositivesToCpuByRyzen": [
+    {
+      "id": 661,
+      "name": "Máy chơi game cầm tay ASUS Console-CN1 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 662,
+      "name": "Máy chơi game cầm tay MSI Console-CN2 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 663,
+      "name": "Máy chơi game cầm tay Lenovo Console-CN3 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 664,
+      "name": "Máy chơi game cầm tay Razer Console-CN4 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 665,
+      "name": "Máy chơi game cầm tay ASUS Console-CN5 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 666,
+      "name": "Máy chơi game cầm tay MSI Console-CN6 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 667,
+      "name": "Máy chơi game cầm tay Lenovo Console-CN7 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 668,
+      "name": "Máy chơi game cầm tay Razer Console-CN8 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 669,
+      "name": "Máy chơi game cầm tay ASUS Console-CN9 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 670,
+      "name": "Máy chơi game cầm tay MSI Console-CN10 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 671,
+      "name": "Máy chơi game cầm tay Lenovo Console-CN11 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 672,
+      "name": "Máy chơi game cầm tay Razer Console-CN12 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 673,
+      "name": "Máy chơi game cầm tay ASUS Console-CN13 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 674,
+      "name": "Máy chơi game cầm tay MSI Console-CN14 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 675,
+      "name": "Máy chơi game cầm tay Lenovo Console-CN15 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 676,
+      "name": "Máy chơi game cầm tay Razer Console-CN16 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 677,
+      "name": "Máy chơi game cầm tay ASUS Console-CN17 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 678,
+      "name": "Máy chơi game cầm tay MSI Console-CN18 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 679,
+      "name": "Máy chơi game cầm tay Lenovo Console-CN19 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 680,
+      "name": "Máy chơi game cầm tay Razer Console-CN20 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 681,
+      "name": "Máy chơi game cầm tay ASUS Console-CN21 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 682,
+      "name": "Máy chơi game cầm tay MSI Console-CN22 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 683,
+      "name": "Máy chơi game cầm tay Lenovo Console-CN23 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 684,
+      "name": "Máy chơi game cầm tay Razer Console-CN24 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 685,
+      "name": "Máy chơi game cầm tay ASUS Console-CN25 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 686,
+      "name": "Máy chơi game cầm tay MSI Console-CN26 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 687,
+      "name": "Máy chơi game cầm tay Lenovo Console-CN27 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 688,
+      "name": "Máy chơi game cầm tay Razer Console-CN28 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 689,
+      "name": "Máy chơi game cầm tay ASUS Console-CN29 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 690,
+      "name": "Máy chơi game cầm tay MSI Console-CN30 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    },
+    {
+      "id": 691,
+      "name": "Máy chơi game cầm tay Lenovo Console-CN31 Ryzen Z1 Extreme 1TB",
+      "catSlug": "console",
+      "mappedTo": "cpu_ryzen7.jpg"
+    }
+  ],
+  "falsePositivesHeadphonesSpeakersToCamera": [],
+  "actualPrinters": [
+    {
+      "id": 723,
+      "name": "Máy in Laser HP Office-OF1 Đơn năng wifi A4",
+      "slug": "may-in-laser-hp-office-of1-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 724,
+      "name": "Máy in Laser Canon Office-OF2 Đơn năng wifi A4",
+      "slug": "may-in-laser-canon-office-of2-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 725,
+      "name": "Máy in Laser Epson Office-OF3 Đơn năng wifi A4",
+      "slug": "may-in-laser-epson-office-of3-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 726,
+      "name": "Máy in Laser Dell Office-OF4 Đơn năng wifi A4",
+      "slug": "may-in-laser-dell-office-of4-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 727,
+      "name": "Máy in Laser HP Office-OF5 Đơn năng wifi A4",
+      "slug": "may-in-laser-hp-office-of5-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 728,
+      "name": "Máy in Laser Canon Office-OF6 Đơn năng wifi A4",
+      "slug": "may-in-laser-canon-office-of6-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 729,
+      "name": "Máy in Laser Epson Office-OF7 Đơn năng wifi A4",
+      "slug": "may-in-laser-epson-office-of7-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 730,
+      "name": "Máy in Laser Dell Office-OF8 Đơn năng wifi A4",
+      "slug": "may-in-laser-dell-office-of8-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 731,
+      "name": "Máy in Laser HP Office-OF9 Đơn năng wifi A4",
+      "slug": "may-in-laser-hp-office-of9-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 732,
+      "name": "Máy in Laser Canon Office-OF10 Đơn năng wifi A4",
+      "slug": "may-in-laser-canon-office-of10-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 733,
+      "name": "Máy in Laser Epson Office-OF11 Đơn năng wifi A4",
+      "slug": "may-in-laser-epson-office-of11-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 734,
+      "name": "Máy in Laser Dell Office-OF12 Đơn năng wifi A4",
+      "slug": "may-in-laser-dell-office-of12-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 735,
+      "name": "Máy in Laser HP Office-OF13 Đơn năng wifi A4",
+      "slug": "may-in-laser-hp-office-of13-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 736,
+      "name": "Máy in Laser Canon Office-OF14 Đơn năng wifi A4",
+      "slug": "may-in-laser-canon-office-of14-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 737,
+      "name": "Máy in Laser Epson Office-OF15 Đơn năng wifi A4",
+      "slug": "may-in-laser-epson-office-of15-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 738,
+      "name": "Máy in Laser Dell Office-OF16 Đơn năng wifi A4",
+      "slug": "may-in-laser-dell-office-of16-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 739,
+      "name": "Máy in Laser HP Office-OF17 Đơn năng wifi A4",
+      "slug": "may-in-laser-hp-office-of17-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 740,
+      "name": "Máy in Laser Canon Office-OF18 Đơn năng wifi A4",
+      "slug": "may-in-laser-canon-office-of18-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 741,
+      "name": "Máy in Laser Epson Office-OF19 Đơn năng wifi A4",
+      "slug": "may-in-laser-epson-office-of19-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 742,
+      "name": "Máy in Laser Dell Office-OF20 Đơn năng wifi A4",
+      "slug": "may-in-laser-dell-office-of20-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 743,
+      "name": "Máy in Laser HP Office-OF21 Đơn năng wifi A4",
+      "slug": "may-in-laser-hp-office-of21-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 744,
+      "name": "Máy in Laser Canon Office-OF22 Đơn năng wifi A4",
+      "slug": "may-in-laser-canon-office-of22-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 745,
+      "name": "Máy in Laser Epson Office-OF23 Đơn năng wifi A4",
+      "slug": "may-in-laser-epson-office-of23-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 746,
+      "name": "Máy in Laser Dell Office-OF24 Đơn năng wifi A4",
+      "slug": "may-in-laser-dell-office-of24-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 747,
+      "name": "Máy in Laser HP Office-OF25 Đơn năng wifi A4",
+      "slug": "may-in-laser-hp-office-of25-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 748,
+      "name": "Máy in Laser Canon Office-OF26 Đơn năng wifi A4",
+      "slug": "may-in-laser-canon-office-of26-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 749,
+      "name": "Máy in Laser Epson Office-OF27 Đơn năng wifi A4",
+      "slug": "may-in-laser-epson-office-of27-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 750,
+      "name": "Máy in Laser Dell Office-OF28 Đơn năng wifi A4",
+      "slug": "may-in-laser-dell-office-of28-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 751,
+      "name": "Máy in Laser HP Office-OF29 Đơn năng wifi A4",
+      "slug": "may-in-laser-hp-office-of29-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 752,
+      "name": "Máy in Laser Canon Office-OF30 Đơn năng wifi A4",
+      "slug": "may-in-laser-canon-office-of30-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    },
+    {
+      "id": 753,
+      "name": "Máy in Laser Epson Office-OF31 Đơn năng wifi A4",
+      "slug": "may-in-laser-epson-office-of31-on-nang-wifi-a4",
+      "catSlug": "office-equipment",
+      "thumb": ""
+    }
+  ]
+}
