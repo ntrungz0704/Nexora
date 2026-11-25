@@ -1,8 +1,54 @@
-import { PrismaClient, type Prisma } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
+import { getPrismaClient } from '../../common/prisma.js';
 import { AppError } from '../../common/errors.js';
 import type { AiSurveyInput, AiRecommendationRole, ProductDto } from '@nexora/shared';
 
-const prisma = new PrismaClient();
+/**
+ * Canonical product eligibility filter enforced across all AI features:
+ * - Product must be ACTIVE (not INACTIVE or OUT_OF_STOCK)
+ * - Category must be active
+ * - Unbranded products (brandId = null) remain eligible; branded products require brand.isActive = true
+ */
+const PRODUCT_ELIGIBILITY_WHERE: Prisma.ProductWhereInput = {
+  status: 'ACTIVE',
+  category: { isActive: true },
+  OR: [{ brandId: null }, { brand: { isActive: true } }],
+};
+
+const FLOATING_CHAT_STOP_WORDS = new Set([
+  'tư',
+  'vấn',
+  'mua',
+  'bán',
+  'có',
+  'nào',
+  'tìm',
+  'cho',
+  'tôi',
+  'mình',
+  'với',
+  'giúp',
+  'xem',
+  'về',
+  'của',
+  'và',
+  'hay',
+  'là',
+  'gì',
+  'không',
+  'ạ',
+  'nhé',
+  'ơi',
+  'shop',
+]);
+
+const FLOATING_CHAT_CATEGORY_SYNONYMS: Record<string, string[]> = {
+  laptop: ['laptop', 'laptop-gaming'],
+  chuot: ['chuot', 'chuot-lot-chuot', 'mouse'],
+  'ban-phim': ['ban-phim', 'keyboard'],
+  'man-hinh': ['man-hinh', 'monitor'],
+  vga: ['vga', 'main-cpu-vga'],
+};
 
 type ProductWithCatAndBrand = Prisma.ProductGetPayload<{
   include: {
@@ -12,6 +58,7 @@ type ProductWithCatAndBrand = Prisma.ProductGetPayload<{
 }>;
 
 export class AiService {
+  constructor(private readonly db: PrismaClient = getPrismaClient()) {}
   /**
    * 1. FLOATING CHATBOT ENGINE
    * Real intent classification & product knowledge retrieval
@@ -92,20 +139,40 @@ export class AiService {
     else if (lower.includes('card') || lower.includes('vga') || lower.includes('rtx'))
       searchCategory = 'vga';
 
-    const products = await prisma.product.findMany({
-      where: {
-        status: 'ACTIVE',
-        OR: [
-          { name: { contains: lower.split(' ')[0] || '' } },
-          searchCategory ? { category: { slug: { contains: searchCategory } } } : {},
-        ],
-      },
-      include: {
-        category: { select: { id: true, name: true, slug: true } },
-        brand: { select: { id: true, name: true, slug: true } },
-      },
-      take: 3,
-    });
+    const tokens = lower
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 2 && !FLOATING_CHAT_STOP_WORDS.has(t));
+
+    const searchOrConditions: Prisma.ProductWhereInput[] = [];
+    if (tokens.length > 0) {
+      searchOrConditions.push({ name: { contains: message.trim() } });
+      for (const token of tokens.slice(0, 4)) {
+        searchOrConditions.push({ name: { contains: token } });
+      }
+    }
+    if (searchCategory) {
+      const slugs = FLOATING_CHAT_CATEGORY_SYNONYMS[searchCategory] ?? [searchCategory];
+      searchOrConditions.push({
+        category: {
+          OR: slugs.map((s) => ({ slug: { contains: s } })),
+        },
+      });
+    }
+
+    const products =
+      searchOrConditions.length > 0
+        ? await this.db.product.findMany({
+            where: {
+              AND: [PRODUCT_ELIGIBILITY_WHERE, { OR: searchOrConditions }],
+            },
+            include: {
+              category: { select: { id: true, name: true, slug: true } },
+              brand: { select: { id: true, name: true, slug: true } },
+            },
+            take: 3,
+          })
+        : [];
 
     if (products.length > 0) {
       const dtos = products.map((p) => this.mapProductToDto(p));
@@ -162,32 +229,32 @@ export class AiService {
       minBudget = input.budgetRange === 'over_35m' ? 35000000 : 40000000;
     }
 
-    // Fetch candidate products with optional category filtering
-    const whereClause: Prisma.ProductWhereInput = {
-      status: 'ACTIVE',
-    };
+    // Fetch candidate products with optional category filtering + canonical eligibility enforcement
+    const andConditions: Prisma.ProductWhereInput[] = [PRODUCT_ELIGIBILITY_WHERE];
 
     if (input.categoryPreference) {
       const cat = input.categoryPreference.toLowerCase();
       if (cat === 'laptop') {
-        whereClause.category = { slug: 'laptop' };
+        andConditions.push({ category: { slug: 'laptop' } });
       } else if (cat === 'pc') {
-        whereClause.category = { slug: 'pc' };
+        andConditions.push({ category: { slug: 'pc' } });
       } else if (cat === 'monitor') {
-        whereClause.category = { slug: 'monitor' };
+        andConditions.push({ category: { slug: 'monitor' } });
       } else if (cat === 'gear') {
-        whereClause.category = {
-          slug: {
-            in: ['keyboard', 'mouse', 'headset', 'speaker', 'chair', 'console', 'accessories'],
+        andConditions.push({
+          category: {
+            slug: {
+              in: ['keyboard', 'mouse', 'headset', 'speaker', 'chair', 'console', 'accessories'],
+            },
           },
-        };
+        });
       } else {
-        whereClause.category = { slug: cat };
+        andConditions.push({ category: { slug: cat } });
       }
     }
 
-    let candidates = await prisma.product.findMany({
-      where: whereClause,
+    let candidates = await this.db.product.findMany({
+      where: { AND: andConditions },
       include: {
         category: { select: { id: true, name: true, slug: true } },
         brand: { select: { id: true, name: true, slug: true } },
@@ -195,8 +262,8 @@ export class AiService {
     });
 
     if (candidates.length === 0) {
-      candidates = await prisma.product.findMany({
-        where: { status: 'ACTIVE' },
+      candidates = await this.db.product.findMany({
+        where: PRODUCT_ELIGIBILITY_WHERE,
         include: {
           category: { select: { id: true, name: true, slug: true } },
           brand: { select: { id: true, name: true, slug: true } },
@@ -350,7 +417,7 @@ export class AiService {
     ];
 
     // Log to AI Assistant Logs
-    await prisma.aiAssistantLog.create({
+    await this.db.aiAssistantLog.create({
       data: {
         systemType: '5_STEP_SURVEY',
         prompt: JSON.stringify(input),
@@ -388,8 +455,10 @@ export class AiService {
       }[];
     };
   }> {
-    const products = await prisma.product.findMany({
-      where: { id: { in: productIds } },
+    const products = await this.db.product.findMany({
+      where: {
+        AND: [PRODUCT_ELIGIBILITY_WHERE, { id: { in: productIds } }],
+      },
       include: {
         category: { select: { id: true, name: true, slug: true } },
         brand: { select: { id: true, name: true, slug: true } },
@@ -460,8 +529,10 @@ export class AiService {
     question: string,
     sessionId?: string,
   ): Promise<{ answer: string; productId: number }> {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
+    const product = await this.db.product.findFirst({
+      where: {
+        AND: [PRODUCT_ELIGIBILITY_WHERE, { id: productId }],
+      },
       include: { category: true, brand: true },
     });
 
@@ -489,7 +560,7 @@ export class AiService {
     }
 
     // Log to Product AI Chat History
-    await prisma.productAiChatHistory.create({
+    await this.db.productAiChatHistory.create({
       data: {
         productId,
         guestSessionId: sessionId ?? null,
