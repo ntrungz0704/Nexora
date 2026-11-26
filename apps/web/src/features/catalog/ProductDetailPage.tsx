@@ -9,7 +9,11 @@ import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import { extractReviewErrorMessage, reviewService } from '../../services/reviewService';
-import { getProductImage } from '../../lib/productImage';
+import {
+  DEFAULT_PRODUCT_FALLBACK_IMAGE,
+  getProductImage,
+  resolveProductGalleryImages,
+} from '../../lib/productImage';
 import {
   clampQuantity,
   extractQuantityErrorMessage,
@@ -173,6 +177,8 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
 
   const [quantity, setQuantity] = useState(1);
   const [quantityDraft, setQuantityDraft] = useState('1');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [brokenImageUrls, setBrokenImageUrls] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<'specs' | 'desc' | 'reviews' | 'aiChat'>('specs');
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() =>
     authService.getCurrentUser(),
@@ -519,6 +525,13 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
   const originalPrice = p;
   const discountPercent = hasDiscount ? Math.round(((p - sp) / p) * 100) : 0;
   const mainImage = getProductImage(product);
+  const galleryImages = resolveProductGalleryImages(product);
+  const safeImageIndex =
+    selectedImageIndex >= 0 && selectedImageIndex < galleryImages.length ? selectedImageIndex : 0;
+  const rawActiveImage = galleryImages[safeImageIndex] || mainImage;
+  const activeDisplayImage = brokenImageUrls[rawActiveImage]
+    ? DEFAULT_PRODUCT_FALLBACK_IMAGE
+    : rawActiveImage;
 
   const formatPrice = (val: number) => {
     return val.toLocaleString('vi-VN') + 'đ';
@@ -613,30 +626,20 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
             }}
           >
             {/* Left: Product Images */}
-            <div>
+            <div className="nexora-product-gallery">
               <div
-                style={{
-                  width: '100%',
-                  aspectRatio: '1',
-                  borderRadius: '16px',
-                  backgroundColor: '#F9FAFB',
-                  border: '1px solid var(--border, #E5E7EB)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '24px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
+                className="nexora-product-gallery-stage"
+                data-testid="product-detail-image-stage"
               >
                 <img
-                  src={mainImage}
+                  src={activeDisplayImage}
                   alt={product.name}
-                  style={{
-                    maxWidth: '90%',
-                    maxHeight: '90%',
-                    objectFit: 'contain',
-                    transition: 'transform 0.3s ease',
+                  className="nexora-product-gallery-main-img"
+                  data-testid="product-detail-main-image"
+                  onError={() => {
+                    if (!brokenImageUrls[rawActiveImage]) {
+                      setBrokenImageUrls((prev) => ({ ...prev, [rawActiveImage]: true }));
+                    }
                   }}
                 />
                 {hasDiscount && (
@@ -650,30 +653,32 @@ const ProductDetailContent: React.FC<{ slug?: string }> = ({ slug }) => {
               </div>
 
               {/* Thumbnails row */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
-                {[mainImage, mainImage, mainImage].map((img, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: '70px',
-                      height: '70px',
-                      borderRadius: '10px',
-                      border: i === 0 ? '2px solid #0A5BFF' : '1px solid var(--border)',
-                      padding: '4px',
-                      backgroundColor: '#F9FAFB',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <img
-                      src={img}
-                      alt="Thumb"
-                      style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }}
-                    />
-                  </div>
-                ))}
+              <div className="nexora-product-gallery-thumbs" data-testid="product-detail-thumbs">
+                {galleryImages.map((img, i) => {
+                  const thumbSrc = brokenImageUrls[img] ? DEFAULT_PRODUCT_FALLBACK_IMAGE : img;
+                  const isActive = i === safeImageIndex;
+                  return (
+                    <button
+                      key={`${img}-${i}`}
+                      type="button"
+                      className={`nexora-product-gallery-thumb ${isActive ? 'is-active' : ''}`}
+                      onClick={() => setSelectedImageIndex(i)}
+                      aria-label={`Xem ảnh ${i + 1} của ${product.name}`}
+                      aria-pressed={isActive}
+                    >
+                      <img
+                        src={thumbSrc}
+                        alt={`${product.name} - ảnh ${i + 1}`}
+                        className="nexora-product-gallery-thumb-img"
+                        onError={() => {
+                          if (!brokenImageUrls[img]) {
+                            setBrokenImageUrls((prev) => ({ ...prev, [img]: true }));
+                          }
+                        }}
+                      />
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

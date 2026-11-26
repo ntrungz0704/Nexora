@@ -509,3 +509,31 @@ export function getProductImage(product: Partial<ProductDto> | undefined): strin
   if (!category) return DEFAULT_PRODUCT_FALLBACK_IMAGE;
   return resolveCategoryImage(category, product, specs);
 }
+
+/**
+ * Resolve gallery image list for Product Detail view while preserving DEF-RT-01 primary mapping.
+ * Filters out missing/known-broken placeholder URLs and deduplicates entries.
+ */
+export function resolveProductGalleryImages(
+  product: (Partial<ProductDto> & { images?: unknown[] }) | undefined,
+): string[] {
+  const primary = getProductImage(product);
+  const result: string[] = [primary];
+
+  if (product && Array.isArray(product.images)) {
+    for (const entry of product.images) {
+      if (!entry || typeof entry !== 'object') continue;
+      const rawUrl = (entry as { imageUrl?: unknown }).imageUrl;
+      if (typeof rawUrl !== 'string') continue;
+      const trimmed = rawUrl.trim();
+      if (!trimmed) continue;
+      const normalized = resolveKnownOverrideThumbnail(trimmed) ?? trimmed;
+      if (shouldIgnoreGenericOrBrokenThumbnail(normalized)) continue;
+      if (!result.includes(normalized)) {
+        result.push(normalized);
+      }
+    }
+  }
+
+  return result;
+}
