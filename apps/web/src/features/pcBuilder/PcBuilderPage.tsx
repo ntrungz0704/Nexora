@@ -8,10 +8,21 @@ import { cartService } from '../../services/cartService';
 import { authService } from '../../services/authService';
 import { wishlistService } from '../../services/wishlistService';
 import { getProductImage } from '../../lib/productImage';
+import {
+  type BuilderSlotKey,
+  type CompatibilityAlert,
+  evaluateBuildCompatibility,
+  evaluateCandidateForBuild,
+  extractRamType,
+  extractSocket,
+  extractVgaRequiredPsuW,
+  isPrebuiltPcProduct,
+  isProductEligibleForSlot,
+} from '../../lib/pcBuilderCompatibility';
 import type { AuthUser, ProductDto } from '@nexora/shared';
 
 interface BuilderPartCategory {
-  key: string;
+  key: BuilderSlotKey;
   name: string;
   icon: string;
   wattage: number;
@@ -56,24 +67,6 @@ const BUILDER_PARTS: BuilderPartCategory[] = [
   { key: 'keyboard', name: 'Bàn phím', icon: 'fa-solid fa-keyboard', wattage: 0, isCore: false },
   { key: 'chair', name: 'Ghế Gaming', icon: 'fa-solid fa-chair', wattage: 0, isCore: false },
 ];
-
-function extractSocket(name: string, specs?: unknown): string | null {
-  const text = (name + ' ' + JSON.stringify(specs || {})).toUpperCase();
-  if (text.includes('LGA1700') || text.includes('LGA 1700')) return 'LGA1700';
-  if (text.includes('AM5')) return 'AM5';
-  if (text.includes('AM4')) return 'AM4';
-  if (text.includes('LGA1200') || text.includes('LGA 1200')) return 'LGA1200';
-  if (text.includes('LGA1151') || text.includes('LGA 1151')) return 'LGA1151';
-  return null;
-}
-
-function extractRamType(name: string, specs?: unknown): string | null {
-  const text = (name + ' ' + JSON.stringify(specs || {})).toUpperCase();
-  if (text.includes('DDR5')) return 'DDR5';
-  if (text.includes('DDR4')) return 'DDR4';
-  if (text.includes('DDR3')) return 'DDR3';
-  return null;
-}
 
 interface SelectedPartInfo {
   product: ProductDto | null;
@@ -147,6 +140,13 @@ export const PcBuilderPage: React.FC = () => {
   // Select a product from modal
   const handleSelectProduct = (product: ProductDto) => {
     if (!activePart) return;
+    if (!isProductEligibleForSlot(product, activePart.key)) {
+      showToast(
+        `Không thể chọn "${product.name}": không đúng loại linh kiện cho slot ${activePart.name}.`,
+      );
+      return;
+    }
+    const compat = evaluateCandidateForBuild(activePart.key, product, config);
     const price = product.salePrice ? Number(product.salePrice) : Number(product.price);
     const newConfig = {
       ...config,
@@ -160,7 +160,13 @@ export const PcBuilderPage: React.FC = () => {
     saveConfig(newConfig);
     setActivePart(null);
     setModalSearch('');
-    showToast(`Đã chọn "${product.name}" vào cấu hình.`);
+    if (compat.status === 'INCOMPATIBLE') {
+      showToast(`Cảnh báo không tương thích: ${compat.reason}`);
+    } else if (compat.status === 'COMPATIBLE') {
+      showToast(`Đã chọn "${product.name}" (${compat.reason}).`);
+    } else {
+      showToast(`Đã chọn "${product.name}" vào cấu hình.`);
+    }
   };
 
   // Toggle "Đã có sẵn" owned part
@@ -241,6 +247,11 @@ export const PcBuilderPage: React.FC = () => {
 
   const gpuMinimumWattage = useMemo(() => {
     if (!hasGpu) return 0;
+    const vgaProduct = config['vga']?.product;
+    if (vgaProduct) {
+      const fromSpecs = extractVgaRequiredPsuW(vgaProduct);
+      if (fromSpecs) return fromSpecs;
+    }
     const gpuName = (config['vga']?.name || '').toLowerCase();
     if (gpuName.includes('4090')) return 850;
     if (gpuName.includes('4080')) return 750;
@@ -255,34 +266,20 @@ export const PcBuilderPage: React.FC = () => {
     return Math.max(calc, gpuMinimumWattage, 450);
   }, [estimatedWattage, gpuMinimumWattage, hasCpu, hasGpu]);
 
+  const buildCompatibility = useMemo(() => evaluateBuildCompatibility(config), [config]);
+
   // Compatibility alerts & warnings
   const buildAlerts = useMemo(() => {
-    const alerts: { type: 'error' | 'warning'; message: string }[] = [];
+    const alerts: CompatibilityAlert[] = [];
 
-    const selectedCpu = config['cpu']?.product;
-    const selectedMb = config['mainboard']?.product;
-    const selectedRam = config['ram']?.product;
-
-    if (selectedCpu && selectedMb) {
-      const cpuSocket = extractSocket(selectedCpu.name, selectedCpu.specs);
-      const mbSocket = extractSocket(selectedMb.name, selectedMb.specs);
-      if (cpuSocket && mbSocket && cpuSocket !== mbSocket) {
-        alerts.push({
-          type: 'error',
-          message: `Lỗi Socket: CPU (${cpuSocket}) không khớp với Mainboard (${mbSocket})`,
-        });
-      }
+    for (const check of buildCompatibility.incompatibleChecks) {
+      alerts.push({ type: 'error', message: `INCOMPATIBLE: ${check.message}` });
     }
-
-    if (selectedMb && selectedRam) {
-      const mbRam = extractRamType(selectedMb.name, selectedMb.specs);
-      const ramType = extractRamType(selectedRam.name, selectedRam.specs);
-      if (mbRam && ramType && mbRam !== ramType) {
-        alerts.push({
-          type: 'error',
-          message: `Lỗi RAM: Mainboard hỗ trợ (${mbRam}) nhưng chọn RAM (${ramType})`,
-        });
-      }
+    for (const check of buildCompatibility.verifiedChecks) {
+      alerts.push({ type: 'success', message: `COMPATIBLE: ${check.message}` });
+    }
+    for (const check of buildCompatibility.unknownChecks) {
+      alerts.push({ type: 'info', message: `UNKNOWN: ${check.message}` });
     }
 
     if (flowMode !== 'upgrade') {
@@ -304,7 +301,7 @@ export const PcBuilderPage: React.FC = () => {
     }
 
     return alerts;
-  }, [config, flowMode]);
+  }, [buildCompatibility, config, flowMode]);
 
   const modalNotice = useMemo(() => {
     if (!activePart) return null;
@@ -312,66 +309,25 @@ export const PcBuilderPage: React.FC = () => {
     const selectedMb = config['mainboard']?.product;
 
     if (activePart.key === 'mainboard' && selectedCpu) {
-      const cpuSocket = extractSocket(selectedCpu.name, selectedCpu.specs);
+      const cpuSocket = extractSocket(selectedCpu);
       if (cpuSocket) {
-        return `Lọc Mainboard tương thích với Socket của CPU ${selectedCpu.name} (${cpuSocket})`;
+        return `Kiểm tra tương thích Mainboard với Socket CPU ${selectedCpu.name} (${cpuSocket})`;
       }
     }
     if (activePart.key === 'cpu' && selectedMb) {
-      const mbSocket = extractSocket(selectedMb.name, selectedMb.specs);
+      const mbSocket = extractSocket(selectedMb);
       if (mbSocket) {
-        return `Lọc CPU tương thích với Socket của Mainboard ${selectedMb.name} (${mbSocket})`;
+        return `Kiểm tra tương thích CPU với Socket Mainboard ${selectedMb.name} (${mbSocket})`;
       }
     }
     if (activePart.key === 'ram' && selectedMb) {
-      const mbRam = extractRamType(selectedMb.name, selectedMb.specs);
+      const mbRam = extractRamType(selectedMb);
       if (mbRam) {
-        return `Lọc RAM tương thích với chuẩn bộ nhớ của Mainboard ${selectedMb.name} (${mbRam})`;
+        return `Kiểm tra tương thích RAM với chuẩn bộ nhớ Mainboard ${selectedMb.name} (${mbRam})`;
       }
     }
-    return 'Tự động hiển thị linh kiện tương thích với dàn PC của bạn.';
+    return `Chỉ hiển thị đúng linh kiện thuộc nhóm ${activePart.name} và đối chiếu khi có đủ dữ liệu.`;
   }, [activePart, config]);
-
-  const getProductCompatibility = (p: ProductDto) => {
-    if (!activePart) return { compatible: true, reason: '' };
-    const selectedCpu = config['cpu']?.product;
-    const selectedMb = config['mainboard']?.product;
-
-    if (activePart.key === 'mainboard' && selectedCpu) {
-      const cpuSocket = extractSocket(selectedCpu.name, selectedCpu.specs);
-      const pSocket = extractSocket(p.name, p.specs);
-      if (cpuSocket && pSocket && cpuSocket !== pSocket) {
-        return {
-          compatible: false,
-          reason: `Socket không khớp: CPU (${cpuSocket}) vs Mainboard (${pSocket})`,
-        };
-      }
-    }
-
-    if (activePart.key === 'cpu' && selectedMb) {
-      const mbSocket = extractSocket(selectedMb.name, selectedMb.specs);
-      const pSocket = extractSocket(p.name, p.specs);
-      if (mbSocket && pSocket && mbSocket !== pSocket) {
-        return {
-          compatible: false,
-          reason: `Socket không khớp: Mainboard (${mbSocket}) vs CPU (${pSocket})`,
-        };
-      }
-    }
-
-    if (activePart.key === 'ram' && selectedMb) {
-      const mbRam = extractRamType(selectedMb.name, selectedMb.specs);
-      const pRam = extractRamType(p.name, p.specs);
-      if (mbRam && pRam && mbRam !== pRam) {
-        return {
-          compatible: false,
-          reason: `Chuẩn RAM không khớp: Mainboard (${mbRam}) vs RAM (${pRam})`,
-        };
-      }
-    }
-
-    return { compatible: true, reason: '' };
-  };
 
   // Add all newly bought components to cart
   const handleAddToCart = async () => {
@@ -394,111 +350,25 @@ export const PcBuilderPage: React.FC = () => {
     }
   };
 
-  // Filtered products for modal picker
+  // Filtered products for modal picker (strict canonical classification, zero broad keyword leak)
   const filteredModalProducts = useMemo(() => {
     if (!activePart) return [];
-    const catKey = activePart.key;
-
-    const PART_CATEGORY_MAP: Record<string, string[]> = {
-      cpu: ['cpu'],
-      mainboard: ['mainboard'],
-      ram: ['ram'],
-      vga: ['vga'],
-      storage: ['storage'],
-      psu: ['psu'],
-      case: ['case'],
-      cooler: ['cooling'],
-      monitor: ['monitor'],
-      mouse: ['mouse'],
-      keyboard: ['keyboard'],
-      chair: ['chair'],
-    };
-
-    const targetSlugs = PART_CATEGORY_MAP[catKey] || [catKey];
+    const slotKey = activePart.key;
+    const q = modalSearch.toLowerCase().trim();
 
     return allProducts.filter((p) => {
-      // 1. Text search
-      if (modalSearch.trim()) {
-        const q = modalSearch.toLowerCase().trim();
+      if (q) {
         const matchesName = p.name.toLowerCase().includes(q);
         const matchesBrand = (p.brand?.name || '').toLowerCase().includes(q);
         if (!matchesName && !matchesBrand) return false;
       }
-
-      const nameLower = p.name.toLowerCase();
-      const catSlug = (p.category?.slug || '').toLowerCase();
-
-      // Check category slug match
-      if (targetSlugs.some((s) => catSlug === s || catSlug.includes(s))) {
-        return true;
-      }
-
-      // Fallback keyword matching
-      switch (catKey) {
-        case 'cpu':
-          return (
-            nameLower.includes('cpu') ||
-            nameLower.includes('intel core') ||
-            nameLower.includes('ryzen')
-          );
-        case 'mainboard':
-          return (
-            nameLower.includes('mainboard') ||
-            nameLower.includes('bo mạch') ||
-            nameLower.includes('b760') ||
-            nameLower.includes('z790') ||
-            nameLower.includes('b650')
-          );
-        case 'ram':
-          return (
-            nameLower.includes('ram') || nameLower.includes('ddr4') || nameLower.includes('ddr5')
-          );
-        case 'vga':
-          return (
-            nameLower.includes('vga') ||
-            nameLower.includes('rtx') ||
-            nameLower.includes('card màn hình') ||
-            nameLower.includes('radeon')
-          );
-        case 'storage':
-          return (
-            nameLower.includes('ssd') || nameLower.includes('ổ cứng') || nameLower.includes('nvme')
-          );
-        case 'psu':
-          return nameLower.includes('psu') || nameLower.includes('nguồn');
-        case 'case':
-          return nameLower.includes('case') || nameLower.includes('vỏ');
-        case 'cooler':
-          return (
-            nameLower.includes('tản nhiệt') ||
-            nameLower.includes('cooler') ||
-            nameLower.includes('aio')
-          );
-        case 'monitor':
-          return nameLower.includes('màn hình');
-        case 'mouse':
-          return nameLower.includes('chuột');
-        case 'keyboard':
-          return nameLower.includes('bàn phím');
-        case 'chair':
-          return nameLower.includes('ghế');
-        default:
-          return true;
-      }
+      return isProductEligibleForSlot(p, slotKey);
     });
   }, [allProducts, activePart, modalSearch]);
 
-  // Pre-built PC products
+  // Pre-built PC products (strictly 'pc' component type)
   const prebuiltPcs = useMemo(() => {
-    return allProducts.filter(
-      (p) =>
-        p.category?.slug === 'pc' ||
-        p.category?.slug === 'pc-nexora' ||
-        p.category?.slug === 'pc-techpilot' ||
-        p.name.toLowerCase().includes('pc ') ||
-        p.name.toLowerCase().includes('creator') ||
-        p.name.toLowerCase().includes('workstation'),
-    );
+    return allProducts.filter((p) => isPrebuiltPcProduct(p));
   }, [allProducts]);
 
   return (
@@ -657,6 +527,19 @@ export const PcBuilderPage: React.FC = () => {
                                 {selected.price.toLocaleString('vi-VN')}đ
                               </span>
                             )}
+                            {!selected.isOwned &&
+                              buildCompatibility.slotStatuses[part.key] === 'INCOMPATIBLE' && (
+                                <span
+                                  style={{
+                                    fontSize: '11px',
+                                    fontWeight: 700,
+                                    color: '#DC2626',
+                                  }}
+                                >
+                                  <i className="fa-solid fa-triangle-exclamation"></i> Xung đột
+                                  tương thích
+                                </span>
+                              )}
                           </div>
                         </>
                       ) : (
@@ -823,31 +706,84 @@ export const PcBuilderPage: React.FC = () => {
                         fontWeight: 700,
                         marginBottom: '6px',
                         color: 'var(--text-primary, #0F172A)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
                       }}
                     >
-                      Kiểm tra tương thích:
+                      <span>Kiểm tra tương thích:</span>
+                      <span
+                        data-testid="pc-builder-overall-status"
+                        style={{
+                          fontSize: '11px',
+                          padding: '2px 8px',
+                          borderRadius: '999px',
+                          backgroundColor:
+                            buildCompatibility.overallStatus === 'INCOMPATIBLE'
+                              ? '#FEE2E2'
+                              : buildCompatibility.overallStatus === 'COMPATIBLE'
+                                ? '#D1FAE5'
+                                : '#F1F5F9',
+                          color:
+                            buildCompatibility.overallStatus === 'INCOMPATIBLE'
+                              ? '#DC2626'
+                              : buildCompatibility.overallStatus === 'COMPATIBLE'
+                                ? '#059669'
+                                : '#475569',
+                        }}
+                      >
+                        {buildCompatibility.overallStatus}
+                      </span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {buildAlerts.map((alert, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            backgroundColor: alert.type === 'error' ? '#FEF2F2' : '#FFFBEB',
-                            border: `1px solid ${alert.type === 'error' ? '#FCA5A5' : '#FCD34D'}`,
-                            color: alert.type === 'error' ? '#DC2626' : '#B45309',
-                            fontWeight: 600,
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          <i
-                            className={`fa-solid ${alert.type === 'error' ? 'fa-circle-exclamation' : 'fa-triangle-exclamation'}`}
-                            style={{ marginRight: '6px' }}
-                          ></i>
-                          {alert.message}
-                        </div>
-                      ))}
+                      {buildAlerts.map((alert, idx) => {
+                        const styleByType = {
+                          error: {
+                            bg: '#FEF2F2',
+                            border: '#FCA5A5',
+                            color: '#DC2626',
+                            icon: 'fa-circle-exclamation',
+                          },
+                          warning: {
+                            bg: '#FFFBEB',
+                            border: '#FCD34D',
+                            color: '#B45309',
+                            icon: 'fa-triangle-exclamation',
+                          },
+                          success: {
+                            bg: '#ECFDF5',
+                            border: '#6EE7B7',
+                            color: '#047857',
+                            icon: 'fa-circle-check',
+                          },
+                          info: {
+                            bg: '#F8FAFC',
+                            border: '#CBD5E1',
+                            color: '#475569',
+                            icon: 'fa-circle-question',
+                          },
+                        }[alert.type];
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              backgroundColor: styleByType.bg,
+                              border: `1px solid ${styleByType.border}`,
+                              color: styleByType.color,
+                              fontWeight: 600,
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            <i
+                              className={`fa-solid ${styleByType.icon}`}
+                              style={{ marginRight: '6px' }}
+                            ></i>
+                            {alert.message}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -1085,14 +1021,16 @@ export const PcBuilderPage: React.FC = () => {
                 ) : (
                   filteredModalProducts.map((p) => {
                     const price = p.salePrice ? Number(p.salePrice) : Number(p.price);
-                    const compat = getProductCompatibility(p);
+                    const compat = evaluateCandidateForBuild(activePart.key, p, config);
+                    const isIncompatible = compat.status === 'INCOMPATIBLE';
+                    const isCompatible = compat.status === 'COMPATIBLE';
                     return (
                       <div
                         key={p.id}
                         className="pc-modal-item"
                         style={{
-                          background: !compat.compatible ? '#FFF8F8' : undefined,
-                          opacity: !compat.compatible ? 0.85 : 1,
+                          background: isIncompatible ? '#FFF8F8' : undefined,
+                          borderColor: isIncompatible ? '#FCA5A5' : undefined,
                         }}
                       >
                         <img
@@ -1107,41 +1045,40 @@ export const PcBuilderPage: React.FC = () => {
                         />
                         <div className="pc-modal-item-name">
                           <span>{p.name}</span>
-                          {compat.compatible ? (
+                          {isCompatible ? (
                             <span className="pc-builder-compatibility-badge">
-                              <i className="fa-solid fa-circle-check"></i> Tương thích tốt
+                              <i className="fa-solid fa-circle-check"></i> Tương thích:{' '}
+                              {compat.reason}
+                            </span>
+                          ) : isIncompatible ? (
+                            <span className="pc-builder-blocker-badge">
+                              <i className="fa-solid fa-triangle-exclamation"></i> Không tương
+                              thích: {compat.reason}
                             </span>
                           ) : (
-                            <span className="pc-builder-blocker-badge">
-                              <i className="fa-solid fa-triangle-exclamation"></i> {compat.reason}
+                            <span className="pc-builder-unknown-badge">
+                              <i className="fa-solid fa-circle-question"></i> {compat.reason}
                             </span>
                           )}
                         </div>
                         <div className="pc-modal-item-price">{price.toLocaleString('vi-VN')}đ</div>
                         <div>
-                          {compat.compatible ? (
-                            <button
-                              type="button"
-                              className="btn-choose-item"
-                              onClick={() => handleSelectProduct(p)}
-                            >
-                              Chọn mua
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              className="btn-choose-item"
-                              style={{
-                                background: '#FEE2E2',
-                                color: '#EF4444',
-                                border: '1px solid #FCA5A5',
-                                cursor: 'not-allowed',
-                              }}
-                              disabled
-                            >
-                              Không vừa
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            className="btn-choose-item"
+                            style={
+                              isIncompatible
+                                ? {
+                                    background: '#FEE2E2',
+                                    color: '#B91C1C',
+                                    border: '1px solid #FCA5A5',
+                                  }
+                                : undefined
+                            }
+                            onClick={() => handleSelectProduct(p)}
+                          >
+                            {isIncompatible ? 'Chọn (Cảnh báo)' : 'Chọn mua'}
+                          </button>
                         </div>
                       </div>
                     );
